@@ -16,7 +16,7 @@
   function textoCodigo(u) {
     if (/github\.com/.test(u)) return 'Código en GitHub';
     if (/libstock/.test(u)) return 'Código en Libstock';
-    if (/drive\.google/.test(u)) return 'Archivos en Drive';
+    if (/drive\.google/.test(u)) return 'Programas en Drive';
     if (/wokwi/.test(u)) return 'Abrir en Wokwi';
     return 'Descargar código';
   }

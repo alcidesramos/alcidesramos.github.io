@@ -24,7 +24,7 @@ const PROYECTOS = [
   { titulo: 'Tarjetas de integración para proyectos militares', area: 'naval', anio: '2018–2023', img: 'trayectoria/tarjetas-militares.jpg', tags: ['Diseño PCB', 'COTECMAR', 'Ingeniería inversa'],
     texto: 'Tarjetas electrónicas diseñadas y fabricadas para sistemas navales.' },
   { titulo: 'Monitoreo de piscinas de camarones', area: 'industria', anio: '2014', img: 'trayectoria/camarones.jpg', tags: ['Sensores de agua', 'Comunicación RF', 'Acuicultura'],
-    texto: 'Sistema de monitoreo de variables en las piscinas de cultivo de camarón de la empresa Océanos.' },
+    texto: 'Sistema de monitoreo de variables en las piscinas de cultivo de camarón de una empresa de la región.' },
   { titulo: 'Diseño de sistema de control para ósmosis y microfiltración', area: 'industria', anio: '2022', img: 'trayectoria/osmosis-2022.jpg', tags: ['Pantalla táctil', 'Válvulas y bombas', 'Control de planta'],
     texto: 'Diseño de los tableros de control de una planta de ósmosis inversa y de microfiltración: pantalla táctil para operar válvulas, bombas y filtros, y modos de servicio y mantenimiento.' },
   { titulo: 'Sistema automático de lavado y secado', area: 'industria', anio: 'Independiente', img: 'trayectoria/lavado-secado.jpg', video: 'trayectoria/lavado-secado.mp4', tags: ['Pantalla táctil', 'Billetero', 'Temporizadores'],

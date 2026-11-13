@@ -116,7 +116,7 @@ const CURSOS = {
 "t": "Introducción",
 "d": "Indica, los temas tarjetas y software autilizar en el curso. se recomienda ver este video de la familia stm32 y el link de librerias en proteus.",
 "c": [
-"https://drive.google.com/drive/folders/1VjLJdo2JViZjM9Dd9u7iI9IoQQKvR9io?usp=drive_link"
+"https://github.com/alcidesramos/LIBRERIAS_PROTEUS_2026"
 ]
 },
 {
@@ -185,7 +185,7 @@ const CURSOS = {
 "t": "Hola mundo en un cortex m3 (blue pill) parte2 bootloader USB",
 "d": "Muestra como pasarle el bootloader USB, y configura el stm32cibeid para configuarr el proyecto y poder programar la bluepill con un simple cable USB.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5139/how-use-the-mikroe-arm-bootloader-with-blue-pill"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5139-how-use-the-mikroe-arm-bootloader-with-blue-pill"
 ]
 },
 {
@@ -264,7 +264,7 @@ const CURSOS = {
 "t": "Conceptos basicos de programacion en C++, tipos de variables usadas en STM32CubeIDE",
 "d": "Muestra los tipos de variables usadas en stm32cubeide y la importancia de saber definilas correctamente.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5179/analyzing-stm32cubeid-variable-types"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5179-analyzing-stm32cubeid-variable-types"
 ]
 },
 {
@@ -273,7 +273,7 @@ const CURSOS = {
 "t": "Display 7 segmentos basico. En ARM Keil",
 "d": "Muestra como sacar informacion por un puerto del stm32 usando registrOS, forma basica, USANDO ARM KEIL. VIDEO EN STM32CUBEID: codigo base.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5176/using-register-for-stm32-port-dispaly-example"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5176-using-register-for-stm32-port-dispaly-example"
 ]
 },
 {
@@ -282,7 +282,7 @@ const CURSOS = {
 "t": "Utilizacion del modo atomico, debugger, aplicacion operaciones logicas",
 "d": "Muestra como iniciar el debbuger parte basica, el DWT o timer para debugGer , como cargar optimamente en modo atomico los puertos y usode operadores l.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5183/use-the-atomic-mode-to-charge-port-in-stm32-debbuger-mode"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5183-use-the-atomic-mode-to-charge-port-in-stm32-debbuger-mode"
 ]
 },
 {
@@ -291,7 +291,7 @@ const CURSOS = {
 "t": "Procedimientos en C++",
 "d": "Muestra la imporetancia de los procedimientos y su aplicacion usando los conceptos de videos anteriores. Software Display.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5184/procedures-in-c-using-stm32cubeide",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5184-procedures-in-c-using-stm32cubeide",
 "https://drive.google.com/drive/folders/1wrfjkE4LovN4uvgD72u2uhpK26c7hqpc"
 ]
 },
@@ -301,7 +301,7 @@ const CURSOS = {
 "t": "Retardo us y Melodias",
 "d": "Muestra como usar en los cortex m3 hacia arriba el DWT timer para crear retardos de microsegundos, y ser usado en melodias, o crear musica. vi.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5186/microsecond-delay-and-generation-of-tones-and-melodies-in-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5186-microsecond-delay-and-generation-of-tones-and-melodies-in-st"
 ]
 },
 {
@@ -310,7 +310,7 @@ const CURSOS = {
 "t": "Multiplexacion basica siete segmentos",
 "d": "Muestra varios procedimientos y formas de usar dispaly 7 segmentos anodo o catodo de forma de multiplexado.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5191/stm32-seven-segment-display-multiplexing"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5191-stm32-seven-segment-display-multiplexing"
 ]
 },
 {
@@ -349,7 +349,7 @@ const CURSOS = {
 "t": "Entradas parte 2 (lectura modo registro, resistencia pull up, pull down",
 "d": "",
 "c": [
-"https://libstock.mikroe.com/projects/view/5202/stm32-input-manager"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5202-stm32-input-manager"
 ]
 },
 {
@@ -358,7 +358,7 @@ const CURSOS = {
 "t": "Retardos en microsegundos parte 1. Con ciclos de C++",
 "d": "Muestra como hacer retardos en microsegundos, y calibralos PARA LAS BLUE PILL Y LA BLACKPILL F401 contando ciclos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5207/delays-in-microseconds-stm32-using-cycle-count"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5207-delays-in-microseconds-stm32-using-cycle-count"
 ]
 },
 {
@@ -367,7 +367,7 @@ const CURSOS = {
 "t": "Retardos en microsegundos parte 2. Con ciclos de C++ f411",
 "d": "Muestra los parametros de calibracion para los ertardos en microsegundos para la f411.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5207/delays-in-microseconds-stm32-using-cycle-count"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5207-delays-in-microseconds-stm32-using-cycle-count"
 ]
 },
 {
@@ -376,7 +376,7 @@ const CURSOS = {
 "t": "Retardos en microsegundos parte 3.en ensamblador",
 "d": "Muestra como usar lenguaje ensambaldor para obtener retardos mas precisos en STM32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5208/stm32-microsecond-delay-using-assembler"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5208-stm32-microsecond-delay-using-assembler"
 ]
 },
 {
@@ -385,7 +385,7 @@ const CURSOS = {
 "t": "Retardos en microsegundos parte 4. Usando timers",
 "d": "Muestra como optimizar los retardos en microsegundo usando timers pero tambien los cuidados que hay que terner al hacerlo.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5210/stm32-delay-in-microseconds-using-timer"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5210-stm32-delay-in-microseconds-using-timer"
 ]
 },
 {
@@ -394,7 +394,7 @@ const CURSOS = {
 "t": "Muestro propio retardo en milisegundos",
 "d": "Adios al HAl_delay, por no ser tan preciso, muetsra como usando cualquier a de los retardos en microsegundos ya enseñados, se oprine un terado mucho m.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5209/stm32-using-our-own-delay-in-milliseconds"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5209-stm32-using-our-own-delay-in-milliseconds"
 ]
 },
 {
@@ -403,7 +403,7 @@ const CURSOS = {
 "t": "Creacion de liberias, liberias personalizadas",
 "d": "Muestra como crear las liberrias en stm32cubeide y persoibnalizarlas, esta basado en las distintas funciones d eretardos creadas en el video anetrior.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5212/stm32cubeide-creation-and-customization-of-libraries-delay-libraries-in-microseconds-and-milliseconds"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5212-stm32cubeide-creation-and-customization-of-libraries-delay-l"
 ]
 },
 {
@@ -419,7 +419,7 @@ const CURSOS = {
 "t": "Librerias LCD alfanumerico y personalizacion de caracteres",
 "d": "Librerias para manejar un LCD alfanumerico y personalizar caracteres.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5215/stm32-alphanumeric-lcd-liberias"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5215-stm32-alphanumeric-lcd-liberias"
 ]
 },
 {
@@ -428,7 +428,7 @@ const CURSOS = {
 "t": "Librerias LCD alfanumerico por I2C",
 "d": "Librerias para manejar un LCD alfanumerico POR I2C y personalizar caracteres.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5216/stm32-i2c-lcd-library"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5216-stm32-i2c-lcd-library"
 ]
 },
 {
@@ -437,7 +437,7 @@ const CURSOS = {
 "t": "Usando sprintf",
 "d": "Muestra la versalitidad de sprintf, y como confugurarla en stm32fcubeid.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5228/how-to-use-the-sprintf-function-in-stm32cubeide"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5228-how-to-use-the-sprintf-function-in-stm32cubeide"
 ]
 },
 {
@@ -446,7 +446,7 @@ const CURSOS = {
 "t": "Transmision serial, UART, simulacion en Proteus, puerto com por bluetooth",
 "d": "Muestra como simular en proteus la transmision serial y conecrar virtualmemnte y externamente con otros dispositivos, por ejemplo bluetooth en el celu.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5240/stm32-basic-serial-transmission"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5240-stm32-basic-serial-transmission"
 ]
 },
 {
@@ -455,8 +455,7 @@ const CURSOS = {
 "t": "Comunicacion UART USB o USB directo con USB CDC y un pc",
 "d": "Muestra las formas de comunicarse serialmente con un pc y un STM32 usando un cable usb uart o directamente con el micro creando un USB CDC Lin.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5247/stm32-usb-cdc-virtual-serial-com-example",
-"https://drive.google.com/file/d/1lomohk8WGz-BIwCBl-4BosPdeJD0hdZL/view?usp=share_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5247-stm32-usb-cdc-virtual-serial-com-example"
 ]
 },
 {
@@ -465,7 +464,7 @@ const CURSOS = {
 "t": "Asociar printf a un puerto serial",
 "d": "Muestra como asociar la función printf a cualquier puerto serial o uart d ela stm32, facilitando la comunicación.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5251/how-to-associate-printf-to-serial-port-in-stm32cubeide"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5251-how-to-associate-printf-to-serial-port-in-stm32cubeide"
 ]
 },
 {
@@ -474,8 +473,7 @@ const CURSOS = {
 "t": "Asociar printf a un puerto serial CDC por USB",
 "d": "Muetsra como asociar la funcion sprintf a un puerto serial USB , usando la clase CDC Driver DCD.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5252/how-to-associate-printf-to-cdc-usb-port-in-stm32cubeide",
-"https://drive.google.com/file/d/1lomohk8WGz-BIwCBl-4BosPdeJD0hdZL/view"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5252-how-to-associate-printf-to-cdc-usb-port-in-stm32cubeide"
 ]
 },
 {
@@ -484,7 +482,7 @@ const CURSOS = {
 "t": "Manejo del modulo ADC",
 "d": "Muestra como aquirir señales con el ADC y enviarlas a un LCD o puerto serial. CORRECCION: En el minuto 15.18 poner Number Discontinues conversion=1.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5253/stm32-adc-basic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5253-stm32-adc-basic"
 ]
 },
 {
@@ -493,7 +491,7 @@ const CURSOS = {
 "t": "Protocolo onewire sensor DS18B20",
 "d": "Muestra liberuias optimizadas que permite simular a 16Mhz el sensor Ds18B20 en proteus en la blue pill y black pill, ademas de forma fisica.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5285/stm32-optimized-onewire-libraries-use-with-the-ds18b20-sensor"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5285-stm32-optimized-onewire-libraries-use-with-the-ds18b20-senso"
 ]
 },
 {
@@ -502,7 +500,7 @@ const CURSOS = {
 "t": "Recepcion de ordenes serial bloqueante basica parte1",
 "d": "Muestra los principuios basicos de la recepcion serial en un stm32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5286/stm32-reception-of-basic-serial-orders-part-1"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5286-stm32-reception-of-basic-serial-orders-part-1"
 ]
 },
 {
@@ -511,7 +509,7 @@ const CURSOS = {
 "t": "Recepcion de ordenes serial bloqueante compuesta parte2",
 "d": "Muestra la forma de mandar tramas compuestas y controlar motores, led,etc por puerto serial.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5287/stm32-reception-of-composite-blocking-serial-commands"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5287-stm32-reception-of-composite-blocking-serial-commands"
 ]
 },
 {
@@ -519,9 +517,7 @@ const CURSOS = {
 "n": 41,
 "t": "Recepcion de ordenes serial compuesta por bluetooth parte3",
 "d": "Muestra como controlar la clase 40 dese una aplicacion bluettoht. Link de la apk.",
-"c": [
-"https://drive.google.com/file/d/1e3edzkAhfzMidYl9KYX1FJKsfvNGnwiR/view?usp=share_link"
-]
+"c": []
 },
 {
 "id": "I0jY57uoJws",
@@ -529,7 +525,7 @@ const CURSOS = {
 "t": "Recepcion de ordenes serial compuesta con LabVIEW parte3",
 "d": "Muetsra como utilizar labview para controla un mortor y 2 leds por ordenes seriales.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5288/stm32-serial-control-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5288-stm32-serial-control-with-labview"
 ]
 },
 {
@@ -538,7 +534,7 @@ const CURSOS = {
 "t": "Transmision serial en el micro, recepcion en LabVIEW",
 "d": "Muestra como monitorear variibales analogas y digitles desde labview comunicandose serialmente por uart ocn el stm32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5289/stm32-monitoring-of-analog-and-digital-variables-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5289-stm32-monitoring-of-analog-and-digital-variables-with-labvie"
 ]
 },
 {
@@ -547,7 +543,7 @@ const CURSOS = {
 "t": "Transmision serial en el micro, recepcion bluetooth en el celular",
 "d": "Muestra como usar la aplicacion bluetooth electronics para monitorear variables analogas y digitales en el celular.",
 "c": [
-"https://drive.google.com/file/d/1LRiLMyHyEmFMLpD5WOfAdup7TjuWfV2D/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-turbulencia-serial"
 ]
 },
 {
@@ -556,7 +552,7 @@ const CURSOS = {
 "t": "Librerias PWM para control de motores DC",
 "d": "Muestra como mediante labview y usando pwm en el stm32 controla velocidad de un motor DC con Liberrias.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5291/stm32-pwm-library-for-dc-motor-control"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5291-stm32-pwm-library-for-dc-motor-control"
 ]
 },
 {
@@ -565,7 +561,7 @@ const CURSOS = {
 "t": "Librerias para manejo de servomotores",
 "d": "Muestra la forma de manejar servomotores en coinjunto de motres dc en STM32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5292/stm32-pwm-library-for-servo-motor-control"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5292-stm32-pwm-library-for-servo-motor-control"
 ]
 },
 {
@@ -574,7 +570,7 @@ const CURSOS = {
 "t": "Libreria para MAX6675, leyendo termocupla tipo k",
 "d": "Muestra como leer termocuplas tipo K con stm32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5293/stm32-library-to-read-the-max6675-thermocouple-type-k"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5293-stm32-library-to-read-the-max6675-thermocouple-type-k"
 ]
 },
 {
@@ -583,7 +579,7 @@ const CURSOS = {
 "t": "Libreria para el sensor DHT11 t DHT22, lectura de humedad y temperatura",
 "d": "Muestra colo leer el sensor DHT11 con STM32. se anexa librería también para el DHT22.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5294/stm32-library-to-read-the-dht11-and-dht22-sensor"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5294-stm32-library-to-read-the-dht11-and-dht22-sensor"
 ]
 },
 {
@@ -592,7 +588,7 @@ const CURSOS = {
 "t": "Uso de uwtick; en sensores de lectura lenta",
 "d": "Muestra como mantener la transmision serial rapida pero la lectura lenta en un sensor de muestreo lento como el ds18b10 o el dht11.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5295/stm32-uwtick-uses-with-low-speed-sensors-dht11"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5295-stm32-uwtick-uses-with-low-speed-sensors-dht11"
 ]
 },
 {
@@ -601,7 +597,7 @@ const CURSOS = {
 "t": "Libreria para el modulo de celda de carga HX711",
 "d": "Muetsra como usar el HX711 con un STM32, tarado y calibracion d ela balanza.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5296/hx711-library-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5296-hx711-library-stm32"
 ]
 },
 {
@@ -610,7 +606,7 @@ const CURSOS = {
 "t": "Medicion de distancia con ultrasonido, sensor HC-SR04",
 "d": "Muestra mis lberrias para medir distancia con uno o varios sensores de distancia HC SR04.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5297/ultrasonic-hc-sr04-sensor-stm32-library"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5297-ultrasonic-hc-sr04-sensor-stm32-library"
 ]
 },
 {
@@ -619,8 +615,7 @@ const CURSOS = {
 "t": "Comunicacion full duplex USB serial (CDC",
 "d": "Muetsra como crear un cable usb serial para crear u n puerto con en windows y trabajar con el stm32 Drive en el pc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5302/full-duplex-communication-on-stm32-using-cdc-usb-serial",
-"https://drive.google.com/file/d/1lomohk8WGz-BIwCBl-4BosPdeJD0hdZL/view"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5302-full-duplex-communication-on-stm32-using-cdc-usb-serial"
 ]
 },
 {
@@ -629,7 +624,7 @@ const CURSOS = {
 "t": "Librerias sensor luz ambiente BH1750",
 "d": "Muestra la forme de como leer el sensor de luz ambiente BH1750.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5336/stm32-bh1750-library"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5336-stm32-bh1750-library"
 ]
 },
 {
@@ -638,7 +633,7 @@ const CURSOS = {
 "t": "Utilizando librerias de terceros, leyendo el sensor BMP280",
 "d": "Muetsra como adaptar librerias de terceros a nuestro codigo, utilizando librerias del sensor de presion y temperatura bmp280.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5339/stm32-bmp280-sensor-library"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5339-stm32-bmp280-sensor-library"
 ]
 },
 {
@@ -647,7 +642,7 @@ const CURSOS = {
 "t": "ADC blue pill, sin DMA y con DMA",
 "d": "Muestra las formas de simular en proteus al ADC de la blue pill, e introduce en el uso del DMA con el ADC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5371/bluepill-stm32-adc-with-dma"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5371-bluepill-stm32-adc-with-dma"
 ]
 },
 {
@@ -656,7 +651,7 @@ const CURSOS = {
 "t": "ADC black pill, con DMA",
 "d": "Muestra como usar con la blackpill el ADC en modo DMA, y comprueba que proteus no lo simula pero que fisicamente si fucniona.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5372/stm32-black-pill-adc-and-dma"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5372-stm32-black-pill-adc-and-dma"
 ]
 },
 {
@@ -679,7 +674,7 @@ const CURSOS = {
 "t": "Libreria para teclado matricial",
 "d": "Muestra la forma básica de utilizar el stm32 con un teclado matricIal.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5373/stm32-matrix-keyboard-library"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5373-stm32-matrix-keyboard-library"
 ]
 },
 {
@@ -725,7 +720,7 @@ const CURSOS = {
 "t": "Captura multiples teclas de un teclado matricial",
 "d": "Muestra como capturar multiples teclas de un teclado matricial usando maquinas de estado.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5399/stm32-read-multiple-keys-matrix-keyboard"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5399-stm32-read-multiple-keys-matrix-keyboard"
 ]
 },
 {
@@ -734,7 +729,7 @@ const CURSOS = {
 "t": "Lectura de sensores optico reflectivo parte 2. Calibracion y normalizacion",
 "d": "Muestra la forma de calibrar y normalizar sensores opticos reflectivos QTR.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5406/calibration-and-normalized-reading-of-qrt-sensors"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5406-calibration-and-normalized-reading-of-qrt-sensors"
 ]
 },
 {
@@ -743,7 +738,7 @@ const CURSOS = {
 "t": "Leyendo el sensor de temperatura interno de un STM32",
 "d": "Muestra la forma de leer la temperatura interna del micro usando el sensor de temperatura interno. Código.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5407/reading-internat-temperature-sensor-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5407-reading-internat-temperature-sensor-stm32"
 ]
 },
 {
@@ -775,7 +770,7 @@ const CURSOS = {
 "t": "Programando desde Matlab parte 2. Simulacion en Proteus",
 "d": "Muestra como compilar un STM32 en simulink y hacer el .hex para simularlo en proteus.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5443/matlab-simulink-stm32-proteus-simulation"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5443-matlab-simulink-stm32-proteus-simulation"
 ]
 },
 {
@@ -784,7 +779,7 @@ const CURSOS = {
 "t": "Programando desde Matlab parte 3. Programacion ST-Link v2, blackpill",
 "d": "Muestra como cargar a la black pill el codigo generado desde matlab de forma directa.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5444/simulink-build-and-programmer-stm32-wiht-st-link-v2"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5444-simulink-build-and-programmer-stm32-wiht-st-link-v2"
 ]
 },
 {
@@ -800,7 +795,7 @@ const CURSOS = {
 "t": "Librerias para el sensor LIDAR tof vl53l0x",
 "d": "Muetsra como usar la api de STM32 para manejar el lidar VL53L0X o sensor TOF.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5502/lidar-vl53l0x-tof-sensor-librarys"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5502-lidar-vl53l0x-tof-sensor-librarys"
 ]
 },
 {
@@ -809,7 +804,7 @@ const CURSOS = {
 "t": "Modulo MP3 dfplayer mis librerias",
 "d": "Librerias para manejar el modulo dfplayer mini, con stm32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5503/using-dfplayer-mini-with-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5503-using-dfplayer-mini-with-stm32"
 ]
 },
 {
@@ -825,7 +820,7 @@ const CURSOS = {
 "t": "STM32 clase en vivo 10 2023 , recepcion serial por interrpcion, DMA y inline IDLE detect10",
 "d": "Como leer por interrpcion serial usando DMA y deteccion de inactividad de linea.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5551/stm32-usart-recive-dma-inline-idle-detect"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5551-stm32-usart-recive-dma-inline-idle-detect"
 ]
 },
 {
@@ -834,7 +829,7 @@ const CURSOS = {
 "t": "HuskyLens parte 3. Librerias para STM32 reconocimiento de rotros",
 "d": "Muestra una forma basica de como reconocer rostros con la huskeycam y un stm32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5579/stm32-face-recognition-using-huskeylens"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5579-stm32-face-recognition-using-huskeylens"
 ]
 },
 {
@@ -887,7 +882,7 @@ const CURSOS = {
 "t": "2024_i sem. Clase 5 en vivo STM32. Aplicacion real de los condicionales if.leer puerto con registros",
 "d": "Muestra como usar el if. else if, else, y como leer un puerto completo a nivel de registros.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5682/stm32-read-input-with-register"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5682-stm32-read-input-with-register"
 ]
 },
 {
@@ -896,7 +891,7 @@ const CURSOS = {
 "t": "2024_i sem. Clase 5b en vivo STM32 aplicacion real de los condicionales if.leer puerto con registros",
 "d": "Muestra como usar el if. else if, else, y como leer un puerto completo a nivel de registros.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5682/stm32-read-input-with-register"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5682-stm32-read-input-with-register"
 ]
 },
 {
@@ -905,7 +900,7 @@ const CURSOS = {
 "t": "Leyendo frecuencia, modulo input capture",
 "d": "Muestra como leer la frecuencia usando el modulo input capture.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5693/stm32-read-frecuency-using-input-capture-module"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5693-stm32-read-frecuency-using-input-capture-module"
 ]
 },
 {
@@ -921,7 +916,7 @@ const CURSOS = {
 "t": "Generacion de señal PWM, control por set point motor DC, lectura de frecuencia",
 "d": "Muestra como configurar en un STM32 el modulo PWM, como amndar el set point por el puerto serial y leer la frecuancia o velocidad del motor en tiempo.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5696/dc-motor-control-with-set-point-and-pwm-enoder-reader"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5696-dc-motor-control-with-set-point-and-pwm-enoder-reader"
 ]
 },
 {
@@ -930,7 +925,7 @@ const CURSOS = {
 "t": "Librerias del modulo RFID RC522, algoritmo hash",
 "d": "Muestra como leer, el modulo RFID RC522, y el uso del algoritmo HASH.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5701/stm32-using-rc522-rfid-module"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5701-stm32-using-rc522-rfid-module"
 ]
 },
 {
@@ -946,7 +941,7 @@ const CURSOS = {
 "t": "Uso del reloj de tiempo real (rtc) en un STM32",
 "d": "Muestra como usar el RTC interno del stm32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5712/using-stm32-internal-rtcc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5712-using-stm32-internal-rtcc"
 ]
 },
 {
@@ -955,7 +950,7 @@ const CURSOS = {
 "t": "Obtencion de la curva caracteristica de un motor DC",
 "d": "Muestra como obtenr con labview la curva caracteristica de un motor DC. Video anterior.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5714/stm32-curve-of-dc-motor-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5714-stm32-curve-of-dc-motor-with-labview"
 ]
 },
 {
@@ -978,7 +973,7 @@ const CURSOS = {
 "t": "Clase virtual, macros con #define para manejo facil de pines in/out",
 "d": "Muestra como, usar #define y concatenacion, para manejar de forma mas sensoclla encender, apagar, titilar o leeer poines dela STM32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5752/easy-way-to-manage-input-and-output-in-stm32-using-macos-define"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5752-easy-way-to-manage-input-and-output-in-stm32-using-macos-def"
 ]
 },
 {
@@ -988,7 +983,7 @@ const CURSOS = {
 "d": "De memoria Muestra como cerar archivos y manejar una memorisa sd con stm32. imagen d ela memoria.",
 "c": [
 "https://drive.google.com/drive/folders/1YcyMXKKAmfClXoltpv2qeEPJ3EzXkKz-?usp=sharing",
-"https://libstock.mikroe.com/projects/view/5761/stm32-sd-library"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5761-stm32-sd-library"
 ]
 },
 {
@@ -997,7 +992,7 @@ const CURSOS = {
 "t": "Librerias control de motores paso paso. Usando LabVIEW",
 "d": "Muestra como usar mis librerias de motor paso paso, para stm32, usando interrupicones y control por puerto serial con Labview.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5763/stm32-stepper-motor-control-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5763-stm32-stepper-motor-control-with-labview"
 ]
 },
 {
@@ -1006,7 +1001,7 @@ const CURSOS = {
 "t": "Actualizacion de mis librerias para PWM",
 "d": "Muestra una manera mas eficiente la forma de crear y manipualr los PWM en STM32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5781/stm32-pwm-pwm-library-update"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5781-stm32-pwm-pwm-library-update"
 ]
 },
 {
@@ -1015,7 +1010,7 @@ const CURSOS = {
 "t": "Actualizacion de mis librerias para servos",
 "d": "Muestra una manera mas eficiente la forma de crear y manipualr los SERVO MOTORES en STM32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5783/my-stm32-servo-library-update"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5783-my-stm32-servo-library-update"
 ]
 },
 {
@@ -1024,7 +1019,7 @@ const CURSOS = {
 "t": "Usando timers para trabajar al tiempo servomotores y motores DC",
 "d": "Muestra como usar mis librerias de servomotores y de PWM al mismo tiempo, de forma independiente, o combinadas.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5784/stm32-using-servos-an-dc-motor-same-time"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5784-stm32-using-servos-an-dc-motor-same-time"
 ]
 },
 {
@@ -1034,7 +1029,7 @@ const CURSOS = {
 "d": "Muestra como leer colores, usando timers, y el sensor tcs3200 con interrupciones. en un STM32.",
 "c": [
 "https://github.com/alcidesramos/SENSOR_COLOR_tcs3200",
-"https://libstock.mikroe.com/projects/view/5823/stm32-tcs3200-color-sensor"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5823-stm32-tcs3200-color-sensor"
 ]
 },
 {
@@ -1043,7 +1038,7 @@ const CURSOS = {
 "t": "Librerias leds ws2812b, neopixel. PWM DMA",
 "d": "Muestra como manejar led ws2812 con stm32, usando PWM y DMA.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5827/stm32-ws2812b-neopixel-pwm-dma"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5827-stm32-ws2812b-neopixel-pwm-dma"
 ]
 },
 {
@@ -1066,7 +1061,7 @@ const CURSOS = {
 "t": "Introduccion a la interrupci0nes. Timers",
 "d": "Se explica que son las interrupciones, y como se configura en un STM32, usando timers.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5858/stm32-timers-interrupt"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5858-stm32-timers-interrupt"
 ]
 },
 {
@@ -1075,7 +1070,7 @@ const CURSOS = {
 "t": "Introduccion a la interrupci0nes. Int por flancos exti",
 "d": "Muestra como activar la interrupción por flanco en los STM32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5859/stm32-edge-int-exti"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5859-stm32-edge-int-exti"
 ]
 },
 {
@@ -1084,7 +1079,7 @@ const CURSOS = {
 "t": "Interrupcion serial por DMA y IDLE inline detect",
 "d": "Muestra como usar en STM32 la interrupción serial idle inline detect con DMA.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5860/stm32-inline-idle-detect-serial-int"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5860-stm32-inline-idle-detect-serial-int"
 ]
 },
 {
@@ -1093,7 +1088,7 @@ const CURSOS = {
 "t": "Interrupcion modulo input capture. Medicion de frecuencia. Lib actualizadas",
 "d": "Muestra como usar mis librerías para medir frecuencia en un stm32 y el modulo input captura.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5861/stm32-input-capture-int-frecuency-meter"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5861-stm32-input-capture-int-frecuency-meter"
 ]
 },
 {
@@ -1102,7 +1097,7 @@ const CURSOS = {
 "t": "Interrupcion modulo input capture. Lecturas de puslos PWM",
 "d": "Muestra como leer señales PWM con el modulo input capture.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5862/stm32-pwm-signal-read"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5862-stm32-pwm-signal-read"
 ]
 },
 {
@@ -1111,7 +1106,7 @@ const CURSOS = {
 "t": "Interrupcion modulo input capture. Lecturas sensor ultrasonico SFR04",
 "d": "Muestra como usar el modulo input capture para leer varios sensores ultrasónicos sfr04 al tiempo.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5863/stm32-input-capture-for-read-sfr04-sensor"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5863-stm32-input-capture-for-read-sfr04-sensor"
 ]
 },
 {
@@ -1120,7 +1115,7 @@ const CURSOS = {
 "t": "DT-06 monitoreo wifi con el celular y la app virtuino",
 "d": "Muestra como monitorear con el celular por WIFI una variables análoga y una digital con el STM3232, utilizando el modulo dt-06 y la aplicación virtuin.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5864/stm32-dt-06-wifi-monitor-with-virtuino-app"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5864-stm32-dt-06-wifi-monitor-with-virtuino-app"
 ]
 },
 {
@@ -1129,7 +1124,7 @@ const CURSOS = {
 "t": "DT-06 monitoreo wifi LabVIEW TCP cliente",
 "d": "Muestra como monitorear con Labview datos enviados desde el stm32 usando el modulo WIFI DT-06.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5865/stm32-dt-06-labiew-tcp-client-monitor"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5865-stm32-dt-06-labiew-tcp-client-monitor"
 ]
 },
 {
@@ -1138,7 +1133,7 @@ const CURSOS = {
 "t": "DT-06 control y monitoreo por wifi app virtuino",
 "d": "Muestra como, con un STM32 monitorear y controlar por WIFi usando la aplicación virtuino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5866/stm32-wifi-control-and-monitor-using-virtuino-app"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5866-stm32-wifi-control-and-monitor-using-virtuino-app"
 ]
 },
 {
@@ -1147,7 +1142,7 @@ const CURSOS = {
 "t": "DT-06 control y monitoreo por wifi con LabVIEW",
 "d": "Muestra como controlar y monitorear con un stm32 con wifi y labview usando el DT-06.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5867/stm32-dt-06-labview-monitor-and-control"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5867-stm32-dt-06-labview-monitor-and-control"
 ]
 },
 {
@@ -1156,7 +1151,7 @@ const CURSOS = {
 "t": "DT-06 conexion IoT a Ubidots , transmison, recepcion y eventos",
 "d": "Muestra como hacer una aplicación Iot con STM32, el mopdulo DT-06 y ubidots.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5868/stm32-dt-06-iot-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5868-stm32-dt-06-iot-ubidots"
 ]
 },
 {
@@ -1172,7 +1167,7 @@ const CURSOS = {
 "t": "Modos de bajo consumo",
 "d": "Muestra como usar y cuanto se ahorra el uso de los modos de bajo consumo en un stm32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5869/stm32-low-power-modes"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5869-stm32-low-power-modes"
 ]
 },
 {
@@ -1181,7 +1176,7 @@ const CURSOS = {
 "t": "Dimmer AC, control de energia cargas AC. Cruce por cero",
 "d": "Muestra toda la teoría, diseño y programación de un sistema de detección de cruce por cero y control de una carga ac , simulado e implementado en dos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5870/stm32-ac-dimmer"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5870-stm32-ac-dimmer"
 ]
 },
 {
@@ -1189,18 +1184,14 @@ const CURSOS = {
 "n": 100,
 "t": "Crea tus propias fuentes y tipos de letras en pantallas OLED",
 "d": "Muestro como usando el software GLCD Font Creator de Mikroe, crear fuentes propias en pantalla oled.",
-"c": [
-"https://libstock.mikroe.com/projects/submit"
-]
+"c": []
 },
 {
 "id": "Z5W8TQkbXdw",
 "n": 101,
 "t": "Imagenes y figuras en pantalla OLED, actualizacion de mis librerias",
 "d": "Actualización de mis librerías para OLED, y uso para mostrar figuras y dibujos.",
-"c": [
-"https://libstock.mikroe.com/projects/submit"
-]
+"c": []
 },
 {
 "id": "zPzmOXfuAHU",
@@ -1208,7 +1199,7 @@ const CURSOS = {
 "t": "Lleva tu STM32 a otro nivel, como activar librerias CMSIS-DSP",
 "d": "Muestra como integrar las librerias de DSP CMSIS en un stm32 en stm32cubeide.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5877/using-cmsis-dsp-library-on-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5877-using-cmsis-dsp-library-on-stm32"
 ]
 },
 {
@@ -1217,7 +1208,7 @@ const CURSOS = {
 "t": "Dimmer AC, control de carga AC mediante comandos seriales",
 "d": "Es una extensión de mi video de dimmer ac, ahora con carga serial.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5879/dimmer-ac-stm32-uart-control"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5879-dimmer-ac-stm32-uart-control"
 ]
 },
 {
@@ -1226,7 +1217,7 @@ const CURSOS = {
 "t": "Actualizacion de mis librerias recepcion serial DMA inline detect",
 "d": "Muestra como usar múltiples interrupciones USART por inline detect y DMA Actualice e manejo de errores subí nuevo código, se debe en el archivo UARTRX.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5886/stm32-multiple-uart-interrupt-inline-detect-dma",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5886-stm32-multiple-uart-interrupt-inline-detect-dma",
 "https://github.com/alcidesramos/INT-_multiple_RX"
 ]
 },
@@ -1236,7 +1227,7 @@ const CURSOS = {
 "t": "Detectando colores con el sensor tcs34725",
 "d": "Muestra como leer colores con el sensor tcs34725 por i2c y un STM32, blackpill.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5888/stm32-color-with-tcs34725-sensor"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5888-stm32-color-with-tcs34725-sensor"
 ]
 },
 {
@@ -1245,7 +1236,7 @@ const CURSOS = {
 "t": "Obtener posición y velocidad de varios encoders de cuadratura, sin librerías",
 "d": "Muestra como leer posición y velocidad de varios encoders de cuadratura sin el uso de librerías.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5889/stm32-reading-multiple-quadrature-encoders-without-libraries"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5889-stm32-reading-multiple-quadrature-encoders-without-libraries"
 ]
 },
 {
@@ -1261,7 +1252,7 @@ const CURSOS = {
 "t": "Mis librerías para leer datos desde un GPS",
 "d": "Muestra como leer datos asociados a un GPS.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5891/stm32-gps-library"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5891-stm32-gps-library"
 ]
 },
 {
@@ -1270,7 +1261,7 @@ const CURSOS = {
 "t": "Mis librerías para manejo de pantallas HMI Nextion con STM32",
 "d": "Muestra como interactuar con las pantallas Nextion y los stm32 charla.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5892/stm32-hmi-nextion-lcd-library"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5892-stm32-hmi-nextion-lcd-library"
 ]
 },
 {
@@ -1280,7 +1271,7 @@ const CURSOS = {
 "d": "Muestra como usar el hx710 para leer un sensor de presión.",
 "c": [
 "https://github.com/alcidesramos/HX10_PRESS",
-"https://libstock.mikroe.com/projects/view/5894/reading-pressure-with-hx710-sensor"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5894-reading-pressure-with-hx710-sensor"
 ]
 },
 {
@@ -1290,7 +1281,7 @@ const CURSOS = {
 "d": "Muestra como guardar datos en la memoria flash interna y los cuidados a tener en cuenta.",
 "c": [
 "https://github.com/alcidesramos/memoria_flash",
-"https://libstock.mikroe.com/projects/view/5895/stm32-write-and-read-flash-memory"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5895-stm32-write-and-read-flash-memory"
 ]
 },
 {
@@ -1299,7 +1290,7 @@ const CURSOS = {
 "t": "Curso STM32 - clase xxx: librerias sensor inercial gy85",
 "d": "Muestra como leer el sensor inercial GY85.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5898/stm32-gy85-imu"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5898-stm32-gy85-imu"
 ]
 },
 {
@@ -1309,7 +1300,7 @@ const CURSOS = {
 "d": "Muestra como llevar una señal de audio de pc o celular a un stm32 y detectar nivel de audio para vumetros u otras aplicaciones.",
 "c": [
 "https://github.com/alcidesramos/AUDIO",
-"https://libstock.mikroe.com/projects/view/5902/stm32-analoge-audio-peak-detect"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5902-stm32-analoge-audio-peak-detect"
 ]
 },
 {
@@ -1326,7 +1317,7 @@ const CURSOS = {
 "d": "Muestra como controlar con un Stm32 una fuente conmutada BUCK a lazo abierto.",
 "c": [
 "https://github.com/alcidesramos/conmutada_LAZO_ABIERTO",
-"https://drive.google.com/file/d/1DmE213u15BrmVZn4I0cGmAk9gsS8UYU5/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-fuente-conmutada"
 ]
 },
 {
@@ -1336,7 +1327,7 @@ const CURSOS = {
 "d": "Muestra mis Liberarías PID aplicada a una fuente conmutada.",
 "c": [
 "https://github.com/alcidesramos/conmutada_cana_PID",
-"https://drive.google.com/file/d/1a35AZ96mtTlGVrcIbqxZzM45NBhm3eVc/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-fuente-conmutada-pid"
 ]
 },
 {
@@ -1346,7 +1337,7 @@ const CURSOS = {
 "d": "Muestra como controlar la velocidad de un motor dc a lazo abierto Explicacion detallada librerias de PWM y Frecuencia.",
 "c": [
 "https://github.com/alcidesramos/LAZO_ABIERTO",
-"https://drive.google.com/file/d/13UCQEH-ST5uGvclOdlx59qR7xFNxSsPl/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-control-motor-dc"
 ]
 },
 {
@@ -1356,7 +1347,7 @@ const CURSOS = {
 "d": "Muestra como seleccionar y establecer un tiempo de muestreo preciso en el sistema de control.",
 "c": [
 "https://github.com/alcidesramos/CONTROL_MOTOR_MUESTREO",
-"https://drive.google.com/file/d/1GJAULEkyP9MTW935h-LjOykcdvkF5z4p/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-control-motor-muestreo"
 ]
 },
 {
@@ -1366,7 +1357,7 @@ const CURSOS = {
 "d": "Muestra como adecuar la entrada y salida del sistema y graficarlas en serial osciloscopio y en Teleplot para posterior identificación.",
 "c": [
 "https://github.com/alcidesramos/ADQUISION",
-"https://drive.google.com/file/d/1de0HuV2aXNh7Xepf2ogyOmvpkpmhgy_x/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-motor-adquisicion"
 ]
 },
 {
@@ -1376,7 +1367,7 @@ const CURSOS = {
 "d": "Muestra como graficar datos en Matlab, a una respuesta pulso y usar el PID tuner para identificación de la planta y sintonización.",
 "c": [
 "https://github.com/alcidesramos/Identificacion_PID1",
-"https://drive.google.com/file/d/1iSSnN7UczN2jf_PVU2CoSY21rZtHn2dd/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-identificacion-pid-1"
 ]
 },
 {
@@ -1386,7 +1377,7 @@ const CURSOS = {
 "d": "Muestra como identificar una planta y sintonizar un PID con Matlab usando PID Turner basado en los datos de entrada y salida del sistema.",
 "c": [
 "https://github.com/alcidesramos/Identificacion_PID2",
-"https://drive.google.com/file/d/16vwRZeWeC2RdQiOky8dDvbuj90f5alUo/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-identificacion-pid-2"
 ]
 },
 {
@@ -1396,7 +1387,7 @@ const CURSOS = {
 "d": "Muestra como leer por i2c el sensor MS5611.",
 "c": [
 "https://github.com/alcidesramos/ms5611_arz_presion",
-"https://drive.google.com/file/d/16sMbyh1n0JbV87lj9kwKCT5sAuCnpGkc/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-ms5611-presion"
 ]
 },
 {
@@ -1406,7 +1397,7 @@ const CURSOS = {
 "d": "Muestra como usar librerías C++ en mi proyecto, o convertir un proyecto que tenia en c , para que use librerías c++.",
 "c": [
 "https://github.com/alcidesramos/cpp_canal",
-"https://libstock.mikroe.com/projects/view/5906/using-c-code-with-stm32cubeid-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5906-using-c-code-with-stm32cubeid-stm32"
 ]
 },
 {
@@ -1430,7 +1421,7 @@ const CURSOS = {
 "d": "Muestra como usar mis librerías para mostrar imágenes y texto en una pantalla TFT.",
 "c": [
 "https://github.com/alcidesramos/TFT_ILI9225",
-"https://drive.google.com/file/d/1sktfH0YwvitX58zW_rFECGwK1i8fS9QL/view?usp=sharing"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-tft-ili9225"
 ]
 },
 {
@@ -1440,7 +1431,7 @@ const CURSOS = {
 "d": "Muestra como configurar y sacar textos en un TFT ocn el driver ili9488.",
 "c": [
 "https://github.com/alcidesramos/TFT_ILI9488_CANAL",
-"https://drive.google.com/file/d/1aD7IZt49037uhP7EDJYp5G1DkBVHnxIn/view?usp=sharing"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-tft-ili9488"
 ]
 },
 {
@@ -1450,7 +1441,7 @@ const CURSOS = {
 "d": "Muestra como mostrar figuras e imágenes en una pantalla con driver ILI9488.",
 "c": [
 "https://github.com/alcidesramos/TFT_ILI9488_CANAL",
-"https://drive.google.com/file/d/1aD7IZt49037uhP7EDJYp5G1DkBVHnxIn/view?usp=sharing"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-tft-ili9488"
 ]
 },
 {
@@ -1460,7 +1451,7 @@ const CURSOS = {
 "d": "Muestra como usar la pantalla TFT para agregar interactividad a las variables.",
 "c": [
 "https://github.com/alcidesramos/TFT_ILI9488_CANAL",
-"https://drive.google.com/file/d/1aD7IZt49037uhP7EDJYp5G1DkBVHnxIn/view?usp=sharing"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-tft-ili9488"
 ]
 },
 {
@@ -1470,7 +1461,7 @@ const CURSOS = {
 "d": "Muestra como leer el sensor adxl365.",
 "c": [
 "https://github.com/alcidesramos/ADXL345_CANAL",
-"https://drive.google.com/file/d/1NG_zVdqUQ4y9mGVOY9hRI6SXdu-IOP2A/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-adxl345"
 ]
 },
 {
@@ -1480,7 +1471,7 @@ const CURSOS = {
 "d": "Muestra como adapte unas librerías de tercero para usar la pantalla TFT ILI9341 o la ST7789V.",
 "c": [
 "https://github.com/alcidesramos/TFT_CANAL_ILI9341",
-"https://drive.google.com/file/d/1g1ds6U4FIIz3gOg-dqvleFqzt7fmWWzE/view?usp=sharing"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-tft-ili9341"
 ]
 },
 {
@@ -1888,7 +1879,7 @@ const CURSOS = {
 "t": "Introduccion a las interrupciones STM32, control   carrito de Proteus desde LabVIEW",
 "d": "Muestra como crear interrpciones para timers e interrupciones externas control de carro de proteus desde labview.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5317/stm32-timer-extern-interrut"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5317-stm32-timer-extern-interrut"
 ],
 "s": "2023-I",
 "f": "2023-05-02"
@@ -1899,7 +1890,7 @@ const CURSOS = {
 "t": "Introduccion a las interrupciones STM32, control   carrito de Proteus desde LabVIEW",
 "d": "AUDIO MEJORADO Muestra como crear interrpciones para timers e interrpciones externas control de carro de proteus desde labview.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5317/stm32-timer-extern-interrut"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5317-stm32-timer-extern-interrut"
 ],
 "s": "2023-I",
 "f": "2023-05-04"
@@ -1910,7 +1901,7 @@ const CURSOS = {
 "t": "Interrucpion recepcion serial",
 "d": "Muestra como recibir ordenes seriales por interrpcion y poder transmitir, comunicacion full duplex.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5323/basic-serial-interrupt-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5323-basic-serial-interrupt-stm32"
 ],
 "s": "2023-I",
 "f": "2023-05-10"
@@ -1975,7 +1966,7 @@ const CURSOS = {
 "t": "Control on off con Matlab y la blackpill",
 "d": "Muestra como hacer un control on off, con matlab y la black pill.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5452/on-off-control-with-matlab-and-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5452-on-off-control-with-matlab-and-stm32"
 ],
 "s": "2023-II",
 "f": "2023-09-06"
@@ -2079,7 +2070,7 @@ const CURSOS = {
 "t": "Aplicacion real de los condicionales if.leer puerto con registros",
 "d": "Muestra como usar el if. else if, else, y como leer un puerto completo a nivel de registros.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5682/stm32-read-input-with-register"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5682-stm32-read-input-with-register"
 ],
 "s": "2024-I",
 "f": "2024-03-08"
@@ -2090,7 +2081,7 @@ const CURSOS = {
 "t": "Aplicacion real de los condicionales if.leer puerto con registros",
 "d": "Muestra como usar el if. else if, else, y como leer un puerto completo a nivel de registros.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5682/stm32-read-input-with-register"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5682-stm32-read-input-with-register"
 ],
 "s": "2024-I",
 "f": "2024-03-09"
@@ -2155,7 +2146,7 @@ const CURSOS = {
 "t": "Puente en h, control giro motor simualcion Proteus, bluetooh",
 "d": "Muestra como controlar el carrito simulado de proteus, y crear un puerto serial por bluetooth para posteriormente utilizarlo.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5710/stm32-class-h-bridge-dc-motor"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5710-stm32-class-h-bridge-dc-motor"
 ],
 "s": "2024-I",
 "f": "2024-04-26"
@@ -2166,7 +2157,7 @@ const CURSOS = {
 "t": "Recepcion de ordenes seriales, modo bloqueante",
 "d": "Muestra como recibir ordes seriales en el micro, y manejar actuadofes o indicadores.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5711/stm32-serial-receive"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5711-stm32-serial-receive"
 ],
 "s": "2024-I",
 "f": "2024-04-30"
@@ -2177,7 +2168,7 @@ const CURSOS = {
 "t": "Manejo de motores DC y servomotores, recepcion serial con valores",
 "d": "Muestra como manejar servos y motores dc, forma basica sin librerias.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5716/dc-motor-and-servo-control-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5716-dc-motor-and-servo-control-stm32"
 ],
 "s": "2024-I",
 "f": "2024-05-08"
@@ -2188,7 +2179,7 @@ const CURSOS = {
 "t": "Recepcion serial por interrupcion  inline IDLE detect",
 "d": "",
 "c": [
-"https://libstock.mikroe.com/projects/view/5551/stm32-usart-recive-dma-inline-idle-detect"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5551-stm32-usart-recive-dma-inline-idle-detect"
 ],
 "s": "2024-I",
 "f": "2024-05-16"
@@ -2199,7 +2190,7 @@ const CURSOS = {
 "t": "Macros con #define para manejo facil de pines in/out",
 "d": "Muestra como, usar #define y concatenacion, para manejar de forma mas sensoclla encender, apagar, titilar o leeer poines dela STM32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5752/easy-way-to-manage-input-and-output-in-stm32-using-macos-define"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5752-easy-way-to-manage-input-and-output-in-stm32-using-macos-def"
 ],
 "s": "2024-II",
 "g": [
@@ -2285,7 +2276,7 @@ const CURSOS = {
 "t": "Creacion de tonos y melodias",
 "d": "Explicaocmo crear retarods de microsegundo para posteriormente usarlo en melodias.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5788/melody-in-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5788-melody-in-stm32"
 ],
 "s": "2024-II",
 "f": "2024-08-31"
@@ -2317,7 +2308,7 @@ const CURSOS = {
 "t": "Manejo básico de un LCD",
 "d": "",
 "c": [
-"https://libstock.mikroe.com/projects/view/5810/stm32-lcd-basic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5810-stm32-lcd-basic"
 ],
 "s": "2024-II",
 "g": [
@@ -2331,7 +2322,7 @@ const CURSOS = {
 "t": "EL ADC, Lectura diferentes sensores analogos",
 "d": "Codigo.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5812/stm32-adc-dma"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5812-stm32-adc-dma"
 ],
 "s": "2024-II",
 "g": [
@@ -2381,7 +2372,7 @@ const CURSOS = {
 "t": "Control con wifi,modulo DT-06 ,con el pc y el celular",
 "d": "Muestra como controlar por wifi usando el celular un stm32 y el modulo DT-06.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5837/stm32-wifi-control-tcp-controller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5837-stm32-wifi-control-tcp-controller"
 ],
 "s": "2024-II",
 "f": "2024-11-11"
@@ -2392,7 +2383,7 @@ const CURSOS = {
 "t": "Creacion de librerias, uso de librerias, conflictos entre librerias",
 "d": "Muestra como crear librerías en stm32cubeide, usar librerías de terceros y solucionar problemas entre librerías.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5876/using-library-on-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5876-using-library-on-stm32"
 ],
 "s": "2025-I",
 "f": "2025-03-18"
@@ -2403,7 +2394,7 @@ const CURSOS = {
 "t": "Librerias pantallas OLED y transmision serial",
 "d": "Muestra el uso de librerias oled y comunicación serial.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5878/stm32-class-about-oled-and-uart"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5878-stm32-class-about-oled-and-uart"
 ],
 "s": "2025-I",
 "f": "2025-03-25"
@@ -2414,7 +2405,7 @@ const CURSOS = {
 "t": "ADC varios canales  DMA, comunicacion UART, USB-CDC, bluetooth, wifi",
 "d": "Muestra como leer seriarmente varios canales con DMA, transmitir la información: USB CDC, UART USB, Bluetooth o WIFI.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5881/adc-dma-bluetooh-wifi-comunication-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5881-adc-dma-bluetooh-wifi-comunication-stm32"
 ],
 "s": "2025-I",
 "f": "2025-04-03"
@@ -2425,7 +2416,7 @@ const CURSOS = {
 "t": "Recepcion, serial y wifi en LabVIEW, app monitoreo en celular",
 "d": "Comunica el stm32 con LabVIEW por wifi o celular.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5884/stm32-and-labview-wifi-and-serial-read-celualr-app"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5884-stm32-and-labview-wifi-and-serial-read-celualr-app"
 ],
 "s": "2025-I",
 "f": "2025-04-12"
@@ -2464,7 +2455,7 @@ const CURSOS = {
 "d": "Muestra mis Liberarías PID aplicada a una fuente conmutada.",
 "c": [
 "https://github.com/alcidesramos/conmutada_cana_PID",
-"https://drive.google.com/file/d/1a35AZ96mtTlGVrcIbqxZzM45NBhm3eVc/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-fuente-conmutada-pid"
 ],
 "s": "2025-I",
 "f": "2025-06-01"
@@ -3106,7 +3097,7 @@ const CURSOS = {
 "t": "Introducción",
 "d": "Indica, los temas tarjetas y software autilizar en el curso. se recomienda ver este video de la familia stm32 y el link de librerias en proteus.",
 "c": [
-"https://drive.google.com/drive/folders/1VjLJdo2JViZjM9Dd9u7iI9IoQQKvR9io?usp=drive_link"
+"https://github.com/alcidesramos/LIBRERIAS_PROTEUS_2026"
 ]
 },
 {
@@ -3154,7 +3145,7 @@ const CURSOS = {
 "t": "Display 7 segmentos basico. En ARM Keil",
 "d": "Muestra como sacar informacion por un puerto del stm32 usando registrOS, forma basica, USANDO ARM KEIL. VIDEO EN STM32CUBEID: codigo base.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5176/using-register-for-stm32-port-dispaly-example"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5176-using-register-for-stm32-port-dispaly-example"
 ]
 },
 {
@@ -3207,7 +3198,7 @@ const CURSOS = {
 "t": "Lleva tu STM32 a otro nivel, como activar librerias CMSIS-DSP",
 "d": "Muestra como integrar las librerias de DSP CMSIS en un stm32 en stm32cubeide.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5877/using-cmsis-dsp-library-on-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5877-using-cmsis-dsp-library-on-stm32"
 ]
 }
 ]
@@ -3246,7 +3237,7 @@ const CURSOS = {
 "t": "Curso Mikroc pro for DSPIC",
 "d": "Muestra, mediante tarjetas entrenadoras programa básico de hola mundo, para diferentes tipos de DSPIC utilizando Mikroc Pro for DSPIC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2783/dspic-30f-33f-33ep-hello-word"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2783-dspic-30f-33f-33ep-hello-word"
 ]
 },
 {
@@ -3255,7 +3246,7 @@ const CURSOS = {
 "t": "Curso de MPLAB xc 16 dsPIC",
 "d": "Muestra, mediante tarjetas entrenadoras programa básico de hola mundo, para diferentes tipos de DSPIC utilizando Mplab xc16.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2843/mplab-xc16-dspic-30f-33f-33ep-hello-word"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2843-mplab-xc16-dspic-30f-33f-33ep-hello-word"
 ]
 },
 {
@@ -3285,7 +3276,7 @@ const CURSOS = {
 "t": "Multiplexacion, Generación de Archivos .cof",
 "d": "Multiplaxación 7 segmento mikroc y pic. debbuger por software. generar archivos .cof mikroc Video similar en.",
 "c": [
-"https://libstock.mikroe.com/projects/view/1118/4-seven-segment-display-counter-multiplexacion"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/1118-4-seven-segment-display-counter-multiplexacion"
 ]
 },
 {
@@ -3364,7 +3355,7 @@ const CURSOS = {
 "t": "Switch case y maquinas de estado",
 "d": "Muestra como usar el switch-case para elaborar maquinas de estados , usando un 12f1822. Bajar.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2591/state-machine-using-switch-case"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2591-state-machine-using-switch-case"
 ]
 },
 {
@@ -3380,7 +3371,7 @@ const CURSOS = {
 "t": "LCD por I2C",
 "d": "Muestra mis librerias para manejar un lcd por i2c.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2413/lcd-i2c-with-pcf8574-software-and-hardwre-function"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2413-lcd-i2c-with-pcf8574-software-and-hardwre-function"
 ]
 },
 {
@@ -3389,7 +3380,7 @@ const CURSOS = {
 "t": "Creación e instalación de libreriaS",
 "d": "Muestra como usar, crear e instalar librerías en mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2602/library-for-i2c-lcd"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2602-library-for-i2c-lcd"
 ]
 },
 {
@@ -3398,7 +3389,7 @@ const CURSOS = {
 "t": "Funciones de conversiones a cadena en C y en Mikroc",
 "d": "Muestras las diferentes formas de usar las librerias de mikroc y de C para convertir variables a cadenas con formato. ver.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2609/use-the-conversion-library-in-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2609-use-the-conversion-library-in-mikroc"
 ]
 },
 {
@@ -3407,7 +3398,7 @@ const CURSOS = {
 "t": "El ADC",
 "d": "Tips para usar el conversor analogo digital ADC en cualquier microcontrolador PIC y Mikroc. Video para complementar el temas, usando remapeo de la señal, y mejorando la configuración de…",
 "c": [
-"https://libstock.mikroe.com/projects/view/2632/tips-for-use-the-adc-module-in-whatever-pic-microcontroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2632-tips-for-use-the-adc-module-in-whatever-pic-microcontroller"
 ]
 },
 {
@@ -3423,7 +3414,7 @@ const CURSOS = {
 "t": "Modulo PWM",
 "d": "Muestra el control de velocidad y sentido de dos motores usando el modulo PWM.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2666/using-the-pwm-for-speed-control-of-dc-motors"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2666-using-the-pwm-for-speed-control-of-dc-motors"
 ]
 },
 {
@@ -3432,7 +3423,7 @@ const CURSOS = {
 "t": "Remapeo valores y tips de diseño hardware",
 "d": "TIPS de diseño para un circuito robusto , filtrar y eliminar ruidos asociados a cargas inductivas. y función para remapear variables.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2670/using-the-function-of-remapping-varibles-to-scale-values-in-a-microcontroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2670-using-the-function-of-remapping-varibles-to-scale-values-in-"
 ]
 },
 {
@@ -3441,7 +3432,7 @@ const CURSOS = {
 "t": "DAC con PWM",
 "d": "Muestra como general voltajes d 5 o 12v con pwm usandolo como DAC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2689/using-the-pwm-as-dac"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2689-using-the-pwm-as-dac"
 ]
 },
 {
@@ -3450,7 +3441,7 @@ const CURSOS = {
 "t": "Modulo DAC interno",
 "d": "Muestra, como usar el modulo DAC, interno en los nuevos microcontroladores y el modulo de amplificadores operacionales.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2690/using-the-dac-in-the-new-pic-microcontrollers"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2690-using-the-dac-in-the-new-pic-microcontrollers"
 ]
 },
 {
@@ -3459,7 +3450,7 @@ const CURSOS = {
 "t": "Tip para usar librerías hechas en Mplab XC8",
 "d": "Muesta como utilizar código elaborado con Mplab code configurator en Mikroc por for PIC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2714/how-to-use-mplab-code-configurator-code-in-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2714-how-to-use-mplab-code-configurator-code-in-mikroc"
 ]
 },
 {
@@ -3475,7 +3466,7 @@ const CURSOS = {
 "t": "Tip para la transmisión serial UART",
 "d": "Muestra omo transmitir valores enteros y flotantes con mikroc, teniendo en cuenta la optimización de memoria.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2721/tips-for-basic-information-sensors-transmition-for-serial-uart"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2721-tips-for-basic-information-sensors-transmition-for-serial-ua"
 ]
 },
 {
@@ -3484,7 +3475,7 @@ const CURSOS = {
 "t": "Transmisión serial con Paridad Par o Impar",
 "d": "Muestra como configurar el micro para transmitir con paridad PAR o IMPAR.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2722/serial-transmission-by-even-or-odd-parity"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2722-serial-transmission-by-even-or-odd-parity"
 ]
 },
 {
@@ -3494,7 +3485,7 @@ const CURSOS = {
 "d": "Se muestra para aquellos que ya tienen la plataforma y quiera empezar a programar PICS, un proyecto que permite que uses el compilador que desees para programar tu pic, pero uses el…",
 "c": [
 "https://github.com/alcidesramos/PROGRAMADOR_PIC_CON_ARDUINO_ARZ",
-"https://libstock.mikroe.com/projects/view/2745/using-arduino-to-programmer-pics-microcontroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2745-using-arduino-to-programmer-pics-microcontroller"
 ]
 },
 {
@@ -3510,7 +3501,7 @@ const CURSOS = {
 "t": "Comparando CCS, mikro y XC8 en recursos",
 "d": "Sto es un reto del amigo MARIANO ROCHA (del grupo de face programando PICs primer nivel), que quise cumplir pero de forma ilustrativa. Muestra de manera informativa, y sin tratar de…",
 "c": [
-"https://libstock.mikroe.com/projects/view/2968/analyzing-three-pic-compilers-using-a-loop"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2968-analyzing-three-pic-compilers-using-a-loop"
 ]
 },
 {
@@ -3526,7 +3517,7 @@ const CURSOS = {
 "t": "Como utilizar el modulo sleep en un microcontrolador en MIKROC",
 "d": "Muestra como usar el modulo sleep en un microcontrolador y mikroc. despertando por interrupcion serial o por flanco de bajada.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3277/how-sleep-mode-works-in-pics-mikroc-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3277-how-sleep-mode-works-in-pics-mikroc-version"
 ]
 },
 {
@@ -3535,7 +3526,7 @@ const CURSOS = {
 "t": "Tips para usar el watchdog timer en microcontroladores pics",
 "d": "Muestra para que sirve el uso del watchdog timer en los microcontroladores pics.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3292/pic-tips-for-watchdog-timer"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3292-pic-tips-for-watchdog-timer"
 ]
 },
 {
@@ -3544,7 +3535,7 @@ const CURSOS = {
 "t": "Manejo de la memoria EEPROM de datos en PIC y MikroC",
 "d": "Muetsra como almacenar y leer todo tipos de datos, y cadenas de textos en la memoria eeprom del PIC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3294/how-read-and-write-in-eeprom-memory-pic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3294-how-read-and-write-in-eeprom-memory-pic"
 ]
 },
 {
@@ -3553,7 +3544,7 @@ const CURSOS = {
 "t": "Multiplexación display siete segmentos usando interrupciones",
 "d": "Muestra en tiempo real multiplexar un display siete segmento sin carga computacional en el programa principal.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3312/seven-segment-multiplexation-with-interrupt"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3312-seven-segment-multiplexation-with-interrupt"
 ]
 },
 {
@@ -3562,7 +3553,7 @@ const CURSOS = {
 "t": "Como usar el módulo de Modulación de Señales Digital (DSM) en los PIC modernos y con MIKROC",
 "d": "Muestra como utilizar la modulación ASK, FSK y PSK en un microcontrolador PIC usando el modulo DSM.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3496/how-use-the-new-data-signal-modulation-module-in-pic-mikroc-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3496-how-use-the-new-data-signal-modulation-module-in-pic-mikroc-"
 ]
 },
 {
@@ -3571,7 +3562,7 @@ const CURSOS = {
 "t": "Recepción serial por comandos simples y bloqueante",
 "d": "Muestra como recibir ordenes de un carácter por puerto serial y realizar varia acciones en forma bloqueante.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3589/led-and-motor-control-whit-simple-serial-recive-character"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3589-led-and-motor-control-whit-simple-serial-recive-character"
 ]
 },
 {
@@ -3580,7 +3571,7 @@ const CURSOS = {
 "t": "Recepción serial por ordenes tipo trama modo bloqueante",
 "d": "Muestra como recibir una trama de datos y extraer la información para controlar leds, motores, etc con pic OTROS videos no bloquantes con interrupciones.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3590/led-and-motor-control-whit-string-data-frame"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3590-led-and-motor-control-whit-string-data-frame"
 ]
 },
 {
@@ -3589,7 +3580,7 @@ const CURSOS = {
 "t": "Interrupciones parte 1",
 "d": "Muestra como utilizar de manera fácil la aplicación timer calculation, para generar multiples tareas, basado en interrupciones en un microc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3764/using-timer-interrupts-for-multiple-tasks"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3764-using-timer-interrupts-for-multiple-tasks"
 ]
 },
 {
@@ -3598,7 +3589,7 @@ const CURSOS = {
 "t": "Interrupciones parte 2",
 "d": "Muestra como configurar la interrupción por flanco con registros.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3778/basic-edge-interrupt"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3778-basic-edge-interrupt"
 ]
 },
 {
@@ -3607,7 +3598,7 @@ const CURSOS = {
 "t": "Interrupciones timers",
 "d": "Muestra como utilizar las interrupciones de timers en los pic 16f.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3796/how-uses-timers-interrupts-on-pic16f"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3796-how-uses-timers-interrupts-on-pic16f"
 ]
 },
 {
@@ -3616,7 +3607,7 @@ const CURSOS = {
 "t": "Interrupciones timers y flanco PIC18F",
 "d": "Muestra como pasar un código de interrupciones de times y flancode un pic16f a un 18f.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3797/how-uses-timers-interrupts-on-pic18f"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3797-how-uses-timers-interrupts-on-pic18f"
 ]
 },
 {
@@ -3625,7 +3616,7 @@ const CURSOS = {
 "t": "Vectores de interrupcion en PIC18F",
 "d": "Muestra como usar los vectores de interrupciones en los pic18f y su ventaja respecto a los 16f.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3798/use-of-low-and-high-interrption-vectors-in-pic18f"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3798-use-of-low-and-high-interrption-vectors-in-pic18f"
 ]
 },
 {
@@ -3634,7 +3625,7 @@ const CURSOS = {
 "t": "Interrupcion serial",
 "d": "Muestra como utilizar la interrupción de recepción serial para controlar leds motores , y en conjunto con otras interrupciones.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3799/basic-serial-interrrupt-in-pic-18f"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3799-basic-serial-interrrupt-in-pic-18f"
 ]
 },
 {
@@ -3643,7 +3634,7 @@ const CURSOS = {
 "t": "Interrupción serial leer GPS",
 "d": "Muetra como leer una trama serial que contenga inicio y final, ejemplo con una alarma de ubicación por GPS).",
 "c": [
-"https://libstock.mikroe.com/projects/view/3800/using-serial-interrupt-to-read-gps-coordinates"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3800-using-serial-interrupt-to-read-gps-coordinates"
 ]
 },
 {
@@ -3652,7 +3643,7 @@ const CURSOS = {
 "t": "Interrupción CCP, lectura de múltiples frecuencias",
 "d": "Muestra como usar eficientemente el modulo de comparación y captura para leer múltiples frecuencia. Aquí el vídeo de como leer una sola frecuencia por interrupción.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3865/multiple-frequency-reading-with-the-ccp-module"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3865-multiple-frequency-reading-with-the-ccp-module"
 ]
 },
 {
@@ -3661,7 +3652,7 @@ const CURSOS = {
 "t": "Recepción ordenes Nextion con Interrupciones",
 "d": "Muestra una forma de como obtener, datos, numéricos, texto, y ordenes desde la pantalla HMI Nextion.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4099/reading-numerical-data-text-and-commands-from-the-nextion-tft-screen"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4099-reading-numerical-data-text-and-commands-from-the-nextion-tf"
 ]
 },
 {
@@ -3670,7 +3661,7 @@ const CURSOS = {
 "t": "Recepción ordenes Nextion con Interrupciones",
 "d": "Muestra una forma de como obtener, datos, numéricos, texto, y ordenes desde la pantalla HMI Nextion.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4099/reading-numerical-data-text-and-commands-from-the-nextion-tft-screen"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4099-reading-numerical-data-text-and-commands-from-the-nextion-tf"
 ]
 },
 {
@@ -3679,7 +3670,7 @@ const CURSOS = {
 "t": "Usar un control USB con Labview y Xbee, para manejar remotamente un buque a escala. Parte 3.1 PIC18",
 "d": "Muestra como armar la trama para posterior mente ser enviada inalámbricamente al micro pic18f.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4190/control-a-joystick-with-labview-and-pic18f"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4190-control-a-joystick-with-labview-and-pic18f"
 ]
 },
 {
@@ -3688,7 +3679,7 @@ const CURSOS = {
 "t": "Protocolo I2C",
 "d": "Explica que es el protocolo I2c; como se maneja en mikroc, y enseña como crear una librería propia más robusta para manejar el protocolo.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4317/i2c-library-by-harwdare-non-blocking"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4317-i2c-library-by-harwdare-non-blocking"
 ]
 },
 {
@@ -3706,7 +3697,7 @@ const CURSOS = {
 "t": "UART IDLE line detect",
 "d": "Muestra una técnica para detectar por interrupcion tramas seriales sin importar el tamaño basado en la duración de cada byte del protocolo uart. usando el desboirde de un timer.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4912/uart-idle-line-detect-on-pic-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4912-uart-idle-line-detect-on-pic-and-mikroc"
 ]
 },
 {
@@ -3715,7 +3706,7 @@ const CURSOS = {
 "t": "Librerias usando indentificadores #ifdef, #else,#endif",
 "d": "Muestra como medir distancia con un TF mini lidar usando identificadores ( #ifdef, #else,#endi) en la libreria.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4975/measure-distance-with-tf-mini-lidar-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4975-measure-distance-with-tf-mini-lidar-and-mikroc"
 ]
 },
 {
@@ -3724,7 +3715,7 @@ const CURSOS = {
 "t": "Usar remapeo para obtener 2 puertos serial por hardware",
 "d": "Muestra como remapear un puerto serial y tener dos puertos serial por hardware.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4995/using-remapping-pins-to-get-2-multiplexed-hardware-serial-ports"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4995-using-remapping-pins-to-get-2-multiplexed-hardware-serial-po"
 ]
 },
 {
@@ -3733,7 +3724,7 @@ const CURSOS = {
 "t": "Modulo HLK-RM04 parte4 IoT con Ubidots",
 "d": "Muestra como configurar el modulo HLK-RM04, para comunicarse con ubiudots y un microcontrolador PIC en MIKROC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5005/hlk-rm04-ubidot-iot"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5005-hlk-rm04-ubidot-iot"
 ]
 },
 {
@@ -3756,7 +3747,7 @@ const CURSOS = {
 "t": "Como leer el true RMS( valor RMS real) de cualquier señal, con PIC y MikroC",
 "d": "Muestra como mejorar la lectura del valor RMS de un vido anterior del canal Ahora utulizando la formula del valor verdadero de RMS (TRUE RMS).",
 "c": [
-"https://libstock.mikroe.com/projects/view/5153/how-read-the-true-rms-with-pic-mikroc-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5153-how-read-the-true-rms-with-pic-mikroc-version"
 ]
 },
 {
@@ -3814,7 +3805,7 @@ const CURSOS = {
 "t": "Recepcion de ordenes seriales con micros, en mikroc for PIC O con Arduino",
 "d": "Muestra como recibir ordenes seriales con micros, tanto arduino como PIC, mostrando la ventaja de usar el estandar de lenguaje C.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2429/simple-receipt-of-serial-data-pic-and-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2429-simple-receipt-of-serial-data-pic-and-arduino"
 ]
 },
 {
@@ -3823,7 +3814,7 @@ const CURSOS = {
 "t": "Recepcion serial con interrupcion en Arduino y PIC",
 "d": "Complementa el anterior video , mostrando la forma de recibir ordenes serial pero con interrpciones, lo que permite realizar más tareas a la vez.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2430/simple-receipt-of-serial-data-pic-and-arduino-with-interrupt"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2430-simple-receipt-of-serial-data-pic-and-arduino-with-interrupt"
 ]
 },
 {
@@ -3832,7 +3823,7 @@ const CURSOS = {
 "t": "Transmision y recepcion serial full duplex en PIC (MikroC )y Arduino",
 "d": "Muestra como poder recibir datos con Interrupcion y enviar a la vez desde un pic ( Mikroc ) y desde Arduino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2431/send-and-receive-serial-data-full-duplex-pic-and-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2431-send-and-receive-serial-data-full-duplex-pic-and-arduino"
 ]
 },
 {
@@ -3841,7 +3832,7 @@ const CURSOS = {
 "t": "Comunicacion full duplex mas interrupcion timers PIC o Arduino",
 "d": "Muestra como además de la comunicación full duplex se pueden ejecutar procesos extras con la interrupcion del timer 1, tanto para PIC como Arduino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2435/comunicacion-serial-full-duplex-and-timer-interrut-process"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2435-comunicacion-serial-full-duplex-and-timer-interrut-process"
 ]
 },
 {
@@ -3850,8 +3841,8 @@ const CURSOS = {
 "t": "Lectura de multiples sensores ultrasonicos, PIC ( MikroC ) o Arduino",
 "d": "Muestra el uso de timers en pic y Arduino, para medir anchode pulso de manera precisa. en Mikroc ejemplo con sensores ultrasonicos sfr04. codigos aqui.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2441/arduino-multiple-ultrasonic-sensor-sfr04",
-"https://libstock.mikroe.com/projects/view/2438/pic-multiple-ultrasonic-sensor-sfr04"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2441-arduino-multiple-ultrasonic-sensor-sfr04",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2438-pic-multiple-ultrasonic-sensor-sfr04"
 ]
 },
 {
@@ -3860,8 +3851,8 @@ const CURSOS = {
 "t": "Dimmer control de energia carga AC PIC ( con MikroC ) o Arduino",
 "d": "Con mikroc para pic Aclaro el timer del pic esta con preescalador de 256 no de 32 como menciono en el video. después lo edito con mas calma.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2453/ac-power-control-zero-crossing-detection-ac-dimming",
-"https://libstock.mikroe.com/projects/view/2454/arduino-ac-power-control-zero-crossing-detection-ac-dimming"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2453-ac-power-control-zero-crossing-detection-ac-dimming",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2454-arduino-ac-power-control-zero-crossing-detection-ac-dimming"
 ]
 },
 {
@@ -3870,8 +3861,8 @@ const CURSOS = {
 "t": "ENC28J60 Mini Servidor WEB PIC O Arduino",
 "d": "Muestra la forma de crear una pequeña pagina WEB tanto en PIC como en Arduino. Driver para que proegtus acpete el modulo enc28j60.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2460/basic-web-server-pic",
-"https://libstock.mikroe.com/projects/view/2461/basic-web-server-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2460-basic-web-server-pic",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2461-basic-web-server-arduino"
 ]
 },
 {
@@ -3880,7 +3871,7 @@ const CURSOS = {
 "t": "Control por bluetooth PIC ( MikroC ) o Arduino",
 "d": "Modifico el programa de comuniación serial full duplex controlado con el celular y la aplicacion en Adroid bluetotth elecronics. con Mikroc en PIC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2463/celular-bluetooth-control-pic-and-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2463-celular-bluetooth-control-pic-and-arduino"
 ]
 },
 {
@@ -3889,8 +3880,8 @@ const CURSOS = {
 "t": "Control wifi con el ESP8266, con el celular o LabVIEW, en PIC ( MikroC ) o en Arduino",
 "d": "Se crea una red wifi y un servidor con el cual se puede conectar un pc o un celular y controlar un motor y unas luces . Tanto en PIC (con Mikroc )como en Arduino al canal.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2465/pic-esp8266-wifi-server-control-whit-android-or-labview",
-"https://libstock.mikroe.com/projects/view/2466/arduino-esp8266-wifi-server-control-whit-android-or-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2465-pic-esp8266-wifi-server-control-whit-android-or-labview",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2466-arduino-esp8266-wifi-server-control-whit-android-or-labview"
 ]
 },
 {
@@ -3906,7 +3897,7 @@ const CURSOS = {
 "t": "Manejo de hasta 8 servos motores con mikroc pro for pic",
 "d": "Muestra como usar librerias propia de servos para manejar hasta 8 servos ,con PICS 12F,16F,18F con Mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2492/manager-until-8-servos-with-pic12f-16f-and-18f"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2492-manager-until-8-servos-with-pic12f-16f-and-18f"
 ]
 },
 {
@@ -3915,8 +3906,8 @@ const CURSOS = {
 "t": "Multiples interrupciones en y PIC MikroC, control carga AC, cruce por cero, disparo triac",
 "d": "Muestra como mediante comunicación full duplex e interrupciones controla el cruce por cero y el disparo de una carga AC usando Mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2499/handling-multiple-interruptions-for-full-duplex-communication-and-ac-load-dimmer",
-"https://libstock.mikroe.com/projects/view/2500/arduino-handling-multiple-interruptions-for-full-duplex-communication-and-ac-load-dimmer"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2499-handling-multiple-interruptions-for-full-duplex-communicatio",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2500-arduino-handling-multiple-interruptions-for-full-duplex-comm"
 ]
 },
 {
@@ -3925,10 +3916,10 @@ const CURSOS = {
 "t": "Métodos de lectura de un encoder de cuadratura en PIC con Mikroc",
 "d": "Explica la forma de tres métodos para leer un encoder de cuadratura, con Mikroc video mejorado modo 4x: Código Modo 4x.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2506/reading-a-quadrature-encoder-without-interruption",
-"https://libstock.mikroe.com/projects/view/2507/reading-a-quadrature-encoder-with-timer-interruption",
-"https://libstock.mikroe.com/projects/view/2508/reading-a-quadrature-encoder-with-edge-interruption",
-"https://libstock.mikroe.com/projects/view/4443/quadrature-encoder-4x-mode"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2506-reading-a-quadrature-encoder-without-interruption",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2507-reading-a-quadrature-encoder-with-timer-interruption",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2508-reading-a-quadrature-encoder-with-edge-interruption",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4443-quadrature-encoder-4x-mode"
 ]
 },
 {
@@ -3937,7 +3928,7 @@ const CURSOS = {
 "t": "Control de posicion con PID de un motor DC con encoder de cuadratura con MikroC",
 "d": "Muestra como controlar la posición de un motor dc, usando un PID y un encoder de cuadratura. con Mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/1824/pid-position-control-with-quadrature-encoder"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/1824-pid-position-control-with-quadrature-encoder"
 ]
 },
 {
@@ -3946,7 +3937,7 @@ const CURSOS = {
 "t": "Internet de las cosas con Ubidots y PIC con MikroC",
 "d": "Muestra como monitorear variable analoga y digital remotamente en la nube con Ubidots. con Mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2514/iot-application-with-pic-and-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2514-iot-application-with-pic-and-ubidots"
 ]
 },
 {
@@ -3955,7 +3946,7 @@ const CURSOS = {
 "t": "ESP8266 monitoreo y control con Ubidots PIC y MikroC",
 "d": "Muestra como monitorear y controlar con el esp8266 en ubidots con pic y mikroc. ademas de recibir un correo si hay una alarma.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2518/esp8266-full-control-iot-application-with-pic-and-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2518-esp8266-full-control-iot-application-with-pic-and-ubidots"
 ]
 },
 {
@@ -3971,7 +3962,7 @@ const CURSOS = {
 "t": "Alarma de posicion con GPS y MikroC",
 "d": "Muestra como leer un GPS y dar una alerta por ubicación usando Mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2524/read-gps-and-alert-position"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2524-read-gps-and-alert-position"
 ]
 },
 {
@@ -3980,7 +3971,7 @@ const CURSOS = {
 "t": "4*4 keypad teclado matricial, lectura de múltiples teclas con MikroC",
 "d": "Lectura de multiples tecla con teclado matricial.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2536/how-to-capture-multiple-keys-on-a-4-4-matrix-keypad"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2536-how-to-capture-multiple-keys-on-a-4-4-matrix-keypad"
 ]
 },
 {
@@ -3989,7 +3980,7 @@ const CURSOS = {
 "t": "Control motor paso a paso con LabVIEW y MikroC",
 "d": "Muestra como manejar dos motores paso a paso, mediante Labview dándole ordenes seriales al micro, realizado en mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2541/stepper-motor-control-with-labiew"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2541-stepper-motor-control-with-labiew"
 ]
 },
 {
@@ -3998,8 +3989,8 @@ const CURSOS = {
 "t": "DATALOGGER de temperatura con mikroc y ds18b20 el ds1307",
 "d": "Muestra como almacenar en una microsd daos de temperatura. habla de los principios del protocolo onewire, i2c y spi. imagen sd.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2545/temperature-data-recorder-whith-mikroc-using-microsd-memory",
-"https://drive.google.com/uc?authuser=0&id=1ldVje7IIKR5vdbKLheTjqx8IEBZ6Xsjw&export=download"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2545-temperature-data-recorder-whith-mikroc-using-microsd-memory",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-pic-xc8-datalogger-ds1307"
 ]
 },
 {
@@ -4008,7 +3999,7 @@ const CURSOS = {
 "t": "Creacion de un puerto com por USB PIC 18f2550 y MikroC",
 "d": "Muestra como crear un puerto com , o un USB CDC device usando un microcontrolaodr pic con USB hay dos .rar el de 140K es actualizado a 2019.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2610/basic-usb-cdc-in-pic-18f-with-usb-port"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2610-basic-usb-cdc-in-pic-18f-with-usb-port"
 ]
 },
 {
@@ -4017,7 +4008,7 @@ const CURSOS = {
 "t": "Labview lectura por USB-HID, mikroc HID",
 "d": "Muestra como usar labview para leer datos por usb usando el modo HID, sin drivers.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2619/labview-daq-read-mikroc-hid-write"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2619-labview-daq-read-mikroc-hid-write"
 ]
 },
 {
@@ -4026,7 +4017,7 @@ const CURSOS = {
 "t": "Labview, enviar datos via USB HID a mikroc con pic 18f2550",
 "d": "Muestra como leer datos via USB-HID desde mikroc , enviados desde labview.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2620/labview-daq-write-mikroc-hid-read"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2620-labview-daq-write-mikroc-hid-read"
 ]
 },
 {
@@ -4035,7 +4026,7 @@ const CURSOS = {
 "t": "Diseño de una tarjeta entrenadora básica con el pic 18f2550",
 "d": "Muestra esquemas de una tarjeta entrenadora para programar por usb, usando el pic 18f2550.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2627/basic-development-board-with-pic-18f2550"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2627-basic-development-board-with-pic-18f2550"
 ]
 },
 {
@@ -4044,7 +4035,7 @@ const CURSOS = {
 "t": "PID discreto con MikroC, sintonización PID Matlab",
 "d": "Muestra como como tomar datos de un sistema con labview, identificarlo con matlab, diseñar el PID en Matlab e implementarlo en mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2645/identification-of-models-and-pid-tuning-with-matlab-labview-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2645-identification-of-models-and-pid-tuning-with-matlab-labview-"
 ]
 },
 {
@@ -4053,7 +4044,7 @@ const CURSOS = {
 "t": "Implementación de un control difuso con mikroc en un pic 18f",
 "d": "Muestra como usar Xfuzzy para implementar un controlador fuzzy, en un pic18f en mikroc. Logica difusa, o fuzzy logic mikroc en microcontrolaodre pic.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2651/implementation-of-a-temperature-fuzzy-logic-control-in-pic18"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2651-implementation-of-a-temperature-fuzzy-logic-control-in-pic18"
 ]
 },
 {
@@ -4062,7 +4053,7 @@ const CURSOS = {
 "t": "Generador de onda seno pura a 60hz por PWM",
 "d": "Muestra como usar el modulo PWM para generar una señal de seno de 60HZ , que se puede usar para generador de señales o inversores de dc a AC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2697/60hz-pure-sine-wave-with-pwm-module-for-dc-to-ac-inverter"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2697-60hz-pure-sine-wave-with-pwm-module-for-dc-to-ac-inverter"
 ]
 },
 {
@@ -4072,7 +4063,7 @@ const CURSOS = {
 "d": "Se muestra para aquellos que ya tienen la plataforma y quiera empezar a programar PICS, un proyecto que permite que uses el compilador que desees para programar tu pic, pero uses el…",
 "c": [
 "https://github.com/alcidesramos/PROGRAMADOR_PIC_CON_ARDUINO_ARZ",
-"https://libstock.mikroe.com/projects/view/2745/using-arduino-to-programmer-pics-microcontroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2745-using-arduino-to-programmer-pics-microcontroller"
 ]
 },
 {
@@ -4081,7 +4072,7 @@ const CURSOS = {
 "t": "Lectura de sensores Ópticos reflectivos de forma digital",
 "d": "Muetsra técnica para leer varios sensores tipo cny7 o cualquier otro sensores óptico reflectivo usando timer en pic y arduino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2759/read-various-reflective-optical-sensors-type-cny70"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2759-read-various-reflective-optical-sensors-type-cny70"
 ]
 },
 {
@@ -4090,7 +4081,7 @@ const CURSOS = {
 "t": "Manejo de pantalla OLED SSD1306 con MikroC y PIC",
 "d": "Muestra como manejar la Pantalla SSD1306 poR i2c ya sea por hardware o software.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2767/handling-the-oled-screen-sd1306-with-mikroc-by-i2c-software-and-hardware"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2767-handling-the-oled-screen-sd1306-with-mikroc-by-i2c-software-"
 ]
 },
 {
@@ -4099,7 +4090,7 @@ const CURSOS = {
 "t": "Medicion de frecuencia con interrupciones (int y CCP) en PIC",
 "d": "Muestra dos forma de medir frecuencias con miKroc y microcontroladores PIC. una usando la interurpción por flanco. Y otra el modulo de comparación y captura CCP.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2915/two-ways-to-read-frequency-with-pic-interruption"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2915-two-ways-to-read-frequency-with-pic-interruption"
 ]
 },
 {
@@ -4108,7 +4099,7 @@ const CURSOS = {
 "t": "Puerto serial por software para PIC (MikroC, XC8, CCS)",
 "d": "Muestra la forma de usar puerto serial pro software en PIC. en CCS, Mroc y XC8 sin MMC. para micros de poca memoria y sin puerto serial. aplicable para cualquier micro y varias velocidades.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2917/pic-software-uart-mikroc-ccs-and-mplab-xc8-for-microcontroller-low-memory"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2917-pic-software-uart-mikroc-ccs-and-mplab-xc8-for-microcontroll"
 ]
 },
 {
@@ -4131,7 +4122,7 @@ const CURSOS = {
 "t": "Control de velocidad de un motor DC, clase de control on-off PID, con microcontrolador PIC y MikroC",
 "d": "Muestra como hacer un control de velocidad con pic, usando diferentes técnica. el control esta en revoluciones por segundo, si se quieren tener RPM solo es escalar multiplicando la…",
 "c": [
-"https://libstock.mikroe.com/projects/view/2920/three-ways-to-control-the-speed-in-a-dc-motor-and-a-microcontroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2920-three-ways-to-control-the-speed-in-a-dc-motor-and-a-microcon"
 ]
 },
 {
@@ -4140,7 +4131,7 @@ const CURSOS = {
 "t": "Decodificador automático de códigos IR (infrarojos) metodo hash",
 "d": "Es una continuación del video: y muestra como detectar automáticamente con ahorro de memoria y forma óptima códigos infrarrojos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2932/pic-ir-code-decoder-has-method"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2932-pic-ir-code-decoder-has-method"
 ]
 },
 {
@@ -4149,7 +4140,7 @@ const CURSOS = {
 "t": "Clase completa de detección de cualquier código infrarojo (IR) con PIC y MikroC",
 "d": "Describe tod el proceso de como usar la interponer externa para detectar códigos infrarojos con PIC y mikroc, y usarlos para controlar cualquier otro dispositivo.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2931/pic-ir-code-decoder"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2931-pic-ir-code-decoder"
 ]
 },
 {
@@ -4165,7 +4156,7 @@ const CURSOS = {
 "t": "Lector de tarjetas o tag RFID con PIC y MikroC, metoto hash ( con el RC522)",
 "d": "Muestra como usar el método has para leer códigos RFID de tarjeta de con el lector RC522 y utilizando el método HASH.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2935/rc522-rfid-card-reader"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2935-rc522-rfid-card-reader"
 ]
 },
 {
@@ -4181,7 +4172,7 @@ const CURSOS = {
 "t": "Comunicacion full duplex PIC y myopenlab",
 "d": "Muestra como comunicar myopenlab con mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2952/serial-full-duplex-communication-with-myopenlab"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2952-serial-full-duplex-communication-with-myopenlab"
 ]
 },
 {
@@ -4190,7 +4181,7 @@ const CURSOS = {
 "t": "Comparando CCS, mikro y XC8 en recursos",
 "d": "Sto es un reto del amigo MARIANO ROCHA (del grupo de face programando PICs primer nivel), que quise cumplir pero de forma ilustrativa. Muestra de manera informativa, y sin tratar de…",
 "c": [
-"https://libstock.mikroe.com/projects/view/2968/analyzing-three-pic-compilers-using-a-loop"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2968-analyzing-three-pic-compilers-using-a-loop"
 ]
 },
 {
@@ -4206,7 +4197,7 @@ const CURSOS = {
 "t": "Ubidots internet de las cosas con SIM800 parte 3 (recibiendo datos Ubidots)",
 "d": "Muestra como mandar y recibir datos de Ubidot con SIM800 usando mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3009/full-transmission-and-reception-to-ubidots-using-sim800"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3009-full-transmission-and-reception-to-ubidots-using-sim800"
 ]
 },
 {
@@ -4215,7 +4206,7 @@ const CURSOS = {
 "t": "Ubidots internet de las cosas con SIM800 parte 2 (envio de datos de GPS)",
 "d": "Muestra como leer un GPS por softawre y mandarlo a Ubidots usando el modulo SIM800.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3008/read-gps-and-send-via-gprs-to-ubidots-with-sim800-module"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3008-read-gps-and-send-via-gprs-to-ubidots-with-sim800-module"
 ]
 },
 {
@@ -4224,7 +4215,7 @@ const CURSOS = {
 "t": "Ubidots internet de las cosas con SIM800 parte 1 (envio de datos a Ubidots)",
 "d": "Muestra como configurar el sim800 con mikroc y enviar datos básicos Ubidot, usando internet de las cosas.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3007/using-sim800-in-gprs-mode-to-send-data-to-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3007-using-sim800-in-gprs-mode-to-send-data-to-ubidots"
 ]
 },
 {
@@ -4233,7 +4224,7 @@ const CURSOS = {
 "t": "Internet de las cosas, ESP8266 y Ubidots (monitoreo y control) version con GPS",
 "d": "Este video es una adaptacion de los 3 videos de GPRS con el sim800 y ubidot al modulo ESP8266, se recomienda ver esos 3 video anets para enterder mejor este. vidios GPRS.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3021/iot-application-with-esp8266-and-ubidot"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3021-iot-application-with-esp8266-and-ubidot"
 ]
 },
 {
@@ -4242,7 +4233,7 @@ const CURSOS = {
 "t": "Manejo de un aceptador de billete NV10 USB con MikroC y PIC",
 "d": "Muestra como leer los billetes de un aceptador de billetes NV10, usando interrupciones y dejando el programa principal disponible para procesar otros datos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3267/working-with-the-money-acceptor-nv10"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3267-working-with-the-money-acceptor-nv10"
 ]
 },
 {
@@ -4251,7 +4242,7 @@ const CURSOS = {
 "t": "Como utilizar el modulo sleep en un microcontrolador en MIKROC",
 "d": "Muestra como usar el modulo sleep en un microcontrolador y mikroc. despertando por interrupcion serial o por flanco de bajada.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3277/how-sleep-mode-works-in-pics-mikroc-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3277-how-sleep-mode-works-in-pics-mikroc-version"
 ]
 },
 {
@@ -4260,7 +4251,7 @@ const CURSOS = {
 "t": "Tips para usar el watchdog timer en microcontroladores pics",
 "d": "Muestra para que sirve el uso del watchdog timer en los microcontroladores pics.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3292/pic-tips-for-watchdog-timer"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3292-pic-tips-for-watchdog-timer"
 ]
 },
 {
@@ -4269,7 +4260,7 @@ const CURSOS = {
 "t": "Manejo de la memoria EEPROM de datos en PIC y MikroC",
 "d": "Muetsra como almacenar y leer todo tipos de datos, y cadenas de textos en la memoria eeprom del PIC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3294/how-read-and-write-in-eeprom-memory-pic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3294-how-read-and-write-in-eeprom-memory-pic"
 ]
 },
 {
@@ -4278,7 +4269,7 @@ const CURSOS = {
 "t": "Multiplexación display siete segmentos usando interrupciones",
 "d": "Muestra en tiempo real multiplexar un display siete segmento sin carga computacional en el programa principal.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3312/seven-segment-multiplexation-with-interrupt"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3312-seven-segment-multiplexation-with-interrupt"
 ]
 },
 {
@@ -4287,7 +4278,7 @@ const CURSOS = {
 "t": "Como usar el módulo de Modulación de Señales Digital (DSM) en los PIC modernos y con MIKROC",
 "d": "Muestra como utilizar la modulación ASK, FSK y PSK en un microcontrolador PIC usando el modulo DSM.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3496/how-use-the-new-data-signal-modulation-module-in-pic-mikroc-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3496-how-use-the-new-data-signal-modulation-module-in-pic-mikroc-"
 ]
 },
 {
@@ -4296,7 +4287,7 @@ const CURSOS = {
 "t": "Dado electronico doble y simple con PIC y MikroC",
 "d": "Proyecto de un dado con pic.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3696/double-and-simple-electronic-die"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3696-double-and-simple-electronic-die"
 ]
 },
 {
@@ -4305,7 +4296,7 @@ const CURSOS = {
 "t": "Tips para la sincronizacion de datos entre LabVIEW y un micro comunicacon serial full duplex",
 "d": "Muestra como mejorar la cominucación entre labview y un pic. Aquí la primera versión donde se explica mas detallado el código.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3719/tips-to-improve-the-synchronization-between-labview-and-a-pic-full-duplex-communication"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3719-tips-to-improve-the-synchronization-between-labview-and-a-pi"
 ]
 },
 {
@@ -4314,7 +4305,7 @@ const CURSOS = {
 "t": "Emular teclado USB (HID) con PIC y MikroC",
 "d": "Muestra como emular en USB mediante HID un teclado usando mikroc y un pic18f2550 Video de diseño de la tarjeta.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3741/emulate-a-hid-usb-keyboard-with-pic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3741-emulate-a-hid-usb-keyboard-with-pic"
 ]
 },
 {
@@ -4330,7 +4321,7 @@ const CURSOS = {
 "t": "Proyecto wifi con ESP8266 con aplicación virtuino y microcontrolador PIC ( parte 2)",
 "d": "Segunda parte de utilizar la aplicación virtuino con el ESP8266 y un Microcontrolador PIC. código del micro, como decodificar la trama.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3787/how-to-use-the-virtuino-app-with-an-esp8266-a-pic18f-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3787-how-to-use-the-virtuino-app-with-an-esp8266-a-pic18f-and-mik"
 ]
 },
 {
@@ -4339,7 +4330,7 @@ const CURSOS = {
 "t": "Utilizar el Embedded C code de Matlab, Para crear funciones en C para Microcontroladores",
 "d": "Muestra como convertir una funciones de Simulink, o Matlab a lenguaje C o C++ para ser usadas en cualquier Microcontrolador.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3833/how-use-the-matlab-embedded-code-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3833-how-use-the-matlab-embedded-code-and-mikroc"
 ]
 },
 {
@@ -4348,7 +4339,7 @@ const CURSOS = {
 "t": "Interrupción CCP, lectura de múltiples frecuencias",
 "d": "Muestra como usar eficientemente el modulo de comparación y captura para leer múltiples frecuencia. Aquí el vídeo de como leer una sola frecuencia por interrupción.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3865/multiple-frequency-reading-with-the-ccp-module"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3865-multiple-frequency-reading-with-the-ccp-module"
 ]
 },
 {
@@ -4357,8 +4348,8 @@ const CURSOS = {
 "t": "Lectura de termocupla tipo k MAX6675 en MikroC y XC8",
 "d": "Muestra como leer na termocupla tipo K con el chip max6675, version en Mikroc y mplab xc8.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3866/read-type-k-thermocouple-with-max6675-in-mikroc",
-"https://libstock.mikroe.com/projects/view/3867/read-type-k-thermocouple-with-max6675-in-mplab-xc8"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3866-read-type-k-thermocouple-with-max6675-in-mikroc",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3867-read-type-k-thermocouple-with-max6675-in-mplab-xc8"
 ]
 },
 {
@@ -4387,7 +4378,7 @@ const CURSOS = {
 "t": "Usar un control USB con Labview y Xbee, para manejar remotamente un buque a escala. Parte 1",
 "d": "Muestra como configurar y decodificar los botones de un control USB para ser usado en labvuew y posteriormente mandar esa información en forma remota.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4112/control-a-joystick-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4112-control-a-joystick-with-labview"
 ]
 },
 {
@@ -4396,7 +4387,7 @@ const CURSOS = {
 "t": "Usar un control USB con Labview y Xbee, para manejar remotamente un buque a escala. Parte 2",
 "d": "Muestra como armar la trama para posterior mente ser enviada inalámbricamente al micro.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4112/control-a-joystick-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4112-control-a-joystick-with-labview"
 ]
 },
 {
@@ -4405,7 +4396,7 @@ const CURSOS = {
 "t": "Manejo de 8 led con cambio de secuencia con 5 pines de un micro PIC",
 "d": "Muestra como realizar efectos de luces con 8 led y solo 5 pines de un microcontrolador pic 12f.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4185/how-to-control-8-leds-with-5-pins-of-pic-12f"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4185-how-to-control-8-leds-with-5-pins-of-pic-12f"
 ]
 },
 {
@@ -4414,7 +4405,7 @@ const CURSOS = {
 "t": "Manejo de 8 led con cambio de secuencia con 5 pines de un micro PIC",
 "d": "Muestra como realizar efectos de luces con 8 led y solo 5 pines de un microcontrolador pic 12f.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4185/how-to-control-8-leds-with-5-pins-of-pic-12f"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4185-how-to-control-8-leds-with-5-pins-of-pic-12f"
 ]
 },
 {
@@ -4423,7 +4414,7 @@ const CURSOS = {
 "t": "Usar un control USB con Labview y Xbee, para manejar remotamente un buque a escala. Parte 3",
 "d": "Muestra como armar la trama para posterior mente ser enviada inalámbricamente al micro. CLASE DE PWM.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4112/control-a-joystick-with-labview-and-dspic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4112-control-a-joystick-with-labview"
 ]
 },
 {
@@ -4432,7 +4423,7 @@ const CURSOS = {
 "t": "Usar un control USB con Labview y Xbee, para manejar remotamente un buque a escala. Parte 3.1 PIC18",
 "d": "Muestra como armar la trama para posterior mente ser enviada inalámbricamente al micro pic18f.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4190/control-a-joystick-with-labview-and-pic18f"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4190-control-a-joystick-with-labview-and-pic18f"
 ]
 },
 {
@@ -4441,7 +4432,7 @@ const CURSOS = {
 "t": "Introducción básica a fuentes conmutadas tipo buck. Control con microcontrolador",
 "d": "Muestra el funcionamiento de una fuente conmutada tipo buck y el uso de un microcontrolador para su control.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4213/using-a-microcontroller-to-control-buck-type-switching-sources"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4213-using-a-microcontroller-to-control-buck-type-switching-sourc"
 ]
 },
 {
@@ -4450,7 +4441,7 @@ const CURSOS = {
 "t": "Balanza con HX711 y microcontrolador PIC",
 "d": "Muestra mis librerías para crear una balanza digital con microcontrolador pic y mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4221/digital-scale-with-hx711"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4221-digital-scale-with-hx711"
 ]
 },
 {
@@ -4459,7 +4450,7 @@ const CURSOS = {
 "t": "Control del modulo dfplayer con microcontrolador PIC y MikroC",
 "d": "Muestra mi librería para manejar el modulo dfplayer y reproducir mp3, con un pic.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4222/dfplayer-module-control-with-pic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4222-dfplayer-module-control-with-pic"
 ]
 },
 {
@@ -4468,7 +4459,7 @@ const CURSOS = {
 "t": "Control actuadores industrial por Modbus TCP , usando ESP8266 , con PIC y factory io. MikroC",
 "d": "Muestra como controlar actuadores industriales usando el protocolo Modbus TCP, implementado en un pic y usando el modulo esp8266. simulado en factory IO.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4249/implementation-of-the-modbus-protocol-in-pic-using-the-esp8266-and-factory-io"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4249-implementation-of-the-modbus-protocol-in-pic-using-the-esp82"
 ]
 },
 {
@@ -4477,7 +4468,7 @@ const CURSOS = {
 "t": "Simulacion de robot seguidor de linea y evasor de obstaculos con Proteus parte 1",
 "d": "Muestra el principio de como utilizar los robots de proteus para su posterior programación como seguidor de linea o evasión de obstáculos. Video de como leer los sensores reflectivos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4307/proteus-robot-simulation-using-mikroc-line-follower-and-obstacle-evader"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4307-proteus-robot-simulation-using-mikroc-line-follower-and-obst"
 ]
 },
 {
@@ -4486,7 +4477,7 @@ const CURSOS = {
 "t": "Simulacion de robot seguidor de linea y evasor de obstaculos con Proteus parte 2",
 "d": "Muestra el principio de como utilizar los robots de proteus para su posterior programación como seguidor de linea o evasión de obstáculos. Video de como leer los sensores reflectivos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4307/proteus-robot-simulation-using-mikroc-line-follower-and-obstacle-evader"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4307-proteus-robot-simulation-using-mikroc-line-follower-and-obst"
 ]
 },
 {
@@ -4495,7 +4486,7 @@ const CURSOS = {
 "t": "Robot seguidor de linea en Proteus, sencillo parte1",
 "d": "Muestra el primer acercamiento de como realizar un robot seguidor de linea con proteus y mikroc pro for pic.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4312/basic-principles-of-a-simple-line-follower-robot"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4312-basic-principles-of-a-simple-line-follower-robot"
 ]
 },
 {
@@ -4504,7 +4495,7 @@ const CURSOS = {
 "t": "Robot seguidor de linea en Proteus, sencillo parte2",
 "d": "Muestra el primer acercamiento de como realizar un robot seguidor de linea con proteus y mikroc pro for pic usando un algoritmo sencillo de control.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4313/basic-principles-of-a-simple-line-follower-robot-part-2"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4313-basic-principles-of-a-simple-line-follower-robot-part-2"
 ]
 },
 {
@@ -4513,7 +4504,7 @@ const CURSOS = {
 "t": "Evasor de obstaculos basico en Proteus con PIC y MikroC parte 1",
 "d": "Muestra la forma sencilla de utilizar el robot de evasión de obstáculos de proteus, y programarlo en mirkoc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4429/simple-obstacle-evasor-with-mikro-and-proteus"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4429-simple-obstacle-evasor-with-mikro-and-proteus"
 ]
 },
 {
@@ -4522,7 +4513,7 @@ const CURSOS = {
 "t": "Evasor de obstaculos mejorado en Proteus con PIC y MikroC parte 2",
 "d": "Muestra un algoritmo mpás avanzado para utilizar el robot de evasión de obstáculos de proteus, y programarlo en mirkoc. de tal forma que inicie a la izquierda y salga del lado derecho de…",
 "c": [
-"https://libstock.mikroe.com/projects/view/4430/advanced-obstacle-avoidance-with-proteus-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4430-advanced-obstacle-avoidance-with-proteus-and-mikroc"
 ]
 },
 {
@@ -4531,7 +4522,7 @@ const CURSOS = {
 "t": "Control de robot seguidor de linea velocista parte 1 (lectura de sensores digitales)",
 "d": "Muestra, como leer los sensores de un seguidor de linea, que tiene sensores reflectivos configurarlos de forma digital y pasarlos o normalizarlos a ceros y uno.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4434/speed-line-follower-robot-sensor-reading-normalization"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4434-speed-line-follower-robot-sensor-reading-normalization"
 ]
 },
 {
@@ -4540,7 +4531,7 @@ const CURSOS = {
 "t": "Control de robot seguidor de linea velocista parte 2(generacion de pesos)",
 "d": "Muestra como generar un sistema que permite saber que tan alejado está el robot de la línea, utilizando un sistema de pesos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4435/generation-of-weights-which-indicate-how-far-a-line-follower-robot-is-from-the-line"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4435-generation-of-weights-which-indicate-how-far-a-line-follower"
 ]
 },
 {
@@ -4549,7 +4540,7 @@ const CURSOS = {
 "t": "Control de robot seguidor de linea velocista parte 3 (modo proporcional",
 "d": "Muestra un algoritmo básico proporcional para un seguidor de linea velocista.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4436/fast-line-follower-full-proportional-mode"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4436-fast-line-follower-full-proportional-mode"
 ]
 },
 {
@@ -4558,7 +4549,7 @@ const CURSOS = {
 "t": "CLASE EN VIVO DE MICRO AVANZADA, Manejo de encoder de cuadratura, en 1X 2X y 4X, con PIC y Microc",
 "d": "Muestra como manear un encoder de cuadratura a máxima velocidad en 4X.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4443/quadrature-encoder-4x-mode"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4443-quadrature-encoder-4x-mode"
 ]
 },
 {
@@ -4567,7 +4558,7 @@ const CURSOS = {
 "t": "Control de robot seguidor de linea velocista parte 4 (modo PID)",
 "d": "Muestra como implementar y sintonizar empíricamente un controlador PID para un robot seguidor de linea.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4449/fast-line-follower-full-pid-mode"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4449-fast-line-follower-full-pid-mode"
 ]
 },
 {
@@ -4576,7 +4567,7 @@ const CURSOS = {
 "t": "Control de robot seguidor de linea velocista parte 5 (modo PID + velocidad en linea recta)",
 "d": "Muestra como implementar y sintonizar empíricamente un controlador PID para un robot seguidor de linea, además de un algoritmo para sacar máximo provecho en las líneas rectas.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4468/fast-line-follower-full-pid-mode-and-maximum-speed-in-straight-lines"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4468-fast-line-follower-full-pid-mode-and-maximum-speed-in-straig"
 ]
 },
 {
@@ -4585,7 +4576,7 @@ const CURSOS = {
 "t": "Efectos de Juegos de luces con múltiples leds, en microcontroladores PIC y Mikroc",
 "d": "Muestra algoritmos, que optimizan memoria y permiten controlar mas de 16 leds con juegos efectos de luces interesantes, con control de velocidad y de los efectos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4502/effects-of-light-sets-with-multiple-leds-in-pic-microcontrollers-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4502-effects-of-light-sets-with-multiple-leds-in-pic-microcontrol"
 ]
 },
 {
@@ -4594,7 +4585,7 @@ const CURSOS = {
 "t": "Manejo del modulo MP3 YX5300 con MikroC pro for PIC",
 "d": "Muestra como controlar el módulo MP3 YX5300 con pic y mikroc. este módulo es bastante económico.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4564/using-the-yx5300-mp3module"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4564-using-the-yx5300-mp3module"
 ]
 },
 {
@@ -4603,7 +4594,7 @@ const CURSOS = {
 "t": "Lectura de voltaje AC con microntroladores PIC",
 "d": "Muestra las técnica para leer de forma eficiente y segura un voltaje de la linea AC con un microcontrolador PIC. Mostrando el voltaje RMS.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4659/read-rms-voltage-from-ac-line"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4659-read-rms-voltage-from-ac-line"
 ]
 },
 {
@@ -4612,7 +4603,7 @@ const CURSOS = {
 "t": "Como leer señales de +-10V de UN PLC con un microcontrolador",
 "d": "Muetsra la forma de como leer señales de rango positivo y negativo con un POIC y mikroc, pueden ser señales de un PLC, ETC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4662/how-to-read-10v-signals-from-a-plc-with-a-microcontroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4662-how-to-read-10v-signals-from-a-plc-with-a-microcontroller"
 ]
 },
 {
@@ -4621,7 +4612,7 @@ const CURSOS = {
 "t": "Leyendo temperaturas positivas y negativas con un sensor LM35",
 "d": "Muestra como leer temperaturas positivas y negativas con un sensor LM35, mikroc y y microocntolador PIC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4694/how-to-read-positive-and-negative-temperatures-with-an-lm35"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4694-how-to-read-positive-and-negative-temperatures-with-an-lm35"
 ]
 },
 {
@@ -4630,7 +4621,7 @@ const CURSOS = {
 "t": "Personalizar letras o fuentes en pantalla OLED (SSD1306) y dezplazamiento de caracteres",
 "d": "Librerias mejoradas para pantallas OLED SSD1306, por I2C. Personalización de fuentes o letras, usando el GLCD FONT CREATOR. desplazamiento de texto.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4722/oled-ssd1306-by-i2c-create-own-fonts-using-the-glcd-font-creator"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4722-oled-ssd1306-by-i2c-create-own-fonts-using-the-glcd-font-cre"
 ]
 },
 {
@@ -4655,7 +4646,7 @@ const CURSOS = {
 "t": "Medicion de tiempos largos usando timer de 32 bits en micros de 16 bits",
 "d": "Muestra como usar los timers en el DSPIC en forma de 32bits y medir tiempos largos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4909/measurement-of-long-times-with-dspic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4909-measurement-of-long-times-with-dspic"
 ]
 },
 {
@@ -4664,7 +4655,7 @@ const CURSOS = {
 "t": "UART IDLE line detect",
 "d": "Muestra una técnica para detectar por interrupcion tramas seriales sin importar el tamaño basado en la duración de cada byte del protocolo uart. usando el desboirde de un timer.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4912/uart-idle-line-detect-on-pic-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4912-uart-idle-line-detect-on-pic-and-mikroc"
 ]
 },
 {
@@ -4680,7 +4671,7 @@ const CURSOS = {
 "t": "Librerias para TF mini LIDAR en dsPIC 33f",
 "d": "Muestra co mo pasar las liberrias de pic a DSPIC para manejar el tf mini lidar.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4977/tf-mini-lidar-library-for-dspic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4977-tf-mini-lidar-library-for-dspic"
 ]
 },
 {
@@ -4689,7 +4680,7 @@ const CURSOS = {
 "t": "Modulo HLK-RM04 parte4 IoT con Ubidots",
 "d": "Muestra como configurar el modulo HLK-RM04, para comunicarse con ubiudots y un microcontrolador PIC en MIKROC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5005/hlk-rm04-ubidot-iot"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5005-hlk-rm04-ubidot-iot"
 ]
 },
 {
@@ -4698,7 +4689,7 @@ const CURSOS = {
 "t": "Como leer el true RMS( valor RMS real) de cualquier señal, con PIC y MikroC",
 "d": "Muestra como mejorar la lectura del valor RMS de un vido anterior del canal Ahora utulizando la formula del valor verdadero de RMS (TRUE RMS).",
 "c": [
-"https://libstock.mikroe.com/projects/view/5153/how-read-the-true-rms-with-pic-mikroc-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5153-how-read-the-true-rms-with-pic-mikroc-version"
 ]
 }
 ]
@@ -4714,7 +4705,7 @@ const CURSOS = {
 "t": "Lectura de multiples sensores SFR04 XC8",
 "d": "Muestra como leer múltiples sensores ultrasonicos usando los timer en xc8 y un pic12f1822. y acyulizado a un pic16f1824 Se actualiza a 16f1824 el 26 de julio de 2019 debido a que las…",
 "c": [
-"https://libstock.mikroe.com/projects/view/2447/multiple-ultrasonic-sensor-sfr04-pic-xc8-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2447-multiple-ultrasonic-sensor-sfr04-pic-xc8-version"
 ]
 },
 {
@@ -4723,7 +4714,7 @@ const CURSOS = {
 "t": "Comunicación Full Duplex PIC - Labview mplax xc8",
 "d": "Muestra como hacer una comunicación full duplex en xc8.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2449/full-duplex-communucation-xc8-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2449-full-duplex-communucation-xc8-version"
 ]
 },
 {
@@ -4732,7 +4723,7 @@ const CURSOS = {
 "t": "Internet las cosas ESP8266 Ubidots con PIC y XC8",
 "d": "Version mplab xc8 de monitores de variables en la nube con ubidots.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2517/iot-application-with-pic-xc8-and-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2517-iot-application-with-pic-xc8-and-ubidots"
 ]
 },
 {
@@ -4741,7 +4732,7 @@ const CURSOS = {
 "t": "Alarma de posicion con GPS y PIC en MPLAB XC8",
 "d": "Ver antes.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2528/mplab-xc8-version-read-gps-and-alert-position"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2528-mplab-xc8-version-read-gps-and-alert-position"
 ]
 },
 {
@@ -4750,7 +4741,7 @@ const CURSOS = {
 "t": "Manejo de 8 servos con MPLAB XC8",
 "d": "Version de mi libreria para manejar varos servos con mplab xc8.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2532/library-for-8-servos-control-mplab-xc8-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2532-library-for-8-servos-control-mplab-xc8-version"
 ]
 },
 {
@@ -4759,7 +4750,7 @@ const CURSOS = {
 "t": "Teclado keypad matricial 4*4 leer multiples teclas version XC8",
 "d": "",
 "c": [
-"https://libstock.mikroe.com/projects/view/2537/how-to-capture-multiple-keys-on-a-4-4-matrix-keypad-xc8-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2537-how-to-capture-multiple-keys-on-a-4-4-matrix-keypad-xc8-vers"
 ]
 },
 {
@@ -4768,7 +4759,7 @@ const CURSOS = {
 "t": "Control motor paso a paso con LabVIEW y MPLAB XC8",
 "d": "Muestra como manejar dos motores paso a paso, mediante Labview dándole ordenes seriales al micro, realizado en MPLAB XC8.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2544/mplab-xc8-version-stepper-motor-control-with-labiew"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2544-mplab-xc8-version-stepper-motor-control-with-labiew"
 ]
 },
 {
@@ -4777,8 +4768,8 @@ const CURSOS = {
 "t": "Version MPLAB XC8 datalogger de tempertura con DS1307 y DS18B20",
 "d": "Almacena datos de temperatura y tiempo en una SD Versión MPlaB XC8. LINK E L IMAGEN SD.",
 "c": [
-"https://drive.google.com/uc?authuser=0&id=1ldVje7IIKR5vdbKLheTjqx8IEBZ6Xsjw&export=download",
-"https://libstock.mikroe.com/projects/view/2551/temperature-data-recorder-with-mplab-xc8-using-microsd-memory"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-pic-xc8-datalogger-ds1307",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2551-temperature-data-recorder-with-mplab-xc8-using-microsd-memor"
 ]
 },
 {
@@ -4787,7 +4778,7 @@ const CURSOS = {
 "t": "MPLAB XC8 generador de onda seno pura a 60hz por PWM",
 "d": "VERSION EN MPLAB XC8 DE Muestra como usar el modulo PWM para generar una señal de seno de 60HZ , que se puede usar para generador de señales o inversores de dc a AC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2698/mplab-xc8-version-of-60hz-pure-sine-wave-with-pwm-module-for-dc-to-ac-inverte"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2698-mplab-xc8-version-of-60hz-pure-sine-wave-with-pwm-module-for"
 ]
 },
 {
@@ -4796,7 +4787,7 @@ const CURSOS = {
 "t": "Principios del modulo SPI, manejo del DAC mcp4922 con MPLAB XC8",
 "d": "Muestra principios del protocolo SPI, y su funcionalidad mediante el manejo del DAC mcp4922, usando mplab xc8.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2741/dac-mcp4922-with-mplab-xc8-an-pic-18f4550"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2741-dac-mcp4922-with-mplab-xc8-an-pic-18f4550"
 ]
 },
 {
@@ -4806,7 +4797,7 @@ const CURSOS = {
 "d": "Se muestra para aquellos que ya tienen la plataforma y quiera empezar a programar PICS, un proyecto que permite que uses el compilador que desees para programar tu pic, pero uses el…",
 "c": [
 "https://github.com/alcidesramos/PROGRAMADOR_PIC_CON_ARDUINO_ARZ",
-"https://libstock.mikroe.com/projects/view/2745/using-arduino-to-programmer-pics-microcontroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2745-using-arduino-to-programmer-pics-microcontroller"
 ]
 },
 {
@@ -4822,7 +4813,7 @@ const CURSOS = {
 "t": "Puerto serial por software para PIC (MikroC, XC8, CCS)",
 "d": "Muestra la forma de usar puerto serial pro software en PIC. en CCS, Mroc y XC8 sin MMC. para micros de poca memoria y sin puerto serial. aplicable para cualquier micro y varias velocidades.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2917/pic-software-uart-mikroc-ccs-and-mplab-xc8-for-microcontroller-low-memory"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2917-pic-software-uart-mikroc-ccs-and-mplab-xc8-for-microcontroll"
 ]
 },
 {
@@ -4831,7 +4822,7 @@ const CURSOS = {
 "t": "Control de velocidad ( PID ) de un motor DC con PIC y MPLAB XC8",
 "d": "Muestra la versión en xc8 de la clase de controladores dictada con PIC y MIKROC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2921/speed-control-of-a-dc-motor-with-pid-mplab-xc8-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2921-speed-control-of-a-dc-motor-with-pid-mplab-xc8-version"
 ]
 },
 {
@@ -4840,7 +4831,7 @@ const CURSOS = {
 "t": "Lector de tag RFID con MPLAB XC8 (RC522) metodo hash",
 "d": "Versión del lector de tarjetas RFID con MPLAB XC8 Metodo HASH.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2936/rc522-rfid-card-reader-mplab-xc8-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2936-rc522-rfid-card-reader-mplab-xc8-version"
 ]
 },
 {
@@ -4856,7 +4847,7 @@ const CURSOS = {
 "t": "Comparando CCS, mikro y XC8 en recursos",
 "d": "Sto es un reto del amigo MARIANO ROCHA (del grupo de face programando PICs primer nivel), que quise cumplir pero de forma ilustrativa. Muestra de manera informativa, y sin tratar de…",
 "c": [
-"https://libstock.mikroe.com/projects/view/2968/analyzing-three-pic-compilers-using-a-loop"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2968-analyzing-three-pic-compilers-using-a-loop"
 ]
 },
 {
@@ -4865,7 +4856,7 @@ const CURSOS = {
 "t": "Como Utilizar el modulo Sleep en un PIC version XC8",
 "d": "Muestra la importancia de saber seleccionar un micro y de como usar el modo Sleep es un microcontrolador con MPLAB xc8.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3276/how-sleep-mode-works-in-pics-mplab-xc8-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3276-how-sleep-mode-works-in-pics-mplab-xc8-version"
 ]
 },
 {
@@ -4874,7 +4865,7 @@ const CURSOS = {
 "t": "Como usar el módulo de Modulación de Señales Digital (DSM) en los PIC modernos y en MPLAB XC8",
 "d": "Muestra como utilizar la modulación ASK, FSK y PSK en un microcontrolador PIC usando el modulo DSM.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3479/how-use-the-new-data-signal-modulation-module-in-pic-and-mplab-xc8"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3479-how-use-the-new-data-signal-modulation-module-in-pic-and-mpl"
 ]
 },
 {
@@ -4883,7 +4874,7 @@ const CURSOS = {
 "t": "Uso de la memoria flash de programa para almacenar varios tipos de datos en XC8",
 "d": "Muestra como usar en un pic16f15324 la memoria flash de programa para almacenar varios ripos de datos en MPLAB XC8.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3775/using-the-program-s-flash-memory-to-save-data-at-runtime-pic16f15324"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3775-using-the-program-s-flash-memory-to-save-data-at-runtime-pic"
 ]
 },
 {
@@ -4892,8 +4883,8 @@ const CURSOS = {
 "t": "Lectura de termocupla tipo k MAX6675 en MikroC y XC8",
 "d": "Muestra como leer na termocupla tipo K con el chip max6675, version en Mikroc y mplab xc8.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3866/read-type-k-thermocouple-with-max6675-in-mikroc",
-"https://libstock.mikroe.com/projects/view/3867/read-type-k-thermocouple-with-max6675-in-mplab-xc8"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3866-read-type-k-thermocouple-with-max6675-in-mikroc",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3867-read-type-k-thermocouple-with-max6675-in-mplab-xc8"
 ]
 },
 {
@@ -4922,7 +4913,7 @@ const CURSOS = {
 "t": "Como pasar librerias de un compialdor(MikroC) a otro (XC8) de forma fácil. Ejemplo mis librerías I2C",
 "d": "Muestra como pasar mis librerias de i2c en mikroc a mplab xc8 de forma fácil. Cuando se trabaja a Nivel de bits.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4318/i2c-library-by-harwdare-non-blocking-xc8-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4318-i2c-library-by-harwdare-non-blocking-xc8-version"
 ]
 },
 {
@@ -4931,7 +4922,7 @@ const CURSOS = {
 "t": "Como leer el true RMS( valor RMS real) de cualquier señal, con PIC y XC8",
 "d": "Verison en mplab xc8 para leer un true RMS con pic vesion Mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5154/how-read-the-true-rms-with-pic-xc8-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5154-how-read-the-true-rms-with-pic-xc8-version"
 ]
 }
 ]
@@ -4947,7 +4938,7 @@ const CURSOS = {
 "t": "Manejo de múltiples servos con CCS",
 "d": "Es la versión con el compilador CCS de manejo de 8 servomotores.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2511/multiple-servo-control-with-css-compiler"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2511-multiple-servo-control-with-css-compiler"
 ]
 },
 {
@@ -4956,7 +4947,7 @@ const CURSOS = {
 "t": "Comparando CCS, mikro y XC8 en recursos",
 "d": "Sto es un reto del amigo MARIANO ROCHA (del grupo de face programando PICs primer nivel), que quise cumplir pero de forma ilustrativa. Muestra de manera informativa, y sin tratar de…",
 "c": [
-"https://libstock.mikroe.com/projects/view/2968/analyzing-three-pic-compilers-using-a-loop"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2968-analyzing-three-pic-compilers-using-a-loop"
 ]
 },
 {
@@ -4965,7 +4956,7 @@ const CURSOS = {
 "t": "UART IDLE line detect en CCS picc compiler",
 "d": "Muestra una técnica para detectar por interrupcion tramas seriales sin importar el tamaño basado en la duración de cada byte del protocolo uart. usando el desboirde de un timer. video de…",
 "c": [
-"https://libstock.mikroe.com/projects/view/4914/uart-idle-line-detect-on-pic-and-ccs"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4914-uart-idle-line-detect-on-pic-and-ccs"
 ]
 }
 ]
@@ -4981,7 +4972,7 @@ const CURSOS = {
 "t": "Introducción a los dspic 30f , 33f y 33ep",
 "d": "Muestra, mediante tarjetas entrenadoras programa básico de hola mundo, para diferentes tipos de DSPIC utilizando Mikroc Pro for DSPIC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2783/dspic-30f-33f-33ep-hello-word"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2783-dspic-30f-33f-33ep-hello-word"
 ],
 "f": "2019-02-24"
 },
@@ -4999,7 +4990,7 @@ const CURSOS = {
 "t": "Timers de 16 y 32 bits con interrupciones",
 "d": "Muestra como trabajar con los timer en los dspic.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3720/dspic-basic-timer-concept-and-interrputs"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3720-dspic-basic-timer-concept-and-interrputs"
 ],
 "f": "2020-04-16"
 },
@@ -5009,7 +5000,7 @@ const CURSOS = {
 "t": "Timers para leer varios ancho de pulso al tiempo",
 "d": "Muestra como usar la propiedad TGATE de los timer para medoir ancho de pulso de manera automática.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3724/read-multiple-pulse-width-signal-pwm-at-time-with-dspic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3724-read-multiple-pulse-width-signal-pwm-at-time-with-dspic"
 ],
 "f": "2020-04-21"
 },
@@ -5019,7 +5010,7 @@ const CURSOS = {
 "t": "Lectura de sensores hc-sr04 al tiempo",
 "d": "Muestra como leer simultáneamente varios sensores hc-sr04 de forma eficiente.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3725/read-multiple-hc-sr04-ultrasonic-sensors-at-the-same-time-with-dspic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3725-read-multiple-hc-sr04-ultrasonic-sensors-at-the-same-time-wi"
 ],
 "f": "2020-04-21"
 },
@@ -5029,7 +5020,7 @@ const CURSOS = {
 "t": "Modulo input capture",
 "d": "Muestra como optimizar la lectura de hasta 4 sensores ultrasónicos, o cualquier señal de ancho de pulso simultáneamente, usando el modulo de Input Capture.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3805/dspic-read-multiple-sfr04-sensors-simultaneously-using-the-input-and-capture-module"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3805-dspic-read-multiple-sfr04-sensors-simultaneously-using-the-i"
 ],
 "f": "2020-06-02"
 },
@@ -5039,7 +5030,7 @@ const CURSOS = {
 "t": "Modulo output compare como PWM",
 "d": "Muestra como utilizar el modulo de Output compare para generar señales PWM, y controlar servos o morores DC. Manejo de Servos con DSPIC y mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3910/using-the-pwm-module-in-dspics"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3910-using-the-pwm-module-in-dspics"
 ],
 "f": "2020-09-15"
 },
@@ -5049,7 +5040,7 @@ const CURSOS = {
 "t": "Clase en vivo, de comunicación serial entre DSPIC y LABVIEW",
 "d": "Muestra como comunicar y controlar variables leídas en un DSPIC en LABVIEW.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3926/seria-lcommunication-between-a-dspic-and-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3926-seria-lcommunication-between-a-dspic-and-labview"
 ],
 "f": "2020-09-23"
 },
@@ -5059,7 +5050,7 @@ const CURSOS = {
 "t": "Usar un control USB con Labview y Xbee, para manejar remotamente un buque a escala. Parte 3",
 "d": "Muestra como armar la trama para posterior mente ser enviada inalámbricamente al micro. CLASE DE PWM.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4112/control-a-joystick-with-labview-and-dspic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4112-control-a-joystick-with-labview"
 ],
 "f": "2020-12-12"
 },
@@ -5069,7 +5060,7 @@ const CURSOS = {
 "t": "Motor control como PWM",
 "d": "Muestra como manejar motores y servomotores usando el modulo motor control de los dspic33fj.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4240/driving-dc-motors-and-servos-with-dspic-motor-control-module"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4240-driving-dc-motors-and-servos-with-dspic-motor-control-module"
 ],
 "f": "2021-01-03"
 },
@@ -5079,7 +5070,7 @@ const CURSOS = {
 "t": "Medicion de tiempos largos usando timer de 32 bits en micros de 16 bits",
 "d": "Muestra como usar los timers en el DSPIC en forma de 32bits y medir tiempos largos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4909/measurement-of-long-times-with-dspic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4909-measurement-of-long-times-with-dspic"
 ],
 "f": "2022-02-16"
 },
@@ -5089,7 +5080,7 @@ const CURSOS = {
 "t": "Librerias para TF mini LIDAR en dsPIC 33f",
 "d": "Muestra co mo pasar las liberrias de pic a DSPIC para manejar el tf mini lidar.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4977/tf-mini-lidar-library-for-dspic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4977-tf-mini-lidar-library-for-dspic"
 ],
 "f": "2022-05-04"
 }
@@ -5106,7 +5097,7 @@ const CURSOS = {
 "t": "Introducción a los dspic 30f , 33f y 33ep",
 "d": "Muestra, mediante tarjetas entrenadoras programa básico de hola mundo, para diferentes tipos de DSPIC utilizando Mplab xc16.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2843/mplab-xc16-dspic-30f-33f-33ep-hello-word"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2843-mplab-xc16-dspic-30f-33f-33ep-hello-word"
 ],
 "f": "2019-04-02"
 },
@@ -5116,7 +5107,7 @@ const CURSOS = {
 "t": "Timers de 16 y 32 bits con interrupciones",
 "d": "Muestra como trabajar con los timer en los dspic, usando interpciones y mplab xc16.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3913/dspic-basic-timer-concept-and-interrputs-xc16-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3913-dspic-basic-timer-concept-and-interrputs-xc16-version"
 ],
 "f": "2020-09-16"
 },
@@ -5126,7 +5117,7 @@ const CURSOS = {
 "t": "Timers para leer varios ancho de pulso al tiempo",
 "d": "Muestra como usar la propiedad TGATE de los timer para medoir ancho de pulso de manera automática., versión XC16.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3914/read-multiple-pulse-width-signal-pwm-at-time-with-dspic-mplab-xc16-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3914-read-multiple-pulse-width-signal-pwm-at-time-with-dspic-mpla"
 ],
 "f": "2020-09-16"
 },
@@ -5136,7 +5127,7 @@ const CURSOS = {
 "t": "Lectura de sensores hc-sr04 al tiempo",
 "d": "Muestra como leer simultáneamente varios sensores hc-sr04 de forma eficiente.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3915/read-multiple-hc-sr04-ultrasonic-sensors-at-the-same-time-with-dspic-mplab-xc16-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3915-read-multiple-hc-sr04-ultrasonic-sensors-at-the-same-time-wi"
 ],
 "f": "2020-09-16"
 },
@@ -5154,7 +5145,7 @@ const CURSOS = {
 "t": "Modulo output compare como PWM",
 "d": "Muestra como utilizar el modulo de Output compare para generar señales PWM, y controlar servos o motores DC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3917/mplab-xc16-using-the-pwm-module-in-dspics"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3917-mplab-xc16-using-the-pwm-module-in-dspics"
 ],
 "f": "2020-09-17"
 },
@@ -5164,7 +5155,7 @@ const CURSOS = {
 "t": "Modulo output compare como PWM",
 "d": "Muestra como usar el modulo output capture como salida para generar señales pwm y manejar servomotores o motores DC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4239/using-the-pwm-module-in-dspics-mplab-xc16-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4239-using-the-pwm-module-in-dspics-mplab-xc16-version"
 ],
 "f": "2020-12-31"
 }
@@ -5181,7 +5172,7 @@ const CURSOS = {
 "t": "Puertos entrada y salidas",
 "d": "Muestra como iniciar con los microcontroladores de texas (TMS570LC43X) Haciendo titilar unos leds.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3287/led-blink-i570lc43x-microcontrollern-texas-instruments-tms"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3287-led-blink-i570lc43x-microcontrollern-texas-instruments-tms"
 ],
 "f": "2020-03-30"
 },
@@ -5191,7 +5182,7 @@ const CURSOS = {
 "t": "Leyendo entrada digital",
 "d": "Muestra como leer una entrada digital.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3288/input-read-gio-texas-instrument-microcontroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3288-input-read-gio-texas-instrument-microcontroller"
 ],
 "f": "2020-03-30"
 },
@@ -5201,7 +5192,7 @@ const CURSOS = {
 "t": "Transmision serial",
 "d": "Muestra como mandar cadenas por el puerto serial.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3289/send-string-serial-helllo-word-texas-instrument"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3289-send-string-serial-helllo-word-texas-instrument"
 ],
 "f": "2020-03-30"
 },
@@ -5211,7 +5202,7 @@ const CURSOS = {
 "t": "Interrupcion por flanco",
 "d": "Muestra como tener otro proceso y utilizar la interrupción por flanco.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3290/edge-interrup-texas-microntroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3290-edge-interrup-texas-microntroller"
 ],
 "f": "2020-03-30"
 },
@@ -5221,7 +5212,7 @@ const CURSOS = {
 "t": "Interrupcion por timer",
 "d": "Muestra como usar el modulo RTI para interrpcion por timer en microcntorladores texas intruments.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3291/rti-interrpupt-texas-instruments"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3291-rti-interrpupt-texas-instruments"
 ],
 "f": "2020-03-30"
 },
@@ -5246,8 +5237,8 @@ const CURSOS = {
 "t": "Manejo pantalla TFT Nextion con PIC (con MikroC ) o Arduino",
 "d": "Describe como manejar en tiempo real y sin bloqueos la pantalla nextion tanto como para PIC ( con Mikroc ), como Arduino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2457/hmi-nextion-tft-with-pic",
-"https://libstock.mikroe.com/projects/view/2458/hmi-nextion-tft-with-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2457-hmi-nextion-tft-with-pic",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2458-hmi-nextion-tft-with-arduino"
 ],
 "f": "2018-06-20",
 "m": [
@@ -5272,7 +5263,7 @@ const CURSOS = {
 "t": "Recepción ordenes Nextion con Interrupciones",
 "d": "Muestra una forma de como obtener, datos, numéricos, texto, y ordenes desde la pantalla HMI Nextion.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4099/reading-numerical-data-text-and-commands-from-the-nextion-tft-screen"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4099-reading-numerical-data-text-and-commands-from-the-nextion-tf"
 ],
 "f": "2020-11-04",
 "m": [
@@ -5285,7 +5276,7 @@ const CURSOS = {
 "t": "Recepción ordenes Nextion con Interrupciones",
 "d": "Muestra una forma de como obtener, datos, numéricos, texto, y ordenes desde la pantalla HMI Nextion.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4099/reading-numerical-data-text-and-commands-from-the-nextion-tft-screen"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4099-reading-numerical-data-text-and-commands-from-the-nextion-tf"
 ],
 "f": "2020-11-04",
 "m": [
@@ -5298,7 +5289,7 @@ const CURSOS = {
 "t": "Mis librerías para manejo de pantallas HMI Nextion con STM32",
 "d": "Muestra como interactuar con las pantallas Nextion y los stm32 charla.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5892/stm32-hmi-nextion-lcd-library"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5892-stm32-hmi-nextion-lcd-library"
 ],
 "f": "2025-04-20",
 "m": [
@@ -5360,7 +5351,7 @@ const CURSOS = {
 "t": "Recepcion de ordenes seriales con micros, en mikroc for PIC O con Arduino",
 "d": "Muestra como recibir ordenes seriales con micros, tanto arduino como PIC, mostrando la ventaja de usar el estandar de lenguaje C.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2429/simple-receipt-of-serial-data-pic-and-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2429-simple-receipt-of-serial-data-pic-and-arduino"
 ]
 },
 {
@@ -5369,7 +5360,7 @@ const CURSOS = {
 "t": "Recepcion serial con interrupcion en Arduino y PIC",
 "d": "Complementa el anterior video , mostrando la forma de recibir ordenes serial pero con interrpciones, lo que permite realizar más tareas a la vez.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2430/simple-receipt-of-serial-data-pic-and-arduino-with-interrupt"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2430-simple-receipt-of-serial-data-pic-and-arduino-with-interrupt"
 ]
 },
 {
@@ -5378,7 +5369,7 @@ const CURSOS = {
 "t": "Transmision y recepcion serial full duplex en PIC (MikroC )y Arduino",
 "d": "Muestra como poder recibir datos con Interrupcion y enviar a la vez desde un pic ( Mikroc ) y desde Arduino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2431/send-and-receive-serial-data-full-duplex-pic-and-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2431-send-and-receive-serial-data-full-duplex-pic-and-arduino"
 ]
 },
 {
@@ -5387,7 +5378,7 @@ const CURSOS = {
 "t": "Comunicacion full duplex mas interrupcion timers PIC o Arduino",
 "d": "Muestra como además de la comunicación full duplex se pueden ejecutar procesos extras con la interrupcion del timer 1, tanto para PIC como Arduino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2435/comunicacion-serial-full-duplex-and-timer-interrut-process"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2435-comunicacion-serial-full-duplex-and-timer-interrut-process"
 ]
 },
 {
@@ -5403,8 +5394,8 @@ const CURSOS = {
 "t": "Lectura de multiples sensores ultrasonicos, PIC ( MikroC ) o Arduino",
 "d": "Muestra el uso de timers en pic y Arduino, para medir anchode pulso de manera precisa. en Mikroc ejemplo con sensores ultrasonicos sfr04. codigos aqui.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2441/arduino-multiple-ultrasonic-sensor-sfr04",
-"https://libstock.mikroe.com/projects/view/2438/pic-multiple-ultrasonic-sensor-sfr04"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2441-arduino-multiple-ultrasonic-sensor-sfr04",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2438-pic-multiple-ultrasonic-sensor-sfr04"
 ]
 },
 {
@@ -5413,8 +5404,8 @@ const CURSOS = {
 "t": "Dimmer control de energia carga AC PIC ( con MikroC ) o Arduino",
 "d": "Con mikroc para pic Aclaro el timer del pic esta con preescalador de 256 no de 32 como menciono en el video. después lo edito con mas calma.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2453/ac-power-control-zero-crossing-detection-ac-dimming",
-"https://libstock.mikroe.com/projects/view/2454/arduino-ac-power-control-zero-crossing-detection-ac-dimming"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2453-ac-power-control-zero-crossing-detection-ac-dimming",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2454-arduino-ac-power-control-zero-crossing-detection-ac-dimming"
 ]
 },
 {
@@ -5423,8 +5414,8 @@ const CURSOS = {
 "t": "ENC28J60 Mini Servidor WEB PIC O Arduino",
 "d": "Muestra la forma de crear una pequeña pagina WEB tanto en PIC como en Arduino. Driver para que proegtus acpete el modulo enc28j60.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2460/basic-web-server-pic",
-"https://libstock.mikroe.com/projects/view/2461/basic-web-server-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2460-basic-web-server-pic",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2461-basic-web-server-arduino"
 ]
 },
 {
@@ -5433,7 +5424,7 @@ const CURSOS = {
 "t": "Control por bluetooth PIC ( MikroC ) o Arduino",
 "d": "Modifico el programa de comuniación serial full duplex controlado con el celular y la aplicacion en Adroid bluetotth elecronics. con Mikroc en PIC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2463/celular-bluetooth-control-pic-and-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2463-celular-bluetooth-control-pic-and-arduino"
 ]
 },
 {
@@ -5442,8 +5433,8 @@ const CURSOS = {
 "t": "Control wifi con el ESP8266, con el celular o LabVIEW, en PIC ( MikroC ) o en Arduino",
 "d": "Se crea una red wifi y un servidor con el cual se puede conectar un pc o un celular y controlar un motor y unas luces . Tanto en PIC (con Mikroc )como en Arduino al canal.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2465/pic-esp8266-wifi-server-control-whit-android-or-labview",
-"https://libstock.mikroe.com/projects/view/2466/arduino-esp8266-wifi-server-control-whit-android-or-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2465-pic-esp8266-wifi-server-control-whit-android-or-labview",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2466-arduino-esp8266-wifi-server-control-whit-android-or-labview"
 ]
 },
 {
@@ -5452,8 +5443,8 @@ const CURSOS = {
 "t": "Multiples interrupciones Arduino",
 "d": "Versión de Arduino de manejo de comunicación full duplex y uso de interrupciones para manejo de carga AC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2499/handling-multiple-interruptions-for-full-duplex-communication-and-ac-load-dimmer",
-"https://libstock.mikroe.com/projects/view/2500/arduino-handling-multiple-interruptions-for-full-duplex-communication-and-ac-load-dimmer"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2499-handling-multiple-interruptions-for-full-duplex-communicatio",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2500-arduino-handling-multiple-interruptions-for-full-duplex-comm"
 ]
 },
 {
@@ -5476,7 +5467,7 @@ const CURSOS = {
 "t": "Version Arduino ESP8266 control y monitoreo por internet",
 "d": "Ver antes la configuracion de ubidots en la versión para PICS. Muestra como monitorear y controlar con el esp8266 en ubidots con Arduino, ademas de recibir un correo si hay una alarma.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2520/esp8266-full-control-iot-application-with-arduino-and-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2520-esp8266-full-control-iot-application-with-arduino-and-ubidot"
 ]
 },
 {
@@ -5485,7 +5476,7 @@ const CURSOS = {
 "t": "Alarma de posicion con GPS y Arduino",
 "d": "Muestra como leer un GPS y dar una alerta por ubicación usando Arduino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2525/arduino-version-read-gps-and-alert-position"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2525-arduino-version-read-gps-and-alert-position"
 ]
 },
 {
@@ -5494,7 +5485,7 @@ const CURSOS = {
 "t": "Arduino control de motores paso a paso con LabVIEW",
 "d": "Usa interrupciones para controlar un motor paso a paso recibiendo ordenes desde Labview.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2542/arduino-version-stepper-motor-control-with-labiew"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2542-arduino-version-stepper-motor-control-with-labiew"
 ]
 },
 {
@@ -5518,7 +5509,7 @@ const CURSOS = {
 "d": "Se muestra para aquellos que ya tienen la plataforma y quiera empezar a programar PICS, un proyecto que permite que uses el compilador que desees para programar tu pic, pero uses el…",
 "c": [
 "https://github.com/alcidesramos/PROGRAMADOR_PIC_CON_ARDUINO_ARZ",
-"https://libstock.mikroe.com/projects/view/2745/using-arduino-to-programmer-pics-microcontroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2745-using-arduino-to-programmer-pics-microcontroller"
 ]
 },
 {
@@ -5527,7 +5518,7 @@ const CURSOS = {
 "t": "Lectura de sensores Ópticos reflectivos de forma digital",
 "d": "Muetsra técnica para leer varios sensores tipo cny7 o cualquier otro sensores óptico reflectivo usando timer en pic y arduino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2759/read-various-reflective-optical-sensors-type-cny70"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2759-read-various-reflective-optical-sensors-type-cny70"
 ]
 },
 {
@@ -5543,7 +5534,7 @@ const CURSOS = {
 "t": "Control PID de velocidad en un motor DC con Arduino",
 "d": "Muestra como controlar la velocidad de un motor dc con arduino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2920/three-ways-to-control-the-speed-in-a-dc-motor-and-a-microcontroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2920-three-ways-to-control-the-speed-in-a-dc-motor-and-a-microcon"
 ]
 },
 {
@@ -5552,7 +5543,7 @@ const CURSOS = {
 "t": "Usar Arduino para operaciones logicas",
 "d": "Muestra como se puede usar arduino para operaciones lógicas basicas. Video de como simualr arduino en proteus.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4999/how-use-boolean-logic-with-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4999-how-use-boolean-logic-with-arduino"
 ]
 },
 {
@@ -5575,7 +5566,7 @@ const CURSOS = {
 "t": "Charla de adquision de datos analogos desde simulink y pasarlo a Matlab para procesar, on Arduino",
 "d": "Muestra como adquirir datos desde simulink usando arduino.",
 "c": [
-"https://drive.google.com/drive/folders/1jGQmJhWH8ZoDwFt4aNHePGj5F4cbGrYI?usp=share_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-simulink-arduino-adquisicion"
 ]
 },
 {
@@ -5584,7 +5575,7 @@ const CURSOS = {
 "t": "Haz tu propio modulo de iniico y parada para tus robot con Arduino",
 "d": "MuesTra mi libreria para leer codigos ir con Arduino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5522/arduino-start-and-stop-ir-modulo-for-robotic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5522-arduino-start-and-stop-ir-modulo-for-robotic"
 ]
 },
 {
@@ -5593,7 +5584,7 @@ const CURSOS = {
 "t": "Clase robotica elemental en vivo 1. Programacion de ESP32 con Arduino en Wokwi",
 "d": "Muestra como Programar la esp32 con arduino y wokwi.",
 "c": [
-"https://drive.google.com/file/d/1y5J5jZlVJz1-SN2ZVLnDtI8m2BQQmerd/view?usp=sharing"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-esp32-robotica-elemental"
 ]
 },
 {
@@ -5669,7 +5660,7 @@ const CURSOS = {
 "t": "Como usar la GAL22V10 en Proteus",
 "d": "Muestra como configurar la GALS con wincupl y simular en proteus.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5017/use-gal22v20-and-proteus"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5017-use-gal22v20-and-proteus"
 ]
 },
 {
@@ -5678,7 +5669,7 @@ const CURSOS = {
 "t": "Usar Arduino para operaciones logicas",
 "d": "Muestra como se puede usar arduino para operaciones lógicas basicas. Video de como simualr arduino en proteus.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4999/how-use-boolean-logic-with-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4999-how-use-boolean-logic-with-arduino"
 ]
 },
 {
@@ -5807,7 +5798,7 @@ const CURSOS = {
 "t": "Programacion de ESP32 con Arduino en Wokwi",
 "d": "Muestra como Programar la esp32 con arduino y wokwi.",
 "c": [
-"https://drive.google.com/file/d/1y5J5jZlVJz1-SN2ZVLnDtI8m2BQQmerd/view?usp=sharing"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-esp32-robotica-elemental"
 ]
 },
 {
@@ -6043,7 +6034,7 @@ const CURSOS = {
 "t": "Charla de adquision de datos analogos desde simulink y pasarlo a Matlab para procesar,  on Arduino",
 "d": "Muestra como adquirir datos desde simulink usando arduino.",
 "c": [
-"https://drive.google.com/drive/folders/1jGQmJhWH8ZoDwFt4aNHePGj5F4cbGrYI?usp=share_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-simulink-arduino-adquisicion"
 ],
 "f": "2023-10-22"
 },
@@ -6130,7 +6121,7 @@ const CURSOS = {
 "t": "Internet de las cosas, ESP8266 y Ubidots (monitoreo y control) version con GPS",
 "d": "Este video es una adaptacion de los 3 videos de GPRS con el sim800 y ubidot al modulo ESP8266, se recomienda ver esos 3 video anets para enterder mejor este. vidios GPRS.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3021/iot-application-with-esp8266-and-ubidot"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3021-iot-application-with-esp8266-and-ubidot"
 ],
 "f": "2019-11-15",
 "m": [
@@ -6143,7 +6134,7 @@ const CURSOS = {
 "t": "ESP8266 monitoreo y control con Ubidots PIC y MikroC",
 "d": "Muestra como monitorear y controlar con el esp8266 en ubidots con pic y mikroc. ademas de recibir un correo si hay una alarma.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2518/esp8266-full-control-iot-application-with-pic-and-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2518-esp8266-full-control-iot-application-with-pic-and-ubidots"
 ],
 "f": "2018-07-21",
 "m": [
@@ -6156,7 +6147,7 @@ const CURSOS = {
 "t": "Internet las cosas ESP8266  Ubidots  con PIC y XC8",
 "d": "Version mplab xc8 de monitores de variables en la nube con ubidots.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2517/iot-application-with-pic-xc8-and-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2517-iot-application-with-pic-xc8-and-ubidots"
 ],
 "f": "2018-07-20",
 "m": [
@@ -6169,7 +6160,7 @@ const CURSOS = {
 "t": "Ubidots internet de las cosas con SIM800 parte 1 (envio de datos a Ubidots)",
 "d": "Muestra como configurar el sim800 con mikroc y enviar datos básicos Ubidot, usando internet de las cosas.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3007/using-sim800-in-gprs-mode-to-send-data-to-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3007-using-sim800-in-gprs-mode-to-send-data-to-ubidots"
 ],
 "f": "2019-11-11",
 "m": [
@@ -6182,7 +6173,7 @@ const CURSOS = {
 "t": "Ubidots internet de las cosas con SIM800 parte 2 (envio de datos de GPS)",
 "d": "Muestra como leer un GPS por softawre y mandarlo a Ubidots usando el modulo SIM800.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3008/read-gps-and-send-via-gprs-to-ubidots-with-sim800-module"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3008-read-gps-and-send-via-gprs-to-ubidots-with-sim800-module"
 ],
 "f": "2019-11-11",
 "m": [
@@ -6195,7 +6186,7 @@ const CURSOS = {
 "t": "Ubidots internet de las cosas con SIM800 parte 3 (recibiendo datos Ubidots)",
 "d": "Muestra como mandar y recibir datos de Ubidot con SIM800 usando mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3009/full-transmission-and-reception-to-ubidots-using-sim800"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3009-full-transmission-and-reception-to-ubidots-using-sim800"
 ],
 "f": "2019-11-11",
 "m": [
@@ -6219,7 +6210,7 @@ const CURSOS = {
 "t": "Internet  de las cosas con  Ubidots y PIC con MikroC",
 "d": "Muestra como monitorear variable analoga y digital remotamente en la nube con Ubidots. con Mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2514/iot-application-with-pic-and-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2514-iot-application-with-pic-and-ubidots"
 ],
 "f": "2018-07-19",
 "m": [
@@ -6254,7 +6245,7 @@ const CURSOS = {
 "t": "DT-06  conexion IoT a Ubidots , transmison, recepcion y eventos",
 "d": "Muestra como hacer una aplicación Iot con STM32, el mopdulo DT-06 y ubidots.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5868/stm32-dt-06-iot-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5868-stm32-dt-06-iot-ubidots"
 ],
 "f": "2025-01-20",
 "m": [
@@ -6293,8 +6284,8 @@ const CURSOS = {
 "t": "ENC28J60 Mini Servidor WEB PIC O Arduino",
 "d": "Muestra la forma de crear una pequeña pagina WEB tanto en PIC como en Arduino. Driver para que proegtus acpete el modulo enc28j60.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2460/basic-web-server-pic",
-"https://libstock.mikroe.com/projects/view/2461/basic-web-server-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2460-basic-web-server-pic",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2461-basic-web-server-arduino"
 ],
 "f": "2018-06-25",
 "m": [
@@ -6308,8 +6299,8 @@ const CURSOS = {
 "t": "Control wifi con el ESP8266, con el celular o LabVIEW, en PIC ( MikroC ) o en Arduino",
 "d": "Se crea una red wifi y un servidor con el cual se puede conectar un pc o un celular y controlar un motor y unas luces . Tanto en PIC (con Mikroc )como en Arduino al canal.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2465/pic-esp8266-wifi-server-control-whit-android-or-labview",
-"https://libstock.mikroe.com/projects/view/2466/arduino-esp8266-wifi-server-control-whit-android-or-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2465-pic-esp8266-wifi-server-control-whit-android-or-labview",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2466-arduino-esp8266-wifi-server-control-whit-android-or-labview"
 ],
 "f": "2018-06-29",
 "m": [
@@ -6323,7 +6314,7 @@ const CURSOS = {
 "t": "Version Arduino ESP8266 control y monitoreo por internet",
 "d": "Ver antes la configuracion de ubidots en la versión para PICS. Muestra como monitorear y controlar con el esp8266 en ubidots con Arduino, ademas de recibir un correo si hay una alarma.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2520/esp8266-full-control-iot-application-with-arduino-and-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2520-esp8266-full-control-iot-application-with-arduino-and-ubidot"
 ],
 "f": "2018-07-21",
 "m": [
@@ -6348,7 +6339,7 @@ const CURSOS = {
 "t": "Proyecto wifi con ESP8266 con aplicación virtuino y microcontrolador PIC ( parte 2)",
 "d": "Segunda parte de utilizar la aplicación virtuino con el ESP8266 y un Microcontrolador PIC. código del micro, como decodificar la trama.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3787/how-to-use-the-virtuino-app-with-an-esp8266-a-pic18f-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3787-how-to-use-the-virtuino-app-with-an-esp8266-a-pic18f-and-mik"
 ],
 "f": "2020-05-23",
 "m": [
@@ -6361,7 +6352,7 @@ const CURSOS = {
 "t": "Clase en vivo de ethernet, TCP, UDP  servidor remoto, aplicado a micro  y app en celular",
 "d": "Descargales.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3809/tcp-with-pic-microcontroller-and-virtuino-ans-tcp-udp-controller-apps"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3809-tcp-with-pic-microcontroller-and-virtuino-ans-tcp-udp-contro"
 ],
 "f": "2020-06-08",
 "m": [
@@ -6385,7 +6376,7 @@ const CURSOS = {
 "t": "DT-06  monitoreo wifi con el celular y la app virtuino",
 "d": "Muestra como monitorear con el celular por WIFI una variables análoga y una digital con el STM3232, utilizando el modulo dt-06 y la aplicación virtuino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5864/stm32-dt-06-wifi-monitor-with-virtuino-app"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5864-stm32-dt-06-wifi-monitor-with-virtuino-app"
 ],
 "f": "2025-01-06",
 "m": [
@@ -6398,7 +6389,7 @@ const CURSOS = {
 "t": "DT-06  monitoreo wifi LabVIEW TCP cliente",
 "d": "Muestra como monitorear con Labview datos enviados desde el stm32 usando el modulo WIFI DT-06.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5865/stm32-dt-06-labiew-tcp-client-monitor"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5865-stm32-dt-06-labiew-tcp-client-monitor"
 ],
 "f": "2025-01-06",
 "m": [
@@ -6411,7 +6402,7 @@ const CURSOS = {
 "t": "DT-06  control y monitoreo por wifi app virtuino",
 "d": "Muestra como, con un STM32 monitorear y controlar por WIFi usando la aplicación virtuino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5866/stm32-wifi-control-and-monitor-using-virtuino-app"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5866-stm32-wifi-control-and-monitor-using-virtuino-app"
 ],
 "f": "2025-01-14",
 "m": [
@@ -6424,7 +6415,7 @@ const CURSOS = {
 "t": "DT-06  control y monitoreo por wifi con LabVIEW",
 "d": "Muestra como controlar y monitorear con un stm32 con wifi y labview usando el DT-06.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5867/stm32-dt-06-labview-monitor-and-control"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5867-stm32-dt-06-labview-monitor-and-control"
 ],
 "f": "2025-01-14",
 "m": [
@@ -6448,7 +6439,7 @@ const CURSOS = {
 "t": "DT-06  conexion IoT a Ubidots , transmison, recepcion y eventos",
 "d": "Muestra como hacer una aplicación Iot con STM32, el mopdulo DT-06 y ubidots.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5868/stm32-dt-06-iot-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5868-stm32-dt-06-iot-ubidots"
 ],
 "f": "2025-01-20",
 "m": [
@@ -6475,7 +6466,7 @@ const CURSOS = {
 "d": "Muestra la forma de como diseñar filtros tipo buterworth, hasta grado 10 con operacionales.",
 "c": [
 "https://github.com/alcidesramos/filtros2020",
-"https://libstock.mikroe.com/projects/view/3742/easy-design-of-analog-filters"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3742-easy-design-of-analog-filters"
 ],
 "f": "2020-04-29"
 },
@@ -6485,7 +6476,7 @@ const CURSOS = {
 "t": "Diseño de filtro pasabanda de banda angosta",
 "d": "Muestra una forma práctica y fácil de diseñar filtros pasabanda de banda angosta.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3743/narrow-band-filter-design"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3743-narrow-band-filter-design"
 ],
 "f": "2020-04-30"
 },
@@ -6495,7 +6486,7 @@ const CURSOS = {
 "t": "Clase de saturación de transistores de manera práctica, uso de darlintong",
 "d": "Muestra, la importancia de la saturación y como garantizarla, y aplicabilidad de la misma.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3879/how-to-guarantee-saturation-in-circuits-with-microcontrollers"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3879-how-to-guarantee-saturation-in-circuits-with-microcontroller"
 ],
 "f": "2020-08-19"
 },
@@ -6513,7 +6504,7 @@ const CURSOS = {
 "t": "Conmutación de MOSFET con circuitos microcontrolados. Parte 2 Conexión con el micro",
 "d": "Muestras las recomendaciones cuando el micro ya genera los pulsos PWM.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3920/pic12f1822-low-frequency-mosfet-switching-using-internal-oscillator"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3920-pic12f1822-low-frequency-mosfet-switching-using-internal-osc"
 ],
 "f": "2020-09-21"
 },
@@ -6523,7 +6514,7 @@ const CURSOS = {
 "t": "Introducción básica  a fuentes conmutadas tipo buck. Control con microcontrolador",
 "d": "Muestra el funcionamiento de una fuente conmutada tipo buck y el uso de un microcontrolador para su control.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4213/using-a-microcontroller-to-control-buck-type-switching-sources"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4213-using-a-microcontroller-to-control-buck-type-switching-sourc"
 ],
 "f": "2020-12-23"
 },
@@ -6541,7 +6532,7 @@ const CURSOS = {
 "t": "Diseño de una fuente sin transformador óptima",
 "d": "Muestra los elementos, y consideraciones de diseño para una buena fuente sin transformador. útil para alimentar circuitos microcontrolados de bajo consumo.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4511/design-of-a-transformerless-source-for-circuits-with-microcontrollers"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4511-design-of-a-transformerless-source-for-circuits-with-microco"
 ],
 "f": "2021-06-05"
 },
@@ -6566,7 +6557,7 @@ const CURSOS = {
 "t": "Conceptos basicos de programacion en C++, tipos de variables usadas en STM32CubeIDE",
 "d": "Muestra los tipos de variables usadas en stm32cubeide y la importancia de saber definilas correctamente.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5179/analyzing-stm32cubeid-variable-types"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5179-analyzing-stm32cubeid-variable-types"
 ]
 },
 {
@@ -6589,7 +6580,7 @@ const CURSOS = {
 "t": "Conociendo el modulo bluetooth JDY-33 , bueno, bonito y barato. LIBRERIAS PARA PROTEUS",
 "d": "Muestra como usar el modulo JDY-33 en proteus. entrego mis liberias de proteus. Librerias.",
 "c": [
-"https://drive.google.com/drive/folders/1zhn5OfhoWkw7CJYx8kU6gdySZsKCCclx?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-jdy-33-bluetooth"
 ],
 "f": "2024-04-09"
 },
@@ -6622,7 +6613,7 @@ const CURSOS = {
 "t": "Utilizar el Embedded C code de Matlab, Para crear funciones en C para Microcontroladores",
 "d": "Muestra como convertir una funciones de Simulink, o Matlab a lenguaje C o C++ para ser usadas en cualquier Microcontrolador.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3833/how-use-the-matlab-embedded-code-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3833-how-use-the-matlab-embedded-code-and-mikroc"
 ],
 "f": "2020-07-04"
 },
@@ -6632,7 +6623,7 @@ const CURSOS = {
 "t": "PID discreto con MikroC, sintonización PID Matlab",
 "d": "Muestra como como tomar datos de un sistema con labview, identificarlo con matlab, diseñar el PID en Matlab e implementarlo en mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2645/identification-of-models-and-pid-tuning-with-matlab-labview-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2645-identification-of-models-and-pid-tuning-with-matlab-labview-"
 ],
 "f": "2018-11-08"
 },
@@ -6642,7 +6633,7 @@ const CURSOS = {
 "t": "Generador de onda seno  pura a 60hz por PWM",
 "d": "Muestra como usar el modulo PWM para generar una señal de seno de 60HZ , que se puede usar para generador de señales o inversores de dc a AC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2697/60hz-pure-sine-wave-with-pwm-module-for-dc-to-ac-inverter"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2697-60hz-pure-sine-wave-with-pwm-module-for-dc-to-ac-inverter"
 ],
 "f": "2018-12-14"
 },
@@ -6652,7 +6643,7 @@ const CURSOS = {
 "t": "MPLAB XC8 generador de onda seno pura a 60hz por PWM",
 "d": "VERSION EN MPLAB XC8 DE Muestra como usar el modulo PWM para generar una señal de seno de 60HZ , que se puede usar para generador de señales o inversores de dc a AC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2698/mplab-xc8-version-of-60hz-pure-sine-wave-with-pwm-module-for-dc-to-ac-inverte"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2698-mplab-xc8-version-of-60hz-pure-sine-wave-with-pwm-module-for"
 ],
 "f": "2018-12-16"
 },
@@ -6670,7 +6661,7 @@ const CURSOS = {
 "t": "Leer datos serial y graficar con  Matlab app designer",
 "d": "Muestra como leer datos seriales con Matlab y graficarlos video anterior.",
 "c": [
-"https://drive.google.com/drive/folders/18eXcXvGWHz_p-Xqmg0isrsesNdT73wdR?usp=share_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-matlab-app-designer-serial"
 ],
 "f": "2022-10-30"
 },
@@ -6680,7 +6671,7 @@ const CURSOS = {
 "t": "Leer varios datos serial y graficar con  Matlab app designer",
 "d": "Muestra como obtener varios datos del puerto serial en matlab y graficarlos usando app designer.",
 "c": [
-"https://drive.google.com/drive/folders/18eXcXvGWHz_p-Xqmg0isrsesNdT73wdR?usp=share_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-matlab-app-designer-serial"
 ],
 "f": "2023-03-23"
 },
@@ -6700,7 +6691,7 @@ const CURSOS = {
 "t": "Programando desde Matlab parte 2. Simulacion en Proteus",
 "d": "Muestra como compilar un STM32 en simulink y hacer el .hex para simularlo en proteus.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5443/matlab-simulink-stm32-proteus-simulation"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5443-matlab-simulink-stm32-proteus-simulation"
 ],
 "f": "2023-08-28"
 },
@@ -6710,7 +6701,7 @@ const CURSOS = {
 "t": "Programando desde Matlab parte 3. Programacion ST-Link v2, blackpill",
 "d": "Muestra como cargar a la black pill el codigo generado desde matlab de forma directa.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5444/simulink-build-and-programmer-stm32-wiht-st-link-v2"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5444-simulink-build-and-programmer-stm32-wiht-st-link-v2"
 ],
 "f": "2023-08-28"
 },
@@ -6720,7 +6711,7 @@ const CURSOS = {
 "t": "STM32 clase en vivo, control on off con Matlab y la blackpill",
 "d": "Muestra como hacer un control on off, con matlab y la black pill.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5452/on-off-control-with-matlab-and-stm32"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5452-on-off-control-with-matlab-and-stm32"
 ],
 "f": "2023-09-06"
 },
@@ -6730,7 +6721,7 @@ const CURSOS = {
 "t": "Charla de adquision de datos analogos desde simulink y pasarlo a Matlab para procesar,  on Arduino",
 "d": "Muestra como adquirir datos desde simulink usando arduino.",
 "c": [
-"https://drive.google.com/drive/folders/1jGQmJhWH8ZoDwFt4aNHePGj5F4cbGrYI?usp=share_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-simulink-arduino-adquisicion"
 ],
 "f": "2023-10-22"
 },
@@ -6748,7 +6739,7 @@ const CURSOS = {
 "t": "Usando LabVIEW para tomar datos de una planta de factory io e identificarla despues con Matlab",
 "d": "Digos: Factory io.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5691/example-how-use-matlab-and-labview-with-factory-io",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5691-example-how-use-matlab-and-labview-with-factory-io",
 "https://drive.google.com/drive/folders/1wImYl9GO2fnLhCkCdgftG6uehYXUP_fw?usp=sharing"
 ],
 "f": "2024-03-28"
@@ -6759,7 +6750,7 @@ const CURSOS = {
 "t": "PID tuner con Matlab, aplicado a una planta simulada en factory io e implementado en LabVIEW",
 "d": "Usa la Herramienta PID Tuner de Matlab, para sintonizar un PID en LAbview y aplicarlo a una planta simulada en Factory IO. Factory io.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5691/example-how-use-matlab-and-labview-with-factory-io",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5691-example-how-use-matlab-and-labview-with-factory-io",
 "https://drive.google.com/drive/folders/1wImYl9GO2fnLhCkCdgftG6uehYXUP_fw?usp=sharing"
 ],
 "f": "2024-03-28"
@@ -6779,7 +6770,7 @@ const CURSOS = {
 "d": "Muestra como graficar datos en Matlab, a una respuesta pulso y usar el PID tuner para identificación de la planta y sintonización.",
 "c": [
 "https://github.com/alcidesramos/Identificacion_PID1",
-"https://drive.google.com/file/d/1iSSnN7UczN2jf_PVU2CoSY21rZtHn2dd/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-identificacion-pid-1"
 ],
 "f": "2025-06-03"
 },
@@ -6790,7 +6781,7 @@ const CURSOS = {
 "d": "Muestra como identificar una planta y sintonizar un PID con Matlab usando PID Turner basado en los datos de entrada y salida del sistema.",
 "c": [
 "https://github.com/alcidesramos/Identificacion_PID2",
-"https://drive.google.com/file/d/16vwRZeWeC2RdQiOky8dDvbuj90f5alUo/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-identificacion-pid-2"
 ],
 "f": "2025-06-03"
 }
@@ -6807,7 +6798,7 @@ const CURSOS = {
 "t": "Control de velocidad ( PID ) de un motor DC con PIC y MPLAB XC8",
 "d": "Muestra la versión en xc8 de la clase de controladores dictada con PIC y MIKROC.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2921/speed-control-of-a-dc-motor-with-pid-mplab-xc8-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2921-speed-control-of-a-dc-motor-with-pid-mplab-xc8-version"
 ],
 "f": "2019-07-24",
 "m": [
@@ -6820,7 +6811,7 @@ const CURSOS = {
 "t": "Control PID de velocidad en un motor DC con Arduino",
 "d": "Muestra como controlar la velocidad de un motor dc con arduino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2920/three-ways-to-control-the-speed-in-a-dc-motor-and-a-microcontroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2920-three-ways-to-control-the-speed-in-a-dc-motor-and-a-microcon"
 ],
 "f": "2019-07-23",
 "m": [
@@ -6834,7 +6825,7 @@ const CURSOS = {
 "t": "Control de velocidad de un motor DC, clase de control on-off  PID, con microcontrolador PIC y MikroC",
 "d": "Muestra como hacer un control de velocidad con pic, usando diferentes técnica. el control esta en revoluciones por segundo, si se quieren tener RPM solo es escalar multiplicando la…",
 "c": [
-"https://libstock.mikroe.com/projects/view/2920/three-ways-to-control-the-speed-in-a-dc-motor-and-a-microcontroller"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2920-three-ways-to-control-the-speed-in-a-dc-motor-and-a-microcon"
 ],
 "f": "2019-07-23",
 "m": [
@@ -6847,7 +6838,7 @@ const CURSOS = {
 "t": "PID discreto con MikroC, sintonización PID Matlab",
 "d": "Muestra como como tomar datos de un sistema con labview, identificarlo con matlab, diseñar el PID en Matlab e implementarlo en mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2645/identification-of-models-and-pid-tuning-with-matlab-labview-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2645-identification-of-models-and-pid-tuning-with-matlab-labview-"
 ],
 "f": "2018-11-08",
 "m": [
@@ -6860,7 +6851,7 @@ const CURSOS = {
 "t": "Control de posicion  con PID de un motor DC con encoder de cuadratura con MikroC",
 "d": "Muestra como controlar la posición de un motor dc, usando un PID y un encoder de cuadratura. con Mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/1824/pid-position-control-with-quadrature-encoder"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/1824-pid-position-control-with-quadrature-encoder"
 ],
 "f": "2018-07-18",
 "m": [
@@ -6884,7 +6875,7 @@ const CURSOS = {
 "t": "Implementación de un control difuso con mikroc  en un pic 18f",
 "d": "Muestra como usar Xfuzzy para implementar un controlador fuzzy, en un pic18f en mikroc. Logica difusa, o fuzzy logic mikroc en microcontrolaodre pic.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2651/implementation-of-a-temperature-fuzzy-logic-control-in-pic18"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2651-implementation-of-a-temperature-fuzzy-logic-control-in-pic18"
 ],
 "f": "2018-11-11",
 "m": [
@@ -6897,8 +6888,8 @@ const CURSOS = {
 "t": "Dimmer control de energia carga AC  PIC ( con MikroC ) o Arduino",
 "d": "Con mikroc para pic Aclaro el timer del pic esta con preescalador de 256 no de 32 como menciono en el video. después lo edito con mas calma.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2453/ac-power-control-zero-crossing-detection-ac-dimming",
-"https://libstock.mikroe.com/projects/view/2454/arduino-ac-power-control-zero-crossing-detection-ac-dimming"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2453-ac-power-control-zero-crossing-detection-ac-dimming",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2454-arduino-ac-power-control-zero-crossing-detection-ac-dimming"
 ],
 "f": "2018-06-18",
 "m": [
@@ -6912,7 +6903,7 @@ const CURSOS = {
 "t": "Internet de las cosas, ESP8266 y Ubidots (monitoreo y control) version con GPS",
 "d": "Este video es una adaptacion de los 3 videos de GPRS con el sim800 y ubidot al modulo ESP8266, se recomienda ver esos 3 video anets para enterder mejor este. vidios GPRS.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3021/iot-application-with-esp8266-and-ubidot"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3021-iot-application-with-esp8266-and-ubidot"
 ],
 "f": "2019-11-15",
 "m": [
@@ -6925,7 +6916,7 @@ const CURSOS = {
 "t": "ESP8266 monitoreo y control con Ubidots PIC y MikroC",
 "d": "Muestra como monitorear y controlar con el esp8266 en ubidots con pic y mikroc. ademas de recibir un correo si hay una alarma.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2518/esp8266-full-control-iot-application-with-pic-and-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2518-esp8266-full-control-iot-application-with-pic-and-ubidots"
 ],
 "f": "2018-07-21",
 "m": [
@@ -6938,7 +6929,7 @@ const CURSOS = {
 "t": "Version Arduino ESP8266 control y monitoreo por internet",
 "d": "Ver antes la configuracion de ubidots en la versión para PICS. Muestra como monitorear y controlar con el esp8266 en ubidots con Arduino, ademas de recibir un correo si hay una alarma.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2520/esp8266-full-control-iot-application-with-arduino-and-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2520-esp8266-full-control-iot-application-with-arduino-and-ubidot"
 ],
 "f": "2018-07-21",
 "m": [
@@ -6952,7 +6943,7 @@ const CURSOS = {
 "t": "Control actuadores industrial por Modbus TCP , usando ESP8266 , con PIC y factory io. MikroC",
 "d": "Muestra como controlar actuadores industriales usando el protocolo Modbus TCP, implementado en un pic y usando el modulo esp8266. simulado en factory IO.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4249/implementation-of-the-modbus-protocol-in-pic-using-the-esp8266-and-factory-io"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4249-implementation-of-the-modbus-protocol-in-pic-using-the-esp82"
 ],
 "f": "2021-01-11",
 "m": [
@@ -6965,7 +6956,7 @@ const CURSOS = {
 "t": "Control de factory io con LabVIEW usando Modbus TCP server",
 "d": "Muestra como usar labview para controlar procesos en factory IO.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4242/process-control-in-factory-io-using-labview-modbus-tcp-server"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4242-process-control-in-factory-io-using-labview-modbus-tcp-serve"
 ],
 "f": "2021-01-06",
 "m": [
@@ -6978,7 +6969,7 @@ const CURSOS = {
 "t": "Interfazar Microsoft flight Simulator con Labview",
 "d": "Muestra la forma de controlar el Microsoft flight simulator con otras aplicaciones, en este caso labview, po que permitirá hacer autopilotos, sillas simuladores de asiento de piloto,…",
 "c": [
-"https://libstock.mikroe.com/projects/view/4325/interface-labview-with-microsoft-flight-simulator"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4325-interface-labview-with-microsoft-flight-simulator"
 ],
 "f": "2021-02-27",
 "m": [
@@ -7035,7 +7026,7 @@ const CURSOS = {
 "t": "Usando LabVIEW para tomar datos de una planta de factory io e identificarla despues con Matlab",
 "d": "Digos: Factory io.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5691/example-how-use-matlab-and-labview-with-factory-io",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5691-example-how-use-matlab-and-labview-with-factory-io",
 "https://drive.google.com/drive/folders/1wImYl9GO2fnLhCkCdgftG6uehYXUP_fw?usp=sharing"
 ],
 "f": "2024-03-28",
@@ -7049,7 +7040,7 @@ const CURSOS = {
 "t": "PID tuner con Matlab, aplicado a una planta simulada en factory io e implementado en LabVIEW",
 "d": "Usa la Herramienta PID Tuner de Matlab, para sintonizar un PID en LAbview y aplicarlo a una planta simulada en Factory IO. Factory io.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5691/example-how-use-matlab-and-labview-with-factory-io",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5691-example-how-use-matlab-and-labview-with-factory-io",
 "https://drive.google.com/drive/folders/1wImYl9GO2fnLhCkCdgftG6uehYXUP_fw?usp=sharing"
 ],
 "f": "2024-03-28",
@@ -7063,7 +7054,7 @@ const CURSOS = {
 "t": "Obtencion  de la curva caracteristica de un motor DC",
 "d": "Muestra como obtenr con labview la curva caracteristica de un motor DC. Video anterior.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5714/stm32-curve-of-dc-motor-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5714-stm32-curve-of-dc-motor-with-labview"
 ],
 "f": "2024-05-06",
 "m": [
@@ -7076,7 +7067,7 @@ const CURSOS = {
 "t": "Librerias control de  motores paso paso. Usando LabVIEW",
 "d": "Muestra como usar mis librerias de motor paso paso, para stm32, usando interrupicones y control por puerto serial con Labview.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5763/stm32-stepper-motor-control-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5763-stm32-stepper-motor-control-with-labview"
 ],
 "f": "2024-07-24",
 "m": [
@@ -7090,7 +7081,7 @@ const CURSOS = {
 "d": "Muestra como controlar la velocidad de un motor dc a lazo abierto Explicacion detallada librerias de PWM y Frecuencia.",
 "c": [
 "https://github.com/alcidesramos/LAZO_ABIERTO",
-"https://drive.google.com/file/d/13UCQEH-ST5uGvclOdlx59qR7xFNxSsPl/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-control-motor-dc"
 ],
 "f": "2025-06-02",
 "m": [
@@ -7104,7 +7095,7 @@ const CURSOS = {
 "d": "Muestra como seleccionar y establecer un tiempo de muestreo preciso en el sistema de control.",
 "c": [
 "https://github.com/alcidesramos/CONTROL_MOTOR_MUESTREO",
-"https://drive.google.com/file/d/1GJAULEkyP9MTW935h-LjOykcdvkF5z4p/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-control-motor-muestreo"
 ],
 "f": "2025-06-02",
 "m": [
@@ -7118,7 +7109,7 @@ const CURSOS = {
 "d": "Muestra como adecuar la entrada y salida del sistema y graficarlas en serial osciloscopio y en Teleplot para posterior identificación.",
 "c": [
 "https://github.com/alcidesramos/ADQUISION",
-"https://drive.google.com/file/d/1de0HuV2aXNh7Xepf2ogyOmvpkpmhgy_x/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-motor-adquisicion"
 ],
 "f": "2025-06-03",
 "m": [
@@ -7132,7 +7123,7 @@ const CURSOS = {
 "d": "Muestra como graficar datos en Matlab, a una respuesta pulso y usar el PID tuner para identificación de la planta y sintonización.",
 "c": [
 "https://github.com/alcidesramos/Identificacion_PID1",
-"https://drive.google.com/file/d/1iSSnN7UczN2jf_PVU2CoSY21rZtHn2dd/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-identificacion-pid-1"
 ],
 "f": "2025-06-03",
 "m": [
@@ -7146,7 +7137,7 @@ const CURSOS = {
 "d": "Muestra como identificar una planta y sintonizar un PID con Matlab usando PID Turner basado en los datos de entrada y salida del sistema.",
 "c": [
 "https://github.com/alcidesramos/Identificacion_PID2",
-"https://drive.google.com/file/d/16vwRZeWeC2RdQiOky8dDvbuj90f5alUo/view?usp=drive_link"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-identificacion-pid-2"
 ],
 "f": "2025-06-03",
 "m": [
@@ -7230,7 +7221,7 @@ const CURSOS = {
 "t": "Comunicación Full Duplex PIC - Labview mplax xc8",
 "d": "Muestra como hacer una comunicación full duplex en xc8.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2449/full-duplex-communucation-xc8-version"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2449-full-duplex-communucation-xc8-version"
 ],
 "f": "2018-06-14",
 "m": [
@@ -7243,8 +7234,8 @@ const CURSOS = {
 "t": "Control wifi con el ESP8266, con el celular o LabVIEW, en PIC ( MikroC ) o en Arduino",
 "d": "Se crea una red wifi y un servidor con el cual se puede conectar un pc o un celular y controlar un motor y unas luces . Tanto en PIC (con Mikroc )como en Arduino al canal.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2465/pic-esp8266-wifi-server-control-whit-android-or-labview",
-"https://libstock.mikroe.com/projects/view/2466/arduino-esp8266-wifi-server-control-whit-android-or-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2465-pic-esp8266-wifi-server-control-whit-android-or-labview",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2466-arduino-esp8266-wifi-server-control-whit-android-or-labview"
 ],
 "f": "2018-06-29",
 "m": [
@@ -7269,7 +7260,7 @@ const CURSOS = {
 "t": "Labview  lectura por USB-HID, mikroc HID",
 "d": "Muestra como usar labview para leer datos por usb usando el modo HID, sin drivers.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2619/labview-daq-read-mikroc-hid-write"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2619-labview-daq-read-mikroc-hid-write"
 ],
 "f": "2018-10-25",
 "m": [
@@ -7282,7 +7273,7 @@ const CURSOS = {
 "t": "Labview, enviar datos via USB HID a mikroc con pic 18f2550",
 "d": "Muestra como leer datos via USB-HID desde mikroc , enviados desde labview.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2620/labview-daq-write-mikroc-hid-read"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2620-labview-daq-write-mikroc-hid-read"
 ],
 "f": "2018-10-26",
 "m": [
@@ -7317,7 +7308,7 @@ const CURSOS = {
 "t": "Usando LabVIEW para conectarse a Ubidots",
 "d": "Muestra como probar con un terminar tcp como hercules y con un programa desarrollado en labview la plataforma realizada en ubidots.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3019/labview-iot-application-with-ubidots"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3019-labview-iot-application-with-ubidots"
 ],
 "f": "2019-11-14",
 "m": [
@@ -7330,7 +7321,7 @@ const CURSOS = {
 "t": "Tips para la sincronizacion de datos entre LabVIEW y un micro comunicacon serial full duplex",
 "d": "Muestra como mejorar la cominucación entre labview y un pic. Aquí la primera versión donde se explica mas detallado el código.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3719/tips-to-improve-the-synchronization-between-labview-and-a-pic-full-duplex-communication"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3719-tips-to-improve-the-synchronization-between-labview-and-a-pi"
 ],
 "f": "2020-04-16",
 "m": [
@@ -7343,7 +7334,7 @@ const CURSOS = {
 "t": "Control motor paso a paso con LabVIEW y MPLAB XC8",
 "d": "Muestra como manejar dos motores paso a paso, mediante Labview dándole ordenes seriales al micro, realizado en MPLAB XC8.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2544/mplab-xc8-version-stepper-motor-control-with-labiew"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2544-mplab-xc8-version-stepper-motor-control-with-labiew"
 ],
 "f": "2018-08-09",
 "m": [
@@ -7356,7 +7347,7 @@ const CURSOS = {
 "t": "Arduino control de motores paso a paso con LabVIEW",
 "d": "Usa interrupciones para controlar un motor paso a paso recibiendo ordenes desde Labview.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2542/arduino-version-stepper-motor-control-with-labiew"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2542-arduino-version-stepper-motor-control-with-labiew"
 ],
 "f": "2018-08-08",
 "m": [
@@ -7369,7 +7360,7 @@ const CURSOS = {
 "t": "Control motor paso a paso con LabVIEW y MikroC",
 "d": "Muestra como manejar dos motores paso a paso, mediante Labview dándole ordenes seriales al micro, realizado en mikroc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2541/stepper-motor-control-with-labiew"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2541-stepper-motor-control-with-labiew"
 ],
 "f": "2018-08-07",
 "m": [
@@ -7382,7 +7373,7 @@ const CURSOS = {
 "t": "Clase en vivo, de comunicación serial entre DSPIC y LABVIEW",
 "d": "Muestra como comunicar y controlar variables leídas en un DSPIC en LABVIEW.",
 "c": [
-"https://libstock.mikroe.com/projects/view/3926/seria-lcommunication-between-a-dspic-and-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/3926-seria-lcommunication-between-a-dspic-and-labview"
 ],
 "f": "2020-09-23",
 "m": [
@@ -7461,7 +7452,7 @@ const CURSOS = {
 "t": "Usar un control  USB con Labview y Xbee, para manejar remotamente un buque a escala. Parte 1",
 "d": "Muestra como configurar y decodificar los botones de un control USB para ser usado en labvuew y posteriormente mandar esa información en forma remota.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4112/control-a-joystick-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4112-control-a-joystick-with-labview"
 ],
 "f": "2020-11-14",
 "m": [
@@ -7474,7 +7465,7 @@ const CURSOS = {
 "t": "Usar un control USB con Labview y Xbee, para manejar remotamente un buque a escala. Parte 2",
 "d": "Muestra como armar la trama para posterior mente ser enviada inalámbricamente al micro.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4112/control-a-joystick-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4112-control-a-joystick-with-labview"
 ],
 "f": "2020-11-27",
 "m": [
@@ -7487,7 +7478,7 @@ const CURSOS = {
 "t": "Usar un control USB con Labview y Xbee, para manejar remotamente un buque a escala. Parte 3",
 "d": "Muestra como armar la trama para posterior mente ser enviada inalámbricamente al micro. CLASE DE PWM.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4112/control-a-joystick-with-labview-and-dspic"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4112-control-a-joystick-with-labview"
 ],
 "f": "2020-12-12",
 "m": [
@@ -7500,7 +7491,7 @@ const CURSOS = {
 "t": "Usar un control USB con Labview y Xbee, para manejar remotamente un buque a escala. Parte 3.1  PIC18",
 "d": "Muestra como armar la trama para posterior mente ser enviada inalámbricamente al micro pic18f.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4190/control-a-joystick-with-labview-and-pic18f"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4190-control-a-joystick-with-labview-and-pic18f"
 ],
 "f": "2020-12-13",
 "m": [
@@ -7513,7 +7504,7 @@ const CURSOS = {
 "t": "Control de factory io con LabVIEW usando Modbus TCP server",
 "d": "Muestra como usar labview para controlar procesos en factory IO.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4242/process-control-in-factory-io-using-labview-modbus-tcp-server"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4242-process-control-in-factory-io-using-labview-modbus-tcp-serve"
 ],
 "f": "2021-01-06",
 "m": [
@@ -7526,7 +7517,7 @@ const CURSOS = {
 "t": "Interfazar Microsoft flight Simulator con Labview",
 "d": "Muestra la forma de controlar el Microsoft flight simulator con otras aplicaciones, en este caso labview, po que permitirá hacer autopilotos, sillas simuladores de asiento de piloto,…",
 "c": [
-"https://libstock.mikroe.com/projects/view/4325/interface-labview-with-microsoft-flight-simulator"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4325-interface-labview-with-microsoft-flight-simulator"
 ],
 "f": "2021-02-27",
 "m": [
@@ -7539,7 +7530,7 @@ const CURSOS = {
 "t": "Transmision y recepcion serial full duplex en PIC (MikroC )y Arduino",
 "d": "Muestra como poder recibir datos con Interrupcion y enviar a la vez desde un pic ( Mikroc ) y desde Arduino.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2431/send-and-receive-serial-data-full-duplex-pic-and-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2431-send-and-receive-serial-data-full-duplex-pic-and-arduino"
 ],
 "f": "2018-05-29",
 "m": [
@@ -7565,7 +7556,7 @@ const CURSOS = {
 "t": "Leyendo el sensor XY-MD02 con labview usando MODBUS RS485",
 "d": "Muestra la forma de usar MODBUS RS485 ccon labview.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4990/read-xy-md02-sensor-labview-modbus-rs485"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4990-read-xy-md02-sensor-labview-modbus-rs485"
 ],
 "f": "2022-05-25",
 "m": [
@@ -7578,7 +7569,7 @@ const CURSOS = {
 "t": "Recepcion de ordenes serial compuesta con LabVIEW parte3",
 "d": "Muetsra como utilizar labview para controla un mortor y 2 leds por ordenes seriales.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5288/stm32-serial-control-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5288-stm32-serial-control-with-labview"
 ],
 "f": "2023-04-07",
 "m": [
@@ -7591,7 +7582,7 @@ const CURSOS = {
 "t": "Transmision serial en el micro, recepcion en LabVIEW",
 "d": "Muestra como monitorear variibales analogas y digitles desde labview comunicandose serialmente por uart ocn el stm32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5289/stm32-monitoring-of-analog-and-digital-variables-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5289-stm32-monitoring-of-analog-and-digital-variables-with-labvie"
 ],
 "f": "2023-04-08",
 "m": [
@@ -7604,7 +7595,7 @@ const CURSOS = {
 "t": "Librerias PWM para control de motores DC",
 "d": "Muestra como mediante labview y usando pwm en el stm32 controla velocidad de un motor DC con Liberrias.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5291/stm32-pwm-library-for-dc-motor-control"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5291-stm32-pwm-library-for-dc-motor-control"
 ],
 "f": "2023-04-08",
 "m": [
@@ -7617,7 +7608,7 @@ const CURSOS = {
 "t": "Clase en vivo. Introduccion a las interrupciones STM32, control   carrito de Proteus desde LabVIEW",
 "d": "Muestra como crear interrpciones para timers e interrupciones externas control de carro de proteus desde labview.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5317/stm32-timer-extern-interrut"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5317-stm32-timer-extern-interrut"
 ],
 "f": "2023-05-02",
 "m": [
@@ -7652,7 +7643,7 @@ const CURSOS = {
 "t": "Usando LabVIEW para tomar datos de una planta de factory io e identificarla despues con Matlab",
 "d": "Digos: Factory io.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5691/example-how-use-matlab-and-labview-with-factory-io",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5691-example-how-use-matlab-and-labview-with-factory-io",
 "https://drive.google.com/drive/folders/1wImYl9GO2fnLhCkCdgftG6uehYXUP_fw?usp=sharing"
 ],
 "f": "2024-03-28",
@@ -7666,7 +7657,7 @@ const CURSOS = {
 "t": "PID tuner con Matlab, aplicado a una planta simulada en factory io e implementado en LabVIEW",
 "d": "Usa la Herramienta PID Tuner de Matlab, para sintonizar un PID en LAbview y aplicarlo a una planta simulada en Factory IO. Factory io.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5691/example-how-use-matlab-and-labview-with-factory-io",
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5691-example-how-use-matlab-and-labview-with-factory-io",
 "https://drive.google.com/drive/folders/1wImYl9GO2fnLhCkCdgftG6uehYXUP_fw?usp=sharing"
 ],
 "f": "2024-03-28",
@@ -7680,7 +7671,7 @@ const CURSOS = {
 "t": "Obtencion  de la curva caracteristica de un motor DC",
 "d": "Muestra como obtenr con labview la curva caracteristica de un motor DC. Video anterior.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5714/stm32-curve-of-dc-motor-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5714-stm32-curve-of-dc-motor-with-labview"
 ],
 "f": "2024-05-06",
 "m": [
@@ -7693,7 +7684,7 @@ const CURSOS = {
 "t": "Librerias control de  motores paso paso. Usando LabVIEW",
 "d": "Muestra como usar mis librerias de motor paso paso, para stm32, usando interrupicones y control por puerto serial con Labview.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5763/stm32-stepper-motor-control-with-labview"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5763-stm32-stepper-motor-control-with-labview"
 ],
 "f": "2024-07-24",
 "m": [
@@ -7717,7 +7708,7 @@ const CURSOS = {
 "t": "DT-06  monitoreo wifi LabVIEW TCP cliente",
 "d": "Muestra como monitorear con Labview datos enviados desde el stm32 usando el modulo WIFI DT-06.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5865/stm32-dt-06-labiew-tcp-client-monitor"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5865-stm32-dt-06-labiew-tcp-client-monitor"
 ],
 "f": "2025-01-06",
 "m": [
@@ -7730,7 +7721,7 @@ const CURSOS = {
 "t": "DT-06  control y monitoreo por wifi con LabVIEW",
 "d": "Muestra como controlar y monitorear con un stm32 con wifi y labview usando el DT-06.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5867/stm32-dt-06-labview-monitor-and-control"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5867-stm32-dt-06-labview-monitor-and-control"
 ],
 "f": "2025-01-14",
 "m": [
@@ -7743,7 +7734,7 @@ const CURSOS = {
 "t": "STM32 2025_i sem. Clase recepcion, serial y wifi en LabVIEW, app monitoreo en celular",
 "d": "Comunica el stm32 con LabVIEW por wifi o celular.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5884/stm32-and-labview-wifi-and-serial-read-celualr-app"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5884-stm32-and-labview-wifi-and-serial-read-celualr-app"
 ],
 "f": "2025-04-12",
 "m": [
@@ -7788,7 +7779,7 @@ const CURSOS = {
 "t": "Implementación de un control difuso con mikroc  en un pic 18f",
 "d": "Muestra como usar Xfuzzy para implementar un controlador fuzzy, en un pic18f en mikroc. Logica difusa, o fuzzy logic mikroc en microcontrolaodre pic.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2651/implementation-of-a-temperature-fuzzy-logic-control-in-pic18"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2651-implementation-of-a-temperature-fuzzy-logic-control-in-pic18"
 ],
 "f": "2018-11-11"
 },
@@ -7821,7 +7812,7 @@ const CURSOS = {
 "t": "Simulacion de robot seguidor de linea y evasor de obstaculos con Proteus parte 1",
 "d": "Muestra el principio de como utilizar los robots de proteus para su posterior programación como seguidor de linea o evasión de obstáculos. Video de como leer los sensores reflectivos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4307/proteus-robot-simulation-using-mikroc-line-follower-and-obstacle-evader"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4307-proteus-robot-simulation-using-mikroc-line-follower-and-obst"
 ],
 "s": "seguidor-de-linea-basico",
 "f": "2021-02-17"
@@ -7832,7 +7823,7 @@ const CURSOS = {
 "t": "Simulacion de robot seguidor de linea y evasor de obstaculos con Proteus parte 2",
 "d": "Muestra el principio de como utilizar los robots de proteus para su posterior programación como seguidor de linea o evasión de obstáculos. Video de como leer los sensores reflectivos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4307/proteus-robot-simulation-using-mikroc-line-follower-and-obstacle-evader"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4307-proteus-robot-simulation-using-mikroc-line-follower-and-obst"
 ],
 "s": "seguidor-de-linea-basico",
 "f": "2021-02-17"
@@ -7843,7 +7834,7 @@ const CURSOS = {
 "t": "Robot seguidor de linea en Proteus, sencillo parte1",
 "d": "Muestra el primer acercamiento de como realizar un robot seguidor de linea con proteus y mikroc pro for pic.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4312/basic-principles-of-a-simple-line-follower-robot"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4312-basic-principles-of-a-simple-line-follower-robot"
 ],
 "s": "seguidor-de-linea-basico",
 "f": "2021-02-20"
@@ -7854,7 +7845,7 @@ const CURSOS = {
 "t": "Robot seguidor de linea  en Proteus, sencillo parte2",
 "d": "Muestra el primer acercamiento de como realizar un robot seguidor de linea con proteus y mikroc pro for pic usando un algoritmo sencillo de control.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4313/basic-principles-of-a-simple-line-follower-robot-part-2"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4313-basic-principles-of-a-simple-line-follower-robot-part-2"
 ],
 "s": "seguidor-de-linea-basico",
 "f": "2021-02-20"
@@ -7865,7 +7856,7 @@ const CURSOS = {
 "t": "Evasor de obstaculos basico en Proteus con PIC y MikroC  parte 1",
 "d": "Muestra la forma sencilla de utilizar el robot de evasión de obstáculos de proteus, y programarlo en mirkoc.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4429/simple-obstacle-evasor-with-mikro-and-proteus"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4429-simple-obstacle-evasor-with-mikro-and-proteus"
 ],
 "s": "evasor-de-obstaculos",
 "f": "2021-03-31"
@@ -7876,7 +7867,7 @@ const CURSOS = {
 "t": "Evasor de obstaculos mejorado en Proteus con PIC y MikroC  parte 2",
 "d": "Muestra un algoritmo mpás avanzado para utilizar el robot de evasión de obstáculos de proteus, y programarlo en mirkoc. de tal forma que inicie a la izquierda y salga del lado derecho de…",
 "c": [
-"https://libstock.mikroe.com/projects/view/4430/advanced-obstacle-avoidance-with-proteus-and-mikroc"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4430-advanced-obstacle-avoidance-with-proteus-and-mikroc"
 ],
 "s": "evasor-de-obstaculos",
 "f": "2021-03-31"
@@ -7887,7 +7878,7 @@ const CURSOS = {
 "t": "Control de robot seguidor de linea velocista parte 1 (lectura de sensores digitales)",
 "d": "Muestra, como leer los sensores de un seguidor de linea, que tiene sensores reflectivos configurarlos de forma digital y pasarlos o normalizarlos a ceros y uno.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4434/speed-line-follower-robot-sensor-reading-normalization"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4434-speed-line-follower-robot-sensor-reading-normalization"
 ],
 "s": "velocista-con-control-p-y-pid",
 "f": "2021-04-03"
@@ -7898,7 +7889,7 @@ const CURSOS = {
 "t": "Control de robot seguidor de linea velocista parte 2(generacion de pesos)",
 "d": "Muestra como generar un sistema que permite saber que tan alejado está el robot de la línea, utilizando un sistema de pesos.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4435/generation-of-weights-which-indicate-how-far-a-line-follower-robot-is-from-the-line"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4435-generation-of-weights-which-indicate-how-far-a-line-follower"
 ],
 "s": "velocista-con-control-p-y-pid",
 "f": "2021-04-03"
@@ -7909,7 +7900,7 @@ const CURSOS = {
 "t": "Control de robot seguidor de linea velocista parte 3 (modo proporcional",
 "d": "Muestra un algoritmo básico proporcional para un seguidor de linea velocista.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4436/fast-line-follower-full-proportional-mode"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4436-fast-line-follower-full-proportional-mode"
 ],
 "s": "velocista-con-control-p-y-pid",
 "f": "2021-04-03"
@@ -7920,7 +7911,7 @@ const CURSOS = {
 "t": "Control de robot seguidor de linea velocista parte 4 (modo PID)",
 "d": "Muestra como implementar y sintonizar empíricamente un controlador PID para un robot seguidor de linea.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4449/fast-line-follower-full-pid-mode"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4449-fast-line-follower-full-pid-mode"
 ],
 "s": "velocista-con-control-p-y-pid",
 "f": "2021-04-13"
@@ -7931,7 +7922,7 @@ const CURSOS = {
 "t": "Control de robot seguidor de linea velocista parte 5 (modo PID + velocidad en linea recta)",
 "d": "Muestra como implementar y sintonizar empíricamente un controlador PID para un robot seguidor de linea, además de un algoritmo para sacar máximo provecho en las líneas rectas.",
 "c": [
-"https://libstock.mikroe.com/projects/view/4468/fast-line-follower-full-pid-mode-and-maximum-speed-in-straight-lines"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/4468-fast-line-follower-full-pid-mode-and-maximum-speed-in-straig"
 ],
 "s": "velocista-con-control-p-y-pid",
 "f": "2021-04-24"
@@ -8019,7 +8010,7 @@ const CURSOS = {
 "t": "HuskyLens parte 3. Librerias para STM32 reconocimiento de rotros",
 "d": "Muestra una forma basica de como reconocer rostros con la huskeycam y un stm32.",
 "c": [
-"https://libstock.mikroe.com/projects/view/5579/stm32-face-recognition-using-huskeylens"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5579-stm32-face-recognition-using-huskeylens"
 ],
 "f": "2023-12-09"
 }
@@ -8098,9 +8089,7 @@ const CURSOS = {
 "n": null,
 "t": "Como instalar Proteus 9.1 sp4  2026",
 "d": "",
-"c": [
-"https://drive.google.com/file/d/1dxHG7wNdqqT8IL3bQjak4iH7mkUlGqlD/view?usp=drive_link"
-],
+"c": [],
 "s": "instalacion-y-novedades",
 "f": "2026-08-07"
 },
@@ -8237,7 +8226,7 @@ const CURSOS = {
 "t": "Diseño esquemático y PCB en Proteus (parte ii) simulacion",
 "d": "Muestra nuevas técnicas de diseño del PCB y la simulación de los juegos de luces en proteus.",
 "c": [
-"https://libstock.mikroe.com/projects/view/2664/design-of-pcb-and-effects-of-light-with-arduino"
+"https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2664-design-of-pcb-and-effects-of-light-with-arduino"
 ]
 },
 {
