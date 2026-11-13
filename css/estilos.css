@@ -257,3 +257,7 @@ footer .contenedor { display: flex; flex-wrap: wrap; justify-content: space-betw
 .lib:hover { transform: translateY(-3px); border-color: rgba(227,162,83,.5); }
 .lib h3 { margin: 4px 0 0; font-size: 20px; }
 .lib p { margin: 0 0 8px; color: var(--suave); font-size: 15px; }
+
+.linea-foto { margin: 14px 0 0; max-width: 420px; }
+.linea-foto img { border-radius: 10px; border: 1px solid var(--borde); }
+.linea-foto figcaption { margin-top: 6px; font-size: 13px; color: var(--suave); }
