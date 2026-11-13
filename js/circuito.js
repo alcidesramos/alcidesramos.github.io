@@ -1,4 +1,4 @@
-/* Fondo animado tipo tarjeta PCB: chips PIC, ESP32, STM32, sensores,
+/* Fondo animado tipo tarjeta PCB: chips STM32, Texas Instruments, ESP32, PIC, sensores,
    pistas de cobre con pulsos de señal y ondas IoT. Sin dependencias. */
 (function () {
   const canvas = document.getElementById('circuito');
@@ -23,7 +23,8 @@
   let W, H, dpr, chips = [], pistas = [], pulsos = [], leds = [], t = 0;
 
   const CHIPS = [
-    { nombre: 'STM32', sub: 'ARM Cortex-M4', w: 6, h: 6 },
+    { nombre: 'STM32', sub: 'ARM Cortex-M · STMicroelectronics', w: 10, h: 6, fx: 0.02, fy: 0.13, top: true },
+    { nombre: 'TEXAS INSTRUMENTS', sub: 'TM4C123 · MSP430 · C2000', w: 11, h: 5, fx: 0.70, fy: 0.80, top: true },
     { nombre: 'ESP32', sub: 'WiFi · BLE', w: 7, h: 5, wifi: true },
     { nombre: 'PIC16F877A', sub: 'MCU 8 bits', w: 8, h: 3 },
     { nombre: 'MPU6050', sub: 'IMU', w: 3, h: 3 },
@@ -50,9 +51,14 @@
 
     // En pantallas pequeñas, menos chips
     const lista = W < 700 ? CHIPS.slice(0, 5) : CHIPS;
-    for (const def of lista) {
+    for (let def of lista) {
+      if (W < 700 && def.top) def = def.nombre === 'STM32' ? { ...def, w: 8, h: 4, fx: 0.48, fy: 0.12 } : { ...def, w: 9, h: 4, fx: 0.4, fy: 0.85 };
       for (let intento = 0; intento < 60; intento++) {
-        const c = { ...def, x: Math.floor(rnd(1, cols - def.w - 1)), y: Math.floor(rnd(1, filas - def.h - 1)) };
+        let c;
+        if (def.fx !== undefined && intento < 20) {
+          const bx = Math.min(cols - def.w - 1, Math.max(1, Math.round(def.fx * cols))), by = Math.min(filas - def.h - 1, Math.max(1, Math.round(def.fy * filas)));
+          c = { ...def, x: bx + (intento ? Math.floor(rnd(-2, 3)) : 0), y: by + (intento ? Math.floor(rnd(-2, 3)) : 0) };
+        } else c = { ...def, x: Math.floor(rnd(1, cols - def.w - 1)), y: Math.floor(rnd(1, filas - def.h - 1)) };
         if (!chips.some(o => solapa(c, o, 3))) { chips.push(c); break; }
       }
     }
@@ -156,14 +162,14 @@
       ctx.fillStyle = C.pad;
       for (let i = 0; i < c.w; i++) { ctx.fillRect(x + i * G + G / 2 - 3, y - 6, 6, 6); ctx.fillRect(x + i * G + G / 2 - 3, y + h, 6, 6); }
       for (let j = 0; j < c.h; j++) { ctx.fillRect(x - 6, y + j * G + G / 2 - 3, 6, 6); ctx.fillRect(x + w, y + j * G + G / 2 - 3, 6, 6); }
-      ctx.fillStyle = C.chip; ctx.strokeStyle = C.chipBorde; ctx.lineWidth = 1.5;
+      ctx.fillStyle = C.chip; ctx.strokeStyle = c.top ? 'rgba(240, 170, 80, 0.75)' : C.chipBorde; ctx.lineWidth = c.top ? 2 : 1.5;
       ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, 4) : ctx.rect(x, y, w, h); ctx.fill(); ctx.stroke();
       ctx.fillStyle = C.chipBorde; ctx.beginPath(); ctx.arc(x + 8, y + 8, 3, 0, 7); ctx.fill();
-      ctx.fillStyle = C.texto; ctx.textAlign = 'center';
-      const fs = Math.max(10, Math.min(15, w / (c.nombre.length * 0.62)));
+      ctx.fillStyle = c.top ? 'rgba(240, 200, 140, 0.95)' : C.texto; ctx.textAlign = 'center';
+      const fs = Math.max(10, Math.min(c.top ? 30 : 15, (w - 16) / (c.nombre.length * 0.62)));
       ctx.font = `600 ${fs}px "JetBrains Mono", monospace`;
       ctx.fillText(c.nombre, x + w / 2, y + h / 2 + (h > G * 2 ? 0 : 4));
-      if (h > G * 2) { ctx.font = `400 10px "JetBrains Mono", monospace`; ctx.fillStyle = 'rgba(170,230,210,0.45)'; ctx.fillText(c.sub, x + w / 2, y + h / 2 + 16); }
+      if (h > G * 2) { ctx.font = `400 10px "JetBrains Mono", monospace`; ctx.fillStyle = c.top ? 'rgba(170,230,210,0.7)' : 'rgba(170,230,210,0.45)'; ctx.fillText(c.sub, x + w / 2, y + h / 2 + (c.top ? 24 : 16)); }
     }
 
     // LEDs parpadeando
