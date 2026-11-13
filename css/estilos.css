@@ -49,7 +49,7 @@ a { color: var(--led); }
 .menu .pronto { opacity: .55; }
 .boton-menu { display: none; background: none; border: 1px solid var(--borde); color: var(--texto); border-radius: 8px; padding: 6px 10px; font: inherit; }
 
-@media (max-width: 760px) {
+@media (max-width: 1000px) {
   .boton-menu { display: block; }
   .menu {
     position: absolute; top: 64px; left: 0; right: 0; flex-direction: column; gap: 0;
