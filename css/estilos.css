@@ -284,3 +284,13 @@ footer .contenedor { display: flex; flex-wrap: wrap; justify-content: space-betw
 .lista-tesis .t-tit { font-size: 15px; line-height: 1.4; }
 .lista-tesis .t-inst { font-size: 12.5px; color: var(--suave); margin-top: 4px; }
 @media (max-width: 480px) { .lista-tesis { grid-template-columns: 1fr; } }
+@media (min-width: 900px) { .cifras { grid-template-columns: repeat(4, 1fr); } }
+
+/* Premios */
+.grid-premios { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-top: 30px; }
+.premio { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: var(--radio); overflow: hidden; display: flex; flex-direction: column; }
+.premio img { width: 100%; height: 300px; object-fit: cover; object-position: center 25%; background: #000; }
+.premio > div { padding: 18px 20px 22px; }
+.premio .area { font-family: var(--mono); font-size: 12px; color: var(--cobre); }
+.premio h3 { font-size: 19px; margin: 6px 0 8px; }
+.premio p { color: var(--suave); font-size: 15px; line-height: 1.5; margin: 0; }
