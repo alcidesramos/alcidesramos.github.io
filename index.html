@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alcides Ramos Zambrano · Sistemas Embebidos</title>
+  <meta name="description" content="Docente e ingeniero electrónico en sistemas embebidos: STM32, ESP32, PIC e IoT. Proyectos, charlas y cursos.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="index.html" aria-current="page">Inicio</a></li>
+      <li><a href="trayectoria.html" class="destacado">Quién soy</a></li>
+      <li><a href="cursos.html">Cursos</a></li>
+      <li><a href="github.html">Código</a></li>
+      <li><a href="trayectoria.html#proyectos">Proyectos</a></li>
+      <li><a href="trayectoria.html#charlas">Charlas</a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <canvas id="circuito" aria-hidden="true"></canvas>
+    <div class="contenedor hero-contenido">
+      <div class="foto">
+        AR
+        <img src="img/alcides.jpg" alt="Alcides Ramos Zambrano" onerror="this.remove()">
+      </div>
+      <div>
+        <span class="etiqueta">// STM32 · ESP32 · PIC · IoT</span>
+        <h1>Alcides <span>Ramos Zambrano</span></h1>
+        <p class="lead">MSc. e ingeniero electrónico, docente en Cartagena. Más de 20 años llevando la electrónica del laboratorio al mundo real: mantenimiento de equipos biomédicos, vehículos autónomos para la Armada Nacional, control industrial y sistemas embebidos.</p>
+        <div class="acciones">
+          <a class="btn btn-primario" href="trayectoria.html">Conoce quién soy →</a>
+          <a class="btn btn-sec" href="trayectoria.html#proyectos">Ver proyectos</a>
+          <a class="btn btn-sec" href="cursos.html">Cursos gratis</a>
+          <a class="btn btn-sec" href="github.html">Mi código</a>
+        </div>
+        <ul class="chips-tec">
+          <li>STM32</li><li>ESP32</li><li>PIC / dsPIC</li><li>FPGA</li><li>IoT</li><li>PCB</li><li>LabVIEW</li><li>RF · WiFi · Bluetooth</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloque">
+    <div class="contenedor">
+      <span class="etiqueta">// Quién soy</span>
+      <h2 class="titulo-seccion">Enseñar electrónica construyendo</h2>
+      <p class="intro">Mi trabajo une el aula y el laboratorio. Cada semestre mis estudiantes de Sistemas Embebidos convierten una idea en un prototipo funcional, y comparto lo que aprendemos en charlas y en mi canal de YouTube.</p>
+
+      <div class="tarjetas">
+        <div class="tarjeta">
+          <div class="icono"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg></div>
+          <h3>Sistemas embebidos</h3>
+          <p>Microcontroladores STM32, ESP32 y PIC, sensores, actuadores, tarjetas PCB y comunicación inalámbrica.</p>
+        </div>
+        <div class="tarjeta">
+          <div class="icono"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1"/></svg></div>
+          <h3>Vehículos autónomos</h3>
+          <p>Pilotos automáticos para USV, UAV y ROV con la Armada Nacional y la Escuela Naval Almirante Padilla.</p>
+        </div>
+        <div class="tarjeta">
+          <div class="icono"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/></svg></div>
+          <h3>Docencia y divulgación</h3>
+          <p>Profesor universitario, ponente y creador de un canal de YouTube con más de 570 videos.</p>
+        </div>
+      </div>
+
+      <div class="cifras">
+        <div class="cifra"><strong>20+</strong><span>años en electrónica</span></div>
+        <div class="cifra"><strong>45</strong><span>desarrollos documentados</span></div>
+        <div class="cifra"><strong>10K+</strong><span>suscriptores en YouTube</span></div>
+        <div class="cifra"><strong>829</strong><span>clases organizadas en 37 cursos</span></div>
+        <div class="cifra"><strong>92</strong><span>repositorios de código en GitHub</span></div>
+        <div class="cifra"><strong>4</strong><span>instituciones donde he enseñado</span></div>
+      </div>
+
+      <p style="margin-top:44px"><a class="btn btn-primario" href="trayectoria.html">Ver mi trayectoria completa →</a></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="contenedor">
+    <span>© <span id="anio"></span> Alcides Ramos Zambrano</span>
+    <a href="https://www.youtube.com/c/AlcidesRamosZambrano/videos" target="_blank" rel="noopener">Canal de YouTube</a>
+  </div>
+</footer>
+
+<script src="js/circuito.js"></script>
+<script src="js/menu.js"></script>
+</body>
+</html>

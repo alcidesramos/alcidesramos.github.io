@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Código · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Todo el código de mis clases y proyectos en GitHub: STM32, ESP32, PIC, sensores, pantallas, control e IoT.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="trayectoria.html">Quién soy</a></li>
+      <li><a href="cursos.html">Cursos</a></li>
+      <li><a href="github.html" aria-current="page">Código</a></li>
+      <li><a href="trayectoria.html#proyectos">Proyectos</a></li>
+      <li><a href="trayectoria.html#charlas">Charlas</a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+  <section class="cabecera">
+    <div class="contenedor">
+      <span class="etiqueta">// Mi código en GitHub</span>
+      <h1>Descarga el código de mis clases</h1>
+      <p>Todos mis repositorios públicos, ordenados por tema. Cada uno enlaza a GitHub y, cuando existe, al video donde lo explico. <span id="resumen-repos"></span></p>
+      <div class="acciones" style="margin-top:22px">
+        <a class="btn btn-primario" href="https://github.com/alcidesramos?tab=repositories" target="_blank" rel="noopener">Ver mi perfil en GitHub</a>
+        <a class="btn btn-sec" href="cursos.html">Ver los cursos</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloque cursos-bloque">
+    <div class="contenedor">
+      <div class="curso-herramientas">
+        <label class="buscador">
+          <span class="sr">Buscar repositorio</span>
+          <input type="search" id="buscar-repo" placeholder="Buscar: GPS, PID, TouchGFX, MQTT…" autocomplete="off">
+        </label>
+      </div>
+      <div class="filtros" id="filtros-repos" role="group" aria-label="Filtrar por tema"></div>
+      <div class="grid-repos" id="repos"></div>
+      <p class="sin-resultados" id="sin-repos" hidden>No hay repositorios que coincidan con la búsqueda.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="contenedor">
+    <span>© <span id="anio"></span> MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="index.html">Volver al inicio</a>
+  </div>
+</footer>
+
+<script src="js/repos-data.js"></script>
+<script src="js/github.js"></script>
+<script src="js/menu.js"></script>
+</body>
+</html>

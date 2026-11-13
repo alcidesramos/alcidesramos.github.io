@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cursos · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cursos gratuitos de sistemas embebidos: STM32, PIC, ESP32, Arduino, IoT, electrónica y MATLAB, con video y código de cada clase.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="trayectoria.html">Quién soy</a></li>
+      <li><a href="cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="github.html">Código</a></li>
+      <li><a href="trayectoria.html#proyectos">Proyectos</a></li>
+      <li><a href="trayectoria.html#charlas">Charlas</a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+  <section class="cabecera">
+    <div class="contenedor">
+      <span class="etiqueta">// Cursos gratuitos</span>
+      <h1>Aprende sistemas embebidos conmigo</h1>
+      <p>Cada clase de mi canal, organizada por tema: el video, de qué trata y el enlace para descargar el código cuando lo comparto. <span id="resumen-cursos"></span></p>
+    </div>
+  </section>
+
+  <section class="bloque cursos-bloque">
+    <div class="contenedor">
+      <nav class="filtros grupos" id="grupos" aria-label="Plataformas"></nav>
+      <div class="lista-cursos" id="lista-cursos"></div>
+
+      <div class="curso-cabecera" id="curso-cabecera"></div>
+      <div class="curso-herramientas">
+        <label class="buscador">
+          <span class="sr">Buscar en este curso</span>
+          <input type="search" id="buscar" placeholder="Buscar en este curso: ADC, PWM, Bluetooth…" autocomplete="off">
+        </label>
+        <div class="filtros filtro-micro" id="filtro-micro" role="group" aria-label="Filtrar por microcontrolador"></div>
+      </div>
+      <nav class="saltos" id="saltos" aria-label="Ir a semestre"></nav>
+      <div id="clases"></div>
+      <p class="sin-resultados" id="sin-resultados" hidden>No hay clases que coincidan con la búsqueda.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="contenedor">
+    <span>© <span id="anio"></span> MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/c/AlcidesRamosZambrano/videos" target="_blank" rel="noopener">Canal de YouTube</a>
+  </div>
+</footer>
+
+<script src="js/cursos-data.js"></script>
+<script src="js/cursos.js"></script>
+<script src="js/menu.js"></script>
+</body>
+</html>
