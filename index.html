@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/estilos.css?v=20261113f">
+  <link rel="stylesheet" href="css/estilos.css?v=20261113g">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Person", "name": "Alcides Augusto Ramos Zambrano", "alternateName": "Alcides Ramos Zambrano", "url": "https://alcidesramos.github.io/", "image": "https://alcidesramos.github.io/img/alcides.jpg", "jobTitle": "Ingeniero electrónico, MSc., docente de sistemas embebidos", "worksFor": {"@type": "CollegeOrUniversity", "name": "Universidad Tecnológica de Bolívar"}, "alumniOf": [{"@type": "CollegeOrUniversity", "name": "Universidad del Cauca"}, {"@type": "CollegeOrUniversity", "name": "Universidad Tecnológica de Bolívar"}], "address": {"@type": "PostalAddress", "addressLocality": "Cartagena", "addressCountry": "CO"}, "knowsAbout": ["Sistemas embebidos", "STM32", "Texas Instruments", "ESP32", "PIC", "IoT", "Robótica", "Control inteligente", "Lógica difusa", "Vehículos autónomos", "LabVIEW", "Diseño de PCB"], "sameAs": ["https://www.youtube.com/c/AlcidesRamosZambrano", "https://github.com/alcidesramos", "https://scienti.minciencias.gov.co/cvlac/visualizador/generarCurriculoCv.do?cod_rh=0001403412"]}</script>
 </head>
 <body>
@@ -40,6 +40,7 @@
       <li><a href="trayectoria.html#charlas">Charlas</a></li>
       <li><a href="trayectoria.html#robotica">Robótica competitiva</a></li>
       <li><a href="trayectoria.html#mas-alla">Estudiante=Colega</a></li>
+      <li><a href="buscar.html" aria-label="Buscar" title="Buscar">🔍<span class="txt-buscar"> Buscar</span></a></li>
     </ul>
   </div>
 </header>
@@ -63,6 +64,11 @@
           <a class="btn btn-sec" href="github.html">Mi código</a>
           <a class="btn btn-sec" href="#contacto">Contáctame</a>
         </div>
+        <form class="buscador-inicio" action="buscar.html" method="get" role="search">
+          <label class="sr" for="q-inicio">Buscar en mis clases y proyectos</label>
+          <input type="search" id="q-inicio" name="q" placeholder="¿Qué quieres aprender? Ej.: ADC, PWM, MQTT…" autocomplete="off">
+          <button class="btn btn-primario" type="submit">Buscar</button>
+        </form>
         <ul class="chips-tec">
           <li>STM32</li><li>Texas Instruments</li><li>ESP32</li><li>PIC / dsPIC</li><li>FPGA</li><li>IoT</li><li>PCB</li><li>LabVIEW</li><li>RF · WiFi · Bluetooth</li>
         </ul>
@@ -135,7 +141,7 @@
   </div>
 </footer>
 
-<script src="js/circuito.js?v=20261113f"></script>
-<script src="js/menu.js?v=20261113f"></script>
+<script src="js/circuito.js?v=20261113g"></script>
+<script src="js/menu.js?v=20261113g"></script>
 </body>
 </html>

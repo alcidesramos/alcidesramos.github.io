@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buscar · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Busca entre todas mis clases en video, cursos, proyectos y código: STM32, Texas Instruments, ESP32, PIC, IoT, robótica y control.">
+  <link rel="canonical" href="https://alcidesramos.github.io/buscar.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Buscar · Alcides Ramos Zambrano">
+  <meta property="og:description" content="Busca entre todas mis clases en video, cursos, proyectos y código: STM32, Texas Instruments, ESP32, PIC, IoT, robótica y control.">
+  <meta property="og:url" content="https://alcidesramos.github.io/buscar.html">
+  <meta property="og:image" content="https://alcidesramos.github.io/img/og-portada.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Alcides Ramos Zambrano, sistemas embebidos: STM32, Texas Instruments, ESP32, PIC e IoT">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://alcidesramos.github.io/img/og-portada.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilos.css?v=20261113g">
+</head>
+<body>
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="trayectoria.html">Quién soy</a></li>
+      <li><a href="cursos.html">Cursos</a></li>
+      <li><a href="github.html">Código</a></li>
+      <li><a href="github.html#librerias">Librerías</a></li>
+      <li><a href="trayectoria.html#proyectos">Proyectos</a></li>
+      <li><a href="trayectoria.html#charlas">Charlas</a></li>
+      <li><a href="trayectoria.html#robotica">Robótica competitiva</a></li>
+      <li><a href="trayectoria.html#mas-alla">Estudiante=Colega</a></li>
+      <li><a href="buscar.html" aria-label="Buscar" title="Buscar" aria-current="page">🔍<span class="txt-buscar"> Buscar</span></a></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+  <section class="cabecera">
+    <div class="contenedor">
+      <span class="etiqueta">// Buscador</span>
+      <h1>¿Qué quieres aprender?</h1>
+      <p>Busca un tema y te muestro las clases en video, los cursos, los proyectos y el código relacionados. Hoy hay <span id="res-total"></span>.</p>
+      <form class="buscador-grande" id="form-buscar" role="search">
+        <label class="sr" for="q">Buscar</label>
+        <input type="search" id="q" name="q" placeholder="Ej.: ADC con DMA, PWM, Bluetooth, PID, MQTT…" autocomplete="off" autofocus>
+        <button class="btn btn-primario" type="submit">Buscar</button>
+      </form>
+      <p class="sugerencias" id="sugerencias">Prueba con:
+        <a href="?q=ADC" data-q="ADC">ADC</a> <a href="?q=PWM" data-q="PWM">PWM</a> <a href="?q=Bluetooth" data-q="Bluetooth">Bluetooth</a>
+        <a href="?q=MQTT" data-q="MQTT">MQTT</a> <a href="?q=PID" data-q="PID">PID</a> <a href="?q=Nextion" data-q="Nextion">Nextion</a>
+        <a href="?q=seguidor" data-q="seguidor">Seguidor de línea</a> <a href="?q=Texas" data-q="Texas">Texas Instruments</a> <a href="?q=USB" data-q="USB">USB</a> <a href="?q=FreeRTOS" data-q="FreeRTOS">FreeRTOS</a>
+      </p>
+    </div>
+  </section>
+  <section class="bloque" style="padding-top:20px">
+    <div class="contenedor">
+      <p class="res-resumen" id="res-resumen" aria-live="polite"></p>
+      <div id="resultados"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="contenedor">
+    <span>© <span id="anio"></span>
+    <a href="mailto:alcidesramos1@gmail.com">alcidesramos1@gmail.com</a> · <a href="https://wa.me/573005757527" target="_blank" rel="noopener">WhatsApp</a> MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/c/AlcidesRamosZambrano/videos" target="_blank" rel="noopener">Canal de YouTube</a>
+  </div>
+</footer>
+
+<script src="js/cursos-data.js?v=20261113g"></script>
+<script src="js/proyectos.js?v=20261113g"></script>
+<script src="js/repos-data.js?v=20261113g"></script>
+<script src="js/buscar.js?v=20261113g"></script>
+<script src="js/menu.js?v=20261113g"></script>
+</body>
+</html>
