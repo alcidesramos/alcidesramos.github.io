@@ -294,3 +294,6 @@ footer .contenedor { display: flex; flex-wrap: wrap; justify-content: space-betw
 .premio .area { font-family: var(--mono); font-size: 12px; color: var(--cobre); }
 .premio h3 { font-size: 19px; margin: 6px 0 8px; }
 .premio p { color: var(--suave); font-size: 15px; line-height: 1.5; margin: 0; }
+.grid-robotica { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+.grid-robotica .premio img { height: 360px; }
+@media (max-width: 480px) { .grid-robotica { grid-template-columns: 1fr; } .grid-robotica .premio img { height: 280px; } }
