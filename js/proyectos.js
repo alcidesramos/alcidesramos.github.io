@@ -27,7 +27,7 @@ const PROYECTOS = [
     texto: 'Sistema de monitoreo de variables en las piscinas de cultivo de camarón de una empresa de la región.' },
   { titulo: 'Diseño de sistema de control para ósmosis y microfiltración', area: 'industria', anio: '2022', img: 'trayectoria/osmosis-2022.jpg', tags: ['Pantalla táctil', 'Válvulas y bombas', 'Control de planta'],
     texto: 'Diseño de los tableros de control de una planta de ósmosis inversa y de microfiltración: pantalla táctil para operar válvulas, bombas y filtros, y modos de servicio y mantenimiento.' },
-  { titulo: 'Sistema automático de lavado y secado', area: 'industria', anio: 'Independiente', img: 'trayectoria/lavado-secado.jpg', video: 'trayectoria/lavado-secado.mp4', tags: ['Pantalla táctil', 'Billetero', 'Temporizadores'],
+  { titulo: 'Lavandería automática de autoservicio', area: 'industria', anio: 'Independiente', img: 'trayectoria/lavado-secado.jpg', video: 'trayectoria/lavado-secado.mp4', tags: ['Pantalla táctil', 'Billetero', 'Temporizadores'],
     texto: 'Lavandería de autoservicio: un kiosco con pantalla táctil y billetero activa 4 lavadoras y 4 secadoras y muestra el estado y el tiempo restante de cada máquina.' },
   { titulo: 'Ingeniería inversa de control hidráulico', area: 'industria', anio: '2022', img: 'trayectoria/valvulas.jpg', tags: ['Válvulas proporcionales', 'Linealización', 'Tarjeta de planta'],
     texto: 'Reemplazo de electrónica de control de válvulas hidráulicas: tarjeta prototipo, tarjeta de planta y linealización del sistema.' },
