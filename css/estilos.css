@@ -328,3 +328,7 @@ nav a, header nav li a { white-space: nowrap; }
 .buscador-inicio input:focus { outline: 2px solid var(--led); outline-offset: 1px; }
 .menu a, .marca { white-space: nowrap; }
 @media (min-width: 1301px) { .txt-buscar { display: none; } }
+.res-gh-estado { color: var(--suave); }
+.res-gh-estado a { color: var(--led); display: inline-block; margin-top: 8px; }
+.res-gh-llevar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; background: var(--tarjeta); border: 1px solid rgba(227,162,83,.5); border-radius: var(--radio); padding: 14px 18px; margin-bottom: 26px; }
+.res-gh-llevar button { cursor: pointer; font-family: inherit; }

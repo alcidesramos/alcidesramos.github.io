@@ -58,8 +58,9 @@
     return `<section class="res-grupo" id="${id}"><h2>${titulo} <small>${items.length}</small></h2><div class="${clase}">${items.map(plantilla).join('')}</div>${extra || ''}</section>`;
   }
 
-  function buscar(q, empujar) {
+  function buscar(q, empujar, llevar) {
     q = q.trim();
+    clearInterval(cuenta); turnoGH++;
     const terms = norm(q).split(/\s+/).filter((t) => t.length > 1 || /\d/.test(t));
     if (q !== ultimo) limiteVideos = 24;
     ultimo = q;
@@ -70,7 +71,7 @@
     const total = rv.length + rc.length + rp.length + rr.length;
     $('res-resumen').innerHTML = total
       ? `${total} resultados para <strong>${esc(q)}</strong>: ` + [[rv, 'videos', 'r-videos'], [rc, 'cursos', 'r-cursos'], [rp, 'proyectos', 'r-proyectos'], [rr, 'repositorios', 'r-codigo']].filter((a) => a[0].length).map((a) => `<a href="#${a[2]}">${a[0].length} ${a[1]}</a>`).join(' · ')
-      : `No encontré nada para <strong>${esc(q)}</strong>. Prueba con otra palabra, por ejemplo: ADC, PWM, Bluetooth, PID.`;
+      : `No encontré nada para <strong>${esc(q)}</strong> en la página. Ahora lo busco en mi GitHub…`;
     const mas = rv.length > limiteVideos ? `<p style="text-align:center;margin-top:22px"><button class="btn btn-sec" id="mas-videos" type="button">Ver más videos (${rv.length - limiteVideos})</button></p>` : '';
     $('resultados').innerHTML =
       bloque('r-cursos', 'Cursos', rc, tCurso, 'res-lista') +
@@ -79,14 +80,66 @@
       bloque('r-codigo', 'Código en GitHub', rr, tRepo, 'res-lista');
     const b = $('mas-videos');
     if (b) b.onclick = () => { limiteVideos += 48; buscar($('q').value, false); };
+    clearTimeout(esperaGH);
+    if (!total) esperaGH = setTimeout(() => buscarGitHub(q, terms, llevar), llevar ? 0 : 700);
+  }
+
+  /* Si en la página no hay nada, busco en mis repositorios públicos de GitHub (sin token). */
+  const USUARIO = 'alcidesramos', LIBSTOCK = 'CODIGOS_LIBSTOCK';
+  let esperaGH, cuenta, turnoGH = 0;
+  function guardado(clave, fn) {
+    try { const v = sessionStorage.getItem(clave); if (v) return Promise.resolve(JSON.parse(v)); } catch (e) {}
+    return fn().then((v) => { try { sessionStorage.setItem(clave, JSON.stringify(v)); } catch (e) {} return v; });
+  }
+  const pedir = (url) => fetch(url, { headers: { Accept: 'application/vnd.github+json' } }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  const reposGH = (q) => guardado('gh-r:' + norm(q), () =>
+    pedir('https://api.github.com/search/repositories?per_page=12&q=' + encodeURIComponent(q + ' user:' + USUARIO + ' in:name,description,readme,topics'))
+      .then((d) => d.items.map((x) => ({ n: x.name, d: x.description || '', u: x.html_url }))));
+  const carpetasGH = () => guardado('gh-libstock', () =>
+    pedir(`https://api.github.com/repos/${USUARIO}/${LIBSTOCK}/git/trees/HEAD`)
+      .then((d) => d.tree.filter((x) => x.type === 'tree').map((x) => x.path)));
+  const bonito = (n) => n.replace(/^\d+-|^drive-/, '').replace(/[-_]+/g, ' ');
+
+  function buscarGitHub(q, terms, llevar) {
+    const turno = ++turnoGH;
+    const enlaceGH = `https://github.com/search?type=code&q=${encodeURIComponent('user:' + USUARIO + ' ' + q)}`;
+    $('resultados').innerHTML = `<p class="res-gh-estado">Buscando <strong>${esc(q)}</strong> en mi GitHub…</p>`;
+    Promise.all([reposGH(q).catch(() => null), carpetasGH().catch(() => null)]).then(([rs, cs]) => {
+      if (turno !== turnoGH) return;
+      const vistos = new Set();
+      const items = [];
+      (rs || []).forEach((r) => { if (r.n !== LIBSTOCK) { vistos.add(r.n); items.push({ t: r.n, d: r.d, u: r.u, a: 'Repositorio' }); } });
+      (cs || []).map((c) => [puntuar({ k: norm(bonito(c)), kd: norm(c) }, terms), c]).filter((a) => a[0] > 0).sort((a, b) => b[0] - a[0]).slice(0, 30)
+        .forEach(([, c]) => items.push({ t: bonito(c), d: 'Proyecto descargable de la colección ' + LIBSTOCK, u: `https://github.com/${USUARIO}/${LIBSTOCK}/tree/HEAD/${encodeURIComponent(c)}`, a: 'Código' }));
+      const fallo = rs === null || cs === null;
+      if (!items.length) {
+        $('resultados').innerHTML = `<p class="res-gh-estado">${fallo ? 'No pude consultar GitHub en este momento.' : 'Tampoco encontré repositorios con ese nombre en mi GitHub.'}
+          <a href="${enlaceGH}" target="_blank" rel="noopener">Buscar «${esc(q)}» dentro del código en GitHub</a></p>`;
+        return;
+      }
+      $('res-resumen').innerHTML = `No estaba en la página, pero encontré <strong>${items.length}</strong> ${items.length === 1 ? 'resultado' : 'resultados'} para <strong>${esc(q)}</strong> en mi GitHub.`;
+      const top = items[0];
+      $('resultados').innerHTML =
+        (llevar ? `<div class="res-gh-llevar" id="gh-llevar">Te llevo a <strong>${esc(top.t)}</strong> en <span id="gh-seg">4</span> s…
+          <a class="btn-mini btn-video" href="${esc(top.u)}">Ir ahora</a> <button class="btn-mini btn-codigo" type="button" id="gh-quedar">Quedarme aquí</button></div>` : '') +
+        `<section class="res-grupo" id="r-github"><h2>Encontrado en GitHub <small>${items.length}</small></h2><div class="res-lista">` +
+        items.map((x) => `<a class="res-item" href="${esc(x.u)}" target="_blank" rel="noopener"><span class="area">${x.a}</span><h3><code>${esc(x.t)}</code></h3><p>${esc(x.d)}</p></a>`).join('') +
+        `</div><p style="margin-top:18px"><a href="${enlaceGH}" target="_blank" rel="noopener">Buscar también dentro del código en GitHub</a></p></section>`;
+      clearInterval(cuenta);
+      if (llevar) {
+        let s = 4;
+        cuenta = setInterval(() => { s -= 1; const e = $('gh-seg'); if (!e) return clearInterval(cuenta); e.textContent = s; if (s <= 0) { clearInterval(cuenta); location.href = top.u; } }, 1000);
+        $('gh-quedar').onclick = () => { clearInterval(cuenta); $('gh-llevar').remove(); };
+      }
+    });
   }
 
   let espera;
   $('q').addEventListener('input', () => { clearTimeout(espera); espera = setTimeout(() => buscar($('q').value, true), 180); });
-  $('form-buscar').addEventListener('submit', (e) => { e.preventDefault(); buscar($('q').value, true); });
+  $('form-buscar').addEventListener('submit', (e) => { e.preventDefault(); clearTimeout(espera); buscar($('q').value, true, true); });
   document.querySelectorAll('[data-q]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); $('q').value = a.dataset.q; buscar(a.dataset.q, true); }));
   $('res-total').textContent = `${videos.length} videos, ${cursos.length} cursos, ${proyectos.length} proyectos y ${repos.length} repositorios`;
   const q0 = new URLSearchParams(location.search).get('q') || '';
   $('q').value = q0;
-  buscar(q0, false);
+  buscar(q0, false, !!q0);
 })();
