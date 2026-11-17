@@ -70,7 +70,7 @@
     const rv = buscarEn(videos, terms), rc = buscarEn(cursos, terms), rp = buscarEn(proyectos, terms), rr = buscarEn(repos, terms);
     const total = rv.length + rc.length + rp.length + rr.length;
     $('res-resumen').innerHTML = total
-      ? `${total} resultados para <strong>${esc(q)}</strong>: ` + [[rv, 'videos', 'r-videos'], [rc, 'cursos', 'r-cursos'], [rp, 'proyectos', 'r-proyectos'], [rr, 'repositorios', 'r-codigo']].filter((a) => a[0].length).map((a) => `<a href="#${a[2]}">${a[0].length} ${a[1]}</a>`).join(' · ') + ` <button class="btn-mini btn-codigo btn-gh" type="button" id="btn-gh">🔎 Buscar también en mi GitHub</button>`
+      ? `${total} resultados para <strong>${esc(q)}</strong>: ` + [[rv, 'videos', 'r-videos'], [rc, 'cursos', 'r-cursos'], [rp, 'proyectos', 'r-proyectos'], [rr, 'repositorios', 'r-codigo']].filter((a) => a[0].length).map((a) => `<a href="#${a[2]}">${a[0].length} ${a[1]}</a>`).join(' · ') + `<br><button class="btn btn-sec btn-gh" type="button" id="btn-gh">🔎 Buscar también en mi GitHub (librerías y código)</button>`
       : `No encontré nada para <strong>${esc(q)}</strong> en la página. Ahora lo busco en mi GitHub…`;
     const mas = rv.length > limiteVideos ? `<p style="text-align:center;margin-top:22px"><button class="btn btn-sec" id="mas-videos" type="button">Ver más videos (${rv.length - limiteVideos})</button></p>` : '';
     $('resultados').innerHTML =
