@@ -332,3 +332,5 @@ nav a, header nav li a { white-space: nowrap; }
 .res-gh-estado a { color: var(--led); display: inline-block; margin-top: 8px; }
 .res-gh-llevar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; background: var(--tarjeta); border: 1px solid rgba(227,162,83,.5); border-radius: var(--radio); padding: 14px 18px; margin-bottom: 26px; }
 .res-gh-llevar button { cursor: pointer; font-family: inherit; }
+#gh-extra { scroll-margin-top: 90px; }
+.btn-gh { margin-left: 8px; cursor: pointer; font-family: inherit; }

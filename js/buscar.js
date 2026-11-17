@@ -70,7 +70,7 @@
     const rv = buscarEn(videos, terms), rc = buscarEn(cursos, terms), rp = buscarEn(proyectos, terms), rr = buscarEn(repos, terms);
     const total = rv.length + rc.length + rp.length + rr.length;
     $('res-resumen').innerHTML = total
-      ? `${total} resultados para <strong>${esc(q)}</strong>: ` + [[rv, 'videos', 'r-videos'], [rc, 'cursos', 'r-cursos'], [rp, 'proyectos', 'r-proyectos'], [rr, 'repositorios', 'r-codigo']].filter((a) => a[0].length).map((a) => `<a href="#${a[2]}">${a[0].length} ${a[1]}</a>`).join(' · ')
+      ? `${total} resultados para <strong>${esc(q)}</strong>: ` + [[rv, 'videos', 'r-videos'], [rc, 'cursos', 'r-cursos'], [rp, 'proyectos', 'r-proyectos'], [rr, 'repositorios', 'r-codigo']].filter((a) => a[0].length).map((a) => `<a href="#${a[2]}">${a[0].length} ${a[1]}</a>`).join(' · ') + ` <button class="btn-mini btn-codigo btn-gh" type="button" id="btn-gh">🔎 Buscar también en mi GitHub</button>`
       : `No encontré nada para <strong>${esc(q)}</strong> en la página. Ahora lo busco en mi GitHub…`;
     const mas = rv.length > limiteVideos ? `<p style="text-align:center;margin-top:22px"><button class="btn btn-sec" id="mas-videos" type="button">Ver más videos (${rv.length - limiteVideos})</button></p>` : '';
     $('resultados').innerHTML =
@@ -80,6 +80,8 @@
       bloque('r-codigo', 'Código en GitHub', rr, tRepo, 'res-lista');
     const b = $('mas-videos');
     if (b) b.onclick = () => { limiteVideos += 48; buscar($('q').value, false); };
+    const bg = $('btn-gh');
+    if (bg) bg.onclick = () => { bg.disabled = true; buscarGitHub(q, terms, false, true); };
     clearTimeout(esperaGH);
     if (!total) esperaGH = setTimeout(() => buscarGitHub(q, terms, llevar), llevar ? 0 : 700);
   }
@@ -100,10 +102,17 @@
       .then((d) => d.tree.filter((x) => x.type === 'tree').map((x) => x.path)));
   const bonito = (n) => n.replace(/^\d+-|^drive-/, '').replace(/[-_]+/g, ' ');
 
-  function buscarGitHub(q, terms, llevar) {
+  function buscarGitHub(q, terms, llevar, extra) {
     const turno = ++turnoGH;
     const enlaceGH = `https://github.com/search?type=code&q=${encodeURIComponent('user:' + USUARIO + ' ' + q)}`;
-    $('resultados').innerHTML = `<p class="res-gh-estado">Buscando <strong>${esc(q)}</strong> en mi GitHub…</p>`;
+    const pintar = (html) => {
+      if (!extra) { $('resultados').innerHTML = html; return; }
+      let caja = $('gh-extra');
+      if (!caja) { caja = document.createElement('div'); caja.id = 'gh-extra'; $('resultados').prepend(caja); }
+      caja.innerHTML = html;
+      caja.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    pintar(`<p class="res-gh-estado">Buscando <strong>${esc(q)}</strong> en mi GitHub…</p>`);
     Promise.all([reposGH(q).catch(() => null), carpetasGH().catch(() => null)]).then(([rs, cs]) => {
       if (turno !== turnoGH) return;
       const vistos = new Set();
@@ -113,18 +122,18 @@
         .forEach(([, c]) => items.push({ t: bonito(c), d: 'Proyecto descargable de la colección ' + LIBSTOCK, u: `https://github.com/${USUARIO}/${LIBSTOCK}/tree/HEAD/${encodeURIComponent(c)}`, a: 'Código' }));
       const fallo = rs === null || cs === null;
       if (!items.length) {
-        $('resultados').innerHTML = `<p class="res-gh-estado">${fallo ? 'No pude consultar GitHub en este momento.' : 'Tampoco encontré repositorios con ese nombre en mi GitHub.'}
-          <a href="${enlaceGH}" target="_blank" rel="noopener">Buscar «${esc(q)}» dentro del código en GitHub</a></p>`;
+        pintar(`<p class="res-gh-estado">${fallo ? 'No pude consultar GitHub en este momento.' : 'Tampoco encontré repositorios con ese nombre en mi GitHub.'}
+          <a href="${enlaceGH}" target="_blank" rel="noopener">Buscar «${esc(q)}» dentro del código en GitHub</a></p>`);
         return;
       }
-      $('res-resumen').innerHTML = `No estaba en la página, pero encontré <strong>${items.length}</strong> ${items.length === 1 ? 'resultado' : 'resultados'} para <strong>${esc(q)}</strong> en mi GitHub.`;
+      if (!extra) $('res-resumen').innerHTML = `No estaba en la página, pero encontré <strong>${items.length}</strong> ${items.length === 1 ? 'resultado' : 'resultados'} para <strong>${esc(q)}</strong> en mi GitHub.`;
       const top = items[0];
-      $('resultados').innerHTML =
+      pintar(
         (llevar ? `<div class="res-gh-llevar" id="gh-llevar">Te llevo a <strong>${esc(top.t)}</strong> en <span id="gh-seg">4</span> s…
           <a class="btn-mini btn-video" href="${esc(top.u)}">Ir ahora</a> <button class="btn-mini btn-codigo" type="button" id="gh-quedar">Quedarme aquí</button></div>` : '') +
         `<section class="res-grupo" id="r-github"><h2>Encontrado en GitHub <small>${items.length}</small></h2><div class="res-lista">` +
         items.map((x) => `<a class="res-item" href="${esc(x.u)}" target="_blank" rel="noopener"><span class="area">${x.a}</span><h3><code>${esc(x.t)}</code></h3><p>${esc(x.d)}</p></a>`).join('') +
-        `</div><p style="margin-top:18px"><a href="${enlaceGH}" target="_blank" rel="noopener">Buscar también dentro del código en GitHub</a></p></section>`;
+        `</div><p style="margin-top:18px"><a href="${enlaceGH}" target="_blank" rel="noopener">Buscar también dentro del código en GitHub</a></p></section>`);
       clearInterval(cuenta);
       if (llevar) {
         let s = 4;
