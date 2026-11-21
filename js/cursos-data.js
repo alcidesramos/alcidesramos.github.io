@@ -2887,6 +2887,15 @@ const CURSOS = {
 "Grupo H"
 ],
 "f": "2026-10-31"
+},
+{
+"id": "5jksNVMw5tA",
+"n": null,
+"t": "USO DE LA IA PARA EVALUAR ESTUDIANTES, USO DE LA IA EN LA GAMIFICACIÓN EDUCATIVA.",
+"d": "Muestra como evaluar con la IA, cada estudiante con su celular o pc y preguntas con tiempo de respuesta, como usar juegos para hacer lúdicas o la clase mas entretenidas.",
+"c": [],
+"s": "2026-II",
+"f": "2026-11-20"
 }
 ],
 "secciones": [
@@ -5934,6 +5943,14 @@ const CURSOS = {
 "desc": "Cómo uso la inteligencia artificial en el trabajo y en clase: calificar con IA, la IA de Proteus 9.2, armar circuitos en Wokwi y crear aplicaciones con Claude como agente de ingeniería inversa.",
 "lista": "PLcGw1xGMXD8k",
 "videos": [
+{
+"id": "5jksNVMw5tA",
+"n": null,
+"t": "USO DE LA IA PARA EVALUAR ESTUDIANTES, USO DE LA IA EN LA GAMIFICACIÓN EDUCATIVA.",
+"d": "Muestra como evaluar con la IA, cada estudiante con su celular o pc y preguntas con tiempo de respuesta, como usar juegos para hacer lúdicas o la clase mas entretenidas.",
+"c": [],
+"f": "2026-11-20"
+},
 {
 "id": "65NlgiSX8yc",
 "n": null,
