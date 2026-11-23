@@ -44,7 +44,7 @@
         <div class="clase-acciones">
           <a class="btn-mini btn-video" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">Ver video</a>
           <a class="btn-mini btn-codigo" href="cursos.html#${v.slug}">Ver el curso</a>
-          ${(v.c && v.c[0]) ? `<a class="btn-mini btn-codigo" href="${esc(v.c[0])}" target="_blank" rel="noopener">Código</a>` : ''}
+          ${(v.c || []).filter((u, i) => u && (i === 0 || /_2026\b/i.test(u))).slice(0, 2).map((u, i) => `<a class="btn-mini btn-codigo" href="${esc(u)}" target="_blank" rel="noopener">${i ? 'Código_2026' : 'Código'}</a>`).join('')}
         </div>
       </div>
     </article>`;

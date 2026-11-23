@@ -24,7 +24,7 @@
   function tarjeta(v, curso) {
     const insignia = v.n ? `Clase ${v.n}` : v.f ? fecha(v.f) : '';
     const etiquetas = [...(v.g || []), ...(v.m || []).filter((m) => m !== 'General')];
-    const codigos = (v.c || []).slice(0, 2).map((u) => `<a class="btn-mini btn-codigo" href="${esc(u)}" target="_blank" rel="noopener">${textoCodigo(u)}</a>`).join('');
+    const codigos = (v.c || []).slice(0, 2).map((u, i) => `<a class="btn-mini btn-codigo" href="${esc(u)}" target="_blank" rel="noopener">${i && /_2026\b/i.test(u) ? 'Código_2026' : textoCodigo(u)}</a>`).join('');
     return `<article class="clase" data-texto="${esc((v.t + ' ' + v.d).toLowerCase())}" data-micro="${esc((v.m || []).join('|'))}">
       <a class="clase-img" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener" aria-label="Ver video: ${esc(v.t)}">
         <span class="clase-fallback" aria-hidden="true"><span>${esc(grupoDe[curso] || '')}</span></span>

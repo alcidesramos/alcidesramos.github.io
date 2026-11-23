@@ -1649,7 +1649,8 @@ const CURSOS = {
 "t": "Librerias para el sensor max30102 pulso cardiaco y saturacion de oxigeno",
 "d": "Y temperatura.",
 "c": [
-"https://github.com/alcidesramos/MAX30102_ARZ"
+"https://github.com/alcidesramos/MAX30102_ARZ",
+"https://github.com/alcidesramos/max30102_2026"
 ]
 },
 {
