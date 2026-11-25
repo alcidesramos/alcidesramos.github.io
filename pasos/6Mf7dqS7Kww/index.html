@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Configuramos el DT-06 desde su página web, lo ponemos como servidor TCP y probamos el puente serial–WiFi con Hercules y con un celular.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/6Mf7dqS7Kww/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi · Paso a paso">
+  <meta property="og:description" content="Configuramos el DT-06 desde su página web, lo ponemos como servidor TCP y probamos el puente serial–WiFi con Hercules y con un celular.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/6Mf7dqS7Kww/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/6Mf7dqS7Kww/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Módulo <span>DT-06</span>: de UART a WiFi</h1>
+    <p class="lead">El DT-06 (ESP8285) es un puente transparente entre serial y WiFi. Tiene los mismos pines que los módulos Bluetooth HC-05/HC-06, así que un proyecto Bluetooth puede pasar a WiFi sin cambiar el hardware, y más adelante a IoT. En esta primera clase de la serie lo conectamos a un adaptador USB-serial, lo configuramos desde su página web interna (serial, WiFi y red) y comprobamos que lo que entra por serial sale por TCP y al revés, tanto desde el computador como desde el celular.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=6Mf7dqS7Kww" target="_blank" rel="noopener">&#9654; Ver el video completo (8:21)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/300.webp" alt="Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi"></figure>
+    <ul class="materiales"><li>Módulo DT-06 (ESP8285)</li><li>Adaptador USB a serial (TX/RX)</li><li>Hercules SETUP utility (dos ventanas: serial y TCP)</li><li>Celular con una app de cliente TCP</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Qué es el DT-06</a><a href="#f2">2 · Serial, WiFi y red</a><a href="#f3">3 · Serial ↔ TCP</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El módulo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Puente serial–WiFi</h3><a class="min" href="https://youtu.be/6Mf7dqS7Kww?t=75" target="_blank" rel="noopener">&#9654; 1:15</a></div><p>Por dentro es un ESP8285 con 1 MB de flash ya programado como convertidor serial a WiFi. Es compatible en pines con el HC-05/HC-06.</p><p>Es buena práctica tener el WiFi en un módulo aparte del micro: se evitan interferencias y el sistema es más robusto.</p><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración web</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Entrar a la configuración</h3><a class="min" href="https://youtu.be/6Mf7dqS7Kww?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>Al alimentarlo, el módulo crea una red WiFi abierta (Doit_WiFi_…). Nos conectamos a ella y abrimos en el navegador la dirección del módulo, 192.168.4.1 (es el gateway que muestra Hercules en UDP Setup).</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Ajustes del serial</h3><a class="min" href="https://youtu.be/6Mf7dqS7Kww?t=215" target="_blank" rel="noopener">&#9654; 3:35</a></div><p>En MODULE > Serial se configura la velocidad. Dejamos 9600 baudios porque luego lo simularemos en Proteus; en una aplicación real conviene 115200 o más para trabajar más en tiempo real.</p><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Ajustes de WiFi</h3><a class="min" href="https://youtu.be/6Mf7dqS7Kww?t=240" target="_blank" rel="noopener">&#9654; 4:00</a></div><p>En MODULE > WiFi se cambia el nombre de la red que crea el módulo (SoftAP). En Station Settings se puede poner el nombre y la clave de una red con internet para que el módulo se conecte a ella; eso lo usaremos más adelante.</p><p class="ojo">Cada cambio se guarda con Save y solo se aplica cuando el módulo se reinicia (MORE > Restart o desconectar y volver a conectar).</p><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Modo de red</h3><a class="min" href="https://youtu.be/6Mf7dqS7Kww?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>En MODULE > Networks se elige el tipo de socket: TCP Server, TCP Client, UDP Server, UDP Broadcast o UDP Client. Lo ponemos como TCP Server en el puerto 200 y guardamos.</p><div class="dos"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi" loading="lazy"></a></figure><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi" loading="lazy"></a></figure><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba de comunicación</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Con Hercules</h3><a class="min" href="https://youtu.be/6Mf7dqS7Kww?t=450" target="_blank" rel="noopener">&#9654; 7:30</a></div><p>En una ventana de Hercules abrimos el puerto serial del adaptador (9600). En otra, en TCP Client, nos conectamos a 192.168.4.1, puerto 200. Lo que se escribe en una ventana aparece en la otra: el puente funciona en los dos sentidos.</p><div class="uno"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Con el celular</h3><a class="min" href="https://youtu.be/6Mf7dqS7Kww?t=480" target="_blank" rel="noopener">&#9654; 8:00</a></div><p>Apagamos los datos móviles, conectamos el celular a la red del módulo y en una app de cliente TCP ponemos la IP 192.168.4.1 y el puerto 200. Los mensajes del celular llegan al serial y los del serial llegan al celular.</p><p class="ojo">Cualquier dispositivo que hable TCP puede conectarse así. En las siguientes clases lo conectamos al STM32 y a aplicaciones de control.</p><div class="uno"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Clase 82 STM32: conociendo el módulo DT-06 (ESP8285), UART a WiFi" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=6Mf7dqS7Kww" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
