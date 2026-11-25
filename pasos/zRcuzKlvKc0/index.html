@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tipos de variables en C para STM32CubeIDE (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="bool, char, short, int, long, float y double, y su equivalente estándar (uint8_t, int16_t, uint32_t, uint64_t…). Cómo ver en el Build Analyzer cuántos bytes ocupa cada una y qué pasa cuando una variable se desborda.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/zRcuzKlvKc0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Tipos de variables en C para STM32CubeIDE (paso a paso) · Paso a paso">
+  <meta property="og:description" content="bool, char, short, int, long, float y double, y su equivalente estándar (uint8_t, int16_t, uint32_t, uint64_t…). Cómo ver en el Build Analyzer cuántos bytes ocupa cada una y qué pasa cuando una variable se desborda.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/zRcuzKlvKc0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/zRcuzKlvKc0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Tipos de <span>variables</span> en C con STM32CubeIDE</h1>
+    <p class="lead">Cada compilador puede cambiar el tamaño de algunos tipos (en STM32CubeIDE el long es de 4 bytes y el long double de 8). Para no depender de eso, C trae la librería stdint.h con tipos de tamaño fijo. En el video declaramos variables de todos los tipos, vemos en el Build Analyzer cuántos bytes ocupa cada una, y con el depurador comprobamos qué pasa al poner un valor fuera de rango. La regla: declarar cada variable según el rango máximo que va a tener, ni más (gasta memoria y tiempo) ni menos (se desborda).</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=zRcuzKlvKc0" target="_blank" rel="noopener">&#9654; Ver el video completo (21:07)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/20.webp" alt="Tipos de variables en C para STM32CubeIDE (paso a paso)"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Cualquier placa STM32 con su ST-Link (para la parte de depuración)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Tipos</a><a href="#f2">2 · Declarar</a><a href="#f3">3 · Elegir</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La tabla de tipos</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Enteros: C clásico vs stdint.h</h3><a class="min" href="https://youtu.be/zRcuzKlvKc0?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><ul><li><b>bool</b> (stdbool.h): 0 o 1, pero ocupa 1 byte.</li><li><b>unsigned char / uint8_t</b>: 0 a 255 · <b>signed char / int8_t</b>: −128 a 127.</li><li><b>unsigned short / uint16_t</b>: 0 a 65 535 · <b>short / int16_t</b>: −32 768 a 32 767.</li><li><b>unsigned int / uint32_t</b>: 0 a 4 294 967 295 · <b>int / int32_t</b>: ±2 147 483 647.</li><li><b>long</b>: en C debería ser de 8 bytes, pero en CubeIDE es de <b>4</b>. Para 8 bytes usa <b>uint64_t / int64_t</b>.</li></ul><p class="ojo">Con uint8_t, int16_t, uint32_t… sabes siempre el tamaño exacto, sin importar el compilador.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Tipos de variables en C para STM32CubeIDE (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Flotantes</h3><a class="min" href="https://youtu.be/zRcuzKlvKc0?t=992" target="_blank" rel="noopener">&#9654; 16:32</a></div><ul><li><b>float</b>: 4 bytes, ~7 decimales de precisión.</li><li><b>double</b>: 8 bytes, ~15 decimales.</li><li><b>long double</b>: en C son 16 bytes y ~19 decimales, pero en CubeIDE se comporta como double (8 bytes).</li></ul><div class="uno"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Tipos de variables en C para STM32CubeIDE (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Declarar y medir</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Incluir las librerías</h3><a class="min" href="https://youtu.be/zRcuzKlvKc0?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>En <code>main.c</code>, dentro de <b>USER CODE BEGIN Includes</b>:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;</code></pre></div><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Tipos de variables en C para STM32CubeIDE (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Variables globales</h3><a class="min" href="https://youtu.be/zRcuzKlvKc0?t=166" target="_blank" rel="noopener">&#9654; 2:46</a></div><p>Se declaran en <b>USER CODE BEGIN PV</b> (Private variables): tipo, nombre y opcionalmente un valor. Varias del mismo tipo se separan con coma.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>bool bit1 = true, bit2;
+unsigned char charn = 45;   // o uint8_t
+signed char   chars = -6;   // o int8_t
+unsigned short shortn = 525; // o uint16_t
+unsigned int  intn = 100000; // o uint32_t
+uint64_t      unit64n = 10;
+float  nota;
+double doublen;</code></pre></div><div class="uno"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Tipos de variables en C para STM32CubeIDE (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Usarlas para que existan</h3><a class="min" href="https://youtu.be/zRcuzKlvKc0?t=266" target="_blank" rel="noopener">&#9654; 4:26</a></div><p>Si una variable no se usa, el compilador la elimina y no aparece en memoria. Para la prueba las incrementamos dentro del while(1):</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>charn++;
+shortn++;
+intn++;
+unit64n++;
+nota++;</code></pre></div><div class="uno"><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Tipos de variables en C para STM32CubeIDE (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Ver el tamaño en el Build Analyzer</h3><a class="min" href="https://youtu.be/zRcuzKlvKc0?t=333" target="_blank" rel="noopener">&#9654; 5:33</a></div><p>Tras compilar, en <b>Build Analyzer → Memory Details → RAM → .data / .bss</b> aparece cada variable con su tamaño. Ahí se confirma: bool 1 B, char 1 B, short 2 B, int y long 4 B, uint64_t 8 B, float 4 B, double y long double 8 B.</p><div class="dos"><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="Memory Details: la variable bool ocupa 1 byte" loading="lazy"></a><figcaption>Memory Details: la variable bool ocupa 1 byte</figcaption></figure><figure class="cap"><a href="img/1140.webp" target="_blank"><img src="img/1140.webp" alt="Tamaños de todas las variables" loading="lazy"></a><figcaption>Tamaños de todas las variables</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Elegir bien el tipo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Según el rango máximo</h3><a class="min" href="https://youtu.be/zRcuzKlvKc0?t=628" target="_blank" rel="noopener">&#9654; 10:28</a></div><ul><li>Encender/apagar una luz → <b>bool</b>.</li><li>Alumnos en un salón (menos de 255) → <b>uint8_t</b>.</li><li>Temperatura con negativos pequeños → <b>int8_t</b>.</li><li>Lo que gasta un alumno en pasaje (miles de pesos) → <b>uint16_t</b>.</li><li>Una noche de rumba (cientos de miles) → <b>uint32_t</b>.</li><li>Lo que quisiera tener en el banco (miles de millones) → <b>uint64_t</b>.</li></ul><div class="uno"><figure class="cap"><a href="img/1220.webp" target="_blank"><img src="img/1220.webp" alt="Tipos de variables en C para STM32CubeIDE (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Comprobarlo con el depurador</h3><a class="min" href="https://youtu.be/zRcuzKlvKc0?t=827" target="_blank" rel="noopener">&#9654; 13:47</a></div><ul><li>Run → <b>Debug Configurations</b>: en Debugger escanea el ST-Link la primera vez.</li><li>Inicia el Debug (bicho verde) y en <b>Expressions</b> agrega las variables.</li><li>bool: si escribes 89 lo toma como <b>true</b> (todo lo distinto de 0 es verdadero).</li><li>uint8_t con 200: bien. Con <b>300</b>: se desborda y muestra otro valor (300 − 256 = 44).</li></ul><div class="dos"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Variables en Expressions" loading="lazy"></a><figcaption>Variables en Expressions</figcaption></figure><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Cambiando el valor de charn" loading="lazy"></a><figcaption>Cambiando el valor de charn</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Por qué importa</h3><a class="min" href="https://youtu.be/zRcuzKlvKc0?t=960" target="_blank" rel="noopener">&#9654; 16:00</a></div><p>Una variable muy pequeña se desborda y da valores erróneos. Una muy grande gasta memoria y además el micro tarda más en sumar, multiplicar o calcular un seno con 8 bytes que con 1.</p><p class="ojo">Usa float solo cuando necesites decimales: aunque ocupa 4 bytes como un int, las operaciones en flotante son mucho más lentas. Y nunca compares flotantes con ==; usa rangos (temp > 25.4 && temp < 25.6).</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=zRcuzKlvKc0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
