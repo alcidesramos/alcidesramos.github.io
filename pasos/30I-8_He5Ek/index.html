@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 14: Programando tarjetas Nucleo originales de ST (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Las Nucleo traen ST-Link integrado y CubeMX las configura solas con el Board Selector. Programamos la NUCLEO-L476RG desde CubeIDE y también arrastrando el .bin o .hex a su unidad USB.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/30I-8_He5Ek/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 14: Programando tarjetas Nucleo originales de ST (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Las Nucleo traen ST-Link integrado y CubeMX las configura solas con el Board Selector. Programamos la NUCLEO-L476RG desde CubeIDE y también arrastrando el .bin o .hex a su unidad USB.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/30I-8_He5Ek/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/30I-8_He5Ek/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 14: Tarjetas <span>Nucleo</span> originales de ST</h1>
+    <p class="lead">Las tarjetas Nucleo son las placas originales de STMicroelectronics. Sus ventajas: traen el ST-Link integrado (en la parte que se puede separar), y ese ST-Link también sirve para programar otras placas; al conectarlas aparecen en el PC como una memoria USB; y en STM32CubeMX se eligen por placa, de modo que los LED, el botón, el puerto serial y el reloj quedan configurados solos. Trabajamos con la NUCLEO-L476RG (Cortex-M4 de bajo consumo, 80 MHz con HSI + PLL) y la programamos de dos formas: desde CubeIDE con Run, y arrastrando el .bin o .hex a la unidad NOD_L476RG.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=30I-8_He5Ek" target="_blank" rel="noopener">&#9654; Ver el video completo (6:36)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/100.webp" alt="Clase 14: Programando tarjetas Nucleo originales de ST (paso a paso)"></figure>
+    <ul class="materiales"><li>NUCLEO-L476RG (o cualquier Nucleo, ej. NUCLEO-F767ZI)</li><li>Cable mini USB</li><li>STM32CubeMX y STM32CubeIDE</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Nucleo</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · Programar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Conocer las Nucleo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>ST-Link integrado</h3><a class="min" href="https://youtu.be/30I-8_He5Ek?t=45" target="_blank" rel="noopener">&#9654; 0:45</a></div><p>La parte superior de la placa es un ST-Link: se puede separar y tiene pines para programar otros micros. Comprar una Nucleo es comprar también un ST-Link. La "L" de L476 indica bajo consumo; estas placas suelen venir sin el cristal HSE soldado (queda el espacio para ponerlo).</p><div class="dos"><figure class="cap"><a href="img/15.webp" target="_blank"><img src="img/15.webp" alt="NUCLEO-L476RG y NUCLEO-F767ZI" loading="lazy"></a><figcaption>NUCLEO-L476RG y NUCLEO-F767ZI</figcaption></figure><figure class="cap"><a href="img/45.webp" target="_blank"><img src="img/45.webp" alt="La parte del ST-Link integrado" loading="lazy"></a><figcaption>La parte del ST-Link integrado</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Conectarla</h3><a class="min" href="https://youtu.be/30I-8_He5Ek?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Con el cable USB la placa se energiza y en el PC aparece una unidad como si fuera una memoria USB (NOD_L476RG). Más abajo la usamos para programar.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Clase 14: Programando tarjetas Nucleo originales de ST (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto con el Board Selector</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Elegir la placa, no el micro</h3><a class="min" href="https://youtu.be/30I-8_He5Ek?t=120" target="_blank" rel="noopener">&#9654; 2:00</a></div><ul><li>En STM32CubeMX entra por <b>ACCESS TO BOARD SELECTOR</b> y busca <b>NUCLEO-L476RG</b>.</li><li>Cuando pregunte si inicializa los periféricos por defecto, di <b>Yes</b>.</li><li>Queda todo listo: botón azul B1 en PC13, LED verde <b>LD2</b> en PA5, USART2 y el reloj a 80 MHz con HSI + PLL.</li></ul><div class="uno"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Clase 14: Programando tarjetas Nucleo originales de ST (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Generar el proyecto</h3><a class="min" href="https://youtu.be/30I-8_He5Ek?t=165" target="_blank" rel="noopener">&#9654; 2:45</a></div><p>Project Manager: nombre <b>nucleo</b>, Toolchain / IDE <b>STM32CubeIDE</b> y GENERATE CODE.</p><div class="uno"><figure class="cap"><a href="img/165.webp" target="_blank"><img src="img/165.webp" alt="Clase 14: Programando tarjetas Nucleo originales de ST (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>El hola mundo con LD2</h3><a class="min" href="https://youtu.be/30I-8_He5Ek?t=215" target="_blank" rel="noopener">&#9654; 3:35</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+  HAL_Delay(200);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 14: Programando tarjetas Nucleo originales de ST (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Forma 1: Run desde CubeIDE</h3><a class="min" href="https://youtu.be/30I-8_He5Ek?t=255" target="_blank" rel="noopener">&#9654; 4:15</a></div><p>Compila y pulsa Run. En la ventana de configuración de depuración deja el <b>ST-LINK (ST-LINK GDB server)</b> y OK. Como todo es original, lo reconoce sin problema y el LED empieza a parpadear.</p><div class="uno"><figure class="cap"><a href="img/255.webp" target="_blank"><img src="img/255.webp" alt="Clase 14: Programando tarjetas Nucleo originales de ST (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Forma 2: arrastrar el archivo</h3><a class="min" href="https://youtu.be/30I-8_He5Ek?t=345" target="_blank" rel="noopener">&#9654; 5:45</a></div><ul><li>En Properties → C/C++ Build → Settings → MCU Post build outputs activa el .hex y el .bin.</li><li>Cambia el retardo (ej. 1000) y solo compila.</li><li>Abre la carpeta <code>Debug</code> del proyecto y arrastra <code>nucleo.bin</code> (o .hex) a la unidad <b>NOD_L476RG</b>.</li><li>La placa se programa sola y el LED parpadea más lento.</li></ul><p class="ojo">Esta forma sirve para pasar un programa a la placa sin abrir ningún IDE: basta tener el .hex o el .bin.</p><div class="dos"><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="Arrastrar el .bin a la unidad de la Nucleo" loading="lazy"></a><figcaption>Arrastrar el .bin a la unidad de la Nucleo</figcaption></figure><figure class="cap"><a href="img/355.webp" target="_blank"><img src="img/355.webp" alt="El LED con el nuevo ritmo" loading="lazy"></a><figcaption>El LED con el nuevo ritmo</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=30I-8_He5Ek" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 13: Opciones de programación con un ST-Link V2 clon (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con un ST-Link chino no se puede depurar desde CubeIDE: o cargas el .hex con la ST-Link Utility antigua, o generas el proyecto para Keil MDK-ARM, que sí programa y depura con el clon.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/7rsiX4FaJU4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 13: Opciones de programación con un ST-Link V2 clon (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Con un ST-Link chino no se puede depurar desde CubeIDE: o cargas el .hex con la ST-Link Utility antigua, o generas el proyecto para Keil MDK-ARM, que sí programa y depura con el clon.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/7rsiX4FaJU4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/7rsiX4FaJU4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 13: Programar con un <span>ST-Link V2 clon</span></h1>
+    <p class="lead">El ST-Link V2 clon es muy económico y además alimenta el micro por USB, pero tiene limitaciones: STM32CubeIDE no reconoce su número de serie (no deja programar ni depurar) y el STM32CubeProgrammer actual tampoco conecta. Vemos dos salidas con una Blue Pill: 1) compilar en CubeIDE generando el .hex y grabarlo con la versión anterior, STM32 ST-LINK Utility (STSW-LINK004); 2) regenerar el proyecto desde STM32CubeMX para MDK-ARM (Keil µVision), que sí programa y depura con el clon.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=7rsiX4FaJU4" target="_blank" rel="noopener">&#9654; Ver el video completo (8:43)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/430.webp" alt="Clase 13: Opciones de programación con un ST-Link V2 clon (paso a paso)"></figure>
+    <ul class="materiales"><li>Blue Pill (STM32F103C8T6)</li><li>ST-Link V2 clon</li><li>STM32CubeMX y STM32CubeIDE</li><li>STM32 ST-LINK Utility (STSW-LINK004)</li><li>Keil µVision MDK-ARM (opcional, para depurar)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Problema</a><a href="#f3">3 · Opción 1</a><a href="#f4">4 · Opción 2</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto base en STM32CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Micro, cristal y LED</h3><a class="min" href="https://youtu.be/7rsiX4FaJU4?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><ul><li>Micro: <b>STM32F103C8Tx</b>.</li><li><b>RCC → HSE: Crystal/Ceramic Resonator</b> y en Clock Configuration el PLL al máximo (72 MHz).</li><li><b>PC13 → GPIO_Output</b> con etiqueta <b>led</b>.</li></ul><div class="dos"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Micro seleccionado" loading="lazy"></a><figcaption>Micro seleccionado</figcaption></figure><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Cristal externo en RCC" loading="lazy"></a><figcaption>Cristal externo en RCC</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Generar para CubeIDE</h3><a class="min" href="https://youtu.be/7rsiX4FaJU4?t=115" target="_blank" rel="noopener">&#9654; 1:55</a></div><p>En Project Manager el nombre <b>clone</b>, Toolchain <b>STM32CubeIDE</b>, y GENERATE CODE.</p><div class="uno"><figure class="cap"><a href="img/115.webp" target="_blank"><img src="img/115.webp" alt="Clase 13: Opciones de programación con un ST-Link V2 clon (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Hola mundo</h3><a class="min" href="https://youtu.be/7rsiX4FaJU4?t=185" target="_blank" rel="noopener">&#9654; 3:05</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+  HAL_Delay(200);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="Clase 13: Opciones de programación con un ST-Link V2 clon (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El problema con el clon</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>CubeIDE no lo acepta</h3><a class="min" href="https://youtu.be/7rsiX4FaJU4?t=194" target="_blank" rel="noopener">&#9654; 3:14</a></div><p>Al darle Run/Debug, CubeIDE detecta el ST-Link al escanear, pero el clon no tiene un número de serie de fábrica válido (suele ser una letra o un número suelto) y CubeIDE se niega a programar o depurar. El STM32CubeProgrammer actual lo ve pero tampoco conecta.</p><p class="ojo">Con una Blue Pill clon y un ST-Link original sí funcionaba CubeProgrammer. El problema aquí es el programador clon.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Opción 1: ST-LINK Utility con el .hex</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Generar el .hex</h3><a class="min" href="https://youtu.be/7rsiX4FaJU4?t=245" target="_blank" rel="noopener">&#9654; 4:05</a></div><p>Clic derecho en el proyecto → <b>Properties → C/C++ Build → Settings → MCU Post build outputs</b> y marca <b>Intel Hex</b> (y binario si quieres). Compila: los archivos quedan en <code>Debug</code>.</p><div class="uno"><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Clase 13: Opciones de programación con un ST-Link V2 clon (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Descargar la versión anterior</h3><a class="min" href="https://youtu.be/7rsiX4FaJU4?t=275" target="_blank" rel="noopener">&#9654; 4:35</a></div><p>En st.com busca <b>STSW-LINK004 · STM32 ST-LINK Utility</b> (reemplazada por CubeProgrammer, pero sigue disponible). Si hace falta, desde ella actualiza el firmware del ST-Link (desconectar, conectar y Upgrade).</p><div class="uno"><figure class="cap"><a href="img/275.webp" target="_blank"><img src="img/275.webp" alt="Clase 13: Opciones de programación con un ST-Link V2 clon (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Conectar y programar</h3><a class="min" href="https://youtu.be/7rsiX4FaJU4?t=315" target="_blank" rel="noopener">&#9654; 5:15</a></div><ul><li><b>Target → Connect</b>: lee la memoria del micro.</li><li><b>File → Open file</b>: <code>clone.hex</code> de la carpeta Debug.</li><li><b>Target → Program & Verify</b>. El LED cambia de ritmo.</li></ul><p class="ojo">Con esta opción programas, pero pierdes la depuración.</p><div class="dos"><figure class="cap"><a href="img/295.webp" target="_blank"><img src="img/295.webp" alt="Clase 13: Opciones de programación con un ST-Link V2 clon (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/315.webp" target="_blank"><img src="img/315.webp" alt="Clase 13: Opciones de programación con un ST-Link V2 clon (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Opción 2: Keil µVision (MDK-ARM)</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Regenerar para MDK-ARM</h3><a class="min" href="https://youtu.be/7rsiX4FaJU4?t=350" target="_blank" rel="noopener">&#9654; 5:50</a></div><p>Vuelve a CubeMX y en Project Manager cambia Toolchain / IDE a <b>MDK-ARM</b> y GENERATE CODE. Ojo: el proyecto queda para el último IDE que generes; usa uno u otro.</p><div class="dos"><figure class="cap"><a href="img/350.webp" target="_blank"><img src="img/350.webp" alt="Toolchain MDK-ARM" loading="lazy"></a><figcaption>Toolchain MDK-ARM</figcaption></figure><figure class="cap"><a href="img/375.webp" target="_blank"><img src="img/375.webp" alt="Proyecto abierto en µVision" loading="lazy"></a><figcaption>Proyecto abierto en µVision</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Compilar y cargar</h3><a class="min" href="https://youtu.be/7rsiX4FaJU4?t=400" target="_blank" rel="noopener">&#9654; 6:40</a></div><p>El código del while(1) se conserva. Cambia el retardo (ej. a 1000), compila (Build) y pulsa <b>Download</b>. A veces hay que desconectar y reconectar para que arranque.</p><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="main.c en Keil" loading="lazy"></a><figcaption>main.c en Keil</figcaption></figure><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Blue Pill corriendo con el clon" loading="lazy"></a><figcaption>Blue Pill corriendo con el clon</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Depurar con el clon</h3><a class="min" href="https://youtu.be/7rsiX4FaJU4?t=465" target="_blank" rel="noopener">&#9654; 7:45</a></div><p>En Keil sí puedes entrar en <b>Debug</b>: paso a paso, registros, pausar el programa. Resumen: con CubeIDE + clon solo grabas con la ST-LINK Utility antigua y sin depuración; con Keil tienes las dos cosas.</p><div class="uno"><figure class="cap"><a href="img/465.webp" target="_blank"><img src="img/465.webp" alt="Clase 13: Opciones de programación con un ST-Link V2 clon (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=7rsiX4FaJU4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
