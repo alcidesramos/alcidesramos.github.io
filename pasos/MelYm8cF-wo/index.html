@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 24: Salidas en modo Open Drain en STM32 (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Qué cambia en GPIO mode: Push-Pull manda 0 y 1; Open Drain solo manda 0 y el 1 lo pone una fuente externa con una resistencia, lo que permite entregar 10–12 V a un PLC o variador desde un micro de 3.3 V.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/MelYm8cF-wo/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 24: Salidas en modo Open Drain en STM32 (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Qué cambia en GPIO mode: Push-Pull manda 0 y 1; Open Drain solo manda 0 y el 1 lo pone una fuente externa con una resistencia, lo que permite entregar 10–12 V a un PLC o variador desde un micro de 3.3 V.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/MelYm8cF-wo/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/MelYm8cF-wo/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 24: Salidas <span>Push-Pull</span> y <span>Open Drain</span></h1>
+    <p class="lead">En CubeMX cada pin de salida tiene opciones que hasta ahora usábamos sin saberlo: nivel inicial, modo Push-Pull u Open Drain y pull-up/pull-down. Lo probamos con el LED de PC13 de la Black Pill y en Proteus, y vemos para qué sirve el drenador abierto.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=MelYm8cF-wo" target="_blank" rel="noopener">&#9654; Ver el video completo (7:25)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/265.webp" alt="Clase 24: Salidas en modo Open Drain en STM32 (paso a paso)"></figure>
+    <ul class="materiales"><li>Black Pill (STM32F401) o Blue Pill</li><li>STM32CubeIDE</li><li>Proteus: LEDs, resistencias de 180 Ω y 1 kΩ, fuente de 12 V, voltímetro</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · GPIO</a><a href="#f2">2 · Open Drain</a><a href="#f3">3 · Aplicación</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Opciones del pin</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>System Core → GPIO</h3><a class="min" href="https://youtu.be/MelYm8cF-wo?t=30" target="_blank" rel="noopener">&#9654; 0:30</a></div><ul><li><b>GPIO output level</b>: si el pin arranca en Low o High.</li><li><b>GPIO mode</b>: Output Push Pull u Output Open Drain.</li><li><b>GPIO Pull-up/Pull-down</b>: resistencias internas.</li></ul><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Clase 24: Salidas en modo Open Drain en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Push-Pull: lo que veníamos usando</h3><a class="min" href="https://youtu.be/MelYm8cF-wo?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>En Push-Pull el micro entrega tanto el 0 como el 1. El LED de la Black Pill está conectado a positivo, así que enciende con 0:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_GPIO_WritePin(led_GPIO_Port, led_Pin, 0);   // enciende el LED de PC13</code></pre></div><div class="uno"><figure class="cap"><a href="img/95.webp" target="_blank"><img src="img/95.webp" alt="Clase 24: Salidas en modo Open Drain en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Open Drain</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Qué es</h3><a class="min" href="https://youtu.be/MelYm8cF-wo?t=143" target="_blank" rel="noopener">&#9654; 2:23</a></div><p>Internamente la salida es un MOSFET: la compuerta la maneja el micro, el source va a tierra y el <b>drain queda abierto</b> hacia el pin (como el colector abierto de un NPN). Por eso el pin <b>solo puede mandar 0</b>; el 1 debe venir de una fuente externa a través de una resistencia.</p><div class="uno"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Clase 24: Salidas en modo Open Drain en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Con el LED de la placa sigue funcionando</h3><a class="min" href="https://youtu.be/MelYm8cF-wo?t=209" target="_blank" rel="noopener">&#9654; 3:29</a></div><p>Como el LED de PC13 enciende con 0, en Open Drain sigue encendiendo. Pero un LED conectado a tierra (que necesita un 1) <b>no enciende</b>: el 1 que se ve en Proteus es solo "reflejado", no entrega corriente.</p><div class="dos"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Mismo código en Open Drain" loading="lazy"></a><figcaption>Mismo código en Open Drain</figcaption></figure><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="El LED a tierra no enciende con 1" loading="lazy"></a><figcaption>El LED a tierra no enciende con 1</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Para qué sirve</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Entregar 12 V con un micro de 3.3 V</h3><a class="min" href="https://youtu.be/MelYm8cF-wo?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>Pon una resistencia (1 kΩ en el video) del pin a la fuente que quieras, por ejemplo 12 V. Al mandar 1 el pin queda abierto y la salida sube a 12 V; al mandar 0 baja a tierra. Así se manda una señal lógica de 10–12 V a un PLC o a un variador de velocidad.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_GPIO_WritePin(led_GPIO_Port, led_Pin, 1);   // la salida sube a 12 V por la resistencia</code></pre></div><p class="ojo">Para 5 V normalmente no hace falta: 3.3 V ya es un 1 lógico para la mayoría de sistemas de 5 V. Revisa además que el pin sea tolerante al voltaje que conectas.</p><div class="dos"><figure class="cap"><a href="img/265.webp" target="_blank"><img src="img/265.webp" alt="Circuito en Proteus con fuente de 12 V" loading="lazy"></a><figcaption>Circuito en Proteus con fuente de 12 V</figcaption></figure><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="Voltímetro en la salida" loading="lazy"></a><figcaption>Voltímetro en la salida</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Pull-up interno</h3><a class="min" href="https://youtu.be/MelYm8cF-wo?t=408" target="_blank" rel="noopener">&#9654; 6:48</a></div><p>En Open Drain también se puede activar el pull-up interno, pero no se recomienda mucho; para eso es mejor Push-Pull.</p><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 24: Salidas en modo Open Drain en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=MelYm8cF-wo" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

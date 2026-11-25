@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 23: Cómo proteger un STM32 para que no sea clonado (y cómo quitar la protección) (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Activar la protección de lectura (RDP) en los Option Bytes con STM32CubeProgrammer o con la ST-LINK Utility, qué pasa al quitarla (se borra la Flash) y los niveles 0, 1 y 2 en los Cortex-M4.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/fU91BdXKDTk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 23: Cómo proteger un STM32 para que no sea clonado (y cómo quitar la protección) (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Activar la protección de lectura (RDP) en los Option Bytes con STM32CubeProgrammer o con la ST-LINK Utility, qué pasa al quitarla (se borra la Flash) y los niveles 0, 1 y 2 en los Cortex-M4.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/fU91BdXKDTk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/fU91BdXKDTk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 23: Proteger el <span>firmware</span> con RDP</h1>
+    <p class="lead">Proteger el firmware es parte del negocio: puedes vender solo las tarjetas programadas y conservar los derechos intelectuales, o vender el firmware completo. La protección de lectura (Read Out Protection, RDP) impide leer y copiar la Flash aunque el programa siga funcionando. Lo hacemos con un ST-Link original y con un clon, en Blue Pill y Black Pill.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=fU91BdXKDTk" target="_blank" rel="noopener">&#9654; Ver el video completo (11:25)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/365.webp" alt="Clase 23: Cómo proteger un STM32 para que no sea clonado (y cómo quitar la protección) (paso a paso)"></figure>
+    <ul class="materiales"><li>Blue Pill (F103) y/o Black Pill (F401/F411)</li><li>ST-Link original o clon</li><li>STM32CubeProgrammer</li><li>STM32 ST-LINK Utility (para clones)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proteger</a><a href="#f2">2 · Quitar</a><a href="#f3">3 · Niveles</a><a href="#f4">4 · Clon</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proteger con STM32CubeProgrammer</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Option Bytes → RDP</h3><a class="min" href="https://youtu.be/fU91BdXKDTk?t=103" target="_blank" rel="noopener">&#9654; 1:43</a></div><ul><li>Conéctate y graba el programa.</li><li>Entra a <b>OB (Option Bytes) → Read Out Protection</b>.</li><li>En el F103: marca <b>RDP</b> y pulsa <b>Apply</b>.</li></ul><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 23: Cómo proteger un STM32 para que no sea clonado (y cómo quitar la protección) (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Comprobar</h3><a class="min" href="https://youtu.be/fU91BdXKDTk?t=118" target="_blank" rel="noopener">&#9654; 1:58</a></div><p>Desconecta y vuelve a conectar: "Data read failed". Con la ST-LINK Utility: "Can not read memory! Disable Read Out Protection and retry". El LED sigue parpadeando: el programa está ahí pero nadie lo puede leer ni clonar.</p><div class="uno"><figure class="cap"><a href="img/145.webp" target="_blank"><img src="img/145.webp" alt="Clase 23: Cómo proteger un STM32 para que no sea clonado (y cómo quitar la protección) (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Quitar la protección</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Con la ST-LINK Utility</h3><a class="min" href="https://youtu.be/fU91BdXKDTk?t=168" target="_blank" rel="noopener">&#9654; 2:48</a></div><p>En placas medio clon como la Blue Pill, desmarcar RDP en CubeProgrammer dice que lo hizo pero no funciona. Con la ST-LINK Utility sí: <b>Target → Option Bytes</b> → Read Out Protection <b>Disabled</b> → Apply.</p><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 23: Cómo proteger un STM32 para que no sea clonado (y cómo quitar la protección) (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Se borra el programa</h3><a class="min" href="https://youtu.be/fU91BdXKDTk?t=235" target="_blank" rel="noopener">&#9654; 3:55</a></div><p>Al quitar la protección el micro <b>borra toda la Flash</b>: queda libre para grabar otro programa, pero el original no se puede recuperar. Si un micro no se deja programar, puede que esté protegido: quita la protección.</p><p class="ojo">Esa es la gracia: quien quiera reutilizar el micro puede, pero nunca podrá leer tu firmware.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Niveles en los Cortex-M4</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Nivel 0, 1 y 2</h3><a class="min" href="https://youtu.be/fU91BdXKDTk?t=337" target="_blank" rel="noopener">&#9654; 5:37</a></div><ul><li><b>AA</b>: nivel 0, sin protección.</li><li><b>BB</b> (cualquier otro valor): nivel 1, protección de lectura; se puede quitar (borrando la Flash).</li><li><b>CC</b>: nivel 2, protección total y <b>permanente</b>: ni tú mismo podrás volver a programar ni depurar ese micro.</li></ul><p class="ojo">Usa el nivel 2 solo si estás seguro: el micro queda para siempre con ese programa.</p><div class="dos"><figure class="cap"><a href="img/350.webp" target="_blank"><img src="img/350.webp" alt="Option Bytes de la Black Pill (F411)" loading="lazy"></a><figcaption>Option Bytes de la Black Pill (F411)</figcaption></figure><figure class="cap"><a href="img/365.webp" target="_blank"><img src="img/365.webp" alt="RDP con AA, BB y CC" loading="lazy"></a><figcaption>RDP con AA, BB y CC</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>BOR Level</h3><a class="min" href="https://youtu.be/fU91BdXKDTk?t=435" target="_blank" rel="noopener">&#9654; 7:15</a></div><p>En los Option Bytes también está el <b>BOR Level</b> (Brown Out Reset): si la alimentación baja de un umbral (por ejemplo entre 2,4 y 2,7 V) el micro se resetea.</p></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Con un ST-Link clon</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Proteger con la ST-LINK Utility</h3><a class="min" href="https://youtu.be/fU91BdXKDTk?t=502" target="_blank" rel="noopener">&#9654; 8:22</a></div><ul><li>Con el clon, CubeProgrammer no conecta: usa la ST-LINK Utility.</li><li>Graba el .hex y luego <b>Target → Option Bytes</b>: Read Out Protection <b>Level 1</b> → Apply.</li><li>Reconecta: "Device Memory not accessible".</li></ul><div class="dos"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Menú Target de la ST-LINK Utility" loading="lazy"></a><figcaption>Menú Target de la ST-LINK Utility</figcaption></figure><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Memoria protegida: no se puede leer" loading="lazy"></a><figcaption>Memoria protegida: no se puede leer</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Desproteger y reprogramar</h3><a class="min" href="https://youtu.be/fU91BdXKDTk?t=620" target="_blank" rel="noopener">&#9654; 10:20</a></div><p>Option Bytes → Level 0 → Apply. Tarda un poco, borra la Flash y ya acepta otro programa.</p><div class="uno"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Clase 23: Cómo proteger un STM32 para que no sea clonado (y cómo quitar la protección) (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=fU91BdXKDTk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
