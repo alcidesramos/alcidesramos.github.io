@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Captura de múltiples teclas de un teclado matricial con STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Máquina de estados que captura un número de 4 dígitos en el teclado matricial, lo confirma con &#x27;=&#x27; y lo usa como retardo de parpadeo de un LED sin dejar de leer el teclado.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/Ey0ybpPyvrY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Captura de múltiples teclas de un teclado matricial con STM32 · Paso a paso">
+  <meta property="og:description" content="Máquina de estados que captura un número de 4 dígitos en el teclado matricial, lo confirma con &#x27;=&#x27; y lo usa como retardo de parpadeo de un LED sin dejar de leer el teclado.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/Ey0ybpPyvrY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Ey0ybpPyvrY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Capturar <span>varias teclas</span> del teclado matricial</h1>
+    <p class="lead">Partimos del proyecto del teclado matricial de la clase anterior y le agregamos una máquina de estados (n1, n2, n3, n4, en) que guarda cuatro dígitos en una cadena, los muestra en la LCD y, al presionar '=', los convierte con atoi() en el retardo de parpadeo de un LED. Al final se reemplaza HAL_Delay por una función de retardo que sigue escaneando el teclado mientras espera, para no perder teclas.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Ey0ybpPyvrY" target="_blank" rel="noopener">&#9654; Ver el video completo (18:19)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/830.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32"></figure>
+    <ul class="materiales"><li>STM32F401 (Black Pill) o simulación en Proteus</li><li>Teclado matricial 4x4</li><li>LCD 16x2</li><li>LED con resistencia de 220 Ω (LED1 indica que se están ingresando dígitos)</li><li>Proyecto de la clase del teclado matricial (Teclado.c / Teclado.h)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Hardware</a><a href="#f2">2 · Estados</a><a href="#f3">3 · main.c</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Hardware y objetivo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/Ey0ybpPyvrY?t=40" target="_blank" rel="noopener">&#9654; 0:40</a></div><p>Es el mismo montaje del teclado matricial: filas TF1 a TF4 como salidas y columnas TC1 a TC4 como entradas, más la LCD. Se agrega un LED (en la simulación, LED-YELLOW con R5 de 220 Ω).</p><p>La idea: escribir un número de 4 dígitos (por ejemplo 1000), presionar '=' y que el LED parpadee con ese retardo en milisegundos.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Máquina de estados en Teclado.c</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables y estados</h3><a class="min" href="https://youtu.be/Ey0ybpPyvrY?t=210" target="_blank" rel="noopener">&#9654; 3:30</a></div><p>En Teclado.c se declara la cadena donde se guardan los dígitos y un enum con un estado por dígito más el estado final. Hay que incluir ctype.h para usar isdigit().</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;ctype.h&quot;
+#include &quot;stdlib.h&quot;   // atoi
+
+int  retardo = 100;          // retardo inicial en ms
+char retardo_cad[5];         // 4 dígitos + fin de cadena
+enum teclado_estado {n1, n2, n3, n4, en};
+char estado_teclado = n1;</code></pre></div><div class="uno"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Estados n1 a n4: guardar cada dígito</h3><a class="min" href="https://youtu.be/Ey0ybpPyvrY?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>teclado_estado() lee la tecla con tecla_deco() y, según el estado, acepta solo dígitos. Cada dígito se guarda en su posición, se muestra en la LCD y se pasa al siguiente estado. El Delay_ms(400) funciona como antirrebote.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void teclado_estado(void)
+{
+  uint8_t tecla = tecla_deco();
+
+  switch (estado_teclado)
+  {
+    case n1:
+      if ((tecla != 0) &amp;&amp; (isdigit(tecla)))
+      {
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 1); // ingresando dígitos
+        retardo_cad[0] = tecla;
+        estado_teclado = n2;
+        Lcd_Chr(2, 8, tecla);
+        Delay_ms(400);            // antirrebote
+      }
+      break;
+
+    case n2:
+      if ((tecla != 0) &amp;&amp; (isdigit(tecla)))
+      {
+        retardo_cad[1] = tecla;
+        estado_teclado = n3;
+        Lcd_Chr(2, 9, tecla);
+        Delay_ms(400);
+      }
+      break;
+
+    case n3:
+      if ((tecla != 0) &amp;&amp; (isdigit(tecla)))
+      {
+        retardo_cad[2] = tecla;
+        estado_teclado = n4;
+        Lcd_Chr(2, 10, tecla);
+        Delay_ms(400);
+      }
+      break;
+
+    case n4:
+      if ((tecla != 0) &amp;&amp; (isdigit(tecla)))
+      {
+        retardo_cad[3] = tecla;
+        estado_teclado = en;
+        Lcd_Chr(2, 11, tecla);
+        Delay_ms(400);
+      }
+      break;</code></pre></div><div class="dos"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Estado en: confirmar con '='</h3><a class="min" href="https://youtu.be/Ey0ybpPyvrY?t=450" target="_blank" rel="noopener">&#9654; 7:30</a></div><p>En el estado final se espera el '='. Se cierra la cadena con 0, atoi() la convierte en número y ese valor pasa a ser el retardo. Si se presiona cualquier otra tecla se cancela y se vuelve a empezar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    case en:
+      if ((tecla != 0) &amp;&amp; (tecla != &#x27;=&#x27;))   // otra tecla: cancelar
+      {
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 0);
+        estado_teclado = n1;
+        Lcd_Text(2, 8, &quot;    &quot;);           // borra la pantalla
+        Delay_ms(600);
+      }
+      else if ((tecla != 0) &amp;&amp; (tecla == &#x27;=&#x27;))  // se presionó el igual
+      {
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 0);
+        retardo_cad[4] = 0;                 // fin de cadena
+        retardo = atoi(retardo_cad);        // texto a número
+        estado_teclado = n1;                // vuelve a capturar el primer número
+        Lcd_Text(2, 8, &quot;    &quot;);
+        Delay_ms(600);
+      }
+      break;
+  }
+}</code></pre></div><p class="ojo">Sin retardo_cad[4] = 0 la cadena no termina y atoi() puede leer basura después del cuarto dígito.</p><div class="dos"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Usarlo en main.c</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Primera versión con HAL_Delay</h3><a class="min" href="https://youtu.be/Ey0ybpPyvrY?t=740" target="_blank" rel="noopener">&#9654; 12:20</a></div><p>En main.c se declara la variable externa y en el while se llama a teclado_estado(), se conmuta el LED y se espera el retardo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PV */
+extern int retardo;
+
+/* USER CODE BEGIN WHILE */
+while (1)
+{
+  teclado_estado();
+  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  HAL_Delay(retardo);
+}</code></pre></div><p class="ojo">Con retardos largos (por ejemplo 5000 ms) el teclado solo se lee una vez cada 5 s, así que se pierden teclas.</p><div class="dos"><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Retardo que sigue leyendo el teclado</h3><a class="min" href="https://youtu.be/Ey0ybpPyvrY?t=930" target="_blank" rel="noopener">&#9654; 15:30</a></div><p>La solución es un retardo propio que, mientras espera, llama a teclado_estado() todo el tiempo. Así el LED parpadea con el retardo elegido y el teclado responde de inmediato.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void teclado_init(void)
+{
+  delay_Init();
+}
+
+void teclado_retardo(int16_t valor)
+{
+  uint32_t tiem1;
+  tiem1 = HAL_GetTick();
+  while (HAL_GetTick() - tiem1 &lt; valor) teclado_estado();
+}
+
+/* en main.c, antes del while */
+teclado_init();
+
+while (1)
+{
+  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  teclado_retardo(retardo);
+}</code></pre></div><p class="ojo">valor es int16_t, así que el máximo es 32767 ms. Con 4 dígitos (9999) alcanza; si quieres más, cámbialo a uint32_t.</p><div class="dos"><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba en simulación</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Cambiar el parpadeo desde el teclado</h3><a class="min" href="https://youtu.be/Ey0ybpPyvrY?t=830" target="_blank" rel="noopener">&#9654; 13:50</a></div><p>Se escribe 1000 y '=': el LED parpadea cada segundo. Con 5000 y '=' parpadea cada 5 s y el teclado sigue respondiendo. Con 0200 y '=' vuelve a ser rápido.</p><ul><li>Mientras se escriben dígitos, LED1 se enciende.</li><li>Los dígitos aparecen en la LCD en las columnas 8 a 11.</li><li>Cualquier tecla que no sea '=' en el último paso cancela la captura.</li></ul><div class="dos"><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1031.webp" target="_blank"><img src="img/1031.webp" alt="Captura de múltiples teclas de un teclado matricial con STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Ey0ybpPyvrY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sensores ópticos reflectivos QTR con STM32: calibración y normalización · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Calibramos los sensores QTR guardando máximos y mínimos de cada uno y convertimos la lectura de tiempo en unos y ceros (negro o blanco), como se usa en un seguidor de línea.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/bjGXxe3NKuY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Sensores ópticos reflectivos QTR con STM32: calibración y normalización · Paso a paso">
+  <meta property="og:description" content="Calibramos los sensores QTR guardando máximos y mínimos de cada uno y convertimos la lectura de tiempo en unos y ceros (negro o blanco), como se usa en un seguidor de línea.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/bjGXxe3NKuY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/bjGXxe3NKuY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Sensores QTR: <span>calibración y normalización</span></h1>
+    <p class="lead">Segunda parte de la lectura de los sensores QTR. La lectura de tiempo que obtuvimos en el video anterior se convierte en unos y ceros: primero se calibra recorriendo la pista para guardar el máximo y el mínimo de cada sensor, y luego se normaliza comparando cada lectura con el punto medio. Un LED en PB13 indica cuándo el sistema está calibrando. Al final se agregan #define para elegir si el negro vale 1 o 0 (pista negra con línea blanca o al revés).</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=bjGXxe3NKuY" target="_blank" rel="noopener">&#9654; Ver el video completo (11:12)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/445.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización"></figure>
+    <ul class="materiales"><li>STM32F401 (Black Pill) o simulación en Proteus</li><li>Arreglo de sensores QTR (el carrito de la simulación tiene 6)</li><li>LED de calibración en PB13 con la etiqueta LEDIR</li><li>USART1 a terminal virtual para ver los datos</li><li>Librería QTR.c / QTR.h de la clase anterior</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Calibrar</a><a href="#f2">2 · Normalizar</a><a href="#f3">3 · Negro/Blanco</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Calibración</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Punto de partida</h3><a class="min" href="https://youtu.be/bjGXxe3NKuY?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>En la clase anterior se leía cuánto tarda en caer la señal de cada sensor. Ese tiempo depende del color, pero en robótica lo que se necesita es un 1 o un 0 para saber si el sensor está sobre la línea.</p><p>En la librería se corrigieron los nombres: ahora todas las funciones empiezan por QTR_ (QTR_lectura, QTR_calibra, QTR_Normaliza...).</p><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización" loading="lazy"></a></figure><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Llamar a la calibración</h3><a class="min" href="https://youtu.be/bjGXxe3NKuY?t=70" target="_blank" rel="noopener">&#9654; 1:10</a></div><p>Antes del while se llama a QTR_calibra con el número de muestras. Más muestras significa más tiempo para pasar el carrito por la pista. QTR_Manda_Limites envía por la UART los máximos y mínimos medidos, solo para revisar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>QTR_Init();
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+QTR_calibra(80);        // 80 muestras: ajústalo a la velocidad de tu micro
+QTR_Manda_Limites();    // opcional: imprime maximos y minimos</code></pre></div><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Qué hace QTR_calibra</h3><a class="min" href="https://youtu.be/bjGXxe3NKuY?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>Enciende el LED de calibración, lee los sensores muchas veces y guarda para cada uno el valor más alto y el más bajo. Al terminar apaga el LED: desde ese momento ya no sirve seguir moviendo el carrito.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#ifdef LEDIR_Pin
+HAL_GPIO_WritePin(LEDIR_GPIO_Port, LEDIR_Pin, 1);  // enciende LED de calibración
+#endif
+
+// toma N muestras del terreno para calibrar los sensores
+for (cuenta2 = 0; cuenta2 &lt; veces; cuenta2++)
+{
+  for (cont = 0; cont &lt; 8; cont++)
+  {
+    QTR_lectura(lecturasir);
+    if (lecturasir[cont] &gt;= maximos[cont]) maximos[cont] = lecturasir[cont];
+    if (lecturasir[cont] &lt;= minimos[cont]) minimos[cont] = lecturasir[cont];
+  }
+}
+
+#ifdef LEDIR_Pin
+HAL_GPIO_WritePin(LEDIR_GPIO_Port, LEDIR_Pin, 0);  // apaga LED de calibración
+#endif</code></pre></div><p class="ojo">El LED está dentro de #ifdef LEDIR_Pin: si no creas el pin, la librería funciona igual pero no tendrás aviso de cuándo termina la calibración.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Configurar el LED en CubeMX</h3><a class="min" href="https://youtu.be/bjGXxe3NKuY?t=210" target="_blank" rel="noopener">&#9654; 3:30</a></div><p>En el .ioc se pone PB13 como GPIO_Output con la etiqueta LEDIR. Con ese nombre la librería lo detecta sola. Recuerda generar el código antes de compilar.</p><div class="dos"><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización" loading="lazy"></a></figure><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Revisar máximos y mínimos</h3><a class="min" href="https://youtu.be/bjGXxe3NKuY?t=265" target="_blank" rel="noopener">&#9654; 4:25</a></div><p>Con el LED encendido se pasa el carrito por blanco y por negro. Cuando el LED se apaga, la terminal muestra los límites: mínimos cercanos a 0 a 16 y máximos cercanos a 1000. Los sensores 7 y 8 salen en 0 porque este carrito solo tiene 6.</p><div class="uno"><figure class="cap"><a href="img/445.webp" target="_blank"><img src="img/445.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Normalización</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Llamar a QTR_Normaliza</h3><a class="min" href="https://youtu.be/bjGXxe3NKuY?t=338" target="_blank" rel="noopener">&#9654; 5:38</a></div><p>Ya no hace falta enviar los límites. Después de cada lectura se llama a QTR_Normaliza sobre el mismo arreglo, y lo que se imprime ya son unos y ceros.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>QTR_calibra(80);
+
+while (1)
+{
+  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  QTR_lectura(lecturas);
+  QTR_Normaliza(lecturas);   // ahora lecturas[] vale 0 o 1
+  sprintf(texto, &quot;SEN1=%d\r\n&quot;, lecturas[0]);
+  uartx_write_text(&amp;huart1, texto);
+  // ... igual para SEN2 a SEN6
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Qué hace QTR_Normaliza</h3><a class="min" href="https://youtu.be/bjGXxe3NKuY?t=404" target="_blank" rel="noopener">&#9654; 6:44</a></div><p>Para cada sensor calcula el punto medio entre su mínimo y su máximo. Si la lectura actual supera ese umbral, el sensor vale 1; si no, 0.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// normaliza el valor leído en un rango, en este caso de 0 a 1
+void QTR_Normaliza(uint16_t *lectu_QTR)
+{
+  uint8_t cuenta;
+  float min_temp, max_temp;
+  float promedio;
+
+  for (cuenta = 0; cuenta &lt; 8; cuenta++)
+  {
+    min_temp = minimos[cuenta];
+    max_temp = maximos[cuenta];
+    promedio = (max_temp - min_temp) / 2;   // mitad del rango del sensor
+    if (lectu_QTR[cuenta] &gt;= (min_temp + promedio)) lectu_QTR[cuenta] = 1;
+    else lectu_QTR[cuenta] = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/bjGXxe3NKuY?t=437" target="_blank" rel="noopener">&#9654; 7:17</a></div><p>Se calibra pasando el carrito varias veces por la línea y luego se mueve: los sensores sobre la línea negra marcan 1 y los que están sobre blanco marcan 0.</p><p class="ojo">Hay que calibrar cada vez que se enciende. Estos sensores son muy sensibles a la luz infrarroja del lugar, que cambia de un recinto a otro y con la hora del día.</p><div class="uno"><figure class="cap"><a href="img/655.webp" target="_blank"><img src="img/655.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Elegir qué color vale 1</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Defines NEGRO y BLANCO</h3><a class="min" href="https://youtu.be/bjGXxe3NKuY?t=539" target="_blank" rel="noopener">&#9654; 8:59</a></div><p>En QTR.h, después de los include, se definen dos constantes y en QTR_Normaliza se usan en lugar del 1 y el 0. Intercambiándolas se adapta el código a una pista negra con línea blanca.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// QTR.h
+#define NEGRO  1
+#define BLANCO 0
+
+// QTR_Normaliza
+if (lectu_QTR[cuenta] &gt;= (min_temp + promedio)) lectu_QTR[cuenta] = NEGRO;
+else lectu_QTR[cuenta] = BLANCO;
+
+// línea blanca sobre pista negra: invierte el resultado
+// if (...) lectu_QTR[cuenta] = BLANCO; else lectu_QTR[cuenta] = NEGRO;</code></pre></div><div class="dos"><figure class="cap"><a href="img/585.webp" target="_blank"><img src="img/585.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización" loading="lazy"></a></figure><figure class="cap"><a href="img/625.webp" target="_blank"><img src="img/625.webp" alt="Sensores ópticos reflectivos QTR con STM32: calibración y normalización" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=bjGXxe3NKuY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
