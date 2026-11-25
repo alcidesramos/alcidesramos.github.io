@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se aplica un escalón al motor, se capturan las RPM con Teleplot, se identifica la planta en MATLAB con PID Tuner y las constantes obtenidas se cargan en la librería PID del STM32.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/R3MppyNEEbU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner · Paso a paso">
+  <meta property="og:description" content="Se aplica un escalón al motor, se capturan las RPM con Teleplot, se identifica la planta en MATLAB con PID Tuner y las constantes obtenidas se cargan en la librería PID del STM32.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/R3MppyNEEbU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/R3MppyNEEbU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 117: <span>Identificar la planta y sintonizar el PID</span></h1>
+    <p class="lead">Cuarto capítulo de la serie del motor DC. Se le da al motor un escalón de 0 a 4200 durante 10 segundos y se graban las RPM con Teleplot, exportando a CSV. Un script de MATLAB carga la columna de datos y la grafica. Con la app PID Tuner se identifica la planta a partir de la respuesta al escalón (modelo de un polo, ajuste de 83%) y se obtienen las constantes del PID. Esos valores se cargan en PID.h, el control se ejecuta en la interrupción del timer y se verifica en Teleplot que la velocidad sigue al set point y se recupera cuando se frena el motor.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=R3MppyNEEbU" target="_blank" rel="noopener">&#9654; Ver el video completo (15:46)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/905.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner"></figure>
+    <ul class="materiales"><li>Montaje del motor DC de las clases anteriores</li><li>VS Code con Teleplot</li><li>MATLAB con System Identification Toolbox y Control System Toolbox (PID Tuner)</li><li>Librería PID del canal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Capturar cómo responde el motor</a><a href="#f2">2 · Cargar y graficar</a><a href="#f3">3 · Identificación y constantes</a><a href="#f4">4 · Cargar constantes y probar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Respuesta al escalón</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Aplicar el escalón</h3><a class="min" href="https://youtu.be/R3MppyNEEbU?t=68" target="_blank" rel="noopener">&#9654; 1:08</a></div><p>En el main, antes del while, se lleva el PWM al máximo durante 10 segundos y luego se apaga. Hay que dejar de tomar datos antes de que se apague.</p><p>En el callback del timer se comenta el mapeo y el PWM: el motor recibe el escalón directo y solo se envían las RPM.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// main.c
+PWM_valor(&amp;PWM1, 4200);
+HAL_Delay(10000);
+PWM_valor(&amp;PWM1, 0);
+
+// timer.c (en el callback)
+sprintf(texto,&quot;&gt;IN:%.1f\n&quot;,RPM);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Capturar con Teleplot y exportar</h3><a class="min" href="https://youtu.be/R3MppyNEEbU?t=164" target="_blank" rel="noopener">&#9654; 2:44</a></div><p>Para un solo dato Teleplot funciona muy bien. Se resetea la tarjeta y se abre el puerto al mismo tiempo para capturar desde el arranque.</p><p>Se exporta con Export to CSV, con separador punto y coma, y se guarda como teleplot.csv en la carpeta del script de MATLAB.</p><div class="dos"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure><figure class="cap"><a href="img/195.webp" target="_blank"><img src="img/195.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>MATLAB</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Script para cargar los datos</h3><a class="min" href="https://youtu.be/R3MppyNEEbU?t=295" target="_blank" rel="noopener">&#9654; 4:55</a></div><p>El CSV tiene el tiempo en la primera columna y los datos en la segunda. El script toma la segunda columna y la grafica.</p><p>Con esa gráfica impresa también se puede identificar la planta a mano (por ejemplo con el 63% para la constante de tiempo), pero aquí se deja que MATLAB lo haga.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>clc, clear all, close all
+
+data = readmatrix(&#x27;teleplot.csv&#x27;);
+
+% Extraer columna 2
+data_out_tele = data(:, 2);
+
+figure(1);
+plot(data_out_tele, &#x27;r&#x27;);
+title(&#x27;SALIDA&#x27;);
+xlabel(&#x27;Tiempo&#x27;);
+ylabel(&#x27;PWM&#x27;);
+grid on;</code></pre></div><div class="dos"><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>PID Tuner</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Abrir PID Tuner</h3><a class="min" href="https://youtu.be/R3MppyNEEbU?t=361" target="_blank" rel="noopener">&#9654; 6:01</a></div><p>En APPS se abre PID Tuner. Se elige un PID estándar y en Plant se selecciona identificar una nueva planta, lo que abre la herramienta de identificación.</p><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Importar la respuesta al escalón</h3><a class="min" href="https://youtu.be/R3MppyNEEbU?t=392" target="_blank" rel="noopener">&#9654; 6:32</a></div><p>En Get I/O Data se elige Step Response. La salida es la variable data_out_tele, la amplitud del escalón es 4200 (lo que se aplicó al PWM) y el tiempo de muestreo es el del sistema: 20 ms.</p><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Estimar la planta</h3><a class="min" href="https://youtu.be/R3MppyNEEbU?t=475" target="_blank" rel="noopener">&#9654; 7:55</a></div><p>Con Auto Estimate MATLAB ajusta un modelo de un polo con aproximadamente 83% de ajuste. Se aplica y aparece la planta con su ganancia Kp y constante Tp1.</p><div class="dos"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Sintonizar y ver parámetros</h3><a class="min" href="https://youtu.be/R3MppyNEEbU?t=527" target="_blank" rel="noopener">&#9654; 8:47</a></div><p>De vuelta en PID Tuner se mueven los controles de tiempo de respuesta y robustez, y con Show Parameters se leen las constantes.</p><p>En este caso: Kp = 348.8513, Ti = 44.648 y Td = 0.52006.</p><p class="ojo">PID Tuner entrega Ti y Td en forma estándar. Si tu librería usa la forma paralela (kp, ki, kd), la equivalencia es ki = Kp/Ti y kd = Kp·Td; también puedes pedir el formato paralelo en PID Tuner.</p><div class="dos"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure><figure class="cap"><a href="img/630.webp" target="_blank"><img src="img/630.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>PID en el STM32</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Constantes en PID.h</h3><a class="min" href="https://youtu.be/R3MppyNEEbU?t=591" target="_blank" rel="noopener">&#9654; 9:51</a></div><p>Se ajusta el rango de salida a 0-4200 (el máximo del PWM) y se cargan las constantes obtenidas. El tiempo de muestreo debe ser el mismo del timer (20 ms).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define PID_muestreo 20e-3
+#define PID_kp 348.8513
+#define PID_ki 44.648
+#define PID_kd 0
+#define PID_SET 0
+
+#define PID_MAX 4200
+#define PID_MIN 0</code></pre></div><div class="uno"><figure class="cap"><a href="img/630.webp" target="_blank"><img src="img/630.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Control en la interrupción</h3><a class="min" href="https://youtu.be/R3MppyNEEbU?t=558" target="_blank" rel="noopener">&#9654; 9:18</a></div><p>Al PID le entran las RPM leídas y su salida ut va al PWM. Se envían set point y RPM a Teleplot para ver la respuesta.</p><p>El escalón del main se deja comentado: el main queda libre.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>setpoint=ADC_Read(&amp;hadc1)*222.0/4095.0;
+PID_Control(RPM);
+PWM_valor(&amp;PWM1, ut);
+
+sprintf(texto,&quot;&gt;SP:%.1f\n&quot;,setpoint);
+uartx_write_text(&amp;huart1, texto);
+sprintf(texto,&quot;&gt;OUT:%.1f\n&quot;,RPM);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/R3MppyNEEbU?t=826" target="_blank" rel="noopener">&#9654; 13:46</a></div><p>En Teleplot se arrastran SP y OUT a la misma gráfica: la velocidad sigue al set point con rapidez. El ruido del set point viene del potenciómetro.</p><p>Si se intenta frenar el motor con la mano, el PID aumenta la salida y mantiene la velocidad, algo imposible en lazo abierto.</p><div class="dos"><figure class="cap"><a href="img/850.webp" target="_blank"><img src="img/850.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure><figure class="cap"><a href="img/905.webp" target="_blank"><img src="img/905.webp" alt="Clase 117: Control de motor DC, capítulo 4: identificación con MATLAB y PID Tuner" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=R3MppyNEEbU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
