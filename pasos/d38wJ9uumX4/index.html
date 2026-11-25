@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 36: asociar printf al puerto USB CDC (COM virtual) en STM32 (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="La misma idea de la clase 35, pero con el USB de la Black Pill como puerto COM virtual. Un printf_out.h universal: si defines uartx imprime por la UART, si no, redefine _write para enviar por CDC_Transmit_FS.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/d38wJ9uumX4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 36: asociar printf al puerto USB CDC (COM virtual) en STM32 (paso a paso) · Paso a paso">
+  <meta property="og:description" content="La misma idea de la clase 35, pero con el USB de la Black Pill como puerto COM virtual. Un printf_out.h universal: si defines uartx imprime por la UART, si no, redefine _write para enviar por CDC_Transmit_FS.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/d38wJ9uumX4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/d38wJ9uumX4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 36: <span>printf</span> por USB CDC</h1>
+    <p class="lead">Repasamos cómo activar USB Device CDC (USB_OTG_FS en Device_Only, middleware USB_DEVICE con Virtual Port Com y reloj con cristal externo a 84 MHz) y modificamos printf_out.h con #ifdef para que printf salga por la UART o por USB según una sola línea.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=d38wJ9uumX4" target="_blank" rel="noopener">&#9654; Ver el video completo (6:05)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/260.webp" alt="Clase 36: asociar printf al puerto USB CDC (COM virtual) en STM32 (paso a paso)"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401 con cristal externo</li><li>Cable USB</li><li>Proyecto de la clase 35 con printf_out.h</li><li>Terminal serie</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeMX</a><a href="#f2">2 · Código</a><a href="#f3">3 · Probar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Activar USB CDC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>USB Device CDC</h3><a class="min" href="https://youtu.be/d38wJ9uumX4?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Como en la clase 34: <b>Connectivity → USB_OTG_FS → Device_Only</b> y <b>Middleware → USB_DEVICE → Communication Device Class (Virtual Port Com)</b>.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 36: asociar printf al puerto USB CDC (COM virtual) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Reloj</h3><a class="min" href="https://youtu.be/d38wJ9uumX4?t=35" target="_blank" rel="noopener">&#9654; 0:35</a></div><p>El USB obliga a usar el cristal externo (HSE) con el PLL; lleva HCLK a 84 MHz y deja que CubeMX resuelva el resto.</p><div class="uno"><figure class="cap"><a href="img/45.webp" target="_blank"><img src="img/45.webp" alt="Clase 36: asociar printf al puerto USB CDC (COM virtual) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Librerías</h3><a class="min" href="https://youtu.be/d38wJ9uumX4?t=68" target="_blank" rel="noopener">&#9654; 1:08</a></div><p>Copia usb_cdc.c/.h en Core/Librerias y verifica que la ruta de include siga configurada (si borraste la carpeta, vuelve a agregarla). Incluye en main.c:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;usb_device.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;printf_out.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/130.webp" target="_blank"><img src="img/130.webp" alt="Clase 36: asociar printf al puerto USB CDC (COM virtual) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>printf_out.h universal</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>UART o USB con #ifdef</h3><a class="min" href="https://youtu.be/d38wJ9uumX4?t=205" target="_blank" rel="noopener">&#9654; 3:25</a></div><p>Si está definido <b>uartx</b>, printf va a la UART con __io_putchar. Si comentas el #define, se compila la versión USB, que redefine <b>_write</b> y manda el bloque completo con CDC_Transmit_FS, esperando mientras el USB está ocupado:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;string.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;stdio.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;main.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;usbd_cdc_if.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//#define uartx huart1   // descomenta para usar el puerto serial</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#ifdef uartx</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern UART_HandleTypeDef uartx;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>int __io_putchar(int ch)</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    HAL_UART_Transmit(&amp;uartx, (uint8_t *)&amp;ch, 1, 0xFFFF);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    return ch;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>}</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#else   // si no se define uartx, printf se asocia al USB CDC</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>int _write(int file, char *ptr, int len)</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    while (CDC_Transmit_FS((uint8_t *)ptr, len) == USBD_BUSY);   // espera que el dato sea enviado</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    return len;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>}</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#endif</code></pre></div><p class="ojo">Si el compilador avisa "implicit declaration of function CDC_Transmit_FS", falta <code>#include "usbd_cdc_if.h"</code>, como está arriba.</p><div class="dos"><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Clase 36: asociar printf al puerto USB CDC (COM virtual) en STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 36: asociar printf al puerto USB CDC (COM virtual) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Probar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Mismo printf, ahora por USB</h3><a class="min" href="https://youtu.be/d38wJ9uumX4?t=306" target="_blank" rel="noopener">&#9654; 5:06</a></div><p>El main no cambia. Programa, conecta el USB de la tarjeta y abre el puerto nuevo (aquí <b>COM16</b>, Dispositivo serie USB) en la terminal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>printf(&quot;CNT1=%-u  CNT1=%3d  CNTf=%4.2f\r\n&quot;, cont8, cont8s, contf);</code></pre></div><div class="dos"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Clase 36: asociar printf al puerto USB CDC (COM virtual) en STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/350.webp" target="_blank"><img src="img/350.webp" alt="Clase 36: asociar printf al puerto USB CDC (COM virtual) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=d38wJ9uumX4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
