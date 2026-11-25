@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El LCD con solo 2 pines usando el módulo I2C (un expansor de puerto PCF8574). Cómo funciona el bus I2C, cómo habilitarlo en CubeMX, la dirección 0x4E y la librería LCD_I2C con las mismas funciones que la clase 31 pero con prefijo I2C_.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/K69uY1soHrY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso) · Paso a paso">
+  <meta property="og:description" content="El LCD con solo 2 pines usando el módulo I2C (un expansor de puerto PCF8574). Cómo funciona el bus I2C, cómo habilitarlo en CubeMX, la dirección 0x4E y la librería LCD_I2C con las mismas funciones que la clase 31 pero con prefijo I2C_.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/K69uY1soHrY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/K69uY1soHrY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 32: <span>LCD por I2C</span> con PCF8574</h1>
+    <p class="lead">El famoso módulo I2C para LCD es en realidad un expansor de puerto de 8 bits: con 2 hilos manejas 8 salidas, y puedes poner hasta 8 módulos en el mismo bus. Vemos lo básico del protocolo I2C, configuramos I2C1, usamos la librería y corregimos las direcciones de fila en LCD de 4 líneas.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=K69uY1soHrY" target="_blank" rel="noopener">&#9654; Ver el video completo (12:04)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/365.webp" alt="Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso)"></figure>
+    <ul class="materiales"><li>LCD 16x2 o 20x4</li><li>Módulo I2C PCF8574 para LCD</li><li>STM32F401 o tu placa</li><li>Librería LCD_I2C.c/.h</li><li>Proteus (PCF8574, LM016L/LM044L)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · I2C</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · Código</a><a href="#f4">4 · 4 filas</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El módulo y el bus I2C</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Un expansor de puerto</h3><a class="min" href="https://youtu.be/K69uY1soHrY?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>El módulo no es solo para LCD: es un <b>PCF8574</b>, 8 salidas manejadas por I2C. Tiene 3 pines de dirección (A0, A1, A2), así que puedes conectar hasta 8 en el mismo bus. Sirve también para juegos de luces o displays de 7 segmentos.</p><ul><li>P0 = RS, P1 = RW, P2 = E, P3 = luz de fondo</li><li>P4 a P7 = D4 a D7</li></ul><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Cómo funciona I2C</h3><a class="min" href="https://youtu.be/K69uY1soHrY?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Dos líneas: <b>SCL</b> (reloj) y <b>SDA</b> (dato), en alto gracias a resistencias pull-up (el módulo ya las trae). La trama: <b>Start</b> (SDA baja con SCL en alto), dirección del esclavo de 7 bits, bit <b>R/W</b> (0 escribir, 1 leer), <b>ACK</b> del esclavo, los datos con su ACK, y <b>Stop</b>.</p><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Habilitar I2C1</h3><a class="min" href="https://youtu.be/K69uY1soHrY?t=227" target="_blank" rel="noopener">&#9654; 3:47</a></div><p>En <b>Connectivity → I2C1</b> elige modo <b>I2C</b>. Standard Mode a 100 kHz está bien. En Proteus conecta SCL y SDA del micro al PCF8574 con sus pull-up de 4.7k.</p><div class="dos"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Nombre fijo para el handle</h3><a class="min" href="https://youtu.be/K69uY1soHrY?t=260" target="_blank" rel="noopener">&#9654; 4:20</a></div><p>En <b>User Constants → Add IP Handle Label</b> ponle al handle de I2C el nombre que espera la librería. Así, si mañana cambias a I2C2 o I2C3, solo cambias aquí y la librería sigue igual.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>La librería</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Dirección del módulo</h3><a class="min" href="https://youtu.be/K69uY1soHrY?t=356" target="_blank" rel="noopener">&#9654; 5:56</a></div><p>En LCD_I2C.h está la dirección. Con A2, A1, A0 a positivo es <b>0x4E</b>. Si tu módulo tiene la dirección a tierra o es otro modelo, usa la otra línea.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define LCD_ADDR 0x4E      // A2A1A0 = 111</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//#define LCD_ADDR 0x7E    // otro modelo / otra direccion</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define LCD_BL 0x08</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define LCD_EN 0x04</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define LCD_RS 0x01</code></pre></div><div class="uno"><figure class="cap"><a href="img/365.webp" target="_blank"><img src="img/365.webp" alt="Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Mismas funciones con prefijo I2C_</h3><a class="min" href="https://youtu.be/K69uY1soHrY?t=387" target="_blank" rel="noopener">&#9654; 6:27</a></div><p>No necesita retardos en microsegundos: la comunicación ya es más lenta. Incluye la librería y usa lo mismo de la clase 31:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;LCD_I2C.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char especial1[8] = {0x1B,0x1B,0x0,0x4,0x15,0x15,0xE,0x0};</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char especial2[8] = {0x1B,0x1B,0x11,0x11,0x11,0xA,0x4,0x1B};</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>I2C_Lcd_Init();</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>I2C_Lcd_Cmd(_LCD_CLEAR);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>I2C_Lcd_Cmd(_LCD_CURSOR_OFF);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>I2C_Lcd_Text(1, 2, &quot;SUSCRIBANSE&quot;);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>I2C_Lcd_Text(2, 3, &quot;AL CANAL&quot;);</code></pre></div><p class="ojo">Con 2 hilos es cómodo para proyectos académicos. En aplicaciones industriales con muchas interrupciones la comunicación puede cortarse y salen caracteres raros: ahí mejor los 6 pines directos.</p><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>LCD de 4 líneas</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Filas 3 y 4 corridas</h3><a class="min" href="https://youtu.be/K69uY1soHrY?t=458" target="_blank" rel="noopener">&#9654; 7:38</a></div><p>Según el display, la fila 3 empieza en <b>0x90</b> o en <b>0x94</b>, y la 4 en <b>0xD0</b> o en <b>0xD4</b>. En LCD de 2 líneas no pasa. Si el texto sale corrido, cambia el comentario en <code>I2C_Lcd_Chr</code> (y en las demás funciones con coordenadas):</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>case 3:</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    I2C_Lcd_Cmd(0x90 + (column - 1));</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    //I2C_Lcd_Cmd(0x94 + (column - 1));</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    break;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>case 4:</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    I2C_Lcd_Cmd(0xD0 + (column - 1));</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    //I2C_Lcd_Cmd(0xD4 + (column - 1));</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    break;</code></pre></div><p class="ojo">Lo mismo aplica a la librería del LCD de 6 pines de la clase 31.</p><div class="dos"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase 32: LCD alfanumérico por I2C con el módulo PCF8574 en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=K69uY1soHrY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
