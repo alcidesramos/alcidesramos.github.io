@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 84 STM32: DT-06 y Virtuino, introducción · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Conectamos Virtuino al DT-06 como servidor TCP y vemos qué tramas envía y recibe: interruptor, slider, LED e instrumento analógico.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/-oE1FX3SCN8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 84 STM32: DT-06 y Virtuino, introducción · Paso a paso">
+  <meta property="og:description" content="Conectamos Virtuino al DT-06 como servidor TCP y vemos qué tramas envía y recibe: interruptor, slider, LED e instrumento analógico.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/-oE1FX3SCN8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/-oE1FX3SCN8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1><span>DT-06</span> y Virtuino: control y monitoreo por WiFi</h1>
+    <p class="lead">Antes de conectar el microcontrolador entendemos cómo habla la app Virtuino con el módulo DT-06. Creamos un servidor WiFi en Virtuino apuntando a la IP y el puerto del módulo, agregamos widgets de control (interruptor y slider) y de monitoreo (LED e instrumento analógico), y con Hercules en el puerto serial vemos las tramas que llegan y enviamos las respuestas que luego dará el STM32.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=-oE1FX3SCN8" target="_blank" rel="noopener">&#9654; Ver el video completo (15:07)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/860.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción"></figure>
+    <ul class="materiales"><li>Módulo DT-06 configurado como servidor TCP (puerto 200, 9600 baudios), ver clase 82</li><li>Adaptador USB a serial</li><li>Hercules SETUP utility</li><li>Celular con Virtuino 6 (también hay versión para Windows, macOS, Linux e iOS)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Virtuino y el servidor</a><a href="#f2">2 · Interruptor y slider</a><a href="#f3">3 · LED e instrumento</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparación</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La aplicación Virtuino</h3><a class="min" href="https://youtu.be/-oE1FX3SCN8?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>Virtuino permite hacer pantallas HMI para controlar y monitorear desde el celular. En su página está la documentación de la API, con el formato de cada trama.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Crear el servidor</h3><a class="min" href="https://youtu.be/-oE1FX3SCN8?t=180" target="_blank" rel="noopener">&#9654; 3:00</a></div><p>El celular debe estar conectado a la red WiFi del módulo. En Virtuino agregamos un servidor WiFi/Ethernet con un nombre, la IP del módulo (192.168.4.1), el puerto 200, sin clave y refresco de 1 segundo. Con Test connectivity llega una trama al serial: hay comunicación.</p><div class="dos"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Widgets de control</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Interruptor en pin digital</h3><a class="min" href="https://youtu.be/-oE1FX3SCN8?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>Agregamos un Switch en el servidor creado, memoria Digital pin, pin 0, con 1 para ON y 0 para OFF. Al correr el panel (botón verde) y tocarlo, llega por el serial la trama del pin Q0 con su valor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>!Q00=1$   // interruptor encendido
+!Q00=0$   // interruptor apagado</code></pre></div><div class="dos"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure><figure class="cap"><a href="img/455.webp" target="_blank"><img src="img/455.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Enviar solo al cambiar</h3><a class="min" href="https://youtu.be/-oE1FX3SCN8?t=420" target="_blank" rel="noopener">&#9654; 7:00</a></div><p>Con Refresh time en un valor positivo, la app pregunta todo el tiempo y el sistema se vuelve lento. Con -2 solo envía el valor cuando cambia el control, que es lo mejor para control.</p><p class="ojo">En los widgets de monitoreo no se puede usar -2: deben refrescarse (mínimo 1 s) para recibir el valor.</p><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Slider en memoria virtual</h3><a class="min" href="https://youtu.be/-oE1FX3SCN8?t=530" target="_blank" rel="noopener">&#9654; 8:50</a></div><p>Un slider envía un valor, así que se asocia a una memoria virtual (V1). Al moverlo llegan tramas con el valor nuevo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>!V01=93$
+!V01=180$
+!V01=33$</code></pre></div><div class="dos"><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Widgets de monitoreo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>LED</h3><a class="min" href="https://youtu.be/-oE1FX3SCN8?t=660" target="_blank" rel="noopener">&#9654; 11:00</a></div><p>Agregamos un LED en el pin digital Q1 con refresco de 1 s. La app pregunta su valor con !Q01=?$ y el microcontrolador (aquí Hercules) responde con el estado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>!Q01=1$   // LED en estado 1
+!Q01=0$   // LED en estado 0</code></pre></div><p class="ojo">En Hercules el signo $ es un comando; para enviarlo hay que escribir $$.</p><div class="dos"><figure class="cap"><a href="img/625.webp" target="_blank"><img src="img/625.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Instrumento analógico</h3><a class="min" href="https://youtu.be/-oE1FX3SCN8?t=860" target="_blank" rel="noopener">&#9654; 14:20</a></div><p>Agregamos un Analog instrument en la memoria virtual V2, rango 0 a 100 y símbolo V. Al enviar el valor, la aguja se mueve.</p><p>Ya sabemos qué envía y qué espera Virtuino. En la próxima clase el STM32 reemplaza al terminal: leerá estas tramas para encender cargas o mover motores y enviará los valores de sus sensores.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>!V02=40$</code></pre></div><div class="dos"><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Clase 84 STM32: DT-06 y Virtuino, introducción" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=-oE1FX3SCN8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
