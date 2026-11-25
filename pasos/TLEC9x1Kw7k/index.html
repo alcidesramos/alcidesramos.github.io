@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 108 STM32: mis librerías para pantallas HMI Nextion · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Comunicación STM32 ↔ Nextion con recepción DMA: enviar valores, imágenes y gráficas, y leer órdenes, bytes y textos desde la pantalla.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/TLEC9x1Kw7k/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 108 STM32: mis librerías para pantallas HMI Nextion · Paso a paso">
+  <meta property="og:description" content="Comunicación STM32 ↔ Nextion con recepción DMA: enviar valores, imágenes y gráficas, y leer órdenes, bytes y textos desde la pantalla.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/TLEC9x1Kw7k/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/TLEC9x1Kw7k/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Librería para pantallas <span>HMI Nextion</span></h1>
+    <p class="lead">Se muestra la librería Nextion.c/.h para STM32, que se apoya en la recepción serial por DMA con detección de línea inactiva (UARTRX). El micro lee un potenciómetro y la temperatura interna con ADC por DMA y los envía a la pantalla, cambia la imagen de un LED según un pulsador, grafica en una waveform, y recibe órdenes de la Nextion: encender un LED, activar la gráfica, fijar el PWM y recibir números de 2 o 4 bytes y textos. Se prueba con el simulador del Nextion Editor.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=TLEC9x1Kw7k" target="_blank" rel="noopener">&#9654; Ver el video completo (22:31)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/970.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion"></figure>
+    <ul class="materiales"><li>STM32F401/F411 (Black Pill)</li><li>Pantalla Nextion (o el simulador del Nextion Editor)</li><li>Potenciómetro, pulsador y LED de la tarjeta</li><li>Conversor USB-serial para la Nextion y otro para monitoreo</li><li>Librerías Nextion.c/.h, UARTRX.c/.h, UART_INT_DMA_IDLE.c, uart, adc, PWM y MAP</li><li>Nextion Editor</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeMX</a><a href="#f2">2 · Nextion.c</a><a href="#f3">3 · Objetos</a><a href="#f4">4 · Send</a><a href="#f5">5 · procesa_nextion</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Periféricos usados</h3><a class="min" href="https://youtu.be/TLEC9x1Kw7k?t=35" target="_blank" rel="noopener">&#9654; 0:35</a></div><p>El ADC1 lee por DMA dos canales: el potenciómetro y el sensor de temperatura interno. Un timer genera el PWM, el LED y el pulsador de la tarjeta son E/S digitales, el USART1 va a la Nextion y el USART2 es solo de monitoreo.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>USART de la Nextion con DMA</h3><a class="min" href="https://youtu.be/TLEC9x1Kw7k?t=99" target="_blank" rel="noopener">&#9654; 1:39</a></div><p>El USART1 va a 9600 baudios con DMA RX e interrupción global habilitados, igual que en la librería de recepción de varios UART (clase 103) y en la del GPS.</p><div class="uno"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar la librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Puerto y buffer</h3><a class="min" href="https://youtu.be/TLEC9x1Kw7k?t=165" target="_blank" rel="noopener">&#9654; 2:45</a></div><p>En Nextion.c indica el UART de la pantalla y crea la estructura UARTNEXTION con el handle, la instancia y el tamaño del buffer (100 caracteres; amplíalo si tus tramas son más largas). nextion_text guarda los textos leídos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//COLOCAR UART A USAR
+extern UART_HandleTypeDef huart1;
+//defina uart y tamaño para la nextion
+UARTRXS UARTNEXTION = {&amp;huart1, USART1, 100};
+
+//si se quieren leer mas o menos texto poner tamaño
+char nextion_text[50];</code></pre></div><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Funciones disponibles</h3><a class="min" href="https://youtu.be/TLEC9x1Kw7k?t=199" target="_blank" rel="noopener">&#9654; 3:19</a></div><p>La librería trae funciones para inicializar y reinicializar la recepción, enviar un valor o un texto a un objeto, enviar un punto a una gráfica, leer una orden de texto, leer 1, 2 o 4 bytes y leer una variable de texto. Nextion_interrup es la interrupción de llegada de datos.</p><p>En UART_INT_DMA_IDLE.c incluye Nextion.h y llama a Nextion_interrup dentro de HAL_UARTEx_RxEventCallback. Si la Nextion ya está en ese UART, no hace falta la interrupción genérica para el mismo puerto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void nextion_Send_Graf(uint8_t id, uint8_t canal, uint16_t valor)
+{
+    char nexti[100];
+    sprintf(nexti, &quot;add %u,%u,%u\xFF\xFF\xFF&quot;, id, canal, valor);
+    uartx_write_text(UARTNEXTION.huart, nexti);
+}
+
+// UART_INT_DMA_IDLE.c
+#include &quot;Nextion.h&quot;
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t sizex)
+{
+    Nextion_interrup(huart, sizex);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>La interfaz en Nextion Editor</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Objetos de la página</h3><a class="min" href="https://youtu.be/TLEC9x1Kw7k?t=264" target="_blank" rel="noopener">&#9654; 4:24</a></div><p>La página pa0 tiene un termómetro (barra te), un número con decimales tef, un gauge para el voltaje (vol y vf), la imagen led1, una waveform, interruptores, el PWM y una página de mantenimiento. Los gráficos se recortan de LabVIEW o de cualquier editor.</p><p>Los números con decimales no son flotantes: con ws1 = 1 decimal se envía el valor × 10.</p><div class="dos"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Calibrar los indicadores</h3><a class="min" href="https://youtu.be/TLEC9x1Kw7k?t=426" target="_blank" rel="noopener">&#9654; 7:06</a></div><p>El termómetro y el gauge no coinciden exactamente con el valor que se les manda. Se toman varios puntos (valor deseado vs valor que hay que enviar), se grafica en Excel y se saca la recta. El gauge es circular, así que necesita dos rectas: una para menos de 1 V y otra para 1 V o más.</p><div class="dos"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Enviar datos a la pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Voltaje y temperatura</h3><a class="min" href="https://youtu.be/TLEC9x1Kw7k?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>Se calcula la temperatura interna con los datos del datasheet (V25 = 0,76 V, pendiente 2,5 mV/°C), se corrigen los valores con las rectas de calibración y se envían a cada objeto como pagina.objeto.propiedad=.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>voltaje1 = adc_codigo[0]*3.3/4095.0;
+voltaje2 = adc_codigo[1]*3.3/4095.0;
+float voltajex;
+if (voltaje1 &gt;= 1) voltajex = 80.429*voltaje1 - 71.357;
+else voltajex = 80*voltaje1 + 290;
+
+//datos sacados del datasheet
+float const V25 = 0.76;          // V (Typical voltage at 25°C)
+float const Avg_Slope = 0.0025;  // V/°C
+temperatura = ((voltaje2 - V25) / Avg_Slope) + 25;
+float temperatura1 = 0.845*temperatura + 11.836;
+
+//envia voltaje
+Nextion_Send_Valor(&quot;pa0.vol.val=&quot;, voltajex);
+Nextion_Send_Valor(&quot;pa0.vf.val=&quot;, voltaje1*10);
+//envia la temperatura
+Nextion_Send_Valor(&quot;pa0.te.val=&quot;, temperatura1);
+Nextion_Send_Valor(&quot;pa0.tef.val=&quot;, temperatura*10);</code></pre></div><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Imagen según una entrada digital</h3><a class="min" href="https://youtu.be/TLEC9x1Kw7k?t=696" target="_blank" rel="noopener">&#9654; 11:36</a></div><p>Según el pulsador se cambia la propiedad pic del objeto led1 para mostrar una u otra imagen.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//SUICHES O SEÑALES DIGITALES
+if (PIN_READ(sw) == 1)
+    Nextion_Send_Valor(&quot;pa0.led1.pic=&quot;, 1);
+else
+    Nextion_Send_Valor(&quot;pa0.led1.pic=&quot;, 0);</code></pre></div><div class="dos"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Gráfica</h3><a class="min" href="https://youtu.be/TLEC9x1Kw7k?t=761" target="_blank" rel="noopener">&#9654; 12:41</a></div><p>Si la gráfica está activa se envía un punto a la waveform: id del objeto (2), canal (el primero es 0) y el voltaje mapeado de 0–3,3 V a 0–200, la altura de la gráfica.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (graf == 1)
+{
+    nextion_Send_Graf(2, 0, map(voltaje1, 0, 3.3, 0, 200));
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure><figure class="cap"><a href="img/770.webp" target="_blank"><img src="img/770.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Recibir órdenes de la pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Procesar los textos</h3><a class="min" href="https://youtu.be/TLEC9x1Kw7k?t=845" target="_blank" rel="noopener">&#9654; 14:05</a></div><p>Cuando llega una trama de la Nextion se llama a procesa_nextion. Los botones envían textos como sw1=on, sw1=off, graon o graoff desde su evento (print "sw1=on"), y el micro hace lo que corresponda.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void procesa_nextion()
+{
+    if (Nextion_Read_Text(&quot;sw1=on&quot;) == 1) PIN_OFF(led);
+    else if (Nextion_Read_Text(&quot;sw1=off&quot;) == 1) PIN_ON(led);
+
+    else if (Nextion_Read_Text(&quot;graon&quot;) == 1) graf = 1;
+    else if (Nextion_Read_Text(&quot;graoff&quot;) == 1) graf = 2;
+
+    //calcula una variable
+    else if (Nextion_Read_Text(&quot;pwm1=&quot;) == 1)
+    {
+        uint8_t ancho = Nextion_Read_1Byte();
+        PWM_valor(&amp;PWM1, ancho);
+    }
+    else if (Nextion_Read_Text(&quot;setint=&quot;) == 1)
+    {
+        uint16_t numero = Nextion_Read_2Byte();
+        sprintf(texto, &quot;\r\nnum1=%d\r\n&quot;, numero);
+        uartx_write_text(&amp;huart2, texto);
+    }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure><figure class="cap"><a href="img/920.webp" target="_blank"><img src="img/920.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Probar LED, gráfica y PWM</h3><a class="min" href="https://youtu.be/TLEC9x1Kw7k?t=958" target="_blank" rel="noopener">&#9654; 15:58</a></div><p>En el simulador, el botón enciende y apaga el LED de la tarjeta y el deslizador cambia el ancho de pulso, que se ve en el analizador lógico. El PWM se envía con print pwm1.val de 1 byte porque va de 0 a 100.</p><div class="uno"><figure class="cap"><a href="img/970.webp" target="_blank"><img src="img/970.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Números de 2 y 4 bytes y textos</h3><a class="min" href="https://youtu.be/TLEC9x1Kw7k?t=1027" target="_blank" rel="noopener">&#9654; 17:07</a></div><p>En la página de valores se envían números de 2 bytes (hasta 65535) o de 4 bytes, o un texto con formato setext=valor/ que se lee con Nextion_Read_TextVar y se convierte con atoi o atof. Así se pueden mandar decimales (PWM de 15,8 %), nombres, la red Wi-Fi o su contraseña.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//lee una variable en forma cadena, debe ir entre = y /
+void Nextion_Read_TextVar()
+{
+    strcpy(nextion_text, strtok(UARTNEXTION.trama_rx, &quot;=&quot;));
+    strcpy(nextion_text, strtok(0, &quot;/&quot;));
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure><figure class="cap"><a href="img/1140.webp" target="_blank"><img src="img/1140.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure><figure class="cap"><a href="img/1200.webp" target="_blank"><img src="img/1200.webp" alt="Clase 108 STM32: mis librerías para pantallas HMI Nextion" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=TLEC9x1Kw7k" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
