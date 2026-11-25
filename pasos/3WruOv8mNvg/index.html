@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Manejo de la pantalla TFT ILI9225 de 2.2&quot; por SPI con una librería mejorada: orientación automática, cualquier puerto SPI, figuras rellenas y con borde, y fonts propios creados con GLCD Font Creator.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/3WruOv8mNvg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font · Paso a paso">
+  <meta property="og:description" content="Manejo de la pantalla TFT ILI9225 de 2.2&quot; por SPI con una librería mejorada: orientación automática, cualquier puerto SPI, figuras rellenas y con borde, y fonts propios creados con GLCD Font Creator.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/3WruOv8mNvg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/3WruOv8mNvg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 121: <span>TFT ILI9225: figuras y fonts</span></h1>
+    <p class="lead">Primera parte del trabajo con la pantalla TFT ILI9225 (176x220, no táctil). La librería original se tomó de internet y se mejoró: elige el puerto SPI, detecta la orientación vertical u horizontal, usa las librerías de retardo del canal, agrega figuras (rectángulos, triángulos y círculos rellenos o con borde) y permite escribir con cualquier tipo de letra. Se configura el reloj a 100 MHz, SPI1 en modo solo transmisión y los pines CS, RST, CMD (RS) y LED como salidas. Luego se dibuja el fondo, un círculo y textos, y se crea un font nuevo con GLCD Font Creator.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=3WruOv8mNvg" target="_blank" rel="noopener">&#9654; Ver el video completo (24:13)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/900.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font"></figure>
+    <ul class="materiales"><li>Blackpill STM32F411</li><li>Pantalla TFT 2.2" ILI9225 (SPI)</li><li>Protoboard y cables</li><li>Librerías del canal: ILI9225, fonts, imagenes y delays</li><li>MikroElektronika GLCD Font Creator</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pines y conexión</a><a href="#f2">2 · Reloj, SPI y pines</a><a href="#f3">3 · ILI9225, fonts e imágenes</a><a href="#f4">4 · Fondo, figuras y texto</a><a href="#f5">5 · GLCD Font Creator</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Pines de la ILI9225</h3><a class="min" href="https://youtu.be/3WruOv8mNvg?t=31" target="_blank" rel="noopener">&#9654; 0:31</a></div><p>Además de la alimentación (puede ser 5 V) se usan seis pines: CS, CLK y SDI del SPI; LED para encender o apagar la luz de fondo; RST para el reset; y RS, que es el pin de comando (CMD).</p><p>Solo se envían datos a la pantalla, así que no se necesita MISO.</p><div class="dos"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure><figure class="cap"><a href="img/65.webp" target="_blank"><img src="img/65.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj a 100 MHz</h3><a class="min" href="https://youtu.be/3WruOv8mNvg?t=128" target="_blank" rel="noopener">&#9654; 2:08</a></div><p>Se crea el proyecto TFT_canal con la Blackpill. En RCC se pone cristal externo y con el PLL se lleva a 100 MHz.</p><div class="uno"><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>SPI1 y pines de control</h3><a class="min" href="https://youtu.be/3WruOv8mNvg?t=163" target="_blank" rel="noopener">&#9654; 2:43</a></div><p>SPI1 en modo Transmit Only Master: solo se usan el reloj y MOSI.</p><p>PB2 como salida con el nombre TFT_CS, PB1 como TFT_RST, PB0 como TFT_CMD y otro pin libre como TFT_LED. Estos cuatro pueden ir en cualquier pin.</p><p class="ojo">Si no quieres nombrar los pines en CubeMX, decláralos solo como salida y define puerto y pin en ILI9225.h.</p><div class="dos"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librerías</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Incluir las librerías</h3><a class="min" href="https://youtu.be/3WruOv8mNvg?t=356" target="_blank" rel="noopener">&#9654; 5:56</a></div><p>Se crea la carpeta Librerias con ILI9225, fonts, imagenes y delays, y se agrega al include path.</p><p>fonts.h e imagenes.h contienen variables, así que se incluyen en main.c y no dentro de la librería; si no, salen errores de definición múltiple.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;ILI9225.h&quot;
+#include &quot;fonts.h&quot;
+#include &quot;imagenes.h&quot;</code></pre></div><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configurar ILI9225.h</h3><a class="min" href="https://youtu.be/3WruOv8mNvg?t=605" target="_blank" rel="noopener">&#9654; 10:05</a></div><p>Se pone el tamaño en posición vertical (176 x 220). Para usarla horizontal se activa LANDSCAPE y la librería intercambia ancho y alto.</p><p>tft_spi_port indica el SPI usado. Si los pines no se definieron en CubeMX, se descomentan las definiciones manuales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define WIDTH   176
+#define HEIGHT  220
+//#define LANDSCAPE      // descomentar para horizontal
+
+#define tft_spi_port hspi1
+
+// solo si no se definen de forma gráfica
+#define TFT_CMD_Pin        GPIO_PIN_0
+#define TFT_CMD_GPIO_Port  GPIOB
+#define TFT_RST_Pin        GPIO_PIN_1
+#define TFT_RST_GPIO_Port  GPIOB
+#define TFT_CS_Pin         GPIO_PIN_2
+#define TFT_CS_GPIO_Port   GPIOB</code></pre></div><div class="dos"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Dibujar</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Iniciar y pintar el fondo</h3><a class="min" href="https://youtu.be/3WruOv8mNvg?t=702" target="_blank" rel="noopener">&#9654; 11:42</a></div><p>Primero se inicia la pantalla y se enciende el LED; si no, la pantalla queda apagada.</p><p>Luego se pinta un rectángulo de toda la pantalla como fondo; sin esto la pantalla muestra ruido.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>lcd_init();
+HAL_GPIO_WritePin(TFT_LED_GPIO_Port, TFT_LED_Pin, 1);  // enciende
+draw_fill_rectangle(0, 0, WIDTH, HEIGHT, COLOR_NAVY);</code></pre></div><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Figuras</h3><a class="min" href="https://youtu.be/3WruOv8mNvg?t=867" target="_blank" rel="noopener">&#9654; 14:27</a></div><p>Sobre el fondo se dibuja lo que se quiera: líneas, rectángulos, triángulos y círculos, rellenos o con borde de un grosor dado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>draw_circle_borde(100, 100, 30, COLOR_CYAN, 4);</code></pre></div><div class="uno"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Texto con y sin fondo</h3><a class="min" href="https://youtu.be/3WruOv8mNvg?t=901" target="_blank" rel="noopener">&#9654; 15:01</a></div><p>draw_string_fondo escribe con color de letra y color de fondo; draw_string escribe sobre lo que ya hay en la pantalla.</p><p>El último parámetro es el font: la librería trae varios y se pueden agregar más.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>draw_string_fondo(0, 0, &quot;Hola&quot;, COLOR_RED, COLOR_BLACK, font1);
+draw_string(100, 100, &quot;ARZ&quot;, COLOR_RED, font4);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1190.webp" target="_blank"><img src="img/1190.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Crear un font propio</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Generar el font</h3><a class="min" href="https://youtu.be/3WruOv8mNvg?t=1073" target="_blank" rel="noopener">&#9654; 17:53</a></div><p>En GLCD Font Creator: File > New Font > Import an existing system font, se escoge la letra, el estilo y el tamaño (por ejemplo 20) y se acepta sin cambiar más.</p><p>Se pueden ajustar los caracteres uno por uno. El proceso tarda un poco; al terminar se exporta para mikroC.</p><div class="dos"><figure class="cap"><a href="img/1090.webp" target="_blank"><img src="img/1090.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure><figure class="cap"><a href="img/1130.webp" target="_blank"><img src="img/1130.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Adaptarlo a STM32</h3><a class="min" href="https://youtu.be/3WruOv8mNvg?t=1179" target="_blank" rel="noopener">&#9654; 19:39</a></div><p>Se pega el arreglo al final de fonts.h con un nombre nuevo (por ejemplo font5).</p><p>En la cabecera del arreglo el primer número (31 en el ejemplo) se deja; el segundo (41) se divide entre 8 y se redondea hacia arriba: 41/8 = 5.1, se pone 6.</p><p>El tipo short que genera el programa se cambia a char: en mikroC short era de 8 bits, en STM32 no.</p><div class="uno"><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/3WruOv8mNvg?t=1371" target="_blank" rel="noopener">&#9654; 22:51</a></div><p>Con font5 el texto aparece con el nuevo tipo de letra. Así se puede usar cualquier font en la pantalla.</p><p>En la parte 2 se trabajan imágenes y dibujos.</p><div class="uno"><figure class="cap"><a href="img/1395.webp" target="_blank"><img src="img/1395.webp" alt="Clase 121: Pantalla TFT ILI9225, dibujar figuras y escribir texto con cualquier font" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=3WruOv8mNvg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
