@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32H523CET6: nueva tarjeta compatible con la Blackpill, más poderosa y veloz · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Presentación de la tarjeta WeAct STM32H523CET6 (250 MHz, 512 KB de flash, 274 KB de RAM), compatible pin a pin con la Blackpill, y sus periféricos en CubeMX.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/jZcAV-e1R7U/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="STM32H523CET6: nueva tarjeta compatible con la Blackpill, más poderosa y veloz · Paso a paso">
+  <meta property="og:description" content="Presentación de la tarjeta WeAct STM32H523CET6 (250 MHz, 512 KB de flash, 274 KB de RAM), compatible pin a pin con la Blackpill, y sus periféricos en CubeMX.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/jZcAV-e1R7U/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/jZcAV-e1R7U/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>STM32H523: <span>Blackpill de alto desempeño</span></h1>
+    <p class="lead">Video corto sobre la tarjeta WeAct con el STM32H523CET6. La H indica alto desempeño: corre a 250 MHz, con 512 KB de flash y 274 KB de RAM. Tiene el formato y los pines de la Blackpill, cabe en el protoboard y es más económica que la U585. En CubeMX se revisan sus periféricos: dos ADC, DAC, sensor de temperatura, timers de bajo consumo, dos FDCAN, I2C e I3C, OCTOSPI para memoria externa, cuatro SPI, varios UART, USB tipo C, HDMI-CEC e I2S para audio.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=jZcAV-e1R7U" target="_blank" rel="noopener">&#9654; Ver el video completo (4:04)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/60.webp" alt="STM32H523CET6: nueva tarjeta compatible con la Blackpill, más poderosa y veloz"></figure>
+    <ul class="materiales"><li>Tarjeta WeAct STM32H523CET6 (formato Blackpill)</li><li>STM32CubeIDE con soporte para STM32H5</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · H523 frente a la U585</a><a href="#f2">2 · Lo que trae el micro</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La tarjeta</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>STM32H523CET6</h3><a class="min" href="https://youtu.be/jZcAV-e1R7U?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Corre a 250 MHz, tiene 512 KB de flash (igual que la Blackpill F411) y 274 KB de RAM.</p><p>Es compatible en pines con la Blackpill y cabe en el protoboard.</p><div class="uno"><figure class="cap"><a href="img/10.webp" target="_blank"><img src="img/10.webp" alt="STM32H523CET6: nueva tarjeta compatible con la Blackpill, más poderosa y veloz" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Comparación con la U585</h3><a class="min" href="https://youtu.be/jZcAV-e1R7U?t=169" target="_blank" rel="noopener">&#9654; 2:49</a></div><p>La U585 de WeAct es más costosa: tiene más RAM y flash (784 KB y 2 MB) y filtros digitales, pero corre a 160 MHz.</p><p>Para reemplazar la F411 y trabajar comunicaciones o filtros digitales, la H523 tiene muy buena relación precio/desempeño.</p><p>Proteus no la simula, así que los montajes se hacen físicamente.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="STM32H523CET6: nueva tarjeta compatible con la Blackpill, más poderosa y veloz" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Periféricos en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Parte análoga y timers</h3><a class="min" href="https://youtu.be/jZcAV-e1R7U?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Dos conversores ADC con varios canales cada uno, DAC para salida análoga, sensor de temperatura interno (DTS) y VREFBUF.</p><p>Además de los timers normales, trae dos timers de bajo consumo (LPTIM).</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="STM32H523CET6: nueva tarjeta compatible con la Blackpill, más poderosa y veloz" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Conectividad</h3><a class="min" href="https://youtu.be/jZcAV-e1R7U?t=90" target="_blank" rel="noopener">&#9654; 1:30</a></div><p>Dos FDCAN, tres I2C y el nuevo I3C (dos puertos), LPUART de bajo consumo, OCTOSPI para ampliar la memoria con una flash externa, cuatro SPI y cinco UART/USART más el LPUART.</p><p>USB con conector tipo C.</p><div class="dos"><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="STM32H523CET6: nueva tarjeta compatible con la Blackpill, más poderosa y veloz" loading="lazy"></a></figure><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="STM32H523CET6: nueva tarjeta compatible con la Blackpill, más poderosa y veloz" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Multimedia y seguridad</h3><a class="min" href="https://youtu.be/jZcAV-e1R7U?t=135" target="_blank" rel="noopener">&#9654; 2:15</a></div><p>HDMI-CEC para enviar órdenes a un televisor por el cable HDMI (cambiar canal, encender, etc.), tres puertos I2S para audio y bloques de seguridad.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="STM32H523CET6: nueva tarjeta compatible con la Blackpill, más poderosa y veloz" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=jZcAV-e1R7U" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
