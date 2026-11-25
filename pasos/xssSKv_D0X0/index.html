@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 21: Multiplexación básica de displays 7 segmentos (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Mostrar HOLA en 4 displays usando solo 8 pines de datos y 4 habilitadores: apagar todo, sacar el dato, habilitar un display y esperar 5 ms. Versiones con ODR, atómica (BSRR), en el mismo puerto, para ánodo común y con transistores.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/xssSKv_D0X0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 21: Multiplexación básica de displays 7 segmentos (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Mostrar HOLA en 4 displays usando solo 8 pines de datos y 4 habilitadores: apagar todo, sacar el dato, habilitar un display y esperar 5 ms. Versiones con ODR, atómica (BSRR), en el mismo puerto, para ánodo común y con transistores.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/xssSKv_D0X0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/xssSKv_D0X0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 21: <span>Multiplexación</span> de 4 displays 7 segmentos</h1>
+    <p class="lead">Cuatro displays de 8 pines serían 32 pines. Con multiplexación los segmentos A–G y DP de todos los displays se unen (8 pines) y con 4 pines más (H1–H4) se habilita uno a la vez. Si se cambia rápido, el ojo ve la palabra fija. Usamos un STM32F401 y Proteus, y vemos todas las variantes: datos con ODR o en forma atómica, habilitadores en otro puerto o en el mismo, cátodo y ánodo común, y el montaje real con transistores.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=xssSKv_D0X0" target="_blank" rel="noopener">&#9654; Ver el video completo (19:15)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/20.webp" alt="Clase 21: Multiplexación básica de displays 7 segmentos (paso a paso)"></figure>
+    <ul class="materiales"><li>STM32F401 (Black Pill) u otro STM32</li><li>Display 7 segmentos de 4 dígitos (cátodo o ánodo común)</li><li>4 transistores 2N3904, resistencias de 220 Ω y 10 kΩ (montaje real)</li><li>STM32CubeIDE y Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · HOLA</a><a href="#f4">4 · Mismo puerto</a><a href="#f5">5 · Real</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La idea</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Algoritmo de multiplexación</h3><a class="min" href="https://youtu.be/xssSKv_D0X0?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><ul><li>Apagar todos los displays.</li><li>Sacar el dato (la letra) por el puerto de segmentos.</li><li>Habilitar solo el display que corresponde.</li><li>Esperar unos milisegundos (1 a 10 ms) y repetir con el siguiente.</li></ul><p class="ojo">Con un retardo muy corto la palabra se ve opaca; con uno largo (500 ms) se ven las letras una por una.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 21: Multiplexación básica de displays 7 segmentos (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pines</h3><a class="min" href="https://youtu.be/xssSKv_D0X0?t=99" target="_blank" rel="noopener">&#9654; 1:39</a></div><ul><li>PB0–PB7 como salida para los segmentos A–G y DP; al primero ponle la etiqueta <b>display</b>.</li><li>4 pines de otro puerto (PA12, PA11, PA10, PA9) como salida con las etiquetas <b>H1, H2, H3, H4</b> (los nombres importan).</li></ul><div class="dos"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 21: Multiplexación básica de displays 7 segmentos (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Clase 21: Multiplexación básica de displays 7 segmentos (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Defines y procedimientos base</h3><a class="min" href="https://youtu.be/xssSKv_D0X0?t=164" target="_blank" rel="noopener">&#9654; 2:44</a></div><p>Con #define se elige si los datos salen por ODR o en forma atómica, y el registro de los habilitadores. <code>display_dato</code> carga el byte en forma atómica: deja solo los 8 bits bajos y pone en 0 los demás con la parte alta de BSRR.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define display  GPIOB-&gt;ODR    // datos por registro ODR
+#define habilita GPIOA-&gt;BSRR   // habilitadores en forma atómica
+
+void display_dato(uint32_t dato)
+{
+  dato = dato &amp; 0x000000ff;          // toma solo la parte baja
+  GPIOB-&gt;BSRR = dato | (~dato &lt;&lt; 16);
+}
+
+void apagatodo()
+{
+  habilita = H1_Pin | H2_Pin | H3_Pin | H4_Pin;   // CÁTODO: se apaga con 1
+  // habilita = (H1_Pin|H2_Pin|H3_Pin|H4_Pin) &lt;&lt; 16;  // ÁNODO: se apaga con 0
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 21: Multiplexación básica de displays 7 segmentos (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Mostrar HOLA (cátodo común)</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Con ODR</h3><a class="min" href="https://youtu.be/xssSKv_D0X0?t=268" target="_blank" rel="noopener">&#9654; 4:28</a></div><p>En el while(1) se llama <code>catodo_ODR();</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void catodo_ODR()
+{
+  apagatodo();
+  display = 0x76;            // H
+  habilita = H1_Pin &lt;&lt; 16;   // habilita con 0
+  HAL_Delay(5);
+
+  apagatodo();
+  display = 0x3F;            // O
+  habilita = H2_Pin &lt;&lt; 16;
+  HAL_Delay(5);
+
+  apagatodo();
+  display = 0x38;            // L
+  habilita = H3_Pin &lt;&lt; 16;
+  HAL_Delay(5);
+
+  apagatodo();
+  display = 0x77;            // A
+  habilita = H4_Pin &lt;&lt; 16;
+  HAL_Delay(5);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="catodo_ODR" loading="lazy"></a><figcaption>catodo_ODR</figcaption></figure><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Con HAL_Delay(500) se ve el barrido" loading="lazy"></a><figcaption>Con HAL_Delay(500) se ve el barrido</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>En forma atómica</h3><a class="min" href="https://youtu.be/xssSKv_D0X0?t=334" target="_blank" rel="noopener">&#9654; 5:34</a></div><p>Es igual, pero el dato sale con <code>display_dato(0x76);</code> en vez de escribir ODR. Así no se alteran los otros pines del puerto. Es la forma recomendada.</p><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 21: Multiplexación básica de displays 7 segmentos (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Habilitadores en el mismo puerto</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Mover H1–H4 al puerto B</h3><a class="min" href="https://youtu.be/xssSKv_D0X0?t=498" target="_blank" rel="noopener">&#9654; 8:18</a></div><p>Si los habilitadores pasan a PB15, PB11, PB13 y PB12 (mismo puerto que los datos), la versión anterior deja de funcionar: al habilitar uno con 0 hay que dejar explícitamente los otros en 1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>apagatodo();
+display_dato(0x76);   // H
+habilita = H1_Pin &lt;&lt; 16 | (H2_Pin | H3_Pin | H4_Pin);
+HAL_Delay(5);</code></pre></div><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="H1–H4 en el puerto B" loading="lazy"></a><figcaption>H1–H4 en el puerto B</figcaption></figure><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="catodo_ATO_port" loading="lazy"></a><figcaption>catodo_ATO_port</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Llamarlo</h3><a class="min" href="https://youtu.be/xssSKv_D0X0?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  catodo_ATO_port();
+}</code></pre></div><p class="ojo">Esta versión funciona tanto si los habilitadores están en otro puerto como en el mismo.</p><div class="uno"><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Clase 21: Multiplexación básica de displays 7 segmentos (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Montaje real y ánodo común</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Transistores en los comunes</h3><a class="min" href="https://youtu.be/xssSKv_D0X0?t=635" target="_blank" rel="noopener">&#9654; 10:35</a></div><p>En la vida real el pin del micro no aguanta la corriente de todo un display. Cada habilitador (H1M…H4M) va por una resistencia de 220 Ω a la base de un transistor 2N3904; el colector (con 10 kΩ a positivo, necesaria en Proteus) va al común del display. Además, cada segmento lleva su resistencia (220 Ω) para no quemar el pin.</p><div class="dos"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Transistores 2N3904 en los habilitadores" loading="lazy"></a><figcaption>Transistores 2N3904 en los habilitadores</figcaption></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Resistencias en los segmentos" loading="lazy"></a><figcaption>Resistencias en los segmentos</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>La lógica se invierte</h3><a class="min" href="https://youtu.be/xssSKv_D0X0?t=773" target="_blank" rel="noopener">&#9654; 12:53</a></div><p>Con el transistor, un 1 en el pin pone un 0 en el común: ahora se apaga con 0 y se habilita con 1, sin tocar los demás. Por eso hay un procedimiento aparte para el montaje real (catodo_ATO_port_REAL).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>apagatodo();   // ahora apaga con 0
+display_dato(0x76);
+habilita = H1_Pin;   // habilita con 1
+HAL_Delay(5);</code></pre></div><div class="uno"><figure class="cap"><a href="img/920.webp" target="_blank"><img src="img/920.webp" alt="Clase 21: Multiplexación básica de displays 7 segmentos (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Display de ánodo común</h3><a class="min" href="https://youtu.be/xssSKv_D0X0?t=1018" target="_blank" rel="noopener">&#9654; 16:58</a></div><p>En ánodo común los segmentos encienden con 0 (el código de cada letra se invierte con ~) y los comunes se habilitan con 1. Con los procedimientos anodo_ODR, anodo_ATO y anodo_ATO_port se prueba cada caso.</p><div class="uno"><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Clase 21: Multiplexación básica de displays 7 segmentos (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=xssSKv_D0X0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

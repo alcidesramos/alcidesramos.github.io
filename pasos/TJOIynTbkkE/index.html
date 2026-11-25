@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 22: Cómo programar con un ST-Link V2 clon desde STM32CubeIDE (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Si haces el programa en STM32CubeIDE y tienes un ST-Link clon, genera el .hex y grábalo con la STM32 ST-LINK Utility. Probado en una Blue Pill (F103) y una Black Pill (F411).">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/TJOIynTbkkE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 22: Cómo programar con un ST-Link V2 clon desde STM32CubeIDE (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Si haces el programa en STM32CubeIDE y tienes un ST-Link clon, genera el .hex y grábalo con la STM32 ST-LINK Utility. Probado en una Blue Pill (F103) y una Black Pill (F411).">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/TJOIynTbkkE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/TJOIynTbkkE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 22: Programar con un <span>ST-Link V2 clon</span></h1>
+    <p class="lead">CubeIDE y el STM32CubeProgrammer actual detectan el ST-Link clon pero su número de serie es una sola letra o número y no dejan conectar. La solución sin cambiar de IDE: compilar en CubeIDE con salida .hex y grabarlo con la herramienta antigua de ST, STM32 ST-LINK Utility, que sí funciona con los clones.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=TJOIynTbkkE" target="_blank" rel="noopener">&#9654; Ver el video completo (4:16)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/165.webp" alt="Clase 22: Cómo programar con un ST-Link V2 clon desde STM32CubeIDE (paso a paso)"></figure>
+    <ul class="materiales"><li>ST-Link V2 clon</li><li>Blue Pill (STM32F103) o Black Pill (STM32F401/F411)</li><li>Cables dupont: 3.3 V, SWDIO, SWCLK y GND</li><li>STM32CubeIDE</li><li>STM32 ST-LINK Utility (STSW-LINK004)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Problema</a><a href="#f2">2 · Blue Pill</a><a href="#f3">3 · Black Pill</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El problema</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>CubeProgrammer no conecta</h3><a class="min" href="https://youtu.be/TJOIynTbkkE?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Con el clon, CubeIDE y STM32CubeProgrammer lo detectan pero el número de serie es una letra o un número y no permiten programar ni depurar.</p><div class="uno"><figure class="cap"><a href="img/25.webp" target="_blank"><img src="img/25.webp" alt="Clase 22: Cómo programar con un ST-Link V2 clon desde STM32CubeIDE (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>La herramienta antigua</h3><a class="min" href="https://youtu.be/TJOIynTbkkE?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>ST ya no recomienda la <b>STM32 ST-LINK Utility</b> por antigua, pero es justo la que sirve con los clones. Se descarga en st.com (STSW-LINK004).</p><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Clase 22: Cómo programar con un ST-Link V2 clon desde STM32CubeIDE (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Grabar la Blue Pill</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Conectar</h3><a class="min" href="https://youtu.be/TJOIynTbkkE?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><ul><li>Cables del clon a la placa: 3.3 V, SWDIO (datos), SWCLK (reloj) y GND. El clon alimenta la placa directamente.</li><li>En la ST-LINK Utility: <b>Target → Connect</b>. Si no hay placa da "Can not connect to target"; con la placa lee la memoria y muestra el micro (STM32F10xx Medium-density).</li></ul><div class="dos"><figure class="cap"><a href="img/95.webp" target="_blank"><img src="img/95.webp" alt="Clase 22: Cómo programar con un ST-Link V2 clon desde STM32CubeIDE (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/115.webp" target="_blank"><img src="img/115.webp" alt="Clase 22: Cómo programar con un ST-Link V2 clon desde STM32CubeIDE (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Cargar el .hex</h3><a class="min" href="https://youtu.be/TJOIynTbkkE?t=138" target="_blank" rel="noopener">&#9654; 2:18</a></div><ul><li>En CubeIDE activa la salida .hex (Properties → C/C++ Build → Settings → MCU Post build outputs → Intel Hex) y compila.</li><li><b>File → Open file</b>: el .hex de la carpeta Debug del proyecto.</li><li><b>Target → Program & Verify</b> → Start. El programa arranca y el LED parpadea.</li></ul><div class="dos"><figure class="cap"><a href="img/145.webp" target="_blank"><img src="img/145.webp" alt="Abrir el .hex de la carpeta Debug" loading="lazy"></a><figcaption>Abrir el .hex de la carpeta Debug</figcaption></figure><figure class="cap"><a href="img/165.webp" target="_blank"><img src="img/165.webp" alt="Programado y verificado" loading="lazy"></a><figcaption>Programado y verificado</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Grabar la Black Pill</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Mismo procedimiento</h3><a class="min" href="https://youtu.be/TJOIynTbkkE?t=172" target="_blank" rel="noopener">&#9654; 2:52</a></div><p>Cambia la placa, Connect (detecta el STM32F411) y carga el .hex compilado para ese micro. Si cargas el de la Blue Pill no funciona: cada .hex es para su micro.</p><p class="ojo">Con la ST-LINK Utility programas pero no depuras. Para depurar con un clon usa Keil µVision (clase 13).</p><div class="dos"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Al desconectar la placa" loading="lazy"></a><figcaption>Al desconectar la placa</figcaption></figure><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Black Pill STM32F411 programada" loading="lazy"></a><figcaption>Black Pill STM32F411 programada</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=TJOIynTbkkE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
