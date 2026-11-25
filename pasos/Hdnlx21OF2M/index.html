@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 87 STM32: recepción serial por interrupción con DMA e IDLE · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Recepción serial por interrupción usando DMA y la detección de línea inactiva (IDLE): la trama completa llega sola a un buffer, se procesa en el main con órdenes de texto para prender LEDs y cambiar el PWM.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/Hdnlx21OF2M/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE · Paso a paso">
+  <meta property="og:description" content="Recepción serial por interrupción usando DMA y la detección de línea inactiva (IDLE): la trama completa llega sola a un buffer, se procesa en el main con órdenes de texto para prender LEDs y cambiar el PWM.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/Hdnlx21OF2M/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Hdnlx21OF2M/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Recepción serial con <span>DMA + IDLE line</span> en STM32</h1>
+    <p class="lead">Primero se prueba la transmisión básica por USART1 a 9600 baudios con el terminal virtual de Proteus. Luego se habilita la interrupción del USART1 y un canal DMA para RX, y se usa HAL_UARTEx_ReceiveToIdle_DMA: el DMA guarda los bytes automáticamente y la detección IDLE avisa cuando la trama terminó, generando el callback HAL_UARTEx_RxEventCallback (que se encuentra como función __weak en stm32f4xx_hal_uart.c). Después todo se organiza en la librería uart_int_idle_dma, que limpia la trama y los flags, inicia la recepción y levanta una bandera flag_rx para procesar en el main. Con un puerto serial virtual (COM1-COM2) y Hercules se envían órdenes como ledaon / ledaoff / ledvon / ledvoff y VELO=20/ para cambiar el ciclo útil de un PWM con la librería PWMB, todo mientras siguen funcionando las interrupciones de timer y de pulsadores de las clases anteriores.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Hdnlx21OF2M" target="_blank" rel="noopener">&#9654; Ver el video completo (42:03)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2500.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Proteus (BlackPill STM32F401, COMPIM, terminal virtual y osciloscopio)</li><li>Emulador de puertos serie virtuales (par COM1-COM2)</li><li>Terminal Hercules</li><li>Librerías uart.h, uart_int_idle_dma y PWMB del canal</li><li>LEDs verde y amarillo con 220 Ω</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · USART1 a 9600 y prueba de transmisión</a><a href="#f2">2 · HAL_UARTEx_ReceiveToIdle_DMA y su callback</a><a href="#f3">3 · Bandera flag_rx y proceso en el main</a><a href="#f4">4 · LEDs y PWM desde el puerto serial</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Serial básico</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>USART1 asíncrono a 9600</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=30" target="_blank" rel="noopener">&#9654; 0:30</a></div><p>En Connectivity → USART1 se elige modo Asynchronous y 9600 baudios (para no sobrecargar la simulación). Los pines quedan en PB7 (RX) y PA9 (TX).</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Conexión en Proteus</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=80" target="_blank" rel="noopener">&#9654; 1:20</a></div><p>Se conecta un Virtual Terminal cruzado: TX del micro al RX del terminal y RX del micro al TX del terminal.</p><div class="uno"><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Probar la transmisión</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=162" target="_blank" rel="noopener">&#9654; 2:42</a></div><p>Con la librería uart.h del canal se envía un texto cada 500 ms:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, &quot;OKS\r\n&quot;);
+HAL_Delay(500);</code></pre></div><p class="ojo">Si en el terminal salen caracteres extraños, revise los baudios y, en Proteus, refresque las propiedades del componente (botón del engranaje) para que tome los cambios.</p><div class="uno"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Recepción con DMA e IDLE</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>IDLE line detect + DMA: habilitarlos</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=359" target="_blank" rel="noopener">&#9654; 5:59</a></div><p>El USART detecta inactividad en la línea de recepción y así sabe que la trama está completa. Combinado con DMA (acceso directo a memoria), los bytes se guardan solos en el buffer y solo hay una interrupción por trama, no una por carácter.</p><p>En USART1 → NVIC Settings se habilita USART1 global interrupt. En DMA Settings se agrega USART1_RX en modo Normal, ancho de dato Byte. En System Core → NVIC se pueden ajustar las prioridades frente al timer.</p><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>El callback correcto</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=528" target="_blank" rel="noopener">&#9654; 8:48</a></div><p>En stm32f4xx_it.c aparece USART1_IRQHandler, pero ese no es el que se usa. La función a implementar es HAL_UARTEx_RxEventCallback, que está declarada como __weak en Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c. Se copia al main quitando __weak.</p><div class="dos"><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Arrancar la recepción y responder</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>Se crea el buffer, se inicia la recepción antes del while y en el callback se responde y se vuelve a activar el DMA:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char trama_rx[100];
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+    uartx_write_text(&amp;huart1, &quot;LLEGO &quot;);
+    uartx_write_text(&amp;huart1, trama_rx);
+    HAL_UARTEx_ReceiveToIdle_DMA(&amp;huart1, (uint8_t*)trama_rx, 100);
+}
+
+/* en main(), antes del while */
+HAL_UARTEx_ReceiveToIdle_DMA(&amp;huart1, (uint8_t*)trama_rx, 100);</code></pre></div><div class="dos"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Puerto virtual y Hercules</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=776" target="_blank" rel="noopener">&#9654; 12:56</a></div><p>Se reemplaza el terminal por un COMPIM (aquí TX con TX y RX con RX, sin cruzar). Con un emulador de puertos serie se crea el par COM1-COM2: Proteus en COM1 y Hercules en COM2, ambos a 9600. Al escribir "hola" en Hercules el micro responde con lo que llegó.</p><p class="ojo">No una varias salidas TX al RX del micro: un terminal extra solo puede quedar para monitorear.</p><div class="uno"><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería uart_int_idle_dma</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Configurar la librería</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=1024" target="_blank" rel="noopener">&#9654; 17:04</a></div><p>Se copian uart_int_idle_dma.c/.h a Core/Librerias y se incluyen junto con stdio.h, stdlib.h y string.h. En el .h se define el puerto, el nombre y el tamaño de la trama:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define trama_rx      Trama_RX   // nombre de la trama
+#define uartdatosreg  USART1     // puerto serial a analizar
+#define uartdatos     huart1
+#define trama_size    100        // tamaño del buffer
+
+extern char flag_rx;
+extern uint16_t num_datos;
+extern uint8_t trama_rx[];
+extern char procesa[];</code></pre></div><div class="dos"><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure><figure class="cap"><a href="img/1170.webp" target="_blank"><img src="img/1170.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Cómo trabaja por dentro</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=1191" target="_blank" rel="noopener">&#9654; 19:51</a></div><p>La función de inicio borra la trama, limpia los flags del USART para no arrastrar datos viejos y arranca la recepción. El callback detiene el DMA, guarda cuántos datos llegaron y levanta la bandera:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// en STM32F
+uartdatosreg-&gt;SR &amp;= ~(UART_FLAG_RXNE | UART_FLAG_ORE);
+uint8_t dummy = uartdatosreg-&gt;DR;
+HAL_UARTEx_ReceiveToIdle_DMA(&amp;uartdatos, (uint8_t*)trama_rx, trama_size);
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+    if ((flag_rx == 0) &amp;&amp; (huart-&gt;Instance == uartdatosreg))
+    {
+        HAL_UART_DMAStop(&amp;uartdatos);
+        num_datos = Size;
+        flag_rx = 1;
+    }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1250.webp" target="_blank"><img src="img/1250.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Uso en el main</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=1293" target="_blank" rel="noopener">&#9654; 21:33</a></div><p>Se inicializa una vez y en el while se procesa cuando hay trama, se baja la bandera y se reinicia la recepción:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartdat_it_idle_dma_init();
+
+while (1)
+{
+    if (flag_rx == 1)
+    {
+        procesa_rx();
+        flag_rx = 0;
+        uartdat_it_idle_dma_init();
+    }
+    PIN_BLINK(LED1);
+    HAL_Delay(500);
+}</code></pre></div><p class="ojo">Si olvida poner flag_rx en 0 o reiniciar la recepción, solo se recibirá la primera trama.</p><div class="uno"><figure class="cap"><a href="img/1340.webp" target="_blank"><img src="img/1340.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Procesar órdenes</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Órdenes puntuales para LEDs</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=1400" target="_blank" rel="noopener">&#9654; 23:20</a></div><p>Se agregan dos LEDs (verde y amarillo) y una función que busca palabras clave en la trama con strstr. Como las órdenes son excluyentes se encadenan con else if:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void procesa_rx()
+{
+    if (strstr(trama_rx, &quot;ledaon&quot;))       { PIN_ON(leda);  }
+    else if (strstr(trama_rx, &quot;ledaoff&quot;)) { PIN_OFF(leda); }
+    else if (strstr(trama_rx, &quot;ledvon&quot;))  { PIN_ON(ledv);  }
+    else if (strstr(trama_rx, &quot;ledvoff&quot;)) { PIN_OFF(ledv); }
+}</code></pre></div><p class="ojo">Crear la función no basta: hay que llamarla dentro del if (flag_rx == 1).</p><div class="dos"><figure class="cap"><a href="img/1620.webp" target="_blank"><img src="img/1620.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure><figure class="cap"><a href="img/1660.webp" target="_blank"><img src="img/1660.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure><figure class="cap"><a href="img/1770.webp" target="_blank"><img src="img/1770.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>PWM en TIM1 canal 4</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=1825" target="_blank" rel="noopener">&#9654; 30:25</a></div><p>Se activa PWM Generation CH4 en TIM1 (PA11). Con 16 MHz se usa Prescaler 16000-1 (1 ms por cuenta) y Counter Period 500 (≈500 ms). En PWMB.c la escala se deja en 100 (0 a 100 %) y se declara la salida:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float escala = 100;
+PWMS PWM1 = {&amp;htim1, &amp;(TIM1-&gt;CCR4), TIM_CHANNEL_4};
+
+/* en main() */
+PWM_init(&amp;PWM1);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1880.webp" target="_blank"><img src="img/1880.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure><figure class="cap"><a href="img/1940.webp" target="_blank"><img src="img/1940.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure><figure class="cap"><a href="img/2030.webp" target="_blank"><img src="img/2030.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure><figure class="cap"><a href="img/2080.webp" target="_blank"><img src="img/2080.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure><figure class="cap"><a href="img/2290.webp" target="_blank"><img src="img/2290.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Orden con valor: VELO=20/</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=2321" target="_blank" rel="noopener">&#9654; 38:41</a></div><p>Para cambiar un parámetro se envía la palabra clave con el valor entre "=" y "/". Con strtok se captura el número, atoi lo convierte y se aplica al PWM:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//VELO=20/
+else if (strstr(trama_rx, &quot;VELO&quot;))
+{
+    strcpy(procesa, strtok(trama_rx, &quot;=&quot;));  // inicia captura
+    strcpy(procesa, strtok(0, &quot;/&quot;));          // captura hasta /
+    uint16_t valor = atoi(procesa);
+    PWM_valor(&amp;PWM1, valor);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2400.webp" target="_blank"><img src="img/2400.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure><figure class="cap"><a href="img/2440.webp" target="_blank"><img src="img/2440.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Resultado</h3><a class="min" href="https://youtu.be/Hdnlx21OF2M?t=2454" target="_blank" rel="noopener">&#9654; 40:54</a></div><p>Desde Hercules se envía VELO=10/, VELO=90/… y el osciloscopio muestra el cambio de ancho de pulso; ledaon/ledaoff prenden y apagan los LEDs. Todo convive con el main, el timer y los pulsadores: varios procesos gracias a las interrupciones.</p><div class="dos"><figure class="cap"><a href="img/2470.webp" target="_blank"><img src="img/2470.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure><figure class="cap"><a href="img/2500.webp" target="_blank"><img src="img/2500.webp" alt="Clase 87 STM32: recepción serial por interrupción con DMA e IDLE" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Hdnlx21OF2M" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
