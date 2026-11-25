@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 4. Programar tarjetas STM32 clon y actualizar el firmware del ST-Link · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Qué pasa al programar una Blue Pill original, semi-clon o clon con STM32CubeIDE y Keil, cómo programarla con STM32CubeProgrammer y cómo actualizar el firmware del ST-Link.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/NmJlCxs6Ce8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 4. Programar tarjetas STM32 clon y actualizar el firmware del ST-Link · Paso a paso">
+  <meta property="og:description" content="Qué pasa al programar una Blue Pill original, semi-clon o clon con STM32CubeIDE y Keil, cómo programarla con STM32CubeProgrammer y cómo actualizar el firmware del ST-Link.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/NmJlCxs6Ce8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/NmJlCxs6Ce8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Clase 4 · Paso a paso</span>
+    <h1>Tarjetas <span>clon</span> y firmware del ST-Link</h1>
+    <p class="lead">Se prueban tres Blue Pill (original, semi-clon y clon sin el nombre STM32) con STM32CubeIDE y Keil µVision usando un ST-Link V2 clon. Cuando el IDE no deja programar o depurar un clon, se usa STM32CubeProgrammer por ST-Link o por serial. También se muestra cómo actualizar el firmware del ST-Link.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=NmJlCxs6Ce8" target="_blank" rel="noopener">&#9654; Ver el video completo (9:43)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/15.webp" alt="Clase 4. Programar tarjetas STM32 clon y actualizar el firmware del ST-Link"></figure>
+    <ul class="materiales"><li><b>Programador:</b> ST-Link V2 (clon)</li><li><b>Tarjetas:</b> Blue Pill original, semi-clon y clon</li><li><b>Software:</b> STM32CubeIDE, Keil µVision, STM32CubeProgrammer, ST-LinkUpgrade</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Original</a><a href="#f2">2 · Clones</a><a href="#f3">3 · Solución</a><a href="#f4">4 · Firmware</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Probar con una tarjeta original</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Parpadeo de prueba</h3><a class="min" href="https://youtu.be/NmJlCxs6Ce8?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>El programa de prueba solo hace parpadear el LED. Cambiando el retardo se nota si de verdad se grabó el programa nuevo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  HAL_Delay(100);   // cambia el tiempo para comprobar que se programó
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Clase 4. Programar tarjetas STM32 clon y actualizar el firmware del ST-Link" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>CubeIDE y Keil programan sin problema</h3><a class="min" href="https://youtu.be/NmJlCxs6Ce8?t=67" target="_blank" rel="noopener">&#9654; 1:07</a></div><p>Con una tarjeta original, los dos IDE graban y el LED cambia de velocidad. En Keil a veces hay que resetear la tarjeta después de bajar el programa.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 4. Programar tarjetas STM32 clon y actualizar el firmware del ST-Link" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Tarjetas clon</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Semi-clon: funciona igual</h3><a class="min" href="https://youtu.be/NmJlCxs6Ce8?t=138" target="_blank" rel="noopener">&#9654; 2:18</a></div><p>La segunda tarjeta también se programa bien con los dos IDE.</p><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase 4. Programar tarjetas STM32 clon y actualizar el firmware del ST-Link" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Clon: Keil programa pero no depura</h3><a class="min" href="https://youtu.be/NmJlCxs6Ce8?t=171" target="_blank" rel="noopener">&#9654; 2:51</a></div><p>Con el clon, Keil dice que programó y el LED cambia, pero el debugger responde <i>Cannot enter Debug Mode</i>, porque el micro no es original.</p><div class="dos"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Keil programando el clon" loading="lazy"></a><figcaption>Keil programando el clon</figcaption></figure><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Keil: no entra en modo debug" loading="lazy"></a><figcaption>Keil: no entra en modo debug</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Clon: CubeIDE no deja ni programar</h3><a class="min" href="https://youtu.be/NmJlCxs6Ce8?t=271" target="_blank" rel="noopener">&#9654; 4:31</a></div><p>STM32CubeIDE muestra <i>Could not verify ST device</i> y no graba ni depura.</p><div class="uno"><figure class="cap"><a href="img/285.webp" target="_blank"><img src="img/285.webp" alt="Clase 4. Programar tarjetas STM32 clon y actualizar el firmware del ST-Link" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Solución: STM32CubeProgrammer</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Grabar el .hex o .bin con el programador</h3><a class="min" href="https://youtu.be/NmJlCxs6Ce8?t=303" target="_blank" rel="noopener">&#9654; 5:03</a></div><p>Abre STM32CubeProgrammer, conéctate por <b>ST-Link</b>, carga el archivo con <b>Open file</b> (el .hex o .bin que genera el compilador) y pulsa <b>Download</b>. El LED empieza a parpadear: el programa quedó grabado aunque el IDE no lo dejara.</p><div class="dos"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 4. Programar tarjetas STM32 clon y actualizar el firmware del ST-Link" loading="lazy"></a></figure><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 4. Programar tarjetas STM32 clon y actualizar el firmware del ST-Link" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Si ni el ST-Link lo reconoce: por serial</h3><a class="min" href="https://youtu.be/NmJlCxs6Ce8?t=369" target="_blank" rel="noopener">&#9654; 6:09</a></div><p>Algunos clones no se dejan conectar por ST-Link. Entonces se programa por <b>UART</b> con un cable USB-serial: TX/RX a PA10/PA9, BOOT0 en 1, y en CubeProgrammer se escoge UART. Con un clon se pierde la opción de depurar.</p></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Actualizar el firmware del ST-Link</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Desde STM32CubeProgrammer</h3><a class="min" href="https://youtu.be/NmJlCxs6Ce8?t=474" target="_blank" rel="noopener">&#9654; 7:54</a></div><p>Si la tarjeta es original y aun así hay errores, actualiza el programador: en CubeProgrammer, botón <b>Firmware upgrade</b>. Desconecta y vuelve a conectar el ST-Link, pulsa <b>Open in update mode</b> y luego <b>Upgrade</b>.</p><div class="dos"><figure class="cap"><a href="img/525.webp" target="_blank"><img src="img/525.webp" alt="Botón Firmware upgrade" loading="lazy"></a><figcaption>Botón Firmware upgrade</figcaption></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Ventana STLinkUpgrade" loading="lazy"></a><figcaption>Ventana STLinkUpgrade</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Con el programa ST-LinkUpgrade</h3><a class="min" href="https://youtu.be/NmJlCxs6Ce8?t=507" target="_blank" rel="noopener">&#9654; 8:27</a></div><p>ST también tiene un programa solo para eso, <b>ST-LinkUpgrade</b>, que se usa igual. Los enlaces a todos los programas están en la descripción del video.</p><div class="uno"><figure class="cap"><a href="img/545.webp" target="_blank"><img src="img/545.webp" alt="Clase 4. Programar tarjetas STM32 clon y actualizar el firmware del ST-Link" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=NmJlCxs6Ce8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

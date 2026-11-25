@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 3. Características básicas del STM32CubeMX · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo escoger micro o tarjeta en STM32CubeMX, el Cross Selector, asignar pines, remapear periféricos, fijar pines (pinning), etiquetas y migrar un proyecto a otro micro.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/qc22QcGj0Ho/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 3. Características básicas del STM32CubeMX · Paso a paso">
+  <meta property="og:description" content="Cómo escoger micro o tarjeta en STM32CubeMX, el Cross Selector, asignar pines, remapear periféricos, fijar pines (pinning), etiquetas y migrar un proyecto a otro micro.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/qc22QcGj0Ho/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/qc22QcGj0Ho/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Clase 3 · Paso a paso</span>
+    <h1>Lo básico de <span>STM32CubeMX</span></h1>
+    <p class="lead">Recorrido por STM32CubeMX antes de empezar a programar: cómo buscar el micro por núcleo, paquete o nombre, iniciar desde una tarjeta o un ejemplo, comparar con micros de otras marcas, configurar pines y periféricos, y pasar un proyecto a otro micro compatible.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=qc22QcGj0Ho" target="_blank" rel="noopener">&#9654; Ver el video completo (17:18)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1005.webp" alt="Clase 3. Características básicas del STM32CubeMX"></figure>
+    <ul class="materiales"><li><b>Software:</b> STM32CubeMX (o el configurador dentro de STM32CubeIDE)</li><li><b>Micro de ejemplo:</b> STM32F103C8 (Blue Pill)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · HAL vs registros</a><a href="#f2">2 · Proyecto nuevo</a><a href="#f3">3 · Pines</a><a href="#f4">4 · Migrar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>HAL y registros</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Cuándo usar la HAL y cuándo los registros</h3><a class="min" href="https://youtu.be/qc22QcGj0Ho?t=35" target="_blank" rel="noopener">&#9654; 0:35</a></div><p>La configuración inicial se ejecuta una sola vez, fuera del <code>while(1)</code>, y para eso la HAL que genera CubeMX es adecuada. Cuando algo necesita velocidad, como un protocolo 1-Wire o un sensor que cambia el pin de entrada a salida muy rápido, se configuran los registros. Para USB o Ethernet, en cambio, conviene la librería. Hay que saber ambas cosas.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Crear un proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Tres formas de empezar</h3><a class="min" href="https://youtu.be/qc22QcGj0Ho?t=135" target="_blank" rel="noopener">&#9654; 2:15</a></div><p>En la pantalla de inicio: desde un <b>micro</b> (MCU Selector), desde una <b>tarjeta</b> de ST (Board Selector) o desde un <b>ejemplo</b> (Example Selector). En <b>Help</b> hay tutoriales y videos.</p><div class="uno"><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="Clase 3. Características básicas del STM32CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Buscar el micro por filtros</h3><a class="min" href="https://youtu.be/qc22QcGj0Ho?t=167" target="_blank" rel="noopener">&#9654; 2:47</a></div><p>Se puede filtrar por núcleo (M0, M3, M4…), por paquete (TSSOP20, LQFP48…) o escribir el nombre, por ejemplo <code>STM32F103C8</code>. Escoge el mismo paquete que tiene tu micro.</p><div class="dos"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Filtros por núcleo y paquete" loading="lazy"></a><figcaption>Filtros por núcleo y paquete</figcaption></figure><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Búsqueda por número de parte" loading="lazy"></a><figcaption>Búsqueda por número de parte</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Desde una tarjeta o un ejemplo</h3><a class="min" href="https://youtu.be/qc22QcGj0Ho?t=266" target="_blank" rel="noopener">&#9654; 4:26</a></div><p>Al escoger una tarjeta Nucleo, CubeMX carga los pines ya configurados (botón, LED, etc.). Con el Example Selector se abre un ejemplo para esa tarjeta y se adapta el código.</p><div class="uno"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Clase 3. Características básicas del STM32CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Cross Selector: comparar con otras marcas</h3><a class="min" href="https://youtu.be/qc22QcGj0Ho?t=333" target="_blank" rel="noopener">&#9654; 5:33</a></div><p>Escribes un micro de Microchip, Texas Instruments o NXP y te muestra los STM32 más parecidos, con el porcentaje de coincidencia y la comparación de memoria, núcleo, ADC y timers.</p><div class="uno"><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="Clase 3. Características básicas del STM32CubeMX" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Configurar pines</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Cristal y pines de salida</h3><a class="min" href="https://youtu.be/qc22QcGj0Ho?t=402" target="_blank" rel="noopener">&#9654; 6:42</a></div><p>En <b>RCC</b>, si la tarjeta tiene cristal, se escoge <b>Crystal/Ceramic Resonator</b> y aparecen ocupados los pines OSC. Luego, clic sobre un pin (por ejemplo PA10) y <b>GPIO_Output</b>. También puedes buscar el pin con el buscador de abajo.</p><div class="dos"><figure class="cap"><a href="img/455.webp" target="_blank"><img src="img/455.webp" alt="Clase 3. Características básicas del STM32CubeMX" loading="lazy"></a></figure><figure class="cap"><a href="img/485.webp" target="_blank"><img src="img/485.webp" alt="Clase 3. Características básicas del STM32CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Remapear periféricos (Ctrl + clic)</h3><a class="min" href="https://youtu.be/qc22QcGj0Ho?t=510" target="_blank" rel="noopener">&#9654; 8:30</a></div><p>Con <b>Ctrl</b> presionado y clic sobre un pin, CubeMX muestra a dónde se puede mover esa función. Al activar <b>USART1</b> en modo asíncrono, usa PA9/PA10. Si ahí había un GPIO, lo borra.</p><p class="ojo"><b>Ojo:</b> al remapear o activar un periférico, CubeMX puede borrar pines que ya habías configurado.</p><div class="dos"><figure class="cap"><a href="img/525.webp" target="_blank"><img src="img/525.webp" alt="Clase 3. Características básicas del STM32CubeMX" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 3. Características básicas del STM32CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Fijar un pin (Signal Pinning)</h3><a class="min" href="https://youtu.be/qc22QcGj0Ho?t=586" target="_blank" rel="noopener">&#9654; 9:46</a></div><p>Clic derecho sobre el pin → <b>Signal Pinning</b> (aparece un pin de alfiler). Un pin fijado se respeta: CubeMX no lo mueve y te avisa si un periférico no cabe. Sin fijar, CubeMX mueve tu GPIO a otro pin para hacer espacio. En el menú <b>Pinout</b> está <b>Keep Current Signals Placement</b>, que conserva lo que ya está.</p><div class="dos"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Pines fijados" loading="lazy"></a><figcaption>Pines fijados</figcaption></figure><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Menú Pinout: Keep Current Signals Placement" loading="lazy"></a><figcaption>Menú Pinout: Keep Current Signals Placement</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Configurar cada GPIO</h3><a class="min" href="https://youtu.be/qc22QcGj0Ho?t=689" target="_blank" rel="noopener">&#9654; 11:29</a></div><p>En <b>System Core → GPIO</b> se escoge para cada pin el nivel inicial, el modo (push-pull u open drain), pull-up/pull-down y la velocidad. Al pasar el mouse sobre un periférico aparecen enlaces a su documentación.</p><div class="dos"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Pin de salida" loading="lazy"></a><figcaption>Pin de salida</figcaption></figure><figure class="cap"><a href="img/745.webp" target="_blank"><img src="img/745.webp" alt="Pin de entrada con pull-down" loading="lazy"></a><figcaption>Pin de entrada con pull-down</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Etiquetas con aclaración entre corchetes</h3><a class="min" href="https://youtu.be/qc22QcGj0Ho?t=951" target="_blank" rel="noopener">&#9654; 15:51</a></div><p>Clic derecho → <b>Enter User Label</b>. Si escribes <code>LED1[MOTOR]</code>, en el código el pin se llama <code>LED1</code>, pero en CubeMX ves qué maneja.</p><div class="uno"><figure class="cap"><a href="img/995.webp" target="_blank"><img src="img/995.webp" alt="Clase 3. Características básicas del STM32CubeMX" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Cambiar de micro</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>List Pinout Compatible MCUs</h3><a class="min" href="https://youtu.be/qc22QcGj0Ho?t=754" target="_blank" rel="noopener">&#9654; 12:34</a></div><p>En <b>Pinout → List Pinout Compatible MCUs</b> aparece la lista de micros a los que puedes pasar el proyecto: <i>Full compatible</i> o <i>HW compatible</i>. Se pueden ignorar los pines fijados, de potencia o de sistema. Doble clic y el proyecto pasa al otro micro.</p><div class="dos"><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Compatibles F1" loading="lazy"></a><figcaption>Compatibles F1</figcaption></figure><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Compatibles F4 ignorando pinning" loading="lazy"></a><figcaption>Compatibles F4 ignorando pinning</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Importar un proyecto a un micro muy distinto</h3><a class="min" href="https://youtu.be/qc22QcGj0Ho?t=853" target="_blank" rel="noopener">&#9654; 14:13</a></div><p>Para un cambio grande, por ejemplo de un F103 a un Cortex-M0 de 20 pines: crea un proyecto vacío con el micro nuevo y usa <b>File → Import Project</b>. Trae los pines y periféricos que se puedan y avisa qué no (por ejemplo, el reloj).</p><div class="uno"><figure class="cap"><a href="img/915.webp" target="_blank"><img src="img/915.webp" alt="Clase 3. Características básicas del STM32CubeMX" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=qc22QcGj0Ho" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

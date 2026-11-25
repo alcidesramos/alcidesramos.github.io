@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 2. Comparación de los Cortex M3, M4 y M7 y software a utilizar · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Diferencias entre los núcleos Cortex-M3, M4 y M7 de STM32, datasheet vs manual de referencia, HAL vs registros, programas a usar y formas de programar y proteger el micro.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/BC46jcSBV8I/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 2. Comparación de los Cortex M3, M4 y M7 y software a utilizar · Paso a paso">
+  <meta property="og:description" content="Diferencias entre los núcleos Cortex-M3, M4 y M7 de STM32, datasheet vs manual de referencia, HAL vs registros, programas a usar y formas de programar y proteger el micro.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/BC46jcSBV8I/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/BC46jcSBV8I/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Clase 2 · Paso a paso</span>
+    <h1>Cortex <span>M3, M4 y M7</span>: diferencias y software</h1>
+    <p class="lead">Qué cambia entre un Cortex-M3, un M4 y un M7 (FPU, DSP, caché, memoria externa), qué documentos hay que leer, cuándo usar HAL y cuándo registros, los programas del curso y las tres formas de programar un STM32: ST-Link, UART y USB. Al final, los niveles de protección contra lectura.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=BC46jcSBV8I" target="_blank" rel="noopener">&#9654; Ver el video completo (18:06)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/175.webp" alt="Clase 2. Comparación de los Cortex M3, M4 y M7 y software a utilizar"></figure>
+    <ul class="materiales"><li><b>Documentos:</b> datasheet + manual de referencia + manual de la HAL</li><li><b>Software:</b> STM32CubeMX, STM32CubeIDE, Keil µVision, STM32CubeProgrammer, STM32CubeMonitor</li><li><b>Para programar:</b> ST-Link V2, cable USB-serial o USB directo</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · M3, M4, M7</a><a href="#f2">2 · Documentos</a><a href="#f3">3 · Software</a><a href="#f4">4 · Programar</a><a href="#f5">5 · Protección</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Los núcleos Cortex</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Cortex-M3: multiplicación y división por hardware</h3><a class="min" href="https://youtu.be/BC46jcSBV8I?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El M3 (por ejemplo, el STM32F103 de la Blue Pill) trae multiplicación en un ciclo y división por hardware, pero <b>no tiene FPU</b>: las operaciones con decimales se hacen por software.</p><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Bloques del Cortex-M3" loading="lazy"></a><figcaption>Bloques del Cortex-M3</figcaption></figure><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Datasheet del F103: single-cycle multiplication" loading="lazy"></a><figcaption>Datasheet del F103: single-cycle multiplication</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Cortex-M4: DSP y FPU de precisión simple</h3><a class="min" href="https://youtu.be/BC46jcSBV8I?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>El M4 agrega instrucciones <b>DSP</b> y una <b>FPU</b> de precisión simple (float). Las cuentas con decimales las hace el hardware, y eso da mucha más velocidad. Ejemplo: STM32F411 de la Black Pill. Desde los F42x se puede agregar memoria externa por bus paralelo (FMC) y tienen Chrom-ART (DMA2D) para pantallas TFT.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Bloques del Cortex-M4" loading="lazy"></a><figcaption>Bloques del Cortex-M4</figcaption></figure><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="F411: ART Accelerator, FPU y DSP" loading="lazy"></a><figcaption>F411: ART Accelerator, FPU y DSP</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Cortex-M7: FPU doble, caché y Quad-SPI</h3><a class="min" href="https://youtu.be/BC46jcSBV8I?t=165" target="_blank" rel="noopener">&#9654; 2:45</a></div><p>El M7 tiene <b>FPU de doble precisión</b> (útil, por ejemplo, para coordenadas GPS), caché de instrucciones y datos, memorias TCM y memoria externa por <b>Quad-SPI</b>, que usa 4 líneas de datos en vez de una y es mucho más rápida. Ejemplo: STM32H750 a 400 MHz.</p><div class="dos"><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="Bloques del Cortex-M7" loading="lazy"></a><figcaption>Bloques del Cortex-M7</figcaption></figure><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="STM32H750: FPU doble precisión y Quad-SPI" loading="lazy"></a><figcaption>STM32H750: FPU doble precisión y Quad-SPI</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Documentos que hay que manejar</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Datasheet vs manual de referencia</h3><a class="min" href="https://youtu.be/BC46jcSBV8I?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>El <b>datasheet</b> da una idea general de un micro en particular. El <b>manual de referencia</b> es de toda la familia y explica cómo se configuran los periféricos registro por registro. A diferencia de los micros de 8 bits, aquí hacen falta los dos.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>La HAL y su manual</h3><a class="min" href="https://youtu.be/BC46jcSBV8I?t=331" target="_blank" rel="noopener">&#9654; 5:31</a></div><p>STM32CubeMX configura el micro de forma gráfica y genera código con la librería <b>HAL</b>. Para usarla está el manual de la HAL: tiene más de 3000 páginas, así que se busca solo lo que se necesita (GPIO, I2C…).</p><div class="dos"><figure class="cap"><a href="img/375.webp" target="_blank"><img src="img/375.webp" alt="STM32CubeMX con un F103" loading="lazy"></a><figcaption>STM32CubeMX con un F103</figcaption></figure><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Manual de la HAL" loading="lazy"></a><figcaption>Manual de la HAL</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>¿HAL o registros?</h3><a class="min" href="https://youtu.be/BC46jcSBV8I?t=461" target="_blank" rel="noopener">&#9654; 7:41</a></div><p>Hay que conocer los registros. Por ejemplo, para una librería 1-Wire, que cambia un pin entre entrada y salida muy rápido, la HAL es lenta. Los registros cambian entre familias: en el M3 los pines se configuran con <code>GPIOx_CRL</code>/<code>CRH</code>, y en el M4 con <code>GPIOx_MODER</code>. Para cosas grandes (USB, FAT en SD) se usa la HAL. Para lo que necesita velocidad, registros.</p><div class="dos"><figure class="cap"><a href="img/475.webp" target="_blank"><img src="img/475.webp" alt="M3: registro GPIOx_CRL" loading="lazy"></a><figcaption>M3: registro GPIOx_CRL</figcaption></figure><figure class="cap"><a href="img/505.webp" target="_blank"><img src="img/505.webp" alt="M4: registro GPIOx_MODER" loading="lazy"></a><figcaption>M4: registro GPIOx_MODER</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programas del curso</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>IDE, compiladores y herramientas</h3><a class="min" href="https://youtu.be/BC46jcSBV8I?t=526" target="_blank" rel="noopener">&#9654; 8:46</a></div><ul><li><b>STM32CubeIDE</b>: gratis, de ST.</li><li><b>Keil µVision</b>: no es gratis, pero tiene licencia académica.</li><li><b>STM32CubeProgrammer</b>: para programar, leer y proteger el micro.</li><li><b>STM32CubeMonitor</b>: para ver variables en tiempo real con gráficas y medidores.</li></ul><div class="uno"><figure class="cap"><a href="img/545.webp" target="_blank"><img src="img/545.webp" alt="Clase 2. Comparación de los Cortex M3, M4 y M7 y software a utilizar" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Tres formas de programar un STM32</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Con ST-Link (SWD)</h3><a class="min" href="https://youtu.be/BC46jcSBV8I?t=590" target="_blank" rel="noopener">&#9654; 9:50</a></div><p>Se conectan GND, SWCLK, SWDIO y 3.3 V. Además de programar, el ST-Link permite depurar (debug).</p><div class="uno"><figure class="cap"><a href="img/645.webp" target="_blank"><img src="img/645.webp" alt="Clase 2. Comparación de los Cortex M3, M4 y M7 y software a utilizar" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Por UART con el bootloader de fábrica</h3><a class="min" href="https://youtu.be/BC46jcSBV8I?t=656" target="_blank" rel="noopener">&#9654; 10:56</a></div><p>Todos traen un <b>bootloader</b> en memoria de sistema. En la Blue Pill, con BOOT0 en 1 y un simple cable USB-serial en USART1 (PA9/PA10), STM32CubeProgrammer se conecta por <b>UART</b> y graba el programa.</p><div class="dos"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Manual: interfaces del bootloader embebido" loading="lazy"></a><figcaption>Manual: interfaces del bootloader embebido</figcaption></figure><figure class="cap"><a href="img/725.webp" target="_blank"><img src="img/725.webp" alt="CubeProgrammer por UART" loading="lazy"></a><figcaption>CubeProgrammer por UART</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Por USB (DFU) desde los Cortex-M4</h3><a class="min" href="https://youtu.be/BC46jcSBV8I?t=722" target="_blank" rel="noopener">&#9654; 12:02</a></div><p>Los F4 y H7 se pueden programar solo con el cable USB, en modo DFU: se mantiene presionado BOOT0, se conecta y en CubeProgrammer se escoge <b>USB</b>. No hace falta programador. Para la Blue Pill se puede cargar un bootloader USB (se verá más adelante).</p><div class="uno"><figure class="cap"><a href="img/805.webp" target="_blank"><img src="img/805.webp" alt="Clase 2. Comparación de los Cortex M3, M4 y M7 y software a utilizar" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Proteger el código</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Read Out Protection (RDP)</h3><a class="min" href="https://youtu.be/BC46jcSBV8I?t=886" target="_blank" rel="noopener">&#9654; 14:46</a></div><p>En CubeProgrammer, en <b>Option bytes → Read Out Protection</b>, se escoge el nivel:</p><ul><li><b>AA</b> (nivel 0): sin protección.</li><li><b>BB</b> (nivel 1): no se puede leer el código. Protege en un 98 %.</li><li><b>CC</b> (nivel 2): protección total. Ya nadie lo puede leer ni volver a programar. Solo para el producto final.</li></ul><p class="ojo"><b>Ojo:</b> el nivel CC es irreversible. Úsalo solo cuando el producto esté terminado.</p><div class="dos"><figure class="cap"><a href="img/975.webp" target="_blank"><img src="img/975.webp" alt="Option bytes" loading="lazy"></a><figcaption>Option bytes</figcaption></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Niveles AA, BB y CC" loading="lazy"></a><figcaption>Niveles AA, BB y CC</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=BC46jcSBV8I" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
