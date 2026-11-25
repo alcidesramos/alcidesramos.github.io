@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generar PWM y controlar un motor DC por set point serial con STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con TIM2 generamos un PWM de 100 o 200 Hz con 16 bits de resolución para un motor con encoder y puente H, y le damos el set point por la UART con recepción DMA por línea inactiva, mientras leemos su frecuencia con Input Capture.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/_Y3TWzz4Rl8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Generar PWM y controlar un motor DC por set point serial con STM32 · Paso a paso">
+  <meta property="og:description" content="Con TIM2 generamos un PWM de 100 o 200 Hz con 16 bits de resolución para un motor con encoder y puente H, y le damos el set point por la UART con recepción DMA por línea inactiva, mientras leemos su frecuencia con Input Capture.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/_Y3TWzz4Rl8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/_Y3TWzz4Rl8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>PWM y <span>set point</span> para un motor DC</h1>
+    <p class="lead">Continuación de la clase de Input Capture, ahora con el motor real. Se pasa el micro a 84 MHz con cristal, se configura TIM2 canal 1 como PWM en PA15 y dos pines para el sentido de giro del puente H. Una librería PWM con escala de 0 a 10000 (en lugar de 0 a 255) da más resolución para control. Al final, una librería de UART con DMA y evento IDLE recibe el set point desde Hercules, lo convierte con atoi y mueve el motor mientras se envía la frecuencia del encoder: un sistema de lazo cerrado listo para identificar el motor.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=_Y3TWzz4Rl8" target="_blank" rel="noopener">&#9654; Ver el video completo (33:23)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1950.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401CCU6</li><li>Motorreductor DC con encoder</li><li>Puente H L298 y fuente de 12 V (el L298 entrega 5 V para el micro)</li><li>ST-Link y conversor USB serial</li><li>Analizador lógico (opcional) para ver el PWM</li><li>Librerías Frecuencia, PWM, uart y uart_int_idle_dma</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Montaje</a><a href="#f2">2 · TIM2</a><a href="#f3">3 · PWM</a><a href="#f4">4 · Set point</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Montaje</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Motor con encoder y puente H</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>El motor va a OUT1/OUT2 del puente H (cables rojo y negro). El encoder se alimenta con 5 V y GND, y su salida A (o B) va a la entrada de captura del micro.</p><p>El L298 se alimenta con 12 V y entrega 5 V, que pueden alimentar el micro. Recibe la señal PWM (ENA) y dos señales de sentido de giro (IN1, IN2). En la simulación, las entradas de sensado de corriente del modelo de Proteus se ponen a tierra.</p><div class="dos"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Repaso: lectura de frecuencia en físico</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=197" target="_blank" rel="noopener">&#9654; 3:17</a></div><p>Ahora es montaje real: HSE con cristal y PLL a 84 MHz. Por eso el prescaler del TIM1 (Input Capture) pasa de 16-1 a 84-1 para seguir muestreando a 1 MHz. Al girar el motor con la mano, la frecuencia cambia en la terminal.</p><div class="uno"><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>PWM en TIM2</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Configuración</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=292" target="_blank" rel="noopener">&#9654; 4:52</a></div><p>El PWM necesita otro timer porque TIM1 muestrea muy rápido. TIM2: Clock Source = Internal Clock, Channel1 = PWM Generation CH1. El pin se remapea a PA15 con Ctrl + clic sobre el pin, y se le pone la etiqueta pwm.</p><p>Conviene usar más de 50 Hz para que el motor responda bien; el valor ideal depende de la inductancia y la resistencia del motor.</p><div class="dos"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/750.webp" target="_blank"><img src="img/750.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Prescaler y periodo</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=420" target="_blank" rel="noopener">&#9654; 7:00</a></div><p>Con la hoja de Excel: reloj de 84 MHz, Prescaler = 84-1 (un paso por microsegundo) y para 100 Hz el Counter Period es 10000 (10 ms). Para 200 Hz sería 5000.</p><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Pines de sentido de giro</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=733" target="_blank" rel="noopener">&#9654; 12:13</a></div><p>PA11 y PA12 como GPIO_Output con etiquetas M11 y M12 (motor 1, terminales 1 y 2). 1-0 gira hacia un lado y 0-1 hacia el otro.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería PWM</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>PWM.h: timer y canales</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=569" target="_blank" rel="noopener">&#9654; 9:29</a></div><p>Solo hay que indicar el timer y el registro de cada canal. Si usas otro timer o canal, cambia estos defines.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// info relacionada a los servos
+#define PWMT    htim2      // timer usado
+#define PWMTIM  TIM2       // registro timer usado
+
+// canales pwm a usar
+// pwm1
+#define PWM1_CH TIM_CHANNEL_1   // canal de pwm
+#define PWM1    TIM2-&gt;CCR1      // registro del ciclo útil, canal 1
+// pwm2
+#define PWM2_CH TIM_CHANNEL_2
+#define PWM2    TIM2-&gt;CCR2
+
+void PWM_init(TIM_HandleTypeDef *serv, uint16_t canal);
+void pwm_valor(uint32_t *canal, float valor);</code></pre></div><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Escala: más resolución</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=668" target="_blank" rel="noopener">&#9654; 11:08</a></div><p>En PWM.c la variable escala define el rango de valores. En Arduino va de 0 a 255; aquí se usa de 0 a 10000 para aprovechar los 16 bits del timer, que es mejor para control. Si solo quieres porcentaje, pon 100.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//float escala = 100;    // escala de 0 a 100 %
+float escala = 10000;    // define la escala a trabajar el pwm</code></pre></div><p class="ojo">Si cambias la frecuencia (por ejemplo a 200 Hz con periodo 5000), cambia también la escala a 5000. Así 2500 vuelve a ser el 50 %.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Inicializar y dar un valor</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=808" target="_blank" rel="noopener">&#9654; 13:28</a></div><p>Antes del while se inicializa el PWM con el timer y el canal, se fija el sentido de giro y se da el valor. Con 200 el motor no arranca por la inercia; con 2000 sí.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PWM_init(&amp;PWMT, PWM1_CH);   // inicia el TIMER2 canal PWM1
+
+HAL_GPIO_WritePin(M11_GPIO_Port, M11_Pin, 1);
+HAL_GPIO_WritePin(M12_GPIO_Port, M12_Pin, 0);
+pwm_valor(&amp;PWM1, 2000);     // de 0 a escala (5000 = 50 %)</code></pre></div><p class="ojo">Si el PWM sale (se ve en el analizador) pero el motor no gira, revisa el sentido de giro: sin M11/M12 el puente H no mueve el motor.</p><div class="dos"><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1390.webp" target="_blank"><img src="img/1390.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Funciones para el motor</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=1309" target="_blank" rel="noopener">&#9654; 21:49</a></div><p>Dos funciones facilitan las pruebas de identificación: arrancar con una velocidad y parar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 0 */
+void motorstop()
+{
+  HAL_GPIO_WritePin(M11_GPIO_Port, M11_Pin, 0);
+  HAL_GPIO_WritePin(M12_GPIO_Port, M12_Pin, 0);
+  pwm_valor(&amp;PWM1, 0);
+}
+
+void motorset(float velo)
+{
+  HAL_GPIO_WritePin(M11_GPIO_Port, M11_Pin, 1);
+  HAL_GPIO_WritePin(M12_GPIO_Port, M12_Pin, 0);
+  pwm_valor(&amp;PWM1, velo);
+}
+
+/* prueba: gira 4 s y para */
+motorset(2500);
+HAL_Delay(4000);
+motorstop();</code></pre></div><div class="dos"><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1330.webp" target="_blank"><img src="img/1330.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Set point por la UART</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Librería UART con DMA e IDLE</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=1404" target="_blank" rel="noopener">&#9654; 23:24</a></div><p>La librería uart_int_idle_dma detecta cuándo dejan de llegar datos (línea inactiva) y avisa con una bandera. En el .h se define el puerto y el tamaño de la trama (aquí 50).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// uart_int_idle_dma.h
+#define uartdatosreg USART1   // puerto serial a analizar
+#define uartdatos    huart1
+#define trama_size   50       // tamaño del buffer
+
+// main.c
+#include &quot;uart_int_idle_dma.h&quot;
+/* USER CODE BEGIN PV */
+uint8_t  trama_rx[trama_size];
+char     flag_rx = 0;
+uint16_t num_datos;
+uint16_t salida_pwm;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1540.webp" target="_blank"><img src="img/1540.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Activar DMA en USART1</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=1603" target="_blank" rel="noopener">&#9654; 26:43</a></div><p>En USART1: NVIC con la interrupción global habilitada y en DMA Settings agregar USART1_RX.</p><div class="uno"><figure class="cap"><a href="img/1640.webp" target="_blank"><img src="img/1640.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Cómo funciona</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=1638" target="_blank" rel="noopener">&#9654; 27:18</a></div><p>La inicialización limpia el buffer y arranca la recepción por DMA hasta línea inactiva. Cuando llega una trama, el callback guarda cuántos datos llegaron y levanta la bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void uartdat_it_idle_dma_init()
+{
+  memset(trama_rx, 0, trama_size);   // limpia el buffer
+  HAL_UARTEx_ReceiveToIdle_DMA(&amp;uartdatos, (uint8_t*)trama_rx, trama_size);
+}
+
+// procedimiento de idle para recepción serial
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+  if (huart-&gt;Instance == uartdatosreg)
+  {
+    num_datos = Size;
+    flag_rx = 1;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1660.webp" target="_blank"><img src="img/1660.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>El while completo</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=1779" target="_blank" rel="noopener">&#9654; 29:39</a></div><p>Si llegó una trama, atoi la convierte a número y ese valor va al motor. Luego se limpia la bandera y se vuelve a armar la recepción. Además se envía la frecuencia del encoder.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+Frec1_Init();
+PWM_init(&amp;PWMT, PWM1_CH);
+uartdat_it_idle_dma_init();
+motorstop();
+
+while (1)
+{
+  if (flag_rx == 1)
+  {
+    salida_pwm = atoi((char*)trama_rx);  // pasa a número el pwm recibido
+    motorset(salida_pwm);                // coloca la señal al motor
+    flag_rx = 0;
+    uartdat_it_idle_dma_init();
+  }
+  HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+  if (frec1 != 0) frecuencia1 = frecmuestreo / frec1;
+  else frecuencia1 = 0;
+  frec1 = 0;    // limpia las frecuencias usadas
+  sprintf(texto, &quot;RPM=%.1f\r\n&quot;, frecuencia1);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(500);
+}</code></pre></div><p class="ojo">Lo que se imprime como RPM es la frecuencia de pulsos del encoder. Para pasarla a RPM hay que dividir entre los pulsos por vuelta y multiplicar por 60.</p><div class="dos"><figure class="cap"><a href="img/1790.webp" target="_blank"><img src="img/1790.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1600.webp" target="_blank"><img src="img/1600.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/_Y3TWzz4Rl8?t=1878" target="_blank" rel="noopener">&#9654; 31:18</a></div><p>Primero se prueba el eco: lo que se envía desde Hercules vuelve. Luego, enviando 1000, 2000, 500 o 400, el motor cambia de velocidad y la terminal muestra la frecuencia del encoder (por ejemplo 94, 84, 76 con 400).</p><p>En la siguiente clase se guardan estos datos en un buffer para graficarlos e identificar el modelo del motor.</p><div class="dos"><figure class="cap"><a href="img/1890.webp" target="_blank"><img src="img/1890.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1950.webp" target="_blank"><img src="img/1950.webp" alt="Generar PWM y controlar un motor DC por set point serial con STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=_Y3TWzz4Rl8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
