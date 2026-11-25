@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 5. Tips para simular STM32 en Proteus (parte 1) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo simular un STM32F103 y la BLUEPILL en Proteus: cargar el programa, conectar VDDA/VSSA con Power Rail Configuration y corregir el error de que Proteus simula el micro a 5 V en vez de 3.3 V.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/YWqmhFwCOnA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 5. Tips para simular STM32 en Proteus (parte 1) · Paso a paso">
+  <meta property="og:description" content="Cómo simular un STM32F103 y la BLUEPILL en Proteus: cargar el programa, conectar VDDA/VSSA con Power Rail Configuration y corregir el error de que Proteus simula el micro a 5 V en vez de 3.3 V.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/YWqmhFwCOnA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/YWqmhFwCOnA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Clase 5 · Paso a paso</span>
+    <h1>Simular <span>STM32</span> en Proteus · parte 1</h1>
+    <p class="lead">Simulación del STM32F103C8 en Proteus, primero con el micro solo y luego con la tarjeta BLUEPILL que trae Proteus. El punto clave: Proteus alimenta estos micros a 5 V por defecto. Se corrige con la configuración de rieles de alimentación para que trabajen a 3.3 V, como en la realidad.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=YWqmhFwCOnA" target="_blank" rel="noopener">&#9654; Ver el video completo (6:45)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/385.webp" alt="Clase 5. Tips para simular STM32 en Proteus (parte 1)"></figure>
+    <ul class="materiales"><li><b>Software:</b> Proteus 8 con STM32</li><li><b>Micro:</b> STM32F103C8 o componente BLUEPILL</li><li><b>Programa:</b> el .hex del parpadeo de las clases anteriores</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Micro solo</a><a href="#f2">2 · 5 V → 3.3 V</a><a href="#f3">3 · BLUEPILL</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>STM32F103 solo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Poner el micro y el reset</h3><a class="min" href="https://youtu.be/YWqmhFwCOnA?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Busca <code>STM32F103C8</code> en el selector de componentes. Para que arranque, conecta <b>NRST</b> a positivo (con una resistencia o directo).</p><div class="dos"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Clase 5. Tips para simular STM32 en Proteus (parte 1)" loading="lazy"></a></figure><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Clase 5. Tips para simular STM32 en Proteus (parte 1)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Cargar el programa</h3><a class="min" href="https://youtu.be/YWqmhFwCOnA?t=69" target="_blank" rel="noopener">&#9654; 1:09</a></div><p>Doble clic sobre el micro: en <b>Program File</b> escoge el <code>.hex</code> que genera el compilador y en <b>Crystal Frequency</b> pon <b>8 MHz</b>. Si la simulación va lenta, se puede bajar la velocidad del reloj.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 5. Tips para simular STM32 en Proteus (parte 1)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Error de VDDA: usar Power Rail Configuration</h3><a class="min" href="https://youtu.be/YWqmhFwCOnA?t=104" target="_blank" rel="noopener">&#9654; 1:44</a></div><p>Al dar play sale un error porque faltan VDDA/VSSA. Muchos los conectan con cables, pero es mejor ir a <b>Design → Configure Power Rails</b> y agregar <b>VSSA</b> a GND y <b>VDDA</b> al positivo.</p><div class="dos"><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="Errores al simular" loading="lazy"></a><figcaption>Errores al simular</figcaption></figure><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Power Rail Configuration" loading="lazy"></a><figcaption>Power Rail Configuration</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El error de los 5 V</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proteus simula el micro a 5 V</h3><a class="min" href="https://youtu.be/YWqmhFwCOnA?t=171" target="_blank" rel="noopener">&#9654; 2:51</a></div><p>Con un voltímetro en un pin de salida se ve que sale <b>5 V</b>, aunque el STM32 trabaja a <b>3.3 V</b>. Proteus hace lo mismo con otros micros de 3.3 V (ESP32, PIC32, MSP430). Es grave: por ejemplo, el ADC no daría valores reales.</p><div class="uno"><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="Clase 5. Tips para simular STM32 en Proteus (parte 1)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Solución: riel positivo a 3.3 V</h3><a class="min" href="https://youtu.be/YWqmhFwCOnA?t=203" target="_blank" rel="noopener">&#9654; 3:23</a></div><p>En <b>Configure Power Rails</b>, crea o edita el riel positivo con <b>3.3 V</b> y asígnale VDD y VDDA. Así la simulación queda igual que la práctica.</p><p class="ojo"><b>Ojo:</b> haz esto en cada proyecto de STM32 en Proteus, si no el ADC y los niveles lógicos no corresponden a la realidad.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Componente BLUEPILL de Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Usar la tarjeta lista</h3><a class="min" href="https://youtu.be/YWqmhFwCOnA?t=272" target="_blank" rel="noopener">&#9654; 4:32</a></div><p>Proteus trae el componente <code>BLUEPILL</code> (no es de ST). Solo cargas el programa: ya tiene el cristal y el reset, y simula de una.</p><div class="uno"><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="Clase 5. Tips para simular STM32 en Proteus (parte 1)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>El mismo error, la misma solución</h3><a class="min" href="https://youtu.be/YWqmhFwCOnA?t=339" target="_blank" rel="noopener">&#9654; 5:39</a></div><p>El BLUEPILL también sale a 5 V en sus pines. Configurando el riel positivo a 3.3 V queda bien.</p><div class="dos"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Antes: 5 V en el pin" loading="lazy"></a><figcaption>Antes: 5 V en el pin</figcaption></figure><figure class="cap"><a href="img/385.webp" target="_blank"><img src="img/385.webp" alt="Después: 3.3 V" loading="lazy"></a><figcaption>Después: 3.3 V</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=YWqmhFwCOnA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

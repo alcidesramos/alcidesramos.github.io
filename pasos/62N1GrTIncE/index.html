@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Instalar las librerías de Proteus BLUEPILL_ARZ, BLACKPILL_ARZ y NUCLEO-L476 con su PCB y modelo 3D, simularlas a 3.3 V y pasar un proyecto del F103 al F401.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/62N1GrTIncE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D · Paso a paso">
+  <meta property="og:description" content="Instalar las librerías de Proteus BLUEPILL_ARZ, BLACKPILL_ARZ y NUCLEO-L476 con su PCB y modelo 3D, simularlas a 3.3 V y pasar un proyecto del F103 al F401.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/62N1GrTIncE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/62N1GrTIncE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Clase 7 · Paso a paso</span>
+    <h1>Proteus · parte 3: <span>Blue Pill, Black Pill y Nucleo</span> en esquemático, PCB y 3D</h1>
+    <p class="lead">Uso de las librerías propias para Proteus: la Blue Pill y la Black Pill se ven como las tarjetas reales, se simulan, tienen huella para PCB y modelo 3D. También se muestra cómo pasar el programa de la Blue Pill (F103) a la Black Pill (F401) y la Nucleo L476, que solo tiene esquemático, PCB y 3D (no se simula).</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=62N1GrTIncE" target="_blank" rel="noopener">&#9654; Ver el video completo (14:24)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/165.webp" alt="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D"></figure>
+    <ul class="materiales"><li><b>Librerías:</b> <a href="https://github.com/alcidesramos/LIBRERIAS_PROTEUS_2026" target="_blank" rel="noopener">LIBRERIAS_PROTEUS_2026</a></li><li><b>Software:</b> Proteus 8, STM32CubeMX, Keil µVision o CubeIDE</li><li><b>Archivos 3D:</b> BLUEPILL.step, BLACKPILL.step, NUCLEO L476.STEP</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Instalar</a><a href="#f2">2 · Blue Pill</a><a href="#f3">3 · Black Pill</a><a href="#f4">4 · Nucleo</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Instalar las librerías</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Copiar las librerías y los modelos 3D</h3><a class="min" href="https://youtu.be/62N1GrTIncE?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><ul><li>Las dos librerías (esquemático <code>ARZ.LIB</code> y PCB <code>ARZ_PCB.LIB</code>) van <b>sí o sí</b> en <code>C:\Program Files (x86)\Labcenter Electronics\Proteus 8 Professional\DATA\LIBRARY</code>.</li><li>Los archivos 3D (<code>.step</code>) van donde quieras. Se recomienda <code>DATA\MODELS</code>, donde Proteus guarda los suyos.</li></ul><div class="uno"><figure class="cap"><a href="img/45.webp" target="_blank"><img src="img/45.webp" alt="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Blue Pill</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Poner BLUEPILL_ARZ y alimentarla</h3><a class="min" href="https://youtu.be/62N1GrTIncE?t=69" target="_blank" rel="noopener">&#9654; 1:09</a></div><p>Al buscar <code>BLUEPILL</code> salen la de Proteus y <b>BLUEPILL_ARZ</b>. Lo mínimo para que trabaje: un terminal Power llamado <b>VDD</b> (en mayúscula) y tierra. El reset es opcional.</p><div class="dos"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D" loading="lazy"></a></figure><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Programa a 8 MHz y riel a 3.3 V</h3><a class="min" href="https://youtu.be/62N1GrTIncE?t=137" target="_blank" rel="noopener">&#9654; 2:17</a></div><p>Doble clic: cristal de 8 MHz y el <code>.hex</code>. En <b>Configure Power Rails</b>, el riel VDD a <b>3.3 V</b>, como en la clase 5. Con un voltímetro se comprueba que el pin da 3.3 V.</p><div class="uno"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Modelo 3D en el PCB</h3><a class="min" href="https://youtu.be/62N1GrTIncE?t=171" target="_blank" rel="noopener">&#9654; 2:51</a></div><p>En PCB Layout aparece la huella. Para el 3D: clic derecho sobre el componente → <b>3D Model</b>, escoge <code>BLUEPILL.step</code> y en el <b>Offset</b> pon <code>44mm</code> para que quede centrada. La primera carga es lenta.</p><div class="dos"><figure class="cap"><a href="img/255.webp" target="_blank"><img src="img/255.webp" alt="Configurar el modelo 3D" loading="lazy"></a><figcaption>Configurar el modelo 3D</figcaption></figure><figure class="cap"><a href="img/275.webp" target="_blank"><img src="img/275.webp" alt="Blue Pill en el visor 3D" loading="lazy"></a><figcaption>Blue Pill en el visor 3D</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Black Pill</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Pasar el proyecto del F103 al F401</h3><a class="min" href="https://youtu.be/62N1GrTIncE?t=338" target="_blank" rel="noopener">&#9654; 5:38</a></div><p>La lista de micros compatibles de CubeMX no ofrece ningún F4 para el F103. Entonces se hace como en la clase 3: proyecto nuevo con el <b>STM32F401CCU</b> (paquete UFQFPN48) y <b>File → Import Project</b>. El LED queda en PC13. Revisa el reloj (cristal) y genera el código.</p><div class="dos"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D" loading="lazy"></a></figure><figure class="cap"><a href="img/455.webp" target="_blank"><img src="img/455.webp" alt="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Mismo código, otra tarjeta</h3><a class="min" href="https://youtu.be/62N1GrTIncE?t=507" target="_blank" rel="noopener">&#9654; 8:27</a></div><p>Pega el código del parpadeo en el <code>main.c</code> nuevo, compila y carga el <code>.hex</code> en <b>BLACKPILL_ARZ</b> (8 MHz).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  HAL_Delay(100);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D" loading="lazy"></a></figure><figure class="cap"><a href="img/550.webp" target="_blank"><img src="img/550.webp" alt="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Black Pill en PCB y 3D</h3><a class="min" href="https://youtu.be/62N1GrTIncE?t=573" target="_blank" rel="noopener">&#9654; 9:33</a></div><p>Modelo <code>BLACKPILL.step</code> con rotación Z <b>270</b>, offset Y <b>6mm</b> y Z <b>20mm</b>.</p><div class="dos"><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Nucleo L476</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Solo esquemático, PCB y 3D</h3><a class="min" href="https://youtu.be/62N1GrTIncE?t=682" target="_blank" rel="noopener">&#9654; 11:22</a></div><p>Proteus no simula la Nucleo L476, pero la librería sirve para el esquemático, el PCB y la vista 3D. Si no pasa al PCB, en el componente asigna el paquete con <b>Tools → Package</b>. Modelo <code>NUCLEO L476.STEP</code> con offset X <b>37mm</b> e Y <b>-27mm</b>.</p><div class="uno"><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Clase 7. Tips para simular STM32 en Proteus (parte 3): librerías BLUEPILL_ARZ, BLACKPILL_ARZ y Nucleo en 3D" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=62N1GrTIncE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
