@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 41: Órdenes serial compuestas por Bluetooth (parte 3) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Controlar el motor y los LEDs desde el celular con un módulo HC-05 y la app Bluetooth Electronics, usando el mismo programa de órdenes compuestas de la clase 40.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/b4xlHciLDy0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 41: Órdenes serial compuestas por Bluetooth (parte 3) · Paso a paso">
+  <meta property="og:description" content="Controlar el motor y los LEDs desde el celular con un módulo HC-05 y la app Bluetooth Electronics, usando el mismo programa de órdenes compuestas de la clase 40.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/b4xlHciLDy0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/b4xlHciLDy0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Órdenes compuestas por <span>Bluetooth</span> (parte 3)</h1>
+    <p class="lead">En esta tercera parte se reemplaza la terminal serial por el celular. El módulo Bluetooth HC-05 se empareja con el PC, que le asigna un puerto COM. En Proteus, el COMPIM se pone en ese puerto. En el celular, la app Bluetooth Electronics se conecta al módulo y en su editor de paneles se crean botones e interruptores que envían las mismas órdenes con terminador '*'. El programa del STM32 no cambia: sigue siendo la recepción bloqueante de la clase 40.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=b4xlHciLDy0" target="_blank" rel="noopener">&#9654; Ver el video completo (7:46)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/430.webp" alt="Clase 41: Órdenes serial compuestas por Bluetooth (parte 3)"></figure>
+    <ul class="materiales"><li>Blue Pill o placa STM32 con el programa de la clase 40</li><li>Módulo Bluetooth HC-05 (o HC-06)</li><li>Celular Android con la app Bluetooth Electronics</li><li>Proteus con COMPIM (simulación)</li><li>Driver L293D, motor DC y LEDs</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · HC-05 y puerto COM</a><a href="#f2">2 · Bluetooth Electronics</a><a href="#f3">3 · Panel funcionando</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Conectar el Bluetooth</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Emparejar el HC-05 con el PC</h3><a class="min" href="https://youtu.be/b4xlHciLDy0?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>Empareja el módulo HC-05 desde la configuración Bluetooth de Windows (clave típica 1234 o 0000). Windows crea puertos COM nuevos para el enlace.</p><p>Mira en el Administrador de dispositivos cuál es el puerto saliente; en el video fue COM17.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>COMPIM en Proteus</h3><a class="min" href="https://youtu.be/b4xlHciLDy0?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>En la simulación, configura el COMPIM con el puerto del Bluetooth (COM17) y la misma velocidad que la UART del STM32 (9600 baudios para el HC-05 por defecto).</p><p class="ojo">Si usas la placa real, conecta TX del HC-05 a RX del STM32 y RX del HC-05 a TX del STM32, con GND común.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Panel en el celular</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Crear un panel nuevo</h3><a class="min" href="https://youtu.be/b4xlHciLDy0?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>Abre Bluetooth Electronics, conéctate al HC-05 y entra al modo edición de un panel. Desde la barra lateral arrastras botones, interruptores y textos.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 41: Órdenes serial compuestas por Bluetooth (parte 3)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Botones del motor</h3><a class="min" href="https://youtu.be/b4xlHciLDy0?t=190" target="_blank" rel="noopener">&#9654; 3:10</a></div><p>Cada botón tiene un texto que se envía al presionar y otro al soltar. Pon la orden al presionar y deja vacío el texto al soltar.</p><ul><li>Izquierda: <code>M1IZQ*</code></li><li>Derecha: <code>M1DER*</code></li><li>Parar (botón rojo): <code>M1STOP*</code></li></ul><p class="ojo">No olvides el '*' al final: es el terminador que el programa usa para saber que la orden terminó.</p><div class="dos"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Escribiendo la orden M1DER*" loading="lazy"></a><figcaption>Escribiendo la orden M1DER*</figcaption></figure><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Texto al presionar y al soltar" loading="lazy"></a><figcaption>Texto al presionar y al soltar</figcaption></figure><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Panel MOTOR con los tres botones" loading="lazy"></a><figcaption>Panel MOTOR con los tres botones</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Interruptores de los LEDs</h3><a class="min" href="https://youtu.be/b4xlHciLDy0?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>Para cada LED agrega un interruptor: envía una orden al encender y otra al apagar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>LED1=ON*   /  LED1=OFF*</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>LED2=ON*   /  LED2=OFF*</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>LED3=ON*   /  LED3=OFF*</code></pre></div><div class="dos"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Orden LED1=ON*" loading="lazy"></a><figcaption>Orden LED1=ON*</figcaption></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Orden LED3=OFF*" loading="lazy"></a><figcaption>Orden LED3=OFF*</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Probar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Ejecutar el panel</h3><a class="min" href="https://youtu.be/b4xlHciLDy0?t=430" target="_blank" rel="noopener">&#9654; 7:10</a></div><p>Sal del modo edición y pulsa los botones: el motor gira a la izquierda, a la derecha o se detiene, y los LEDs se encienden y apagan en la simulación.</p><p>El programa del STM32 es exactamente el de la clase 40: recibe carácter por carácter hasta el '*', separa la orden con strtok y la compara con strcmp.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* Igual que la clase 40 */
+if (strcmp(orden, &quot;M1IZQ&quot;) == 0)      { /* motor a la izquierda */ }
+else if (strcmp(orden, &quot;M1DER&quot;) == 0) { /* motor a la derecha */ }
+else if (strcmp(orden, &quot;M1STOP&quot;) == 0){ /* parar motor */ }</code></pre></div><p class="ojo">La recepción sigue siendo bloqueante. En las próximas clases se pasa a interrupciones para recibir y transmitir a la vez (full duplex). El enlace a la APK está en la descripción del video.</p><div class="uno"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Panel final junto al circuito en Proteus" loading="lazy"></a><figcaption>Panel final junto al circuito en Proteus</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=b4xlHciLDy0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
