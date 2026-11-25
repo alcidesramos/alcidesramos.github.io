@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Lectura del sensor barométrico MS5611 (GY-63) por I2C a 400 kHz: dirección según CSB, tiempos de conversión por OSR, y cálculo de temperatura, presión y altura con precisión de centímetros.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/m47blusdFIo/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611 · Paso a paso">
+  <meta property="og:description" content="Lectura del sensor barométrico MS5611 (GY-63) por I2C a 400 kHz: dirección según CSB, tiempos de conversión por OSR, y cálculo de temperatura, presión y altura con precisión de centímetros.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/m47blusdFIo/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/m47blusdFIo/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 119: <span>Sensor barométrico MS5611</span></h1>
+    <p class="lead">El MS5611 mide presión barométrica y temperatura, y con ellas se calcula la altura con mucha precisión. Se usa en drones, aviones no tripulados y cohetes. Tiene interfaz I2C y SPI; aquí se usa I2C porque el sensor necesita retardos de conversión y SPI no aporta velocidad real. En CubeIDE se habilita USART1 e I2C en modo fast (400 kHz), se agrega la librería MS5611 (adaptada de una librería de internet) y se ajusta la dirección y el tiempo de conversión según la resolución (OSR) elegida.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=m47blusdFIo" target="_blank" rel="noopener">&#9654; Ver el video completo (10:34)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/580.webp" alt="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611"></figure>
+    <ul class="materiales"><li>Blackpill STM32F401</li><li>Módulo GY-63 con sensor MS5611</li><li>Conversor serial-USB y Hercules</li><li>Librerías del canal: MS5611 y uart</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pines y dirección I2C</a><a href="#f2">2 · Serial, I2C fast y librerías</a><a href="#f3">3 · Dirección y tiempos</a><a href="#f4">4 · Temperatura, presión y altura</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El sensor</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Módulo GY-63</h3><a class="min" href="https://youtu.be/m47blusdFIo?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El MS5611 mide temperatura y presión barométrica; con una fórmula se obtiene la altura con precisión de centímetros.</p><p>El pin PS selecciona la interfaz: en 1 es I2C (viene así por defecto), en 0 es SPI.</p><p>El pin CSB define la dirección I2C: a tierra es 0x76 y a positivo 0x77.</p><p>El módulo tiene regulador, así que se puede alimentar con 5 V.</p><div class="uno"><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>USART1 e I2C1</h3><a class="min" href="https://youtu.be/m47blusdFIo?t=134" target="_blank" rel="noopener">&#9654; 2:14</a></div><p>USART1 en modo asíncrono a 115200 baudios.</p><p>I2C1 en Fast Mode (400 kHz), que el sensor soporta.</p><div class="dos"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611" loading="lazy"></a></figure><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Librerías</h3><a class="min" href="https://youtu.be/m47blusdFIo?t=206" target="_blank" rel="noopener">&#9654; 3:26</a></div><p>Se crea la carpeta Librerias, se agrega al include path, se copian MS5611 y uart, y se incluyen junto a stdio y string.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;MS5611.h&quot;
+#include &quot;uart.h&quot;
+
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Ajustes de la librería</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Dirección del sensor</h3><a class="min" href="https://youtu.be/m47blusdFIo?t=239" target="_blank" rel="noopener">&#9654; 3:59</a></div><p>En MS5611.h se pone la dirección: 0x76 si CSB está a tierra o 0x77 si está a positivo (en este montaje es 0x77).</p><p>MS5611_Init devuelve 1 si el sensor responde. Si no responde, prueba la otra dirección; si con ninguna responde, revisa conexiones, resistencias del I2C o el sensor.</p><div class="uno"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Resolución y tiempo de conversión</h3><a class="min" href="https://youtu.be/m47blusdFIo?t=306" target="_blank" rel="noopener">&#9654; 5:06</a></div><p>La lectura se hace con una de cinco resoluciones (OSR). Más resolución da un dato más preciso pero tarda más: de 1 ms en ultra low a 10 ms en ultra high.</p><p>El retardo de la función de conversión debe cubrir el tiempo de la resolución elegida; para OSR_ULTRA_HIGH se pone 10 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define OSR_ULTRA_HIGH 12   // 10 ms
+#define OSR_HIGH       11   //  5 ms
+#define OSR_STANDARD   10   //  3 ms
+#define OSR_LOW         9   //  2 ms
+#define OSR_ULTRA_LOW   8   //  1 ms
+
+// en MS5611_convert()
+HAL_Delay(10);   // ajustar según el datasheet y el OSR</code></pre></div><p class="ojo">Si usas una resolución más baja, baja también el retardo de MS5611_convert para no perder tiempo.</p><div class="dos"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611" loading="lazy"></a></figure><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Leer el sensor</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Verificar el sensor</h3><a class="min" href="https://youtu.be/m47blusdFIo?t=372" target="_blank" rel="noopener">&#9654; 6:12</a></div><p>Se declara la cadena de texto y se habilita float con printf en las propiedades del proyecto.</p><p>Antes del while se comprueba si el sensor responde.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char texto[100];
+
+if (MS5611_Init()==1) uartx_write_text(&amp;huart1, &quot;SENSOR OK\r\n&quot;);
+else uartx_write_text(&amp;huart1, &quot;SENSOR BAD\r\n&quot;);</code></pre></div><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611" loading="lazy"></a></figure><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Lectura en el while</h3><a class="min" href="https://youtu.be/m47blusdFIo?t=500" target="_blank" rel="noopener">&#9654; 8:20</a></div><p>Se lee con la resolución elegida y se obtienen temperatura, presión y altura.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  MS5611_read(OSR_ULTRA_HIGH);
+  float temp = MS5611_getTemperature();
+  float pres = MS5611_getPressure();
+  float altura = MS5611_getaltura(pres, temp);
+
+  sprintf(texto,&quot;Temp=%.2f, Pre=%.2fmbar  alt=%.1f\r\n&quot;,temp,pres,altura);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(800);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/545.webp" target="_blank"><img src="img/545.webp" alt="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/m47blusdFIo?t=572" target="_blank" rel="noopener">&#9654; 9:32</a></div><p>Se leen unos 31.9 °C, cerca de 1009 mbar (nivel del mar) y unos 32 m de altura (un edificio).</p><p>Al subir el sensor medio metro la altura sube y al bajarlo vuelve; al tocarlo con el dedo la temperatura aumenta. Es más rápido y preciso para altura que un GPS.</p><div class="uno"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Clase 119: Librería para leer altura, presión y temperatura con el sensor MS5611" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=m47blusdFIo" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
