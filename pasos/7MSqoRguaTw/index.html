@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Al VI de monitoreo de la clase 92 se le agrega un segundo ciclo con TCP Write y una estructura de eventos: un botón envía !V00=1$ / !V00=0$ para el LED y un dial envía !V01=valor$ para el PWM, casi en tiempo real.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/7MSqoRguaTw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW · Paso a paso">
+  <meta property="og:description" content="Al VI de monitoreo de la clase 92 se le agrega un segundo ciclo con TCP Write y una estructura de eventos: un botón envía !V00=1$ / !V00=0$ para el LED y un dial envía !V01=valor$ para el PWM, casi en tiempo real.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/7MSqoRguaTw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/7MSqoRguaTw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Control y monitoreo WiFi con <span>DT-06 y LabVIEW</span></h1>
+    <p class="lead">Se usa el mismo programa del STM32 de la clase 93 (que ya entiende V00 y V01), con el envío de monitoreo acelerado a 10 ms. En LabVIEW se mantiene el ciclo de lectura (TCP Read con Match Pattern para A00 y A01) y se agrega otro while que usa la misma conexión TCP con TCP Write. Dentro de una Event Structure, el evento Value Change del botón elige con Select la cadena !V00=1$ o !V00=0$, y el evento Value Change del dial arma con Concatenate Strings !V01= + valor + $. A diferencia de Virtuino, todo responde casi en tiempo real.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=7MSqoRguaTw" target="_blank" rel="noopener">&#9654; Ver el video completo (11:28)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/470.webp" alt="Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW"></figure>
+    <ul class="materiales"><li>LabVIEW</li><li>BlackPill STM32F411 con DT-06, DS18B20, pulsador y LED</li><li>Programa STM32 de la clase 93</li><li>VI de la clase 92 (cliente TCP)</li><li>Analizador lógico (opcional)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · VI de monitoreo de la clase 92</a><a href="#f2">2 · TCP Write y Event Structure</a><a href="#f3">3 · Dial a PWM</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Punto de partida</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Dirección y puerto por defecto</h3><a class="min" href="https://youtu.be/7MSqoRguaTw?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se abre el VI de monitoreo, se escribe la IP del DT-06 (192.168.4.1) y el puerto 200, y con clic derecho → Data Operations → Make Current Value Default quedan guardados.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Monitoreo más rápido</h3><a class="min" href="https://youtu.be/7MSqoRguaTw?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>En el STM32 el envío de monitoreo se baja a 10 ms. Con LabVIEW el termómetro y el LED del pulsador responden casi al instante, algo que Virtuino no lograba.</p><div class="dos"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Ciclo de escritura</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Segundo while con TCP Write</h3><a class="min" href="https://youtu.be/7MSqoRguaTw?t=136" target="_blank" rel="noopener">&#9654; 2:16</a></div><p>Se crea otro while (con condición de paro en una constante falsa; el programa se detiene con el botón de LabVIEW) y dentro un TCP Write conectado a la misma referencia de conexión de TCP Open. Al final también se cierra con TCP Close Connection.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Evento del botón</h3><a class="min" href="https://youtu.be/7MSqoRguaTw?t=226" target="_blank" rel="noopener">&#9654; 3:46</a></div><p>Se encierra el TCP Write en una Event Structure y se agrega un botón en el panel. El evento es Value Change del botón: con un Select, si es verdadero se envía !V00=1$ y si es falso !V00=0$.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Evento: &quot;Boolean&quot;: Value Change
+Select(NewVal):  True  -&gt; &quot;!V00=1$&quot;
+                 False -&gt; &quot;!V00=0$&quot;
+-&gt; TCP Write</code></pre></div><div class="dos"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Prueba del LED</h3><a class="min" href="https://youtu.be/7MSqoRguaTw?t=395" target="_blank" rel="noopener">&#9654; 6:35</a></div><p>Al pulsar el botón en el panel el LED de la tarjeta se apaga o se prende de inmediato, mientras la temperatura y el pulsador se siguen leyendo.</p><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Control analógico</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Evento del dial</h3><a class="min" href="https://youtu.be/7MSqoRguaTw?t=464" target="_blank" rel="noopener">&#9654; 7:44</a></div><p>Se agrega un dial de 0 a 100 y se duplica el evento para Value Change del dial. Con Concatenate Strings se arma la trama: constante !V01=, el valor convertido con Number To Fractional String (use system decimal point = False) y la constante $.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Evento: &quot;Dial&quot;: Value Change
+Concatenate Strings( &quot;!V01=&quot; , NumberToFractionalString(NewVal) , &quot;$&quot; )
+-&gt; TCP Write</code></pre></div><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/7MSqoRguaTw?t=599" target="_blank" rel="noopener">&#9654; 9:59</a></div><p>Al girar el dial a 40 o 90 el analizador lógico muestra el cambio de ancho de pulso casi en tiempo real, y el botón sigue controlando el LED. Con el DT-06 cualquier microcontrolador puede monitorearse y controlarse por WiFi desde un PC o un celular.</p><div class="uno"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 94 STM32: control y monitoreo por WiFi con DT-06 y LabVIEW" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=7MSqoRguaTw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
