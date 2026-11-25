@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 17: Display 7 segmentos básico en ARM Keil (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Al pasar el proyecto del display a Keil µVision, los números 0b… dan error. Se soluciona agregando --gnu en Misc Controls de las opciones de C/C++.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/Z7xqb0feb60/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 17: Display 7 segmentos básico en ARM Keil (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Al pasar el proyecto del display a Keil µVision, los números 0b… dan error. Se soluciona agregando --gnu en Misc Controls de las opciones de C/C++.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/Z7xqb0feb60/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Z7xqb0feb60/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 17: Display 7 segmentos en <span>Keil</span> y números binarios</h1>
+    <p class="lead">Quienes usan un ST-Link clon programan con Keil µVision (MDK-ARM), como vimos en la clase 13. Al llevar a Keil el proyecto del display de 7 segmentos, el compilador ARM no acepta los literales binarios con prefijo 0b y da dos errores. Basta activar las extensiones GNU con la opción --gnu.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Z7xqb0feb60" target="_blank" rel="noopener">&#9654; Ver el video completo (2:59)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/140.webp" alt="Clase 17: Display 7 segmentos básico en ARM Keil (paso a paso)"></figure>
+    <ul class="materiales"><li>Proyecto del display 7 segmentos (STM32F401 en el video)</li><li>STM32CubeMX</li><li>Keil µVision MDK-ARM</li><li>ST-Link (original o clon)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Keil</a><a href="#f2">2 · --gnu</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Pasar el proyecto a Keil</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Regenerar para MDK-ARM</h3><a class="min" href="https://youtu.be/Z7xqb0feb60?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>Abre el .ioc del proyecto en STM32CubeMX, en <b>Project Manager → Toolchain / IDE</b> elige <b>MDK-ARM</b> y GENERATE CODE. Se abre el proyecto en µVision.</p><p class="ojo">Si lo generas en la misma carpeta, el proyecto queda para el último IDE que generaste.</p><div class="dos"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Project Manager en CubeMX" loading="lazy"></a><figcaption>Project Manager en CubeMX</figcaption></figure><figure class="cap"><a href="img/105.webp" target="_blank"><img src="img/105.webp" alt="Proyecto abierto en Keil µVision" loading="lazy"></a><figcaption>Proyecto abierto en Keil µVision</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El código del display</h3><a class="min" href="https://youtu.be/Z7xqb0feb60?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Los segmentos están en un mismo puerto y se escriben de una vez en el registro ODR, en hexadecimal, decimal o binario:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADP_GPIO_Port-&gt;ODR = 0x39;        // hexadecimal
+HAL_Delay(600);
+ADP_GPIO_Port-&gt;ODR = 118;         // decimal
+HAL_Delay(600);
+ADP_GPIO_Port-&gt;ODR = 0b01101101;  // binario
+HAL_Delay(600);
+ADP_GPIO_Port-&gt;ODR = 0b01111111;
+HAL_Delay(600);</code></pre></div><div class="uno"><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="Clase 17: Display 7 segmentos básico en ARM Keil (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El error con 0b y su solución</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Activar --gnu</h3><a class="min" href="https://youtu.be/Z7xqb0feb60?t=120" target="_blank" rel="noopener">&#9654; 2:00</a></div><ul><li>Al compilar salen 2 errores en las líneas con <code>0b…</code>.</li><li>Clic derecho en el proyecto → <b>Options for Target</b> → pestaña <b>C/C++</b>.</li><li>En <b>Misc Controls</b> escribe <code>--gnu</code> y OK.</li></ul><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>--gnu</code></pre></div><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Clase 17: Display 7 segmentos básico en ARM Keil (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Compilar y cargar</h3><a class="min" href="https://youtu.be/Z7xqb0feb60?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>Vuelve a compilar (Rebuild): 0 errores. Ya puedes descargar el programa al micro con Download.</p><div class="uno"><figure class="cap"><a href="img/165.webp" target="_blank"><img src="img/165.webp" alt="Clase 17: Display 7 segmentos básico en ARM Keil (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Z7xqb0feb60" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Medimos ciclos con el contador DWT del depurador: HAL_GPIO_TogglePin tarda 46 ciclos, el XOR sobre ODR 11 y el registro BSRR (modo atómico) solo 4. Cómo poner en 1, en 0, invertir un bit y sacar un dato completo por un puerto sin tocar los demás pines.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/M_7bO_o8YBg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Medimos ciclos con el contador DWT del depurador: HAL_GPIO_TogglePin tarda 46 ciclos, el XOR sobre ODR 11 y el registro BSRR (modo atómico) solo 4. Cómo poner en 1, en 0, invertir un bit y sacar un dato completo por un puerto sin tocar los demás pines.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/M_7bO_o8YBg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/M_7bO_o8YBg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 18: Modo <span>atómico</span>, debugger y máscaras</h1>
+    <p class="lead">Aplicamos en la Blue Pill (puerto B como salida) las máscaras AND, OR y XOR que vimos en teoría, y medimos cuánto tarda cada forma con el contador de ciclos DWT (Data Watchpoint and Trace) de los Cortex-M3 en adelante, usando el debugger de STM32CubeIDE. Comparamos HAL, escribir en ODR y el acceso atómico con BSRR/BRR, que cambia solo el bit que interesa y no tiene problemas con interrupciones.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=M_7bO_o8YBg" target="_blank" rel="noopener">&#9654; Ver el video completo (25:22)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1390.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)"></figure>
+    <ul class="materiales"><li>Blue Pill (STM32F103C8T6)</li><li>ST-Link (original para depurar)</li><li>STM32CubeIDE</li><li>Proteus (opcional)</li><li>Manual de referencia RM0008 (registro GPIOx_BSRR)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · DWT</a><a href="#f3">3 · Máscaras</a><a href="#f4">4 · Atómico</a><a href="#f5">5 · Recetas</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar el proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Puerto B como salida</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>En CubeMX pon todo el puerto B como GPIO_Output (con etiquetas B5_..., B15_..., etc.) y SYS → Debug en Serial Wire. El reloj se dejó en 8 MHz para simular también en Proteus.</p><p class="ojo">PB2 existe en el micro pero la Blue Pill no lo saca a un pin (es BOOT1).</p><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Escribir todo el puerto</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=99" target="_blank" rel="noopener">&#9654; 1:39</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>GPIOB-&gt;ODR = 0x0f0f;   // 4 encendidos, 4 apagados...
+HAL_Delay(1000);</code></pre></div><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Medir ciclos con DWT</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Activar el contador de ciclos</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=199" target="_blank" rel="noopener">&#9654; 3:19</a></div><p>Los Cortex-M3 y superiores tienen el bloque de traza DWT con un contador de ciclos de reloj (CYCCNT). Se activa una vez en <b>USER CODE BEGIN 2</b>. Funciona aun en placas clon.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// ACTIVO EL CONTADOR PARA DEBUGGER
+CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+DWT-&gt;CTRL |= DWT_CTRL_CYCCNTENA_Msk;</code></pre></div><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Medir una instrucción</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=264" target="_blank" rel="noopener">&#9654; 4:24</a></div><ul><li>Antes de la instrucción: <code>DWT->CYCCNT = 0;</code></li><li>Pon un breakpoint (doble clic en el margen) después de ella.</li><li>Debug (bicho verde): en Debug Configurations escanea el ST-Link la primera vez.</li><li>En <b>Expressions</b> agrega <code>DWT->CYCCNT</code> y lee los ciclos.</li></ul><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>DWT-&gt;CYCCNT = 0;   // limpio el contador
+HAL_GPIO_TogglePin(B5_GPIO_Port, B5_Pin);   // 46 ciclos
+HAL_Delay(200);</code></pre></div><div class="dos"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Código con el contador" loading="lazy"></a><figcaption>Código con el contador</figcaption></figure><figure class="cap"><a href="img/365.webp" target="_blank"><img src="img/365.webp" alt="En Expressions: 46 ciclos" loading="lazy"></a><figcaption>En Expressions: 46 ciclos</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Pasar ciclos a tiempo</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=360" target="_blank" rel="noopener">&#9654; 6:00</a></div><p>Tiempo = ciclos / frecuencia. A 8 MHz, 46 ciclos son 5,75 µs solo para invertir un LED.</p><div class="uno"><figure class="cap"><a href="img/655.webp" target="_blank"><img src="img/655.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Formas de cambiar un bit</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Escribir ODR directo (afecta todo el puerto)</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=428" target="_blank" rel="noopener">&#9654; 7:08</a></div><p>Es rápido pero "egoísta": cambia todos los demás pines. En vez de <code>1&lt;&lt;5</code> se puede usar <code>B5_Pin</code> o <code>GPIO_PIN_5</code>, que ya traen el desplazamiento (están definidos en stm32f1xx_hal_gpio.h).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>GPIOB-&gt;ODR = 1&lt;&lt;5;   // 4 ciclos, pero borra los demás pines
+HAL_Delay(100);
+B5_GPIO_Port-&gt;ODR = 0;
+HAL_Delay(100);</code></pre></div><div class="dos"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/545.webp" target="_blank"><img src="img/545.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>XOR sobre ODR (sin afectar los demás)</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=563" target="_blank" rel="noopener">&#9654; 9:23</a></div><p>11 ciclos (1,4 µs): casi la quinta parte que con HAL. Sirve también para cualquier registro o variable.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>GPIOB-&gt;ODR = GPIOB-&gt;ODR ^ B5_Pin;   // 11 ciclos
+// o: GPIOB-&gt;ODR ^= (1&lt;&lt;5);
+HAL_Delay(200);</code></pre></div><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Modo atómico: BSRR y BRR</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>El registro BSRR</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=728" target="_blank" rel="noopener">&#9654; 12:08</a></div><p>Solo para puertos. <b>BSRR</b>: bits 0–15 (BS) ponen en 1; bits 16–31 (BR) ponen en 0. <b>BRR</b>: bits 0–15 ponen en 0. Escribir 0 no hace nada, así que solo cambia el pin indicado, en una sola instrucción y sin conflictos con interrupciones.</p><div class="uno"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Parpadeo atómico</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=827" target="_blank" rel="noopener">&#9654; 13:47</a></div><p>4 + 4 = 8 ciclos: 1 µs a 8 MHz. La forma más rápida de encender y apagar un pin.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>GPIOB-&gt;BSRR = B5_Pin;   // pone en 1 (4 ciclos)
+HAL_Delay(100);
+B5_GPIO_Port-&gt;BRR = B5_Pin;   // pone en 0 (4 ciclos)
+HAL_Delay(100);</code></pre></div><div class="dos"><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/890.webp" target="_blank"><img src="img/890.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Solo con BSRR</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=928" target="_blank" rel="noopener">&#9654; 15:28</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>GPIOB-&gt;BSRR = B5_Pin;          // pone en 1
+HAL_Delay(100);
+GPIOB-&gt;BSRR = B5_Pin &lt;&lt; 16;    // pone en 0
+// igual a: GPIOB-&gt;BSRR = 1 &lt;&lt; (5+16);
+HAL_Delay(100);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1040.webp" target="_blank"><img src="img/1040.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Recetas: 1, 0, invertir y dato completo</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Poner un bit en 1 (bit 15)</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=1027" target="_blank" rel="noopener">&#9654; 17:07</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>B15_GPIO_Port-&gt;BSRR = B15_Pin;   // atómico (solo puertos)
+GPIOB-&gt;ODR |= 1&lt;&lt;15;             // OR: sirve para registros y variables</code></pre></div><div class="uno"><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Poner un bit en 0 (bit 11)</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=1124" target="_blank" rel="noopener">&#9654; 18:44</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>B11_GPIO_Port-&gt;BRR = B11_Pin;    // atómico
+GPIOB-&gt;ODR &amp;= ~(1&lt;&lt;11);          // AND con el negado</code></pre></div><div class="uno"><figure class="cap"><a href="img/1140.webp" target="_blank"><img src="img/1140.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Invertir un bit (bit 14)</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=1223" target="_blank" rel="noopener">&#9654; 20:23</a></div><p>En Proteus se ven a la vez: PB5 y PB14 parpadeando, PB15 en 1 y PB11 en 0, sin interferirse.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>GPIOB-&gt;ODR ^= 1&lt;&lt;14;</code></pre></div><div class="dos"><figure class="cap"><a href="img/1200.webp" target="_blank"><img src="img/1200.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/1265.webp" target="_blank"><img src="img/1265.webp" alt="Clase 18: Modo atómico, debugger y máscaras de bits en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.4</span><h3>Sacar un dato completo en forma atómica</h3><a class="min" href="https://youtu.be/M_7bO_o8YBg?t=1321" target="_blank" rel="noopener">&#9654; 22:01</a></div><p>Con una sola escritura en BSRR: los unos del dato van a los bits de set y los ceros (dato negado) a los bits de reset (desplazado 16). Tarda 14 ciclos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>a = 0B1010101010101010;
+GPIOB-&gt;BSRR = a | (~a &lt;&lt; 16);   // 14 ciclos</code></pre></div><div class="dos"><figure class="cap"><a href="img/1390.webp" target="_blank"><img src="img/1390.webp" alt="Dato atómico con BSRR" loading="lazy"></a><figcaption>Dato atómico con BSRR</figcaption></figure><figure class="cap"><a href="img/1430.webp" target="_blank"><img src="img/1430.webp" alt="Resultado en Proteus" loading="lazy"></a><figcaption>Resultado en Proteus</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=M_7bO_o8YBg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
