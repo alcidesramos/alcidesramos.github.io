@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con una placa STM32G474 a 120 MHz (21 mA) se prueban los modos Sleep (≈9 mA), Stop (≈1.4 mA) y Standby, despertando el micro con un pulsador (EXTI) o automáticamente con el wake-up timer del RTC.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/aKhONgyseOc/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby) · Paso a paso">
+  <meta property="og:description" content="Con una placa STM32G474 a 120 MHz (21 mA) se prueban los modos Sleep (≈9 mA), Stop (≈1.4 mA) y Standby, despertando el micro con un pulsador (EXTI) o automáticamente con el wake-up timer del RTC.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/aKhONgyseOc/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/aKhONgyseOc/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Modos de <span>bajo consumo</span> en STM32: Sleep, Stop y Standby</h1>
+    <p class="lead">Se mide el consumo con un multímetro: el micro borrado consume unos 2 mA, con el programa básico 3 mA y a 120 MHz con HSE y PLL 21 mA. El programa alterna entre OPERANDO (6 s trabajando) y DURMIENDO. Para dormir se suspende el SysTick, se habilita SleepOnExit y se entra al modo deseado con WFI. El micro se despierta con un flanco en PC13 (EXTI) o con el wake-up timer del RTC (por ejemplo cada 5 s o cada 15 min). En modo Stop se apagan los osciladores, por eso al despertar hay que llamar a SystemClock_Config. En Standby el ahorro es máximo pero el micro se reinicia al despertar y es difícil reprogramarlo, por lo que en la práctica se prefiere el modo Stop.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=aKhONgyseOc" target="_blank" rel="noopener">&#9654; Ver el video completo (28:02)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1170.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)"></figure>
+    <ul class="materiales"><li>Placa con STM32G474 (sirve cualquier STM32, por ejemplo BlackPill)</li><li>Multímetro en escala de mA en serie con la alimentación</li><li>STM32CubeProgrammer</li><li>Pulsador en PC13</li><li>Terminal serial (Hercules) y librería uart del canal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Medir antes de optimizar</a><a href="#f2">2 · ≈9 mA, despierta por interrupción</a><a href="#f3">3 · Wake-up timer</a><a href="#f4">4 · ≈1.4 mA y reinicio al despertar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Consumo de partida</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Micro borrado y programa básico</h3><a class="min" href="https://youtu.be/aKhONgyseOc?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Con STM32CubeProgrammer se borra el micro y se mide: unos 2 mA. Con un programa vacío y el oscilador interno por defecto sube a unos 3 mA.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>A 120 MHz con HSE y PLL</h3><a class="min" href="https://youtu.be/aKhONgyseOc?t=137" target="_blank" rel="noopener">&#9654; 2:17</a></div><p>En el proyecto real se usa cristal externo (HSE), LSE para el RTC y PLL a 120 MHz. Así el consumo sube a unos 21 mA: a más MHz, más rápido pero más consumo, así que hay que buscar un equilibrio entre consumo y velocidad de procesamiento.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Programa de prueba</h3><a class="min" href="https://youtu.be/aKhONgyseOc?t=203" target="_blank" rel="noopener">&#9654; 3:23</a></div><p>Se habilita USART1 a 115200 para monitorear, se agrega la librería uart y se estructura el ciclo: INICIANDO al arrancar, DURMIENDO antes de dormir y OPERANDO durante 6 s de trabajo:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+
+while (1)
+{
+    // DORMIR
+    uartx_write_text(&amp;huart1, &quot;DURMIENDO\r\n&quot;);
+    /* ...entrar al modo de bajo consumo */
+
+    // OPERANDO
+    uartx_write_text(&amp;huart1, &quot;OPERANDO\r\n&quot;);
+    HAL_Delay(6000);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Modo Sleep</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Entrar en Sleep</h3><a class="min" href="https://youtu.be/aKhONgyseOc?t=408" target="_blank" rel="noopener">&#9654; 6:48</a></div><p>Se suspende el tick del sistema, se habilita salir con interrupciones y se entra con WFI (wait for interrupt). En Sleep los periféricos siguen activos y el regulador pasa a bajo consumo. La referencia completa de cada modo está en el comentario de la función en stm32g4xx_hal_pwr.c.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// DORMIR
+uartx_write_text(&amp;huart1, &quot;DURMIENDO\r\n&quot;);
+HAL_SuspendTick();               // suspende el contador de tick
+HAL_PWR_EnableSleepOnExit();     // habilita salir con interrupciones
+HAL_PWR_EnterSLEEPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);</code></pre></div><div class="dos"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Despertar con un pulsador (EXTI)</h3><a class="min" href="https://youtu.be/aKhONgyseOc?t=543" target="_blank" rel="noopener">&#9654; 9:03</a></div><p>Dormido consume unos 9 mA, pero hay que poder despertarlo. PC13 se configura como GPIO_EXTI13 con flanco de subida y pull-down, y en NVIC se habilita EXTI line[15:10]. En la interrupción se reactiva el tick y se deshabilita SleepOnExit:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void EXTI15_10_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI15_10_IRQn 0 */
+  HAL_ResumeTick();
+  HAL_PWR_DisableSleepOnExit();
+  /* USER CODE END EXTI15_10_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
+}</code></pre></div><p class="ojo">Después de programar conviene resetear la placa: a veces queda pegada en el modo de bajo consumo.</p><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure><figure class="cap"><a href="img/670.webp" target="_blank"><img src="img/670.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Despertar automático con el RTC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Configurar el RTC</h3><a class="min" href="https://youtu.be/aKhONgyseOc?t=744" target="_blank" rel="noopener">&#9654; 12:24</a></div><p>En Timers → RTC se activa el Clock Source y el calendario, y en WakeUp se elige Internal WakeUp. En NVIC se habilita la interrupción del wake-up. Con Wake Up Clock = RTCCLK/16 y LSE de 32 768 Hz cada cuenta dura ≈0.5 ms (útil para milisegundos); es más práctico elegir ck_spre (1 Hz) con 16 bits, que permite hasta ≈18 horas.</p><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure><figure class="cap"><a href="img/890.webp" target="_blank"><img src="img/890.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Programar el tiempo antes de dormir</h3><a class="min" href="https://youtu.be/aKhONgyseOc?t=913" target="_blank" rel="noopener">&#9654; 15:13</a></div><p>Antes de dormir se arma el temporizador con el número de segundos (5 s para la prueba, 900 para 15 min):</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// LEVANTATE AUTOMATICO CIERTO TIEMPO
+if (HAL_RTCEx_SetWakeUpTimer_IT(&amp;hrtc, 5, RTC_WAKEUPCLOCK_CK_SPRE_16BITS) != HAL_OK)
+{
+    Error_Handler();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Interrupción del RTC</h3><a class="min" href="https://youtu.be/aKhONgyseOc?t=946" target="_blank" rel="noopener">&#9654; 15:46</a></div><p>En RTC_WKUP_IRQHandler se hace lo mismo que con el pulsador y además se desactiva el temporizador para que no vuelva a dispararse mientras el micro opera:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void RTC_WKUP_IRQHandler(void)
+{
+  /* USER CODE BEGIN RTC_WKUP_IRQn 0 */
+  HAL_ResumeTick();
+  HAL_RTCEx_DeactivateWakeUpTimer(&amp;hrtc);
+  HAL_PWR_DisableSleepOnExit();
+  /* USER CODE END RTC_WKUP_IRQn 0 */
+  HAL_RTCEx_WakeUpTimerIRQHandler(&amp;hrtc);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Modos Stop y Standby</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Modo Stop</h3><a class="min" href="https://youtu.be/aKhONgyseOc?t=1081" target="_blank" rel="noopener">&#9654; 18:01</a></div><p>Se cambia la instrucción de Sleep por Stop. En este modo se apagan los osciladores (HSI/HSE/PLL), así que en ambas interrupciones de despertar hay que reconfigurar el reloj antes que nada. El consumo dormido baja a unos 1.4 mA.</p><p>Para un ahorro real se recomienda compilar en Release (como si fuera el producto final), ya que un micro que duerme no se puede depurar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// MODO STOP
+HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+
+/* en EXTI15_10_IRQHandler y RTC_WKUP_IRQHandler, primero: */
+SystemClock_Config();
+HAL_ResumeTick();</code></pre></div><div class="dos"><figure class="cap"><a href="img/1110.webp" target="_blank"><img src="img/1110.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure><figure class="cap"><a href="img/1170.webp" target="_blank"><img src="img/1170.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure><figure class="cap"><a href="img/1260.webp" target="_blank"><img src="img/1260.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Modo Standby</h3><a class="min" href="https://youtu.be/aKhONgyseOc?t=1287" target="_blank" rel="noopener">&#9654; 21:27</a></div><p>HAL_PWR_EnterSTANDBYMode() ahorra todavía más, pero al despertar el micro se reinicia (vuelve a INICIANDO, no a OPERANDO). Habría que guardar datos importantes en registros de respaldo. Además, en Standby el ST-Link no lo reconoce: hay que mantener el reset presionado o conectar desde STM32CubeProgrammer para reprogramarlo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// MODO STANDBY
+HAL_PWR_EnterSTANDBYMode();</code></pre></div><p class="ojo">Por la complejidad de Standby, el modo Stop suele ser el mejor equilibrio: baja de 21 mA a 1.4 mA y continúa el programa donde iba.</p><div class="dos"><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Clase 97 STM32: modos de bajo consumo (Sleep, Stop y Standby)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=aKhONgyseOc" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
