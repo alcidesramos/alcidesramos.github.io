@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 47: Librería para el sensor DHT11 y DHT22, humedad y temperatura · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leer temperatura y humedad del DHT11 por un solo cable: comprobar que el sensor responde, leer 40 bits con esperas protegidas por tiempo (waitforhigh / waitforlow) y enviar el resultado por la UART.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/PhBGB6bl7OI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 47: Librería para el sensor DHT11 y DHT22, humedad y temperatura · Paso a paso">
+  <meta property="og:description" content="Leer temperatura y humedad del DHT11 por un solo cable: comprobar que el sensor responde, leer 40 bits con esperas protegidas por tiempo (waitforhigh / waitforlow) y enviar el resultado por la UART.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/PhBGB6bl7OI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/PhBGB6bl7OI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Sensor <span>DHT11</span>: humedad y temperatura</h1>
+    <p class="lead">El DHT11 entrega temperatura y humedad por un solo pin, con resolución de 1 grado y solo una lectura por segundo. Se configura un pin con la etiqueta DHT11 y se usan las librerías del curso: puertos (cambia el pin entre entrada y salida y trae waitforhigh/waitforlow con límite de tiempo para no bloquearse si el sensor falla), delays (Delay_us con DWT) y DHT11_LIB. Se leen 40 bits: 16 de humedad, 16 de temperatura y 8 de checksum.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=PhBGB6bl7OI" target="_blank" rel="noopener">&#9654; Ver el video completo (10:03)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/540.webp" alt="Clase 47: Librería para el sensor DHT11 y DHT22, humedad y temperatura"></figure>
+    <ul class="materiales"><li>STM32F401 (o Blue Pill)</li><li>Sensor DHT11 (o DHT22) con resistencia pull-up de 4.7 kΩ</li><li>Librerías DHT11_LIB, puertos, delays y uart del curso</li><li>Proteus con terminal virtual</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pin y librerías</a><a href="#f2">2 · 40 bits</a><a href="#f3">3 · main.c</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito</h3><a class="min" href="https://youtu.be/PhBGB6bl7OI?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El pin DATA del DHT11 lleva una resistencia pull-up de 4.7 kΩ a VDD. Puede reemplazarse por el pull-up interno, pero no se recomienda cuando el micro trabaja a alta velocidad.</p><div class="uno"><figure class="cap"><a href="img/25.webp" target="_blank"><img src="img/25.webp" alt="DHT11 con pull-up en Proteus" loading="lazy"></a><figcaption>DHT11 con pull-up en Proteus</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pin DHT11 en CubeMX</h3><a class="min" href="https://youtu.be/PhBGB6bl7OI?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Configura la USART y un pin cualquiera (aquí PA0) como GPIO_Output con la etiqueta <code>DHT11</code>. La librería lo cambia a entrada cuando lo necesita.</p><div class="uno"><figure class="cap"><a href="img/45.webp" target="_blank"><img src="img/45.webp" alt="PA0 como salida y USART1" loading="lazy"></a><figcaption>PA0 como salida y USART1</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Copiar las librerías</h3><a class="min" href="https://youtu.be/PhBGB6bl7OI?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>Crea la carpeta Librerias, copia DHT11_LIB, puertos, delays y uart, y agrégala a los paths (clic derecho → Add to paths).</p><p>La librería de puertos trae dos funciones nuevas: <b>waitforhigh</b> espera a que el pin pase a alto y <b>waitforlow</b> a que pase a bajo, ambas con un tiempo máximo medido con el contador DWT. Así el programa no se queda bloqueado si el sensor está dañado o mal conectado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint8_t waitforlow(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, uint32_t tiem)
+{
+    DWT-&gt;CYCCNT = 0;   // resetea el contador
+    // espera respuesta del sensor por &#x27;tiem&#x27; µs
+    while (HAL_GPIO_ReadPin(GPIOx, GPIO_Pin))
+    {
+        if (DWT-&gt;CYCCNT &gt; pasos * tiem) return (0);   // se acabó el tiempo
+    }
+    return (1);
+}</code></pre></div><p class="ojo">Si no quieres poner la etiqueta en CubeMX, descomenta en DHT11_LIB.h las líneas #define DHT11_GPIO_Port y DHT11_Pin.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="waitforlow en puertos.c" loading="lazy"></a><figcaption>waitforlow en puertos.c</figcaption></figure><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="DHT11_LIB.h: pin y funciones" loading="lazy"></a><figcaption>DHT11_LIB.h: pin y funciones</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Cómo lee la librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables globales</h3><a class="min" href="https://youtu.be/PhBGB6bl7OI?t=263" target="_blank" rel="noopener">&#9654; 4:23</a></div><p>La librería declara las variables como <code>extern</code>, así que hay que crearlas en main.c sin esa palabra.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+#include &quot;DHT11_LIB.h&quot;   // ya incluye puertos y delays
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+
+char texto[100];
+unsigned int DHT11_TEMP;   // declarar en el main
+unsigned int DHT11_HUM;</code></pre></div><div class="dos"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Buffer de texto" loading="lazy"></a><figcaption>Buffer de texto</figcaption></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="DHT11_TEMP y DHT11_HUM en main.c" loading="lazy"></a><figcaption>DHT11_TEMP y DHT11_HUM en main.c</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Lectura de los 40 bits</h3><a class="min" href="https://youtu.be/PhBGB6bl7OI?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>DHT11_ok() envía la señal de inicio y comprueba que el sensor responde. DHT11_Read() pone el pin como entrada y por cada bit espera el flanco de subida, espera 40 µs y lee: si el pin sigue en alto el bit es 1.</p><p>Los bits 0-15 son humedad, 16-31 temperatura y 32-39 checksum. Al final se desplaza 8 veces para quedarse con la parte entera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void DHT11_Read()
+{
+    unsigned int i = 0, datar = 0;
+    DHT11_TEMP = 0; DHT11_HUM = 0; DHT11_CHKSM = 0;
+    Input_Pin(DHT11_GPIO_Port, DHT11_Pin);   // configura como entrada
+
+    for (i = 0; i &lt; 40; i++)
+    {
+        waitforhigh(DHT11_GPIO_Port, DHT11_Pin, 100);
+        delay_us(40);
+        if (HAL_GPIO_ReadPin(DHT11_GPIO_Port, DHT11_Pin) == 0) datar = 0;
+        else { datar = 1; waitforlow(DHT11_GPIO_Port, DHT11_Pin, 100); }
+        if (i &lt; 16)             { DHT11_HUM   |= datar; if (i &lt; 15) DHT11_HUM   &lt;&lt;= 1; }
+        if (i &gt;= 16 &amp;&amp; i &lt; 32)  { DHT11_TEMP  |= datar; if (i &lt; 31) DHT11_TEMP  &lt;&lt;= 1; }
+        if (i &gt;= 32 &amp;&amp; i &lt; 40)  { DHT11_CHKSM |= datar; if (i &lt; 39) DHT11_CHKSM &lt;&lt;= 1; }
+    }
+    DHT11_TEMP = DHT11_TEMP &gt;&gt; 8;   // parte entera
+    DHT11_HUM  = DHT11_HUM  &gt;&gt; 8;
+    HAL_Delay(1);
+}</code></pre></div><p class="ojo">En delays.h se elige qué retardo en µs se usa; aquí el de DWT, que hay que inicializar con delay_us_dwt_init().</p><div class="dos"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="DHT11_ok y comienzo de DHT11_Read" loading="lazy"></a><figcaption>DHT11_ok y comienzo de DHT11_Read</figcaption></figure><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Armado de humedad, temperatura y checksum" loading="lazy"></a><figcaption>Armado de humedad, temperatura y checksum</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Leer y enviar</h3><a class="min" href="https://youtu.be/PhBGB6bl7OI?t=397" target="_blank" rel="noopener">&#9654; 6:37</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>delay_us_dwt_init();
+
+while (1)
+{
+    if (DHT11_ok() == 1)
+    {
+        DHT11_Read();
+        sprintf(texto, &quot;Temp=%u   Hum=%u\r\n&quot;,
+                (unsigned int)DHT11_TEMP, (unsigned int)DHT11_HUM);
+        uartx_write_text(&amp;huart1, texto);
+    }
+    else uartx_write_text(&amp;huart1, &quot;DHTPbad\r\n&quot;);   // sensor no responde
+    HAL_Delay(1000);   // el DHT11 solo da un dato por segundo
+}</code></pre></div><p class="ojo">En el video el código venía de otro proyecto con huart2; aquí es huart1. Cómo leer el sensor cada segundo sin frenar el resto del programa se ve en la clase siguiente (uwTick).</p><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Bucle principal" loading="lazy"></a><figcaption>Bucle principal</figcaption></figure><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Lecturas en la terminal" loading="lazy"></a><figcaption>Lecturas en la terminal</figcaption></figure><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Temperatura y humedad cambiando" loading="lazy"></a><figcaption>Temperatura y humedad cambiando</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Sin resistencia externa</h3><a class="min" href="https://youtu.be/PhBGB6bl7OI?t=545" target="_blank" rel="noopener">&#9654; 9:05</a></div><p>Si quitas la resistencia aparece el mensaje de sensor malo. Para una prueba rápida puedes activar el pull-up interno en la función Input_Pin de la librería de puertos (opción GPIO_PULLUP en lugar de GPIO_NOPULL).</p><p class="ojo">Lo recomendable es dejar la resistencia externa para reducir el ruido.</p><div class="uno"><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Opción de pull-up en puertos.c" loading="lazy"></a><figcaption>Opción de pull-up en puertos.c</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=PhBGB6bl7OI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

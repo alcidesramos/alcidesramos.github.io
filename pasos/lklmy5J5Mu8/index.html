@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 48: Uso de uwTick en sensores de lectura lenta · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El DHT11 solo da un dato por segundo, pero la UART puede enviar mucho más rápido. Con uwTick (milisegundos desde el arranque) se lee el sensor cada 1000 ms sin frenar el envío cada 200 ms.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/lklmy5J5Mu8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 48: Uso de uwTick en sensores de lectura lenta · Paso a paso">
+  <meta property="og:description" content="El DHT11 solo da un dato por segundo, pero la UART puede enviar mucho más rápido. Con uwTick (milisegundos desde el arranque) se lee el sensor cada 1000 ms sin frenar el envío cada 200 ms.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/lklmy5J5Mu8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/lklmy5J5Mu8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1><span>uwTick</span>: leer lento, transmitir rápido</h1>
+    <p class="lead">Con HAL_Delay(1000) todo el programa queda atado a la velocidad del sensor más lento (DHT11, DS18B20). La HAL tiene la variable uwTick, que cuenta los milisegundos desde el arranque. Guardando su valor en una variable (milis) y comparando la diferencia, cada tarea se ejecuta con su propio periodo: el sensor cada segundo y la transmisión serial cada 200 ms (o 50 ms).</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=lklmy5J5Mu8" target="_blank" rel="noopener">&#9654; Ver el video completo (7:20)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/430.webp" alt="Clase 48: Uso de uwTick en sensores de lectura lenta"></figure>
+    <ul class="materiales"><li>Proyecto DHT11 de la clase 47</li><li>LED en PA3 (etiqueta led) con su resistencia</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Sensor lento</a><a href="#f2">2 · uwTick</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El problema</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>LED para ver el ritmo de lectura</h3><a class="min" href="https://youtu.be/lklmy5J5Mu8?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Configura PA3 como salida con la etiqueta <code>led</code> y agrégalo en Proteus. Se hace titilar con cada lectura del sensor.</p><p>Con el programa de la clase 47 el LED y la transmisión van al mismo ritmo, una vez por segundo: se pierde tiempo real en la comunicación.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="LED en el circuito del DHT11" loading="lazy"></a><figcaption>LED en el circuito del DHT11</figcaption></figure><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Programa con HAL_Delay(1000)" loading="lazy"></a><figcaption>Programa con HAL_Delay(1000)</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La solución</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables</h3><a class="min" href="https://youtu.be/lklmy5J5Mu8?t=145" target="_blank" rel="noopener">&#9654; 2:25</a></div><p>Crea dos variables de 32 bits: <code>milis</code> guarda el instante de la última lectura y <code>timepass</code> el tiempo que ha pasado desde entonces. Antes del while guarda el valor actual de uwTick.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint32_t milis;
+uint32_t timepass;
+
+/* USER CODE BEGIN 2 */
+delay_us_dwt_init();
+milis = uwTick;</code></pre></div><div class="uno"><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Clase 48: Uso de uwTick en sensores de lectura lenta" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Una tarea lenta y otra rápida</h3><a class="min" href="https://youtu.be/lklmy5J5Mu8?t=212" target="_blank" rel="noopener">&#9654; 3:32</a></div><p>En cada vuelta calcula cuánto ha pasado. Si ya pasaron 1000 ms lee el sensor y reinicia milis. La transmisión queda fuera del if y se hace cada 200 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    if (timepass &gt;= 1000)          // cada segundo: leer sensor
+    {
+        if (DHT11_ok() == 1)
+        {
+            DHT11_Read();
+            HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+        }
+        else uartx_write_text(&amp;huart1, &quot;DHTPbad\r\n&quot;);
+        milis = uwTick;            // reinicia la cuenta
+    }
+
+    timepass = uwTick - milis;     // ms desde la última lectura
+    sprintf(texto, &quot;Temp=%u   Hum=%u\r\n&quot;,
+            (unsigned int)DHT11_TEMP, (unsigned int)DHT11_HUM);
+    uartx_write_text(&amp;huart1, texto);   // transmisión rápida
+
+    HAL_Delay(200);
+}</code></pre></div><p class="ojo">En el video la variable se escribió primero como 'tipeass' y dio error de compilación: revisa que el nombre sea igual en la declaración y en el código.</p><div class="dos"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Variable timepass" loading="lazy"></a><figcaption>Variable timepass</figcaption></figure><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="if de 1000 ms" loading="lazy"></a><figcaption>if de 1000 ms</figcaption></figure><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Reinicio de milis" loading="lazy"></a><figcaption>Reinicio de milis</figcaption></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Cálculo de timepass" loading="lazy"></a><figcaption>Cálculo de timepass</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Resultado</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Cada tarea a su ritmo</h3><a class="min" href="https://youtu.be/lklmy5J5Mu8?t=346" target="_blank" rel="noopener">&#9654; 5:46</a></div><p>El LED titila una vez por segundo (lectura del sensor) mientras la terminal recibe datos cada 200 ms. Puedes bajar el retardo a 50 ms y el sensor sigue leyéndose bien.</p><p>Con más if y más variables puedes tener varias tareas con periodos distintos (100 ms, 500 ms...).</p><p class="ojo">Si transmites rápido leyendo el sensor también rápido, en la vida real el DHT11 dará errores. Respeta su tiempo mínimo entre lecturas.</p><div class="uno"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Programa final" loading="lazy"></a><figcaption>Programa final</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=lklmy5J5Mu8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
