@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 57: Librería para teclado matricial · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo se escanea un teclado 4x4 (filas como salidas, columnas como entradas), una librería que sirve con resistencias pull-up, pull-down o internas, y cómo decodificar la tecla al carácter impreso.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/4rMFj_xjB2M/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 57: Librería para teclado matricial · Paso a paso">
+  <meta property="og:description" content="Cómo se escanea un teclado 4x4 (filas como salidas, columnas como entradas), una librería que sirve con resistencias pull-up, pull-down o internas, y cómo decodificar la tecla al carácter impreso.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/4rMFj_xjB2M/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/4rMFj_xjB2M/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Librería para <span>teclado matricial</span></h1>
+    <p class="lead">Un teclado matricial une las teclas por filas y columnas. Se activa una fila a la vez y se leen las cuatro columnas: si una columna cambia, se sabe qué tecla se presionó (número del 1 al 16). La librería tiene t_tecla1 a t_tecla4 (una por fila), tecla_presionada (escanea todo con antirrebote) y tecla_deco (convierte el número en el carácter de tu teclado). Con un #define se elige si las resistencias de las columnas van a VDD o a tierra, y si no hay resistencias se usan las internas del micro.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=4rMFj_xjB2M" target="_blank" rel="noopener">&#9654; Ver el video completo (27:53)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1380.webp" alt="Clase 57: Librería para teclado matricial"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401 en Proteus</li><li>Teclado matricial 4x4 (KEYPAD)</li><li>LCD 16x2 o 20x4</li><li>LED indicador</li><li>Resistencias para las columnas (opcional)</li><li>Librerías Teclado, lcd y delays del curso</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Filas y columnas</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · Teclado.c</a><a href="#f4">4 · main.c</a><a href="#f5">5 · Pull-up, pull-down o internas</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Cómo funciona</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Escaneo por filas</h3><a class="min" href="https://youtu.be/4rMFj_xjB2M?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Las columnas son entradas con resistencia (a tierra o a VDD) y las filas son salidas. Se pone un nivel activo en la fila 1 y se leen las columnas 1 a 4: la que cambió indica la tecla 1, 2, 3 o 4. Luego la fila 2 (teclas 5 a 8), y así hasta la 16.</p><p>Ese número del 1 al 16 luego se traduce al carácter que tenga tu teclado.</p><div class="dos"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Teclado 4x4: columnas y filas" loading="lazy"></a><figcaption>Teclado 4x4: columnas y filas</figcaption></figure><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Activando la fila 1" loading="lazy"></a><figcaption>Activando la fila 1</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pines</h3><a class="min" href="https://youtu.be/4rMFj_xjB2M?t=234" target="_blank" rel="noopener">&#9654; 3:54</a></div><p>Proyecto para el STM32F401CCU6 a 16 MHz (simulación). Pines del LCD como salida (LCD_RS, LCD_EN, LCD_D4 a LCD_D7), un LED y estas etiquetas para el teclado:</p><ul><li>Columnas, entradas: <code>TC1</code> a <code>TC4</code> (PB12 a PB15)</li><li>Filas, salidas: <code>TF1</code> a <code>TF4</code> (PA10 a PA13)</li></ul><p class="ojo">Los nombres deben ser iguales a los que usa la librería. Puedes usar cualquier pin.</p><div class="dos"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Pines del LCD" loading="lazy"></a><figcaption>Pines del LCD</figcaption></figure><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Asignando las filas" loading="lazy"></a><figcaption>Asignando las filas</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Librerías y variables</h3><a class="min" href="https://youtu.be/4rMFj_xjB2M?t=445" target="_blank" rel="noopener">&#9654; 7:25</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;lcd.h&quot;
+#include &quot;Teclado.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+#include &quot;stdint.h&quot;
+
+uint8_t tecla;
+char texto[30];</code></pre></div><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Variables" loading="lazy"></a><figcaption>Variables</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>La librería</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Tipo de resistencia (Teclado.h)</h3><a class="min" href="https://youtu.be/4rMFj_xjB2M?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p><code>res</code> indica a dónde van las resistencias de las columnas: 1 si van a VDD (pull-up), 0 si van a tierra (pull-down). Las columnas se leen con macros.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// define si las resistencias de las columnas son pull-up o pull-down
+#define res 1      // 0 = TIERRA   1 = VDD
+
+// lectura de las columnas
+#define te_c1 HAL_GPIO_ReadPin(TC1_GPIO_Port, TC1_Pin)
+#define te_c2 HAL_GPIO_ReadPin(TC2_GPIO_Port, TC2_Pin)
+#define te_c3 HAL_GPIO_ReadPin(TC3_GPIO_Port, TC3_Pin)
+#define te_c4 HAL_GPIO_ReadPin(TC4_GPIO_Port, TC4_Pin)
+
+uint8_t tecla_presionada(void);   // retorna el número de la tecla (1 a 16)
+uint8_t tecla_deco(void);         // decodifica la tecla leída</code></pre></div><div class="uno"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Teclado.h" loading="lazy"></a><figcaption>Teclado.h</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Escanear una fila</h3><a class="min" href="https://youtu.be/4rMFj_xjB2M?t=691" target="_blank" rel="noopener">&#9654; 11:31</a></div><p>Se activa solo la fila con el nivel contrario a la resistencia (!res_) y se revisan las cuatro columnas. Las otras tres funciones son iguales, con las teclas 5-8, 9-12 y 13-16.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;Teclado.h&quot;
+#include &quot;stdbool.h&quot;
+
+bool res_ = res;
+
+uint8_t t_tecla1(void)
+{
+    HAL_GPIO_WritePin(TF1_GPIO_Port, TF1_Pin, !res_);   // activa solo la fila 1
+    HAL_GPIO_WritePin(TF2_GPIO_Port, TF2_Pin, res_);
+    HAL_GPIO_WritePin(TF3_GPIO_Port, TF3_Pin, res_);
+    HAL_GPIO_WritePin(TF4_GPIO_Port, TF4_Pin, res_);
+
+    if      (te_c1 == !res_) return (1);
+    else if (te_c2 == !res_) return (2);
+    else if (te_c3 == !res_) return (3);
+    else if (te_c4 == !res_) return (4);   // comentar si es 3x4
+    else return (0);
+}</code></pre></div><p class="ojo">Si tu teclado es de 3x4, comenta la línea de la columna 4 en cada función.</p><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="t_tecla1" loading="lazy"></a><figcaption>t_tecla1</figcaption></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="t_tecla3: teclas 9 a 12" loading="lazy"></a><figcaption>t_tecla3: teclas 9 a 12</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Escanear todo el teclado</h3><a class="min" href="https://youtu.be/4rMFj_xjB2M?t=789" target="_blank" rel="noopener">&#9654; 13:09</a></div><p>tecla_presionada llama a las cuatro filas con 5 ms entre ellas (antirrebote). Devuelve en cuanto encuentra una tecla, o 0 si no hay ninguna.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint8_t tecla_presionada(void)
+{
+    uint8_t te;
+    HAL_Delay(5);
+    te = t_tecla1();  if (te != 0) return (te);
+    HAL_Delay(5);
+    te = t_tecla2();  if (te != 0) return (te);
+    HAL_Delay(5);
+    te = t_tecla3();  if (te != 0) return (te);
+    HAL_Delay(5);
+    te = t_tecla4();
+    return (te);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 57: Librería para teclado matricial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Decodificar al carácter</h3><a class="min" href="https://youtu.be/4rMFj_xjB2M?t=1127" target="_blank" rel="noopener">&#9654; 18:47</a></div><p>Cada teclado numera distinto. Con un switch se asigna a cada número el carácter impreso en tu teclado (este es el KEYPAD de Proteus).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint8_t tecla_deco(void)
+{
+    switch (tecla_presionada())
+    {
+        case 1:  return &#x27;7&#x27;;  case 2:  return &#x27;8&#x27;;  case 3:  return &#x27;9&#x27;;  case 4:  return &#x27;/&#x27;;
+        case 5:  return &#x27;4&#x27;;  case 6:  return &#x27;5&#x27;;  case 7:  return &#x27;6&#x27;;  case 8:  return &#x27;*&#x27;;
+        case 9:  return &#x27;1&#x27;;  case 10: return &#x27;2&#x27;;  case 11: return &#x27;3&#x27;;  case 12: return &#x27;-&#x27;;
+        case 13: return &#x27;C&#x27;;  case 14: return &#x27;0&#x27;;  case 15: return &#x27;=&#x27;;  case 16: return &#x27;+&#x27;;
+        default: return 0;
+    }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1130.webp" target="_blank"><img src="img/1130.webp" alt="tecla_deco" loading="lazy"></a><figcaption>tecla_deco</figcaption></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Probar el número de tecla</h3><a class="min" href="https://youtu.be/4rMFj_xjB2M?t=859" target="_blank" rel="noopener">&#9654; 14:19</a></div><p>Primero muestra el número crudo para comprobar el escaneo: aparece del 1 al 16 según la posición.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Init();
+Lcd_Cmd(_LCD_CLEAR);
+Lcd_Cmd(_LCD_CURSOR_OFF);
+Lcd_Text(1, 1, &quot;     TECLADO&quot;);
+
+while (1)
+{
+    tecla = tecla_presionada();
+    sprintf(texto, &quot;Tecla=%02u&quot;, tecla);
+    Lcd_Text(2, 1, texto);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="tecla_presionada en el bucle" loading="lazy"></a><figcaption>tecla_presionada en el bucle</figcaption></figure><figure class="cap"><a href="img/1070.webp" target="_blank"><img src="img/1070.webp" alt="Número de la tecla en el LCD" loading="lazy"></a><figcaption>Número de la tecla en el LCD</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Mostrar el carácter y avisar con el LED</h3><a class="min" href="https://youtu.be/4rMFj_xjB2M?t=1160" target="_blank" rel="noopener">&#9654; 19:20</a></div><p>Con tecla_deco ya tienes el carácter. Escribe 'Tecla=' una sola vez fuera del bucle y solo actualiza cuando la tecla no es 0; así el último carácter queda en pantalla. El LED parpadea 100 ms en cada pulsación (podría ser un buzzer).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Text(2, 1, &quot;Tecla=&quot;);
+
+while (1)
+{
+    tecla = tecla_deco();
+    if (tecla != 0)
+    {
+        Lcd_Chr(2, 7, tecla);
+        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, 1);
+        HAL_Delay(100);
+        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, 0);
+    }
+}</code></pre></div><p class="ojo">El 0 no es el carácter '0' (que vale 48): es el fin de cadena. Por eso, si no hay tecla, no se escribe nada.</p><div class="dos"><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="tecla_deco" loading="lazy"></a><figcaption>tecla_deco</figcaption></figure><figure class="cap"><a href="img/1220.webp" target="_blank"><img src="img/1220.webp" alt="Carácter en el LCD" loading="lazy"></a><figcaption>Carácter en el LCD</figcaption></figure><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="LED de aviso" loading="lazy"></a><figcaption>LED de aviso</figcaption></figure><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="Teclado funcionando" loading="lazy"></a><figcaption>Teclado funcionando</figcaption></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Resistencias</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Cambiar el tipo de resistencia</h3><a class="min" href="https://youtu.be/4rMFj_xjB2M?t=1467" target="_blank" rel="noopener">&#9654; 24:27</a></div><p>Si tu módulo trae las resistencias a tierra, cambia en Teclado.h <code>#define res 0</code> y vuelve a compilar. La librería funciona igual.</p></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Sin resistencias externas</h3><a class="min" href="https://youtu.be/4rMFj_xjB2M?t=1536" target="_blank" rel="noopener">&#9654; 25:36</a></div><p>Sin resistencias las entradas quedan flotando y el teclado se vuelve loco. En System Core → GPIO pon las columnas TC1 a TC4 con <b>Pull-down</b> (si res es 0) o <b>Pull-up</b> (si res es 1): el micro pone la resistencia interna.</p><div class="dos"><figure class="cap"><a href="img/1520.webp" target="_blank"><img src="img/1520.webp" alt="Teclado sin resistencias" loading="lazy"></a><figcaption>Teclado sin resistencias</figcaption></figure><figure class="cap"><a href="img/1580.webp" target="_blank"><img src="img/1580.webp" alt="Pull-down interno en las columnas" loading="lazy"></a><figcaption>Pull-down interno en las columnas</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=4rMFj_xjB2M" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

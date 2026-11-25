@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 56: ADC Black Pill con DMA · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Lo mismo de la clase 55 en el STM32F401 (Cortex-M4) con cuatro canales. Proteus no simula este DMA (da ceros), así que se prueba en la placa real con cuatro potenciómetros.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/6SVWePDSimA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 56: ADC Black Pill con DMA · Paso a paso">
+  <meta property="og:description" content="Lo mismo de la clase 55 en el STM32F401 (Cortex-M4) con cuatro canales. Proteus no simula este DMA (da ceros), así que se prueba en la placa real con cuatro potenciómetros.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/6SVWePDSimA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/6SVWePDSimA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>ADC con <span>DMA</span> en la Black Pill</h1>
+    <p class="lead">Para usar DMA con el ADC basta con: canales en modo scan con su Rank, DMA circular de periférico a memoria en media palabra, un buffer de 16 bits y HAL_ADC_Start_DMA. En la Black Pill se leen cuatro canales (IN0, IN1, IN3 e IN4). La simulación en Proteus devuelve ceros porque no simula el DMA del Cortex-M4, así que se monta en protoboard y se ven los voltajes por un adaptador USB-serial.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=6SVWePDSimA" target="_blank" rel="noopener">&#9654; Ver el video completo (11:56)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/670.webp" alt="Clase 56: ADC Black Pill con DMA"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401CC</li><li>Cuatro potenciómetros en protoboard</li><li>Adaptador USB-serial</li><li>Programador ST-LINK</li><li>Librerías delays y uart del curso</li><li>Terminal serie (Hercules)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · 4 canales y DMA</a><a href="#f2">2 · main.c</a><a href="#f3">3 · Placa real</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Montaje</h3><a class="min" href="https://youtu.be/6SVWePDSimA?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Cuatro potenciómetros a las entradas analógicas de la Black Pill y un adaptador USB-serial en la USART1.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Black Pill con cuatro potenciómetros" loading="lazy"></a><figcaption>Black Pill con cuatro potenciómetros</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Canales y Rank</h3><a class="min" href="https://youtu.be/6SVWePDSimA?t=136" target="_blank" rel="noopener">&#9654; 2:16</a></div><p>Proyecto nuevo para el STM32F401CCU6. USART1 asíncrona a 9600. En ADC1 activa IN0, IN1, IN3 e IN4, pon <b>Number of Conversion</b> en 4 y asigna Rank 1 al canal 0, Rank 2 al 1, Rank 3 al 3 y Rank 4 al 4.</p><div class="dos"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Cuatro entradas activas" loading="lazy"></a><figcaption>Cuatro entradas activas</figcaption></figure><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Asignar el canal de cada Rank" loading="lazy"></a><figcaption>Asignar el canal de cada Rank</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>DMA circular</h3><a class="min" href="https://youtu.be/6SVWePDSimA?t=204" target="_blank" rel="noopener">&#9654; 3:24</a></div><p>En DMA Settings agrega ADC1: Peripheral To Memory, modo <b>Circular</b>, ancho <b>Half Word</b>. No hace falta nada más.</p><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="DMA2 Stream 0 para el ADC1" loading="lazy"></a><figcaption>DMA2 Stream 0 para el ADC1</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables</h3><a class="min" href="https://youtu.be/6SVWePDSimA?t=308" target="_blank" rel="noopener">&#9654; 5:08</a></div><p>Copia las librerías delays y uart y agrégalas al path. El buffer debe tener al menos tantas posiciones como conversiones.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float voltaje1, voltaje2, voltaje3, voltaje4;
+char texto[50];
+
+// DMA ADC
+uint16_t adc_buf[4];</code></pre></div><div class="uno"><figure class="cap"><a href="img/350.webp" target="_blank"><img src="img/350.webp" alt="Variables y buffer del DMA" loading="lazy"></a><figcaption>Variables y buffer del DMA</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Leer los cuatro canales</h3><a class="min" href="https://youtu.be/6SVWePDSimA?t=448" target="_blank" rel="noopener">&#9654; 7:28</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+
+while (1)
+{
+    HAL_ADC_Start_DMA(&amp;hadc1, (uint32_t *)adc_buf, 4);   // inicia la conversión
+    HAL_Delay(10);
+
+    voltaje1 = adc_buf[0] * 3.3 / 4095.0;
+    voltaje2 = adc_buf[1] * 3.3 / 4095.0;
+    voltaje3 = adc_buf[2] * 3.3 / 4095.0;
+    voltaje4 = adc_buf[3] * 3.3 / 4095.0;
+
+    sprintf(texto, &quot;V1=%.1f   V2=%.1f   V3=%.1f   V4=%.2f\r\n\r\n&quot;,
+            voltaje1, voltaje2, voltaje3, voltaje4);
+    uartx_write_text(&amp;huart1, texto);
+    HAL_Delay(500);
+}</code></pre></div><p class="ojo">Cambia el último parámetro de HAL_ADC_Start_DMA a 4 (número de conversiones). Si lo dejas en 3, el cuarto canal no se actualiza.</p><div class="dos"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Inicio tomado de la clase 55" loading="lazy"></a><figcaption>Inicio tomado de la clase 55</figcaption></figure><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Lectura con DMA" loading="lazy"></a><figcaption>Lectura con DMA</figcaption></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Cambiar a 4 datos" loading="lazy"></a><figcaption>Cambiar a 4 datos</figcaption></figure><figure class="cap"><a href="img/565.webp" target="_blank"><img src="img/565.webp" alt="Cuatro voltajes" loading="lazy"></a><figcaption>Cuatro voltajes</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Proteus no lo simula</h3><a class="min" href="https://youtu.be/6SVWePDSimA?t=550" target="_blank" rel="noopener">&#9654; 9:10</a></div><p>En Proteus todos los valores salen en 0: no simula el DMA del Cortex-M4. Hay que saber cuándo confiar en la simulación y cuándo montar el circuito.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>En la protoboard</h3><a class="min" href="https://youtu.be/6SVWePDSimA?t=583" target="_blank" rel="noopener">&#9654; 9:43</a></div><p>Programa con el ST-LINK desde CubeIDE (Debug configuration), abre en Hercules el COM del adaptador a 9600 y mueve los potenciómetros: cada voltaje cambia entre 0 y 3.3 V.</p><p class="ojo">Más adelante, con interrupciones, el DMA permite adquirir señales a alta velocidad y enviarlas por el puerto serie.</p><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Configuración de depuración" loading="lazy"></a><figcaption>Configuración de depuración</figcaption></figure><figure class="cap"><a href="img/630.webp" target="_blank"><img src="img/630.webp" alt="Primeros valores" loading="lazy"></a><figcaption>Primeros valores</figcaption></figure><figure class="cap"><a href="img/670.webp" target="_blank"><img src="img/670.webp" alt="Moviendo los potenciómetros" loading="lazy"></a><figcaption>Moviendo los potenciómetros</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=6SVWePDSimA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
