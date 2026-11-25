@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 109 STM32: leyendo presión con el sensor HX710 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Librería para el amplificador HX710 de 24 bits con el sensor MPS20N0040D: lectura promediada, tara y calibración con botones.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/n8xlfLVfal4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 109 STM32: leyendo presión con el sensor HX710 · Paso a paso">
+  <meta property="og:description" content="Librería para el amplificador HX710 de 24 bits con el sensor MPS20N0040D: lectura promediada, tara y calibración con botones.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/n8xlfLVfal4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/n8xlfLVfal4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Presión con el sensor <span>HX710</span></h1>
+    <p class="lead">El HX710 es un ADC de 24 bits que acompaña al sensor de presión MPS20N0040D (hasta 40 kPa). Se lee con dos pines cualquiera: reloj (salida) y datos (entrada). La librería HX710.c/.h, adaptada de la del HX711, promedia lecturas a 10 o 40 Hz, convierte a presión con un offset y un factor de calibración, y permite tarar y calibrar con dos pulsadores. Se prueba aplicando presión con una jeringa.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=n8xlfLVfal4" target="_blank" rel="noopener">&#9654; Ver el video completo (20:31)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1205.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710"></figure>
+    <ul class="materiales"><li>STM32F401/F411 (Black Pill)</li><li>Módulo HX710 con sensor de presión MPS20N0040D</li><li>Dos pulsadores (tarar y calibrar) y el LED de la tarjeta</li><li>Conversor USB-serial y Hercules</li><li>Jeringa o fuente de presión conocida (idealmente un manómetro de referencia)</li><li>Librerías HX710.c/.h, pinout, delays y uart</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · HX710 + MPS20N0040D</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · HX710.c/.h</a><a href="#f4">4 · Offset y factor</a><a href="#f5">5 · while</a><a href="#f6">6 · Automático</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El sensor</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué es el HX710</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El HX710 no es el sensor: es un amplificador con ADC de 24 bits para señales de pocos milivoltios, como una celda de carga. En este módulo viene con el MPS20N0040D, que mide hasta unos 40 kPa (5,8 psi). Sirve para presión de agua o aire, nivel de agua o presión sanguínea.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar el micro</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=109" target="_blank" rel="noopener">&#9654; 1:49</a></div><p>Crea el proyecto hx710_canal (STM32F401) y activa el cristal externo con el PLL a máxima velocidad.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Pines</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=144" target="_blank" rel="noopener">&#9654; 2:24</a></div><p>PA0 entrada SW1_TARAR (botón de la tarjeta), PA3 entrada SW1_CAL, PA1 salida HX710_CK (reloj), PA2 entrada HX710_DAT (datos) y PC13 salida led. Puedes usar cualquier pin, pero respeta los nombres que usa la librería. Activa USART1 asíncrono a 9600.</p><div class="dos"><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Pull-up en las entradas</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=1058" target="_blank" rel="noopener">&#9654; 17:38</a></div><p>En System Core > GPIO configura con Pull-up todas las entradas: SW1_TARAR, SW1_CAL y HX710_DAT. Solo la salida de reloj queda sin tocar.</p><p class="ojo">En el video los botones no respondían hasta que se activaron las resistencias pull-up.</p><div class="uno"><figure class="cap"><a href="img/1075.webp" target="_blank"><img src="img/1075.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>La librería</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Incluir</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=319" target="_blank" rel="noopener">&#9654; 5:19</a></div><p>Copia la carpeta de librerías (HX710, pinout, delays, puertos y uart) y agrégala al include path. Incluye en main.c y activa Use float with printf.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+#include &quot;HX710.h&quot;
+#include &quot;pinout1.h&quot;
+
+#include &quot;stdlib.h&quot;
+#include &quot;stdint.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Valores de calibración en HX710.c</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=389" target="_blank" rel="noopener">&#9654; 6:29</a></div><p>Las variables ya están declaradas como externas en el .h; sus valores se dan en el .c. offset_manualhx es la lectura sin presión y calibrahx la lectura con la presión de prueba menos el offset. prueba_hx es la presión conocida que aplicas (en el video se supone 30 kPa).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const float offset_manualhx = 6941123;               //offset, valor leido a 0
+const float calibrahx = 8388607 - offset_manualhx;  //valor a la calibracion menos el offset
+
+//IMPORTANTE ESTE VALOR presion conocida
+const float prueba_hx = 30.0;  //presion de prueba para calibracion
+
+float factor_hx = prueba_hx / calibrahx;  //factor de multiplicativo a lectura
+
+int32_t offset_hx = offset_manualhx;  //carga el offset manual al offset
+int32_t celda_hx = 0;
+float presion_hx, cal_hx;</code></pre></div><div class="dos"><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Retardos</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=818" target="_blank" rel="noopener">&#9654; 13:38</a></div><p>En HX710.h delay_promedio fija cada cuánto se toma una muestra al promediar: 150 ms sirve para 10 Hz; para 40 Hz se puede bajar. Más muestras dan más precisión pero una lectura más lenta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define delay_promedio 150  //retardo en ms para promedio
+#define delay_pulso 1       //retardo pulsos, en microsegundos</code></pre></div><div class="uno"><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Calibración manual</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Inicializar y tarar</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=493" target="_blank" rel="noopener">&#9654; 8:13</a></div><p>Antes del while inicializa el sensor y tara con 50 lecturas a 10 Hz. Imprimir el offset sirve para copiarlo en offset_manualhx.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, &quot;Iniciando\r\n&quot;);
+HX710_init();          //inicia LA CELDA
+HX710_tarar(50, 10);   //Tara el sistema: numero de datos, frecuencia
+
+//si desea manda el offset inicial
+sprintf(texto, &quot;Tarado offset=%.1lu\r\n&quot;, offset_hx);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Tomar los dos valores</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=650" target="_blank" rel="noopener">&#9654; 10:50</a></div><p>Corre el programa sin presión y copia el offset en offset_manualhx. Luego aplica la presión conocida, resetea el micro manteniéndola y copia el valor que salga para calcular calibrahx. Después puedes comentar el envío del offset.</p><div class="uno"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Leer la presión</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Promediar y convertir</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=784" target="_blank" rel="noopener">&#9654; 13:04</a></div><p>HX710_promedio(muestras, frecuencia) admite 10 o 40 Hz. Se resta el offset, se multiplica por el factor y se recortan los negativos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    presion_hx = HX710_promedio(10, 10) - offset_hx;  //10 muestras a 10Hz
+    presion_hx = presion_hx * factor_hx;
+    if (presion_hx &lt;= 0) presion_hx = 0;
+    sprintf(texto, &quot;Pres=%.1f\r\n&quot;, presion_hx);
+    uartx_write_text(&amp;huart1, texto);
+}</code></pre></div><p class="ojo">Si solo sale Pres= sin número, falta activar Use float with printf en Properties > C/C++ Build > Settings > MCU Settings.</p><div class="dos"><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure><figure class="cap"><a href="img/935.webp" target="_blank"><img src="img/935.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Probar con la jeringa</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=953" target="_blank" rel="noopener">&#9654; 15:53</a></div><p>Sin presión marca 0 y al empujar la jeringa sube a 15, 20 o 30 según la presión. No hace falta un retardo: el promedio de 10 muestras ya lo implica.</p><div class="uno"><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f6"><div class="contenedor"><span class="etiqueta">Fase 6</span><h2>Tara y calibración con botones</h2><article class="paso"><div class="paso-cab"><span class="num">6.1</span><h3>Código de los botones</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=991" target="_blank" rel="noopener">&#9654; 16:31</a></div><p>Con SW1_TARAR presionado el sistema busca su cero. Con SW1_CAL presionado, mientras se aplica la presión conocida, toma 50 muestras y recalcula el factor para que esa lectura valga prueba_hx.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (PIN_READ(SW1_TARAR) == 0)
+{
+    HAL_GPIO_WritePin(led_GPIO_Port, led_Pin, 0);
+    uartx_write_text(&amp;huart1, &quot;TARANDO\r\n&quot;);
+    HAL_Delay(300);
+    HX710_tarar(50, 10);
+    //OPCIONAL PARA SABER EL DATO DEL TARADO
+    sprintf(texto, &quot;Tarado offset=%.1lu\r\n&quot;, offset_hx);
+    uartx_write_text(&amp;huart1, texto);
+}
+
+if (PIN_READ(SW1_CAL) == 0)
+{
+    HAL_GPIO_WritePin(led_GPIO_Port, led_Pin, 0);
+    uartx_write_text(&amp;huart1, &quot;CALIBRANDO\r\n&quot;);
+    HAL_Delay(2000);
+    cal_hx = HX710_promedio(50, 10) - offset_hx;  //promedia 50 datos a 10Hz
+    factor_hx = prueba_hx / cal_hx;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure><figure class="cap"><a href="img/1010.webp" target="_blank"><img src="img/1010.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.2</span><h3>Tarar</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=1130" target="_blank" rel="noopener">&#9654; 18:50</a></div><p>Mantén presionado el botón de la tarjeta hasta que aparezca TARANDO: el sistema vuelve a cero. El offset que imprime también sirve para la calibración manual.</p><div class="uno"><figure class="cap"><a href="img/1140.webp" target="_blank"><img src="img/1140.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.3</span><h3>Calibrar</h3><a class="min" href="https://youtu.be/n8xlfLVfal4?t=1164" target="_blank" rel="noopener">&#9654; 19:24</a></div><p>Aplica la presión conocida, mantén el botón de calibrar hasta que salga CALIBRANDO y espera a que vuelvan los datos: esa presión queda en 30. Al soltar la jeringa vuelve a 0.</p><div class="dos"><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure><figure class="cap"><a href="img/1205.webp" target="_blank"><img src="img/1205.webp" alt="Clase 109 STM32: leyendo presión con el sensor HX710" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=n8xlfLVfal4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
