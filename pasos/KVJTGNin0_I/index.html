@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 15: Optimizar la RAM en micros STM32 de poca memoria (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="En un STM32L010F4 de solo 2 KB de RAM, CubeMX reserva 1,5 KB para Heap y Stack. Bajándolos en Project Manager (Heap 0x0, Stack 0x40) la RAM usada pasa de 1500 a 112 bytes.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/KVJTGNin0_I/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 15: Optimizar la RAM en micros STM32 de poca memoria (paso a paso) · Paso a paso">
+  <meta property="og:description" content="En un STM32L010F4 de solo 2 KB de RAM, CubeMX reserva 1,5 KB para Heap y Stack. Bajándolos en Project Manager (Heap 0x0, Stack 0x40) la RAM usada pasa de 1500 a 112 bytes.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/KVJTGNin0_I/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/KVJTGNin0_I/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 15: Ahorrar <span>RAM</span> con Heap y Stack</h1>
+    <p class="lead">Con micros grandes no nos fijamos en la RAM, pero en uno pequeño como el STM32L010F4 (Cortex-M0+, 16 KB de Flash, 128 B de EEPROM y solo 2 KB de RAM) importa mucho. Por defecto STM32CubeMX reserva Minimum Heap Size = 0x200 (512 B) y Minimum Stack Size = 0x400 (1 KB): 1,5 KB usados sin escribir una línea. Si no usamos memoria dinámica (malloc/free) el Heap puede ir en 0x0; el Stack se puede reducir, pero con cuidado porque depende de cuántas funciones se llaman unas a otras.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=KVJTGNin0_I" target="_blank" rel="noopener">&#9654; Ver el video completo (5:57)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/235.webp" alt="Clase 15: Optimizar la RAM en micros STM32 de poca memoria (paso a paso)"></figure>
+    <ul class="materiales"><li>Micro STM32 con poca RAM (en el video STM32L010F4P6)</li><li>STM32CubeMX y STM32CubeIDE</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Problema</a><a href="#f2">2 · Optimizar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El problema</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Un micro con 2 KB de RAM</h3><a class="min" href="https://youtu.be/KVJTGNin0_I?t=15" target="_blank" rel="noopener">&#9654; 0:15</a></div><p>El STM32L010F4P6 es un Cortex-M0+ de bajo costo: 16 KB de Flash, 128 bytes de EEPROM y <b>2 KB de RAM</b>.</p><div class="uno"><figure class="cap"><a href="img/15.webp" target="_blank"><img src="img/15.webp" alt="Clase 15: Optimizar la RAM en micros STM32 de poca memoria (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Los valores por defecto</h3><a class="min" href="https://youtu.be/KVJTGNin0_I?t=80" target="_blank" rel="noopener">&#9654; 1:20</a></div><p>En <b>Project Manager → Linker Settings</b> CubeMX pone <b>Minimum Heap Size = 0x200</b> (512 B, memoria dinámica) y <b>Minimum Stack Size = 0x400</b> (1 KB, la pila para llamadas a funciones).</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Clase 15: Optimizar la RAM en micros STM32 de poca memoria (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Proyecto vacío y ya sin RAM</h3><a class="min" href="https://youtu.be/KVJTGNin0_I?t=120" target="_blank" rel="noopener">&#9654; 2:00</a></div><p>Generamos el código sin agregar nada y compilamos. El <b>Build Analyzer</b> muestra 1,5 KB de RAM usados y solo 464 bytes libres.</p><div class="uno"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Clase 15: Optimizar la RAM en micros STM32 de poca memoria (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Reducir Heap y Stack</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Heap en cero</h3><a class="min" href="https://youtu.be/KVJTGNin0_I?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>Si tu programa no usa <code>malloc</code>, <code>calloc</code> ni <code>free</code> (memoria dinámica), el Heap puede ir en <b>0x0</b>. Se usa sobre todo con sistemas operativos de tiempo real o programación más avanzada; para declarar variables normales no hace falta.</p><p>Al regenerar y compilar, la RAM usada baja a cerca de 1 KB.</p><p class="ojo">Escríbelo siempre en hexadecimal: 0x0, no 0.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 15: Optimizar la RAM en micros STM32 de poca memoria (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Stack más pequeño, con cuidado</h3><a class="min" href="https://youtu.be/KVJTGNin0_I?t=228" target="_blank" rel="noopener">&#9654; 3:48</a></div><p>La pila guarda las llamadas a funciones: si una rutina llama a otra que llama a otra, se puede desbordar. En el video se baja a <b>0x40</b> (64 bytes). Funciona para programas sencillos; si usas muchas librerías de terceros o mucha HAL (con muchas llamadas internas), deja más espacio.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Minimum Heap Size  = 0x0</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Minimum Stack Size = 0x40</code></pre></div><div class="uno"><figure class="cap"><a href="img/235.webp" target="_blank"><img src="img/235.webp" alt="Clase 15: Optimizar la RAM en micros STM32 de poca memoria (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/KVJTGNin0_I?t=293" target="_blank" rel="noopener">&#9654; 4:53</a></div><p>Tras regenerar y compilar, la RAM usada queda en <b>112 bytes</b> (los 64 de la pila más lo que usa la HAL). Casi los 2 KB quedan libres para tu programa. Después prueba bien que todo funcione.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 15: Optimizar la RAM en micros STM32 de poca memoria (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=KVJTGNin0_I" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
