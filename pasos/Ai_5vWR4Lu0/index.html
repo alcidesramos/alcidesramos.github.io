@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leer frecuencia con el módulo Input Capture del STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Medimos la frecuencia de una señal cuadrada con el TIM1 en modo Input Capture e interrupción por flanco de subida, y la enviamos por la UART. Base para medir la velocidad de un motor DC con encoder.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/Ai_5vWR4Lu0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Leer frecuencia con el módulo Input Capture del STM32 · Paso a paso">
+  <meta property="og:description" content="Medimos la frecuencia de una señal cuadrada con el TIM1 en modo Input Capture e interrupción por flanco de subida, y la enviamos por la UART. Base para medir la velocidad de un motor DC con encoder.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/Ai_5vWR4Lu0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Ai_5vWR4Lu0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Leer frecuencia con <span>Input Capture</span></h1>
+    <p class="lead">Parte del proyecto para identificar un motor DC y luego controlarlo con PID o lógica difusa. El TIM1 corre a una frecuencia de muestreo fija (1 MHz con prescaler 16-1 a 16 MHz) y en cada flanco de subida la interrupción guarda el valor del contador. La diferencia entre dos capturas da los pasos del periodo, y frecuencia = frecuencia de muestreo / pasos. Se prueba en Proteus con generadores de 300 Hz, 1 kHz, 2 kHz y 4 kHz, se discute el teorema de Nyquist en este caso de muestreo sincronizado y al final se lee la señal del encoder de un motor.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Ai_5vWR4Lu0" target="_blank" rel="noopener">&#9654; Ver el video completo (37:00)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2000.webp" alt="Leer frecuencia con el módulo Input Capture del STM32"></figure>
+    <ul class="materiales"><li>STM32F401CCU6 (Black Pill) o simulación en Proteus</li><li>Generadores de pulsos y un switch rotativo para elegir la señal (Proteus)</li><li>Motor DC con encoder y driver L298 (prueba final)</li><li>Virtual terminal a 9600 baudios</li><li>Excel para calcular el prescaler y librerías Frecuencia y uart</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · TIM1</a><a href="#f3">3 · Código</a><a href="#f4">4 · Pruebas</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Circuito y proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Señales de prueba en Proteus</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Con un switch rotativo (busca rot) se elige entre varios generadores de pulsos de 0 a 5 V: 300 Hz, 1 kHz, 2 kHz y 4 kHz, más la salida del encoder del motor. La salida del switch va a la entrada de captura del micro y la UART a un virtual terminal.</p><div class="uno"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto nuevo</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=284" target="_blank" rel="noopener">&#9654; 4:44</a></div><p>En STM32CubeIDE se elige el STM32F401CCU6. El nombre del proyecto y la ruta no deben tener espacios, tildes ni eñes, y la carpeta debe estar vacía. Por defecto trabaja con el oscilador interno de 16 MHz, que es lo que simula Proteus; el timer clock también queda en 16 MHz.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar el TIM1</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Input Capture en el canal 1</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=352" target="_blank" rel="noopener">&#9654; 5:52</a></div><p>En Timers, TIM1: Clock Source = Internal Clock y Channel1 = Input Capture direct mode. Se habilita PA8 como TIM1_CH1, que es la entrada de la señal.</p><div class="dos"><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Prescaler: la frecuencia de muestreo</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=386" target="_blank" rel="noopener">&#9654; 6:26</a></div><p>El prescaler define a qué frecuencia cuenta el timer. Con la hoja de Excel: para 1 MHz a 16 MHz el prescaler es 16; para 1 kHz es 16000. Siempre se escribe el valor menos 1.</p><ul><li>Prescaler = 16-1 → 1 MHz (un paso por microsegundo).</li><li>Counter Period = 65535 (el máximo; está sobrado).</li><li>auto-reload preload = Enable, por si el contador se desborda.</li><li>Polarity Selection = Rising Edge (flanco de subida).</li></ul><p class="ojo">Si después subes el micro a 84 MHz, el prescaler para 1 MHz pasa a 84-1.</p><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Interrupción y UART</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=716" target="_blank" rel="noopener">&#9654; 11:56</a></div><p>En NVIC Settings se activa TIM1 capture compare interrupt: es la que da el tiempo real. USART1 asíncrono a 9600 (PA9 es TX).</p><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería y código</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Librerías y opciones del compilador</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=822" target="_blank" rel="noopener">&#9654; 13:42</a></div><p>Se crea la carpeta LIBRERIAS en Core con Frecuencia.c/.h y uart.c/.h y se agrega al include path. En Properties: Post-build outputs, generar el .hex para Proteus, y MCU Settings, usar float con printf.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;uart.h&quot;
+#include &quot;Frecuencia.h&quot;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdint.h&gt;
+#include &lt;string.h&gt;</code></pre></div><div class="dos"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1030.webp" target="_blank"><img src="img/1030.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Frec1_Init: calcula la frecuencia de muestreo</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=1049" target="_blank" rel="noopener">&#9654; 17:29</a></div><p>La función calcula sola la frecuencia de muestreo a partir del prescaler (16 MHz / 16 = 1 MHz) y arranca la captura con interrupción.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern TIM_HandleTypeDef htim1;
+uint16_t cap1 = 0, cap2 = 0, cap3 = 0, cap4 = 0;
+uint32_t frec1;
+uint32_t frec1_1, frec1_2;
+uint32_t frecmuestreo;
+
+void Frec1_Init()
+{
+  // inicia el TIM1 en Input Capture con interrupción de flanco
+  frecmuestreo = SystemCoreClock / ((TIM1-&gt;PSC) + 1);
+  HAL_TIM_IC_Start_IT(&amp;htim1, TIM_CHANNEL_1);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1070.webp" target="_blank"><img src="img/1070.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Frec1_Interrupt: resta dos capturas</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=1080" target="_blank" rel="noopener">&#9654; 18:00</a></div><p>En el primer flanco se guarda el contador en frec1_1; en el siguiente, en frec1_2. La resta da los pasos del periodo. Si el contador se desbordó entre los dos flancos, la segunda captura es menor y hay que sumar el ARR.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// se debe incluir #include &quot;Frecuencia.h&quot; en stm32f4xx_it.c
+void Frec1_Interrupt()
+{
+  // si es el canal 1
+  if (__HAL_TIM_GET_FLAG(&amp;htim1, TIM_FLAG_CC1) == 1)
+  {
+    if (cap1 == 0)
+    {
+      cap1 = 1;
+      frec1_1 = TIM1-&gt;CCR1;          // primer flanco
+    }
+    else if (cap1 == 1)
+    {
+      cap1 = 0;
+      frec1_2 = TIM1-&gt;CCR1;          // segundo flanco
+
+      if (frec1_2 &gt; frec1_1)
+        frec1 = (frec1_2 - frec1_1);
+      else                           // el timer se desbordó
+        frec1 = (TIM1-&gt;ARR - frec1_1) + frec1_2;
+    }
+    __HAL_TIM_CLEAR_FLAG(&amp;htim1, TIM_FLAG_CC1);  // limpia la bandera
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1110.webp" target="_blank"><img src="img/1110.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1260.webp" target="_blank"><img src="img/1260.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Llamarla desde la interrupción del TIM1</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=1312" target="_blank" rel="noopener">&#9654; 21:52</a></div><p>En Core/Src/stm32f4xx_it.c se incluye Frecuencia.h y dentro de TIM1_CC_IRQHandler se llama a la función.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;Frecuencia.h&quot;
+
+void TIM1_CC_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_CC_IRQn 0 */
+  Frec1_Interrupt();
+  /* USER CODE END TIM1_CC_IRQn 0 */
+  HAL_TIM_IRQHandler(&amp;htim1);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1340.webp" target="_blank"><img src="img/1340.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>main.c</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=1413" target="_blank" rel="noopener">&#9654; 23:33</a></div><p>Las variables de Frecuencia.c se declaran extern. Al iniciar se envía la frecuencia de muestreo y en el while se divide entre los pasos medidos. El HAL_Delay no afecta la medición porque se hace por hardware e interrupción.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PV */
+char texto[50];
+extern uint32_t frecmuestreo;
+extern uint32_t frec1;
+float frecuencia1;
+
+/* USER CODE BEGIN 2 */
+Frec1_Init();
+sprintf(texto, &quot;frec_muestreo=%lu \r\n&quot;, frecmuestreo);
+uartx_write_text(&amp;huart1, texto);
+
+while (1)
+{
+  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  if (frec1 != 0) frecuencia1 = frecmuestreo / frec1;
+  else frecuencia1 = 0;
+  frec1 = 0;       // limpia: si se quita la señal no queda el valor viejo
+  sprintf(texto, &quot;RPM=%.1f\r\n&quot;, frecuencia1);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(300);
+}</code></pre></div><p class="ojo">En el video se divide directo entre frec1. Aquí se agregó la comprobación frec1 != 0 para no dividir por cero cuando no hay señal.</p><div class="uno"><figure class="cap"><a href="img/1730.webp" target="_blank"><img src="img/1730.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Pruebas</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Frecuencia de muestreo</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=1513" target="_blank" rel="noopener">&#9654; 25:13</a></div><p>Al correr, la terminal muestra frec_muestreo=1000000. Si la terminal muestra basura, revisa que la UART esté en 9600 y no 96000, que el micro esté a 16 MHz en Proteus y pon el pin de reset a positivo.</p><p class="ojo">Después de cambiar algo en el .ioc, dale al engranaje (Generate Code) antes de compilar; si no, el .hex puede quedar viejo.</p><div class="uno"><figure class="cap"><a href="img/1800.webp" target="_blank"><img src="img/1800.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Leer las señales</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=1786" target="_blank" rel="noopener">&#9654; 29:46</a></div><p>Con muestreo de 1 MHz lee bien 4 kHz, 2 kHz, 1 kHz y 300 Hz moviendo el switch rotativo.</p><div class="uno"><figure class="cap"><a href="img/2000.webp" target="_blank"><img src="img/2000.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Nyquist con muestreo sincronizado</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=1920" target="_blank" rel="noopener">&#9654; 32:00</a></div><p>Bajando el muestreo a 2 kHz (prescaler 8000-1): lee 1 kHz bien, 300 Hz con poca precisión (no es múltiplo) y, sorpresa, también 2 kHz, porque la captura está sincronizada con los flancos y la señal es cuadrada. Con 4 kHz ya no puede y sigue marcando 2 kHz: ahí sí se cumple Nyquist.</p><div class="dos"><figure class="cap"><a href="img/1960.webp" target="_blank"><img src="img/1960.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/2100.webp" target="_blank"><img src="img/2100.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Señal del encoder del motor</h3><a class="min" href="https://youtu.be/Ai_5vWR4Lu0?t=2093" target="_blank" rel="noopener">&#9654; 34:53</a></div><p>Volviendo a 16-1 y conectando la salida del encoder, se lee la velocidad del motor: sube a medida que se le da más voltaje (8 V, 12 V) y se estabiliza por la inercia. Con esto ya se puede identificar el motor.</p><p>Para capturar el arranque completo hace falta más velocidad que la UART: eso se resolverá con DMA.</p><div class="uno"><figure class="cap"><a href="img/2130.webp" target="_blank"><img src="img/2130.webp" alt="Leer frecuencia con el módulo Input Capture del STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Ai_5vWR4Lu0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

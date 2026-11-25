@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Módulo MP3 DFPlayer Mini con STM32 y mis librerías · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El DFPlayer Mini por UART a 9600: el proyecto habla según la temperatura de un LM35 (alta o baja), cambia el volumen y pone música con dos pulsadores.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/u5OX_Bn2E5c/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Módulo MP3 DFPlayer Mini con STM32 y mis librerías · Paso a paso">
+  <meta property="og:description" content="El DFPlayer Mini por UART a 9600: el proyecto habla según la temperatura de un LM35 (alta o baja), cambia el volumen y pone música con dos pulsadores.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/u5OX_Bn2E5c/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/u5OX_Bn2E5c/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Módulo MP3 <span>DFPlayer Mini</span> con STM32</h1>
+    <p class="lead">Se pasa a STM32 la librería del DFPlayer Mini que antes estaba hecha para PIC. El módulo se controla por la UART (solo hace falta TX del micro) y reproduce archivos MP3 de una memoria SD. El ejemplo lee un LM35 por el ADC y dice en voz alta si la temperatura está alta o baja; un pulsador baja el volumen y otro pone música al máximo. Se simula en Proteus con un COMPIM conectado al módulo real por un cable USB serial.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=u5OX_Bn2E5c" target="_blank" rel="noopener">&#9654; Ver el video completo (13:33)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/700.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401 (o simulación en Proteus con COMPIM)</li><li>Módulo DFPlayer Mini con memoria SD (FAT16 o FAT32, hasta 32 GB)</li><li>Parlante de máximo 3 W (más potencia necesita amplificador)</li><li>Sensor LM35 en ADC1_IN0</li><li>Dos pulsadores (sw1, sw2) y un LED</li><li>Librerías dfplayer, built_in, uart y adc</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · DFPlayer</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · Código</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El módulo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Conexión</h3><a class="min" href="https://youtu.be/u5OX_Bn2E5c?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El módulo trabaja por puerto serial. Con el micro real se conectan tierra, positivo (de 3.6 a 5 V) y el TX del micro al RX del módulo. En el video se usa un cable USB serial y Proteus con un COMPIM en el puerto COM donde quedó el cable (se ve en el Administrador de dispositivos).</p><p class="ojo">El parlante no puede pasar de 3 W. Para más potencia hay que poner un amplificador.</p><div class="uno"><figure class="cap"><a href="img/15.webp" target="_blank"><img src="img/15.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Características y archivos</h3><a class="min" href="https://youtu.be/u5OX_Bn2E5c?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>Soporta hasta 100 carpetas o archivos en la raíz numerados de 0001 a 2999, memorias de hasta 32 GB en FAT16 o FAT32, 30 niveles de volumen y 10 de ecualización. Sirve para que un proyecto hable: avisar que la temperatura está alta, dar la bienvenida, poner una canción.</p><p>Con este módulo los archivos deben llevar solo el número (0001.mp3, 0002.mp3...). Con nombres después del número tomaba archivos equivocados.</p><div class="dos"><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Periféricos</h3><a class="min" href="https://youtu.be/u5OX_Bn2E5c?t=202" target="_blank" rel="noopener">&#9654; 3:22</a></div><p>USART1 asíncrono a 9600 baudios (la velocidad del módulo). ADC1 con IN0 para el LM35 y la constante adc1 en User Constants para que la librería lo reconozca. Dos entradas con etiquetas sw1 y sw2 y una salida led que parpadea para ver que el programa corre.</p><div class="dos"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Librerías</h3><a class="min" href="https://youtu.be/u5OX_Bn2E5c?t=274" target="_blank" rel="noopener">&#9654; 4:34</a></div><p>En la carpeta Librerias se copian dfplayer, built_in (la necesita dfplayer para calcular byte alto y bajo), uart y adc. built_in no se incluye en main: la llama dfplayer.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;uart.h&quot;
+#include &quot;adc.h&quot;
+#include &quot;dfplayer.h&quot;</code></pre></div><div class="dos"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Defines y variables</h3><a class="min" href="https://youtu.be/u5OX_Bn2E5c?t=374" target="_blank" rel="noopener">&#9654; 6:14</a></div><p>Cada define dice en qué número de archivo está guardado cada audio en la SD. Los switches se definen como lecturas directas del pin.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PD */
+#define musica      1
+#define temp_alta   2
+#define temp_baja   3
+#define suiche_pres 4
+#define bienvenida  5
+
+#define sw1 HAL_GPIO_ReadPin(sw1_GPIO_Port, sw1_Pin)
+#define sw2 HAL_GPIO_ReadPin(sw2_GPIO_Port, sw2_Pin)
+
+/* USER CODE BEGIN PV */
+uint16_t codigo;
+float temperatura;</code></pre></div><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Inicializar el módulo</h3><a class="min" href="https://youtu.be/u5OX_Bn2E5c?t=440" target="_blank" rel="noopener">&#9654; 7:20</a></div><p>El módulo es más lento que el micro para arrancar, así que conviene esperar antes de inicializarlo y un poco después.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+HAL_Delay(500);
+mp3_inicializa();
+HAL_Delay(200);
+mp3_play_x(bienvenida);</code></pre></div><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>El while</h3><a class="min" href="https://youtu.be/u5OX_Bn2E5c?t=578" target="_blank" rel="noopener">&#9654; 9:38</a></div><p>Se lee el LM35 (10 mV/°C). Si pasa de 60 °C dice que la temperatura está alta y si baja de 20 °C que está baja; la espera de 5 s es lo que dura el audio. sw1 baja el volumen y dice que se presionó el switch; sw2 sube el volumen y pone música.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  codigo = ADC_Read();
+  temperatura = codigo * 3.3 * 100.0 / 4095.0;   // LM35: 10 mV/°C
+
+  if (temperatura &gt; 60)
+  {
+    mp3_play_x(temp_alta);
+    HAL_Delay(5000);       // lo que dura el audio
+  }
+  else if (temperatura &lt; 20)
+  {
+    mp3_play_x(temp_baja);
+    HAL_Delay(5000);
+  }
+
+  if (sw1 == 0)
+  {
+    mp3_volumen_x(20);
+    mp3_play_x(suiche_pres);
+    HAL_Delay(2000);
+  }
+  if (sw2 == 0)
+  {
+    mp3_volumen_x(30);     // volumen máximo
+    mp3_play_x(musica);
+  }
+
+  HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+  HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba y funciones</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Simulación con el módulo real</h3><a class="min" href="https://youtu.be/u5OX_Bn2E5c?t=541" target="_blank" rel="noopener">&#9654; 9:01</a></div><p>Se habilita la generación del .hex (Properties, Post-build) y se carga en Proteus. Al arrancar suena la bienvenida. Bajando el LM35 de 20 °C dice que la temperatura está baja, subiéndolo de 60 °C que está elevada, y los pulsadores cambian volumen y ponen la canción. En la terminal virtual se ven las tramas que se envían (7E FF 06 ... EF).</p><div class="dos"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Otras funciones de la librería</h3><a class="min" href="https://youtu.be/u5OX_Bn2E5c?t=749" target="_blank" rel="noopener">&#9654; 12:29</a></div><p>En dfplayer.h están todas las funciones del módulo:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void mp3_next();
+void mp3_previo();
+void mp3_play_x(uint16_t cancion);      // toca la canción x (hasta 2999)
+void mp3_volumen_sube();
+void mp3_volumen_baja();
+void mp3_volumen_x(uint8_t vol);
+void mp3_equaliza(uint8_t equal);
+void mp3_play_mode(uint8_t como);
+void mp3_modo_off();
+void mp3_modo_normal();
+void mp3_modo_reset();
+void mp3_modo_play();
+void mp3_modo_pausa();
+void mp3_suena(uint8_t carp, uint8_t fila);  // reproduce una carpeta y un archivo
+void mp3_inicializa();</code></pre></div><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Módulo MP3 DFPlayer Mini con STM32 y mis librerías" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=u5OX_Bn2E5c" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
