@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 113: Fuente conmutada en lazo cerrado con PID en STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se cierra el lazo de la fuente Buck: ADC por DMA con set point por potenciómetro, medición del tiempo de proceso con TIM2, interrupción de TIM3 cada 10 ms y librería PID.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/f2-Re_lqEPY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32 · Paso a paso">
+  <meta property="og:description" content="Se cierra el lazo de la fuente Buck: ADC por DMA con set point por potenciómetro, medición del tiempo de proceso con TIM2, interrupción de TIM3 cada 10 ms y librería PID.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/f2-Re_lqEPY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/f2-Re_lqEPY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 113: <span>PID para la fuente conmutada</span></h1>
+    <p class="lead">Continuación de la clase 112. El objetivo no es sintonizar el PID sino mostrar cómo se implementa dentro del microcontrolador con un tiempo de muestreo preciso. El ADC pasa a DMA con dos canales: el voltaje de salida y un potenciómetro que da el set point de 0 a 21 V. Con el TIM2 a 1 µs se mide cuánto tarda el proceso de lectura y control (unos 35 µs), luego todo se mueve a la interrupción del TIM3 cada 10 ms. La librería PID calcula la parte proporcional, integral y derivativa, satura la salida entre 0 y 1000 y la carga al PWM. Al final se grafica set point y voltaje con un osciloscopio serial.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=f2-Re_lqEPY" target="_blank" rel="noopener">&#9654; Ver el video completo (27:58)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1610.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32"></figure>
+    <ul class="materiales"><li>Montaje de la fuente Buck de la clase 112</li><li>Blackpill STM32F401</li><li>Potenciómetro para el set point en el segundo canal del ADC</li><li>Librerías del canal: adc_x (con DMA), uart, PWMB, PID y timer.c</li><li>Hoja de Excel de cálculo de timers</li><li>Programa de osciloscopio serial para graficar</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Dos canales: voltaje y potenciómetro</a><a href="#f2">2 · TIM2 como cronómetro en microsegundos</a><a href="#f3">3 · TIM3 cada 10 ms</a><a href="#f4">4 · Constantes y algoritmo</a><a href="#f5">5 · Osciloscopio serial</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>ADC por DMA con set point</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Configurar ADC1 con DMA</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=69" target="_blank" rel="noopener">&#9654; 1:09</a></div><p>En ADC1 se habilitan IN0 (voltaje de salida) e IN1 (potenciómetro del set point).</p><p>En DMA Settings se agrega la petición del ADC1. En Parameter Settings se ponen 2 conversiones, con 15 ciclos de muestreo en cada canal para no leer tan rápido y reducir el ruido.</p><p>Se activa la conversión continua al terminar todas las conversiones.</p><div class="dos"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Leer los dos canales</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=145" target="_blank" rel="noopener">&#9654; 2:25</a></div><p>En adc_x.h se indica que se trabaja con 2 canales por DMA. Ya no se usa ADC_Read sino ADC_Read_DMA, que deja los valores en adc_codigo[0] y adc_codigo[1].</p><p>El set point se escala al rango de la fuente (0 a 21 V).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADC_Read_DMA(&amp;hadc1);
+voltaje=adc_codigo[0]*3.3/4095.0;
+voltaje=voltaje*8.1439;
+float setpoint=adc_codigo[1]*21/4095.0;
+
+sprintf(texto,&quot;VOL=%.1f   SET=%.1f\r\n\r\n&quot;,voltaje,setpoint);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><div class="uno"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Medir el tiempo del proceso</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Librería PID y tiempo de muestreo</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=312" target="_blank" rel="noopener">&#9654; 5:12</a></div><p>Se copian las librerías PID y timer.c a la carpeta Librerias. En PID.h se define el tiempo de muestreo y las constantes.</p><p>Antes de usar el PID hay que saber cuánto tarda el proceso de lectura y control, para escoger un tiempo de muestreo varias veces mayor.</p><div class="uno"><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>TIM2 a 1 µs</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=465" target="_blank" rel="noopener">&#9654; 7:45</a></div><p>Se habilita TIM2 con reloj interno y preescalador 84-1, así cada cuenta vale 1 µs. El periodo se deja en el máximo.</p><p>Se arranca el timer, se pone el contador en cero, se ejecuta el proceso y se lee TIM2->CNT.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_TIM_Base_Start(&amp;htim2);
+TIM2-&gt;CNT=0;
+
+// proceso a medir
+ADC_Read_DMA(&amp;hadc1);
+voltaje=adc_codigo[0]*3.3/4095.0;
+voltaje=voltaje*8.1439;
+PID_Control(12.5);
+
+uint32_t tiempo=TIM2-&gt;CNT;
+sprintf(texto,&quot;TIM=%lu\r\n&quot;,tiempo);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Resultado: 35 µs</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=560" target="_blank" rel="noopener">&#9654; 9:20</a></div><p>Con un HAL_Delay dentro de la lectura por DMA el proceso tardaba casi 2 ms. Al quitarlo, todo tarda unos 35 µs.</p><p>Con eso un tiempo de muestreo de 10 a 20 ms es más que suficiente.</p><p class="ojo">Haz esta medición siempre que agregues algo pesado, como un filtro digital, para confirmar que el tiempo de muestreo sigue siendo adecuado.</p><div class="uno"><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Interrupción de muestreo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Calcular el TIM3</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=621" target="_blank" rel="noopener">&#9654; 10:21</a></div><p>Con la hoja de Excel: 84 MHz, preescalador 840-1 y periodo 1000 dan 10 ms.</p><p>Con preescalador 84 solo se llega a unos 65 ms (contador de 16 bits); para tiempos mayores se sube el preescalador.</p><div class="uno"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Habilitar la interrupción</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=705" target="_blank" rel="noopener">&#9654; 11:45</a></div><p>Se configura TIM3 con reloj interno, prescaler 839 y periodo 1000, y en NVIC Settings se habilita TIM3 global interrupt.</p><div class="uno"><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Mover el proceso a timer.c</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=757" target="_blank" rel="noopener">&#9654; 12:37</a></div><p>La librería timer.c no lleva .h: solo se indica el timer de la interrupción (TIM3) y se escribe el código dentro del callback.</p><p>Las variables compartidas con el main se declaran extern. Dentro de la interrupción se usa una variable local volt para no escribir dos veces la misma variable global.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define TIM_INT TIM3
+
+#include &quot;main.h&quot;
+#include &quot;PID.h&quot;
+#include &quot;adc_x.h&quot;
+#include &quot;PWMB.h&quot;
+
+extern float voltaje;
+extern float setpoint;
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  if (htim-&gt;Instance == TIM_INT)
+  {
+    ADC_Read_DMA(&amp;hadc1);
+    float volt=adc_codigo[0]*3.3/4095.0;
+    voltaje=volt*8.1439;
+    setpoint=adc_codigo[1]*21/4095.0;
+    PID_Control(voltaje);
+    PWM_valor(&amp;PWM1, ut);
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/770.webp" target="_blank"><img src="img/770.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1010.webp" target="_blank"><img src="img/1010.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Arrancar el timer en el main</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=790" target="_blank" rel="noopener">&#9654; 13:10</a></div><p>Antes del while se arranca el TIM3 en modo interrupción. Desde ese momento la lectura y el control se hacen solos cada 10 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_TIM_Base_Start_IT(&amp;htim3);</code></pre></div><div class="uno"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>La librería PID</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Constantes en PID.h</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=1000" target="_blank" rel="noopener">&#9654; 16:40</a></div><p>Se definen tiempo de muestreo, constantes kp, ki, kd, set point inicial y los límites de salida (0 a 1000, el rango del PWM).</p><p>Una idea para el orden de kp: salida máxima / error máximo = 1000/22 ≈ 45. Aquí se empezó con 100 para probar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define PID_muestreo 10e-3   // tiempo de muestreo
+#define PID_kp 100
+#define PID_ki 100
+#define PID_kd 100
+#define PID_SET 4.0
+#define PID_MAX 1000
+#define PID_MIN 0</code></pre></div><div class="uno"><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Algoritmo PID_Control</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=1100" target="_blank" rel="noopener">&#9654; 18:20</a></div><p>Calcula el error con el set point, la parte proporcional, acumula la integral multiplicando por el tiempo de muestreo y calcula la derivativa con el error anterior.</p><p>La salida ut se satura entre PID_MIN y PID_MAX. ut es global, así que se puede usar directamente para el PWM.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float kp=PID_kp, ki=PID_ki, kd=PID_kd;
+float setpoint=PID_SET;
+float error, up, ui=0.0, ud, ut, error_=0.0;
+
+float PID_Control(float pid_in)
+{
+  error=setpoint-pid_in;
+  up=kp*error;                          // proporcional
+  ui+=ki*t_mues*error;                  // integral
+  ud=kd*(error-error_)/(float)t_mues;   // derivativa
+  ut=up+ui+ud;
+  if (ut&gt;PID_MAX) ut=(float)PID_MAX;
+  if (ut&lt;PID_MIN) ut=(float)PID_MIN;
+  error_=error;
+  return ut;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1110.webp" target="_blank"><img src="img/1110.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Prueba y gráfica</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Enviar datos para graficar</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=1304" target="_blank" rel="noopener">&#9654; 21:44</a></div><p>Para el osciloscopio serial se mandan set point y voltaje separados por coma, lo más rápido posible. Se pueden enviar hasta 9 variables (3 ventanas de 3 señales).</p><p>No mezcles este envío con el texto VOL=/SET=: si se envían los dos formatos el gráfico se ve como ruido.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto,&quot;%.1f,%.1f\r&quot;,setpoint,voltaje);
+uartx_write_text(&amp;huart1, texto);
+HAL_Delay(1);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1360.webp" target="_blank"><img src="img/1360.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Respuesta del lazo cerrado</h3><a class="min" href="https://youtu.be/f2-Re_lqEPY?t=1440" target="_blank" rel="noopener">&#9654; 24:00</a></div><p>Solo con proporcional (kp=100) la salida intenta seguir el set point pero no llega. Al agregar integral (ki=100) el voltaje sí alcanza el set point.</p><p>Las constantes quedan para sintonizar según el montaje; un circuito en PCB tendrá mucho menos ruido que en protoboard.</p><p class="ojo">A estas velocidades Hercules se bloquea; usa el programa de osciloscopio. Se puede subir el puerto hasta 921600 baudios si se configura igual en el micro.</p><div class="dos"><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1610.webp" target="_blank"><img src="img/1610.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=f2-Re_lqEPY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
