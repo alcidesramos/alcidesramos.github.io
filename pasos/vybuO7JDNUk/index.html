@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 112: Fuente conmutada Buck con STM32 en lazo abierto · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Convertidor Buck controlado con PWM a 100 kHz desde una Blackpill: lógica invertida con modo PWM2, lectura del voltaje de salida por ADC y factor de escala del divisor.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/vybuO7JDNUk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto · Paso a paso">
+  <meta property="og:description" content="Convertidor Buck controlado con PWM a 100 kHz desde una Blackpill: lógica invertida con modo PWM2, lectura del voltaje de salida por ADC y factor de escala del divisor.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/vybuO7JDNUk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/vybuO7JDNUk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 112: <span>Fuente conmutada en lazo abierto</span></h1>
+    <p class="lead">Primera parte del proyecto de fuente conmutada (la segunda cierra el lazo con PID). Se arma un convertidor Buck con un MOSFET IRF540 disparado por un transistor 2N3904, inductor, diodo rápido y un divisor resistivo hacia el ADC. En CubeIDE se configura el TIM1 canal 1 como PWM a 100 kHz (periodo 840 con 84 MHz), en modo PWM2 y polaridad de reposo en alto para compensar la lógica invertida del transistor. Se lee el voltaje de salida con el ADC, se calcula el factor de escala real midiendo con el multímetro y se envía el valor por el puerto serial.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=vybuO7JDNUk" target="_blank" rel="noopener">&#9654; Ver el video completo (18:05)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/80.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto"></figure>
+    <ul class="materiales"><li>Blackpill STM32F401</li><li>MOSFET IRF540 y transistor 2N3904 como driver</li><li>Inductor de 470 µH, diodo rápido (1N5821) y condensadores de 470 µF</li><li>Divisor resistivo (33k / 4.7k) para llevar la salida a menos de 3.3 V</li><li>Fuente de 24 V y una resistencia de carga</li><li>Multímetro y analizador lógico para ver la señal</li><li>Librerías del canal: adc_x, uart y PWMB</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Convertidor Buck con driver de transistor</a><a href="#f2">2 · Librerías, PWM a 100 kHz en modo 2</a><a href="#f3">3 · Librería PWMB y escala de 1000</a><a href="#f4">4 · Factor de escala y envío por serial</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El circuito</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Esquema del convertidor Buck</h3><a class="min" href="https://youtu.be/vybuO7JDNUk?t=35" target="_blank" rel="noopener">&#9654; 0:35</a></div><p>El micro genera el PWM, lee el voltaje de salida con el ADC y usa el puerto serial para monitorear (y más adelante recibir el set point).</p><p>El disparo del MOSFET IRF540 se hace con un transistor NPN 2N3904. Esto invierte la lógica: cuando el micro saca un 1 el MOSFET se apaga.</p><p>El diodo y la bobina deben soportar la corriente que quieras en la salida. Para fuentes conmutadas se recomienda trabajar de 70-100 kHz hacia arriba.</p><p>El divisor R4/R5 lleva el voltaje de salida al ADC. Antes de conectarlo al micro verifica que nunca supere 3.3 V.</p><p class="ojo">Conecta el divisor al micro solo después de medir que con el máximo ciclo útil no pasa de 3.3 V.</p><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto y configuración</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Calcular el periodo del PWM</h3><a class="min" href="https://youtu.be/vybuO7JDNUk?t=160" target="_blank" rel="noopener">&#9654; 2:40</a></div><p>Con la hoja de Excel del canal se pone la frecuencia del micro (84 MHz), el preescalador en 1 (se carga 0) y la frecuencia deseada de 100 kHz.</p><p>El resultado es un periodo de 840 cuentas, que es el valor que se carga en el Counter Period del timer.</p><p>El reloj se configura con cristal externo y PLL a la máxima velocidad del micro, pensando en el PID de la siguiente clase.</p><div class="uno"><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Agregar librerías e includes</h3><a class="min" href="https://youtu.be/vybuO7JDNUk?t=250" target="_blank" rel="noopener">&#9654; 4:10</a></div><p>Se crea la carpeta Librerias dentro de Core y se copian adc_x, uart y PWMB del canal.</p><p>Se agrega la carpeta al include path (clic derecho > Add/remove include path) y se incluyen también las librerías estándar que se usarán con el PID.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+#include &quot;adc_x.h&quot;
+#include &quot;PWMB.h&quot;
+
+#include &quot;stdint.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;stdlib.h&quot;
+#include &quot;math.h&quot;
+#include &quot;string.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>ADC y puerto serial</h3><a class="min" href="https://youtu.be/vybuO7JDNUk?t=355" target="_blank" rel="noopener">&#9654; 5:55</a></div><p>En Analog se habilita el ADC1 con un solo canal (IN0), sin más configuración.</p><p>En Connectivity se activa USART1 en modo asíncrono a 115200 baudios. Si el computador lo permite se puede subir para graficar más rápido.</p><div class="dos"><figure class="cap"><a href="img/365.webp" target="_blank"><img src="img/365.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>TIM1 canal 1 en modo PWM2</h3><a class="min" href="https://youtu.be/vybuO7JDNUk?t=410" target="_blank" rel="noopener">&#9654; 6:50</a></div><p>TIM1 con reloj interno y Channel 1 como PWM Generation CH1 (queda en PA8). Prescaler 0 y Counter Period 840. Se deja el auto-reload preload habilitado.</p><p>Se cambia el modo a PWM mode 2: el ancho de pulso que se programa queda en el semiciclo negativo, que es el que enciende el MOSFET con lógica invertida.</p><p>La polaridad de reposo se deja en alto, que con lógica invertida equivale a apagado. Así al arrancar el micro no aparece voltaje en la carga.</p><p class="ojo">Con un driver de disparo positivo (por ejemplo un IR2110) deja PWM mode 1. El código es el mismo, solo cambia el modo en CubeMX.</p><div class="uno"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Generar el PWM</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Configurar la librería PWMB</h3><a class="min" href="https://youtu.be/vybuO7JDNUk?t=485" target="_blank" rel="noopener">&#9654; 8:05</a></div><p>En PWMB.c se declara el PWM con el timer y canal usados: TIM1, canal 1.</p><p>La escala de la librería se pone en 1000 (la potencia de 10 más cercana a 840) para manejar el ancho de pulso de 0 a 1000.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float escala=1000;   // escala para trabajar el PWM
+extern TIM_HandleTypeDef htim1;
+
+PWMS PWM1 = {&amp;htim1, &amp;(TIM1-&gt;CCR1), TIM_CHANNEL_1};</code></pre></div><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Inicializar y dar un valor</h3><a class="min" href="https://youtu.be/vybuO7JDNUk?t=520" target="_blank" rel="noopener">&#9654; 8:40</a></div><p>Antes del while se escribe un mensaje por el serial, se inicia el PWM y se le da un valor.</p><p>Con un valor pequeño la salida queda casi en cero; con 900 el pulso negativo ocupa el 90% y la salida sube a unos 8 V. Con 1000 se obtiene el máximo (unos 20.9 V en este montaje).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+PWM_init(&amp;PWM1);
+PWM_valor(&amp;PWM1, 1000);</code></pre></div><p class="ojo">En el analizador lógico se ve la señal a 100 kHz con el ciclo útil invertido, que es lo esperado por el transistor.</p><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Leer el voltaje de salida</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Calcular el factor de escala</h3><a class="min" href="https://youtu.be/vybuO7JDNUk?t=720" target="_blank" rel="noopener">&#9654; 12:00</a></div><p>Las resistencias del divisor tienen tolerancia, así que el factor se saca midiendo: con el PWM al máximo se mide la salida (20.93 V) y el punto del divisor (2.57 V).</p><p>20.93 / 2.57 = 8.1439. Ese es el número por el que se multiplica el voltaje leído por el ADC para obtener el voltaje real.</p><div class="uno"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Habilitar float en printf</h3><a class="min" href="https://youtu.be/vybuO7JDNUk?t=870" target="_blank" rel="noopener">&#9654; 14:30</a></div><p>Clic derecho en el proyecto > Properties > C/C++ Build > Settings > MCU Settings y se marca usar float con printf.</p><div class="uno"><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Código del lazo principal</h3><a class="min" href="https://youtu.be/vybuO7JDNUk?t=890" target="_blank" rel="noopener">&#9654; 14:50</a></div><p>Se declaran las variables para la cadena, el código del ADC y el voltaje.</p><p>Dentro del while se lee el ADC, se pasa a voltios, se multiplica por el factor y se envía por el puerto serial cada 500 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char texto[50];
+uint16_t codigo=0;
+float voltaje=0;
+
+while (1)
+{
+  codigo=ADC_Read(&amp;hadc1);
+  voltaje=codigo*3.3/4095.0;
+  voltaje=voltaje*8.1439;
+  sprintf(texto,&quot;VOL=%.1f\r\n\r\n&quot;,voltaje);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/905.webp" target="_blank"><img src="img/905.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Prueba</h3><a class="min" href="https://youtu.be/vybuO7JDNUk?t=1030" target="_blank" rel="noopener">&#9654; 17:10</a></div><p>En Hercules se lee unos 20.8 V y el multímetro marca 20.9 V; la diferencia de 0.1 V se puede corregir ajustando el factor.</p><p>Con PWM_valor en 700 la salida baja a unos 5 V y el micro lee entre 4.7 y 4.95 V.</p><p>La relación ciclo útil-voltaje no es lineal; por eso en la siguiente clase se cierra el lazo con un PID para fijar el voltaje de salida.</p><div class="dos"><figure class="cap"><a href="img/1030.webp" target="_blank"><img src="img/1030.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Clase 112: Fuente conmutada Buck con STM32 en lazo abierto" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=vybuO7JDNUk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
