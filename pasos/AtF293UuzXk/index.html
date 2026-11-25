@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curva característica de un motor DC con STM32: muestreo preciso y buffer · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Tomamos la respuesta al escalón de un motor DC con encoder: un retardo de microsegundos con el TIM5 de 32 bits da un periodo de muestreo exacto, los datos se guardan en un buffer y luego se envían a LabVIEW para graficarlos y exportarlos a Excel.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/AtF293UuzXk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curva característica de un motor DC con STM32: muestreo preciso y buffer · Paso a paso">
+  <meta property="og:description" content="Tomamos la respuesta al escalón de un motor DC con encoder: un retardo de microsegundos con el TIM5 de 32 bits da un periodo de muestreo exacto, los datos se guardan en un buffer y luego se envían a LabVIEW para graficarlos y exportarlos a Excel.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/AtF293UuzXk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/AtF293UuzXk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Curva característica de un <span>motor DC</span></h1>
+    <p class="lead">Continuación de la clase 68. Para identificar el motor (y luego hacerle un PID o control difuso) hay que registrar cómo sube su velocidad desde que arranca. HAL_Delay no es exacto (100 ms salen 101 ms), así que se crea un retardo con el TIM5 de 32 bits contando microsegundos y se cambia el toggle de HAL por el registro ODR. El motor es rápido, así que no se puede enviar cada dato: se guardan en un buffer a 500 µs y, al terminar, se mandan por la UART a un programa en LabVIEW que dibuja la curva.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=AtF293UuzXk" target="_blank" rel="noopener">&#9654; Ver el video completo (25:19)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1290.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer"></figure>
+    <ul class="materiales"><li>Montaje de la clase 68: Black Pill, motor con encoder, L298 y fuente de 12 V</li><li>Analizador lógico u osciloscopio en PC13 para medir el periodo de muestreo</li><li>LabVIEW (programa VELOCIDAD.vi) o Hercules</li><li>Excel o MATLAB para procesar los datos</li><li>Librerías Frecuencia, PWM, uart_int_idle_dma y delays</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Rango</a><a href="#f2">2 · Retardo</a><a href="#f3">3 · Buffer</a><a href="#f4">4 · LabVIEW</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Rango del motor</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Velocidad máxima</h3><a class="min" href="https://youtu.be/AtF293UuzXk?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>Con el sistema de la clase anterior se envía el set point por la UART. El PWM va de 0 a 5000: con 1000 llega a unos 1540 y con 5000 a unos 2700-2800 de frecuencia de encoder. Ese será el rango de la gráfica (hasta 3000).</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Muestreo exacto</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>HAL_Delay no es exacto</h3><a class="min" href="https://youtu.be/AtF293UuzXk?t=166" target="_blank" rel="noopener">&#9654; 2:46</a></div><p>Para muestrear se necesita un periodo exacto. Midiendo con el analizador lógico un toggle cada HAL_Delay(100), el periodo sale de 101 ms: un milisegundo de más, y no permite microsegundos.</p><div class="uno"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>TIM5 de 32 bits como contador</h3><a class="min" href="https://youtu.be/AtF293UuzXk?t=282" target="_blank" rel="noopener">&#9654; 4:42</a></div><p>TIM2 y TIM5 son de 32 bits. TIM2 ya está en el PWM, así que se usa TIM5: Clock Source = Internal Clock, sin canales, Prescaler = 84-1 (un paso por microsegundo a 84 MHz), periodo al máximo (4294967295) y auto-reload habilitado.</p><p class="ojo">En el video primero quedó sin el 84-1 y los tiempos salían mal. Después de corregir, dale al engranaje para regenerar el código.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Librería delays con timer</h3><a class="min" href="https://youtu.be/AtF293UuzXk?t=349" target="_blank" rel="noopener">&#9654; 5:49</a></div><p>En delays.h se elige el timer y que las funciones de retardo usen el timer en lugar del DWT. El retardo pone el contador en cero y espera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// delays.h
+#define TIMX   TIM5    // usa el timer 5 (de 32 bits)
+#define TIMEX  htim5
+#define delay_init delay_us_tim_init   // función usada para iniciar
+
+// delays.c
+void delay_us_tim(uint32_t us)
+{
+  TIMX-&gt;CNT = 0;            // resetea el timer
+  while (TIMX-&gt;CNT &lt; us);   // espera los us deseados
+}
+
+// main.c
+#include &quot;delays.h&quot;
+/* USER CODE BEGIN 2 */
+delay_init();</code></pre></div><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Toggle por registro</h3><a class="min" href="https://youtu.be/AtF293UuzXk?t=593" target="_blank" rel="noopener">&#9654; 9:53</a></div><p>Con el timer, 100 ms pasan a medir 100.02 ms. Para afinar más se cambia HAL_GPIO_TogglePin por un XOR directo sobre el registro de salida. Con delay_us(100) el periodo medido es de 100.1 µs.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+led_GPIO_Port-&gt;ODR ^= led_Pin;   // más rápido que la HAL
+delay_us(100);</code></pre></div><p class="ojo">El LED cambia en cada muestra, así que el periodo que ves en el osciloscopio es el doble del periodo de muestreo (la frecuencia, la mitad).</p><div class="dos"><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Capturar y enviar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Variables</h3><a class="min" href="https://youtu.be/AtF293UuzXk?t=964" target="_blank" rel="noopener">&#9654; 16:04</a></div><p>La UART se sube a 115200. Un buffer de 5000 datos float guarda la velocidad; si el motor es más lento o más rápido, ajusta el tamaño y el periodo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PD */
+#define buffer_size 5000
+
+/* USER CODE BEGIN PV */
+float buffer[buffer_size];</code></pre></div><div class="uno"><figure class="cap"><a href="img/980.webp" target="_blank"><img src="img/980.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Esperar el set point y muestrear</h3><a class="min" href="https://youtu.be/AtF293UuzXk?t=900" target="_blank" rel="noopener">&#9654; 15:00</a></div><p>El programa espera el set point por la UART, arranca el motor y cada 500 µs guarda la frecuencia del encoder (que se mide por interrupción con Input Capture). Al llenar el buffer, para el motor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (flag_rx == 0);                    // espera orden de inicio
+salida_pwm = atoi((char*)trama_rx);      // pasa a número el pwm recibido
+motorset(salida_pwm);                    // coloca la señal al motor
+
+// muestrea la información y la almacena
+for (uint32_t i = 0; i &lt; buffer_size; i++)
+{
+  led_GPIO_Port-&gt;ODR ^= led_Pin;         // marca el muestreo
+  if (frec1 != 0) frecuencia1 = frecmuestreo / frec1;
+  else frecuencia1 = 0;
+  buffer[i] = frecuencia1;
+  delay_us(500);                         // periodo de muestreo
+}
+motorstop();</code></pre></div><p class="ojo">En el video se divide directo entre frec1; al arrancar el motor aún no hay pulsos y frec1 vale 0. Aquí se agregó la comprobación.</p><div class="dos"><figure class="cap"><a href="img/910.webp" target="_blank"><img src="img/910.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure><figure class="cap"><a href="img/1020.webp" target="_blank"><img src="img/1020.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure><figure class="cap"><a href="img/1130.webp" target="_blank"><img src="img/1130.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Enviar el buffer</h3><a class="min" href="https://youtu.be/AtF293UuzXk?t=1006" target="_blank" rel="noopener">&#9654; 16:46</a></div><p>Enviar 5000 floats (20000 bytes) de una vez por DMA es demasiado para la PC, así que se mandan uno a uno con un separador * y una pausa de 1 ms. Aquí la pausa ya no afecta el muestreo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// envía por el puerto serial
+// HAL_UART_Transmit_DMA(&amp;huart1, &amp;buffer, buffer_size*4);  // demasiado para la PC
+for (uint32_t i = 0; i &lt; buffer_size; i++)
+{
+  sprintf(texto, &quot;D=%.2f*&quot;, buffer[i]);
+  uartx_write_text(&amp;huart1, texto);
+  delay_ms(1);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Graficar</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Programa en LabVIEW</h3><a class="min" href="https://youtu.be/AtF293UuzXk?t=1139" target="_blank" rel="noopener">&#9654; 18:59</a></div><p>Un evento del botón enviar manda el set point por el puerto serial. Otro ciclo espera datos, lee lo que llega cada 6 ms, separa cada valor por el * y lo agrega a un arreglo que se dibuja en un Waveform Graph.</p><div class="dos"><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure><figure class="cap"><a href="img/1210.webp" target="_blank"><img src="img/1210.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>La curva</h3><a class="min" href="https://youtu.be/AtF293UuzXk?t=1243" target="_blank" rel="noopener">&#9654; 20:43</a></div><p>Con set point 2000 la velocidad sube como una curva de primer orden hasta unos 2100. Con 600 llega a unos 700. El micro hay que resetearlo para cada prueba, porque la espera está antes del while.</p><div class="dos"><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure><figure class="cap"><a href="img/1460.webp" target="_blank"><img src="img/1460.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Exportar a Excel</h3><a class="min" href="https://youtu.be/AtF293UuzXk?t=1290" target="_blank" rel="noopener">&#9654; 21:30</a></div><p>Desde el gráfico, Export, Export Data To Excel. Se agrega una columna de tiempo multiplicando el número de muestra por 0.0005 s (=A3*$E$2). Con estos datos se puede calcular la constante de tiempo del motor o llevarlos a MATLAB para identificar su función de transferencia.</p><div class="dos"><figure class="cap"><a href="img/1330.webp" target="_blank"><img src="img/1330.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure><figure class="cap"><a href="img/1400.webp" target="_blank"><img src="img/1400.webp" alt="Curva característica de un motor DC con STM32: muestreo preciso y buffer" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=AtF293UuzXk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
