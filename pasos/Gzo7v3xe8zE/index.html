@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Operadores lógicos y sus aplicaciones en C/C++ para sistemas embebidos (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="NOT, AND, OR y XOR en C (!, ~, &amp;, |, ^, &lt;&lt;, &gt;&gt;) y para qué sirven: AND apaga, OR enciende y XOR invierte bits sin tocar los demás. Las tres máscaras que usaremos en los registros del micro.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/Gzo7v3xe8zE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Operadores lógicos y sus aplicaciones en C/C++ para sistemas embebidos (paso a paso) · Paso a paso">
+  <meta property="og:description" content="NOT, AND, OR y XOR en C (!, ~, &amp;, |, ^, &lt;&lt;, &gt;&gt;) y para qué sirven: AND apaga, OR enciende y XOR invierte bits sin tocar los demás. Las tres máscaras que usaremos en los registros del micro.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/Gzo7v3xe8zE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Gzo7v3xe8zE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Operadores lógicos en C: <span>máscaras de bits</span></h1>
+    <p class="lead">Tercera parte de los conceptos previos. Partimos de las tablas de verdad de las compuertas y pasamos a su uso real en programación: con una sola operación entre el estado actual y un "comodín" (máscara) se apagan, encienden o invierten bits específicos sin afectar a los demás. Es lo que haremos al trabajar con registros del microcontrolador. Bonus: el XOR como forma básica de cifrar un mensaje.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Gzo7v3xe8zE" target="_blank" rel="noopener">&#9654; Ver el video completo (12:36)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/560.webp" alt="Operadores lógicos y sus aplicaciones en C/C++ para sistemas embebidos (paso a paso)"></figure>
+    
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Operadores</a><a href="#f2">2 · Usos</a><a href="#f3">3 · Máscaras</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Compuertas y su símbolo en C</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Tablas de verdad</h3><a class="min" href="https://youtu.be/Gzo7v3xe8zE?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><ul><li><b>NOT</b>: una entrada, salida invertida.</li><li><b>AND</b>: 1 solo si ambas entradas son 1.</li><li><b>OR</b>: 1 si alguna entrada es 1.</li><li><b>XOR</b>: 1 si las entradas son diferentes, 0 si son iguales.</li></ul><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Operadores lógicos y sus aplicaciones en C/C++ para sistemas embebidos (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Los operadores en C/C++</h3><a class="min" href="https://youtu.be/Gzo7v3xe8zE?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>!a      // NOT de un solo bit (lógico)
+~a      // NOT de todos los bits
+a &amp; b   // AND
+a | b   // OR
+a ^ b   // XOR
+a &gt;&gt; n  // desplazar n bits a la derecha
+a &lt;&lt; n  // desplazar n bits a la izquierda</code></pre></div><div class="uno"><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Operadores lógicos y sus aplicaciones en C/C++ para sistemas embebidos (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Para qué sirve cada una</h2><p class="intro">Ejemplo: cada bit es una luz de la casa (habitación, baño, garaje, estudio, sala, comedor, patio, terraza). Queremos cambiar solo algunas con una sola operación.</p><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>AND apaga</h3><a class="min" href="https://youtu.be/Gzo7v3xe8zE?t=133" target="_blank" rel="noopener">&#9654; 2:13</a></div><p>El comodín lleva <b>1 en todo, menos en lo que quiero apagar (0)</b>. Estado AND comodín: lo marcado queda en 0 y lo demás igual.</p><div class="uno"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Operadores lógicos y sus aplicaciones en C/C++ para sistemas embebidos (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>OR enciende</h3><a class="min" href="https://youtu.be/Gzo7v3xe8zE?t=232" target="_blank" rel="noopener">&#9654; 3:52</a></div><p>El comodín lleva <b>0 en todo, menos en lo que quiero encender (1)</b>. Estado OR comodín: lo marcado queda en 1 y lo demás igual. Es más rápido que ir bit por bit.</p><div class="uno"><figure class="cap"><a href="img/285.webp" target="_blank"><img src="img/285.webp" alt="Operadores lógicos y sus aplicaciones en C/C++ para sistemas embebidos (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>XOR invierte</h3><a class="min" href="https://youtu.be/Gzo7v3xe8zE?t=297" target="_blank" rel="noopener">&#9654; 4:57</a></div><p>El comodín lleva <b>0 en todo, menos en lo que quiero invertir (1)</b>. Estado XOR comodín: lo marcado cambia (1→0, 0→1) y lo demás igual.</p><div class="uno"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Operadores lógicos y sus aplicaciones en C/C++ para sistemas embebidos (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Bonus: XOR para cifrar</h3><a class="min" href="https://youtu.be/Gzo7v3xe8zE?t=360" target="_blank" rel="noopener">&#9654; 6:00</a></div><p>El emisor hace mensaje XOR llave (8 bits → 256 llaves posibles) y envía el resultado por la red. El receptor aplica la <b>misma llave</b> con XOR y recupera el mensaje original. Así se cifraba de forma básica hace tiempo.</p><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Operadores lógicos y sus aplicaciones en C/C++ para sistemas embebidos (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Máscaras en C</h2><p class="intro">En la práctica el comodín no se escribe a mano: se forma desplazando un 1 a la posición del bit.</p><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Poner un bit en 1 (OR)</h3><a class="min" href="https://youtu.be/Gzo7v3xe8zE?t=458" target="_blank" rel="noopener">&#9654; 7:38</a></div><p>Desplazo un 1 hasta la posición (aquí el bit 6) y hago OR:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>REG = REG | (1 &lt;&lt; 6);
+REG |= (1 &lt;&lt; 6);      // forma corta</code></pre></div><p class="ojo">En la hoja del video aparece (1>>6); lo correcto es (1<<6): el 1 se desplaza a la izquierda.</p><div class="uno"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Operadores lógicos y sus aplicaciones en C/C++ para sistemas embebidos (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Poner un bit en 0 (AND con el negado)</h3><a class="min" href="https://youtu.be/Gzo7v3xe8zE?t=590" target="_blank" rel="noopener">&#9654; 9:50</a></div><p>Rotar un 0 no sirve (todo es 0). El truco: desplazar un 1 y luego invertirlo con ~, así queda 0 en esa posición y 1 en las demás. Después AND.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>REG = REG &amp; ~(1 &lt;&lt; 6);
+REG &amp;= ~(1 &lt;&lt; 6);     // forma corta</code></pre></div><div class="uno"><figure class="cap"><a href="img/670.webp" target="_blank"><img src="img/670.webp" alt="Operadores lógicos y sus aplicaciones en C/C++ para sistemas embebidos (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Invertir un bit (XOR)</h3><a class="min" href="https://youtu.be/Gzo7v3xe8zE?t=690" target="_blank" rel="noopener">&#9654; 11:30</a></div><p>Para otro bit cambia el 6 por su posición (bit 0 → 1<<0, bit 5 → 1<<5). Lo usaremos todo el tiempo al manejar registros del micro.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>REG = REG ^ (1 &lt;&lt; 6);
+REG ^= (1 &lt;&lt; 6);      // forma corta</code></pre></div><div class="uno"><figure class="cap"><a href="img/715.webp" target="_blank"><img src="img/715.webp" alt="Operadores lógicos y sus aplicaciones en C/C++ para sistemas embebidos (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Gzo7v3xe8zE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

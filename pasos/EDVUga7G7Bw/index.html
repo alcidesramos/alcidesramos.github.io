@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conceptos básicos de digitales para sistemas embebidos, parte 2 (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="RAM vs ROM y la evolución PROM → EPROM → EEPROM → Flash; luego la diferencia entre microprocesador y microcontrolador.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/EDVUga7G7Bw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Conceptos básicos de digitales para sistemas embebidos, parte 2 (paso a paso) · Paso a paso">
+  <meta property="og:description" content="RAM vs ROM y la evolución PROM → EPROM → EEPROM → Flash; luego la diferencia entre microprocesador y microcontrolador.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/EDVUga7G7Bw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/EDVUga7G7Bw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Conceptos básicos de digitales (parte 2): <span>memorias</span> y micros</h1>
+    <p class="lead">Un microcontrolador tiene una memoria donde se guarda el programa y otra que usa mientras el programa corre. En este video vemos los dos grandes bloques de memoria (RAM y ROM), cómo evolucionó la ROM hasta la Flash que tienen los micros actuales, y en qué se diferencia un microprocesador de un microcontrolador.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=EDVUga7G7Bw" target="_blank" rel="noopener">&#9654; Ver el video completo (8:02)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/400.webp" alt="Conceptos básicos de digitales para sistemas embebidos, parte 2 (paso a paso)"></figure>
+    
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Memorias</a><a href="#f2">2 · uP vs uC</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Memorias</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué es una memoria</h3><a class="min" href="https://youtu.be/EDVUga7G7Bw?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Es un dispositivo con casillas, cada una con su <b>dirección</b> (0, 1, 2…), donde se guarda un dato. <b>Acceso aleatorio</b> significa que puedo ir directo a la casilla 7 sin recorrer las anteriores.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>RAM vs ROM</h3><a class="min" href="https://youtu.be/EDVUga7G7Bw?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><ul><li><b>RAM</b> (memoria de acceso aleatorio): (+) rápida, (−) <b>volátil</b>: si se quita la energía se pierde la información. Su evolución ha sido en velocidad: DDR1, DDR2, DDR3, DDR4, DDR5.</li><li><b>ROM</b> (memoria de solo lectura): (+) <b>no volátil</b>, (−) lenta, sobre todo al escribir (leer sí es rápido).</li></ul><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Conceptos básicos de digitales para sistemas embebidos, parte 2 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Evolución de la ROM</h3><a class="min" href="https://youtu.be/EDVUga7G7Bw?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><ul><li><b>ROM</b>: la grababa el fabricante; solo se podía leer.</li><li><b>PROM</b>: venía en blanco y el usuario la programaba una sola vez.</li><li><b>EPROM</b>: se borraba con luz ultravioleta (los chips tenían una ventana de vidrio). Aquí nacen los primeros micros reprogramables.</li><li><b>EEPROM</b>: borrable y programable eléctricamente. Llegan las primeras cámaras digitales y memorias USB.</li><li><b>Flash</b>: igual que la EEPROM pero mucho más rápida. Es la memoria de programa de los micros actuales, las SD y los discos de estado sólido.</li></ul><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Conceptos básicos de digitales para sistemas embebidos, parte 2 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>En el microcontrolador</h3><a class="min" href="https://youtu.be/EDVUga7G7Bw?t=358" target="_blank" rel="noopener">&#9654; 5:58</a></div><p>El programa se guarda en la <b>Flash</b>, que no se borra al quitar la energía. Las variables con las que se trabaja (sumas, temperaturas, cálculos rápidos) viven en la <b>RAM</b>.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Microprocesador vs microcontrolador</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Dos chips programables</h3><a class="min" href="https://youtu.be/EDVUga7G7Bw?t=390" target="_blank" rel="noopener">&#9654; 6:30</a></div><p>El <b>microprocesador</b> es básicamente el cerebro: hay que conectarle por fuera la RAM, la memoria de programa, los periféricos y los puertos. El <b>microcontrolador</b> ya lo trae todo dentro (un poco de RAM, Flash/EEPROM, periféricos y puertos) en un solo chip: por eso se habla de sistemas embebidos.</p><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Conceptos básicos de digitales para sistemas embebidos, parte 2 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Comparación</h3><a class="min" href="https://youtu.be/EDVUga7G7Bw?t=423" target="_blank" rel="noopener">&#9654; 7:03</a></div><ul><li>Velocidad: el microprocesador trabaja en GHz; el micro en MHz (y 1 MHz ya es un millón de instrucciones por segundo, suficiente para controlar presión, temperatura, un carro o un avión a radio control).</li><li>Pines: más de 100 en un procesador; en micros desde 6 hasta 144.</li><li>Expansión: el procesador es altamente expandible; el micro, poco.</li><li>Bits: procesadores de 32 o 64 bits; micros de 8, 16 o 32 bits.</li><li>Precio: el procesador es costoso; el micro, económico.</li></ul><div class="uno"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Conceptos básicos de digitales para sistemas embebidos, parte 2 (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=EDVUga7G7Bw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
