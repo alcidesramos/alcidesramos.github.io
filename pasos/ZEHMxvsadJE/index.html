@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 20: Retardos en microsegundos y melodías con STM32 (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un delay_us preciso con el contador de ciclos DWT, verificado con un analizador lógico (10 µs y 1 kHz), y una función Sound_play(frecuencia, duración) para tocar tonos y la melodía de Mario Bros por un parlante en PB9.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/ZEHMxvsadJE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 20: Retardos en microsegundos y melodías con STM32 (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Un delay_us preciso con el contador de ciclos DWT, verificado con un analizador lógico (10 µs y 1 kHz), y una función Sound_play(frecuencia, duración) para tocar tonos y la melodía de Mario Bros por un parlante en PB9.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/ZEHMxvsadJE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/ZEHMxvsadJE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 20: Retardos en <span>microsegundos</span> y melodías</h1>
+    <p class="lead">El oído humano escucha de 20 Hz a 20 kHz. Para generar esos tonos necesitamos retardos en microsegundos, que HAL no trae. Usamos el contador de ciclos DWT de los Cortex-M3 en adelante (visto en la clase 18) para crear delay_us_dwt(), lo comprobamos con un analizador lógico y luego armamos Sound_play() para generar una frecuencia durante un tiempo. Con ella se toca cualquier melodía. Al final, cómo conectar el parlante con un transistor Darlington.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=ZEHMxvsadJE" target="_blank" rel="noopener">&#9654; Ver el video completo (19:20)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/625.webp" alt="Clase 20: Retardos en microsegundos y melodías con STM32 (paso a paso)"></figure>
+    <ul class="materiales"><li>Blue Pill (STM32F103C8T6) o cualquier Cortex-M3/M4/M7</li><li>ST-Link</li><li>Analizador lógico (opcional)</li><li>Parlante y transistor Darlington TIP122 con resistencia de base</li><li>Proteus (opcional)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · delay_us</a><a href="#f3">3 · Medir</a><a href="#f4">4 · Sonido</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Reloj y pin del parlante</h3><a class="min" href="https://youtu.be/ZEHMxvsadJE?t=131" target="_blank" rel="noopener">&#9654; 2:11</a></div><ul><li>Nuevo proyecto STM32F103C8T6 (nombre <b>melodias</b>, dentro de una carpeta vacía).</li><li>RCC → HSE: Crystal/Ceramic Resonator y HCLK a <b>72 MHz</b> (para Proteus se baja a 8 MHz).</li><li><b>PB9</b> como GPIO_Output con la etiqueta <b>parlante</b> (el nombre importa: lo usan los procedimientos).</li></ul><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Reloj a 72 MHz" loading="lazy"></a><figcaption>Reloj a 72 MHz</figcaption></figure><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="PB9 como salida" loading="lazy"></a><figcaption>PB9 como salida</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Retardo en microsegundos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variable y procedimientos</h3><a class="min" href="https://youtu.be/ZEHMxvsadJE?t=232" target="_blank" rel="noopener">&#9654; 3:52</a></div><p>En <b>USER CODE BEGIN PV</b> la variable <code>uint32_t pasos;</code> (ciclos por microsegundo). En <b>USER CODE BEGIN 0</b> los procedimientos:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint32_t pasos;
+
+// retardos usando el timer del debugger
+void delay_us_init()
+{
+  CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+  DWT-&gt;CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+  pasos = (HAL_RCC_GetHCLKFreq() / 1000000); // ciclos en 1 us
+}
+
+// retardo por debugger
+void delay_us_dwt(uint32_t reta)
+{
+  DWT-&gt;CYCCNT = 0;
+  while (DWT-&gt;CYCCNT &lt;= pasos * reta);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 20: Retardos en microsegundos y melodías con STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Cómo funciona</h3><a class="min" href="https://youtu.be/ZEHMxvsadJE?t=264" target="_blank" rel="noopener">&#9654; 4:24</a></div><p><code>HAL_RCC_GetHCLKFreq()</code> devuelve la frecuencia del reloj; dividida entre un millón da los ciclos por microsegundo (72 a 72 MHz). <code>delay_us_dwt</code> borra el contador y espera hasta llegar a <code>pasos × reta</code> ciclos. Es más preciso con relojes altos; a frecuencias bajas pesa la multiplicación.</p><p class="ojo">Funciona en Cortex-M3 en adelante (tienen DWT). Para M0 hay otra opción que veremos después.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Inicializar una vez</h3><a class="min" href="https://youtu.be/ZEHMxvsadJE?t=429" target="_blank" rel="noopener">&#9654; 7:09</a></div><p>Va en <b>USER CODE BEGIN 2</b>, antes del while(1):</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>delay_us_init();</code></pre></div><div class="uno"><figure class="cap"><a href="img/455.webp" target="_blank"><img src="img/455.webp" alt="Clase 20: Retardos en microsegundos y melodías con STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Comprobarlo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Pulsos de 10 µs</h3><a class="min" href="https://youtu.be/ZEHMxvsadJE?t=364" target="_blank" rel="noopener">&#9654; 6:04</a></div><p>Para apagar se usa BSRR con el pin desplazado 16 (así sirve también en la Black Pill, que no tiene BRR):</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void prueba()
+{
+  parlante_GPIO_Port-&gt;BSRR = parlante_Pin;
+  delay_us_dwt(10);
+  parlante_GPIO_Port-&gt;BSRR = parlante_Pin &lt;&lt; 16;
+  delay_us_dwt(10);
+  // ... repetido 3 veces
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Procedimiento de prueba" loading="lazy"></a><figcaption>Procedimiento de prueba</figcaption></figure><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Analizador lógico: ≈10.9 µs" loading="lazy"></a><figcaption>Analizador lógico: ≈10.9 µs</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Una frecuencia de 1 kHz</h3><a class="min" href="https://youtu.be/ZEHMxvsadJE?t=562" target="_blank" rel="noopener">&#9654; 9:22</a></div><p>1 kHz es un periodo de 1 ms: 500 µs en alto y 500 µs en bajo. El analizador mide 997,7 Hz.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>parlante_GPIO_Port-&gt;BSRR = parlante_Pin;
+delay_us_dwt(500);
+parlante_GPIO_Port-&gt;BSRR = parlante_Pin &lt;&lt; 16;
+delay_us_dwt(500);</code></pre></div><div class="uno"><figure class="cap"><a href="img/625.webp" target="_blank"><img src="img/625.webp" alt="Clase 20: Retardos en microsegundos y melodías con STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Tonos y melodías</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Procedimiento Sound_play</h3><a class="min" href="https://youtu.be/ZEHMxvsadJE?t=738" target="_blank" rel="noopener">&#9654; 12:18</a></div><p>Recibe la frecuencia en Hz y la duración en ms. Medio periodo = 500 000 / frec µs; repeticiones = frec × dura / 1000.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Sound_play(uint32_t frec, uint32_t dura)
+{
+  uint32_t dela = 500000 / frec;          // la mitad de un periodo en us
+  uint32_t repe = frec * dura / 1000;     // cuántas veces se repite
+  while (repe--)
+  {
+    parlante_GPIO_Port-&gt;BSRR = parlante_Pin;
+    delay_us_dwt(dela);
+    parlante_GPIO_Port-&gt;BSRR = parlante_Pin &lt;&lt; 16;
+    delay_us_dwt(dela);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 20: Retardos en microsegundos y melodías con STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Usarlo</h3><a class="min" href="https://youtu.be/ZEHMxvsadJE?t=838" target="_blank" rel="noopener">&#9654; 13:58</a></div><p>La melodía de Mario Bros es una lista de Sound_play(frecuencia, duración) y HAL_Delay(pausa), por ejemplo <code>Sound_play(660, 100); HAL_Delay(75);</code>…</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Sound_play(1000, 200);
+Sound_play(2000, 100);
+Sound_play(3000, 200);
+HAL_Delay(200);
+Sound_play(5000, 100);
+HAL_Delay(80);
+Sound_play(500, 300);</code></pre></div><p class="ojo">En Proteus simula con el reloj a 8 MHz y activa la salida .hex (Properties → C/C++ Build → Settings → MCU Post build outputs).</p><div class="dos"><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Llamando a Sound_play" loading="lazy"></a><figcaption>Llamando a Sound_play</figcaption></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Melodía de Mario Bros" loading="lazy"></a><figcaption>Melodía de Mario Bros</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Conectar el parlante</h3><a class="min" href="https://youtu.be/ZEHMxvsadJE?t=1048" target="_blank" rel="noopener">&#9654; 17:28</a></div><p>Nunca conectes el parlante directo al pin: se daña el micro. Usa un transistor Darlington como el <b>TIP122</b> (se satura fácil) con una resistencia de base; así puedes alimentar un parlante grande con 12 V para una alarma o sirena.</p><div class="uno"><figure class="cap"><a href="img/1085.webp" target="_blank"><img src="img/1085.webp" alt="Clase 20: Retardos en microsegundos y melodías con STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=ZEHMxvsadJE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

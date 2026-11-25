@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 19: Procedimientos en C/C++ con STM32 (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Organizar el código del display y de 4 LEDs con procedimientos (void nombre()), nombres con #define y parámetros para cambiar la velocidad de un efecto tipo auto fantástico hecho con BSRR.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/e7Azd2d44y8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Organizar el código del display y de 4 LEDs con procedimientos (void nombre()), nombres con #define y parámetros para cambiar la velocidad de un efecto tipo auto fantástico hecho con BSRR.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/e7Azd2d44y8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/e7Azd2d44y8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 19: <span>Procedimientos</span> y #define en C</h1>
+    <p class="lead">Sobre el proyecto del display de 7 segmentos (STM32F401) agregamos 4 LEDs en PB12–PB15 y aprendemos a usar procedimientos: bloques de código con nombre que se escriben una vez y se llaman cuantas veces se quiera. Con #define damos nombres fáciles a los puertos, y con parámetros hacemos que un mismo procedimiento funcione a distintas velocidades. Los juegos de luces usan el registro BSRR en modo atómico de la clase pasada.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=e7Azd2d44y8" target="_blank" rel="noopener">&#9654; Ver el video completo (19:13)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/700.webp" alt="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso)"></figure>
+    <ul class="materiales"><li>Proyecto del display 7 segmentos (STM32F401 / Black Pill)</li><li>4 LEDs y 4 resistencias de 180 Ω</li><li>STM32CubeIDE</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Circuito</a><a href="#f2">2 · void</a><a href="#f3">3 · #define</a><a href="#f4">4 · Luces</a><a href="#f5">5 · Parámetros</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Circuito</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>4 LEDs en PB12–PB15</h3><a class="min" href="https://youtu.be/e7Azd2d44y8?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>En Proteus agrega 4 LEDs amarillos con resistencias de 180 Ω a tierra en PB12, PB13, PB14 y PB15, y en CubeMX configúralos como salida con etiquetas LED1…LED4.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Cargar el .elf en Proteus</h3><a class="min" href="https://youtu.be/e7Azd2d44y8?t=148" target="_blank" rel="noopener">&#9654; 2:28</a></div><p>Doble clic en el micro y en Program File elige el .elf (o .hex) de la carpeta Debug del proyecto.</p><div class="uno"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Procedimientos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Crear un procedimiento</h3><a class="min" href="https://youtu.be/e7Azd2d44y8?t=179" target="_blank" rel="noopener">&#9654; 2:59</a></div><p>Recomiendo crearlos en <b>USER CODE BEGIN PFP</b> (o 0), después de las variables. Se escribe <code>void</code>, el nombre, paréntesis y llaves; dentro va el código. Sin parámetros, los paréntesis van vacíos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void hola()
+{
+  // aquí el código que muestra HOLA en el display
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/225.webp" target="_blank"><img src="img/225.webp" alt="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Llamarlo</h3><a class="min" href="https://youtu.be/e7Azd2d44y8?t=243" target="_blank" rel="noopener">&#9654; 4:03</a></div><p>Si no se llama, no se ejecuta. Se llama por su nombre con punto y coma, tantas veces como se quiera, sin copiar el código:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  chao();
+  chao();
+  baja();   // conteo regresivo 3, 2, 1
+}</code></pre></div><p class="ojo">Si lo escribes después del main, declara antes su prototipo: void baja();</p><div class="dos"><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>#define</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Nombres para los puertos</h3><a class="min" href="https://youtu.be/e7Azd2d44y8?t=305" target="_blank" rel="noopener">&#9654; 5:05</a></div><p>En <b>USER CODE BEGIN PD</b> (Private define). El preprocesador cambia el nombre por su valor antes de compilar, así no hay que memorizar registros.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define leds GPIOB-&gt;ODR</code></pre></div><div class="uno"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Luces 1: invertir con NOT</h3><a class="min" href="https://youtu.be/e7Azd2d44y8?t=545" target="_blank" rel="noopener">&#9654; 9:05</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void luces1()
+{
+  leds = ~leds;
+  HAL_Delay(200);
+  leds = ~leds;
+  HAL_Delay(200);
+  leds = ~leds;
+  HAL_Delay(200);
+  leds = ~leds;
+  HAL_Delay(200);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Juegos de luces atómicos</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Luces 2: encender en secuencia</h3><a class="min" href="https://youtu.be/e7Azd2d44y8?t=646" target="_blank" rel="noopener">&#9654; 10:46</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void luces2()
+{
+  leds = 0;   // apaga
+  HAL_Delay(200);
+  GPIOB-&gt;BSRR = LED1_Pin;
+  HAL_Delay(200);
+  GPIOB-&gt;BSRR = LED2_Pin;
+  HAL_Delay(200);
+  GPIOB-&gt;BSRR = LED3_Pin;
+  HAL_Delay(200);
+  GPIOB-&gt;BSRR = LED4_Pin;
+  HAL_Delay(200);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Luces 3: auto fantástico</h3><a class="min" href="https://youtu.be/e7Azd2d44y8?t=714" target="_blank" rel="noopener">&#9654; 11:54</a></div><p>Enciende en orden y luego apaga en sentido inverso. El STM32F401 no tiene registro BRR, así que para apagar se usa la parte alta de BSRR: el pin desplazado 16 posiciones.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// apaga en sentido inverso
+GPIOB-&gt;BSRR |= LED4_Pin &lt;&lt; 16;
+HAL_Delay(200);
+GPIOB-&gt;BSRR |= LED3_Pin &lt;&lt; 16;
+HAL_Delay(200);
+GPIOB-&gt;BSRR |= LED2_Pin &lt;&lt; 16;
+HAL_Delay(200);
+GPIOB-&gt;BSRR |= LED1_Pin &lt;&lt; 16;
+HAL_Delay(200);</code></pre></div><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Parámetros</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Un parámetro de velocidad</h3><a class="min" href="https://youtu.be/e7Azd2d44y8?t=812" target="_blank" rel="noopener">&#9654; 13:32</a></div><p>Los parámetros son variables locales que solo existen dentro del procedimiento. Reemplaza los 200 por el parámetro (Ctrl+F → Replace, solo en lo seleccionado) y llámalo con distintos valores:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void luces3(uint8_t velo) { ... HAL_Delay(velo); ... }
+
+luces3(200);
+luces3(100);
+luces3(50);</code></pre></div><div class="uno"><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Clase 19: Procedimientos en C/C++ con STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Varios parámetros</h3><a class="min" href="https://youtu.be/e7Azd2d44y8?t=953" target="_blank" rel="noopener">&#9654; 15:53</a></div><p>Se separan con coma. Uno para la subida y otro para la bajada. Con uint8_t el máximo es 255, por eso para 500 ms se cambia a uint16_t.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void luces3(uint16_t velosub, uint16_t veloba)
+{
+  // ... HAL_Delay(velosub) al encender
+  // ... HAL_Delay(veloba) al apagar
+}
+
+luces3(200, 100);
+luces3(100, 200);
+luces3(80, 500);</code></pre></div><div class="dos"><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Parámetros de subida y bajada" loading="lazy"></a><figcaption>Parámetros de subida y bajada</figcaption></figure><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Un error de escritura en el nombre del parámetro: revisa la pestaña Problems" loading="lazy"></a><figcaption>Un error de escritura en el nombre del parámetro: revisa la pestaña Problems</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=e7Azd2d44y8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
