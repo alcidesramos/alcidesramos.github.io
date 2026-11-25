@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Módulo RFID RC522 con STM32: leer el UID y algoritmo hash · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leemos tarjetas y llaveros RFID con el RC522 por SPI: detectar tarjeta, leer su UID de 5 bytes, compararlo con tags conocidos y, mejor aún, reducirlo a un número de 32 bits con un hash.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/BHjCjlnqA14/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash · Paso a paso">
+  <meta property="og:description" content="Leemos tarjetas y llaveros RFID con el RC522 por SPI: detectar tarjeta, leer su UID de 5 bytes, compararlo con tags conocidos y, mejor aún, reducirlo a un número de 32 bits con un hash.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/BHjCjlnqA14/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/BHjCjlnqA14/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>RFID <span>RC522</span> con STM32</h1>
+    <p class="lead">El RC522 es un lector RFID de 13.56 MHz que se comunica por SPI, I2C o UART; aquí se usa SPI, cuidando no pasar de 10 MHz. Con una librería adaptada de PIC se detecta la tarjeta, se lee su UID y se envía por la UART. Se muestran dos formas de reconocer tags: comparando el UID con vectores guardados (función verifica) y con un algoritmo hash que convierte el UID en un solo número de 32 bits, más fácil de comparar y que ahorra memoria.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=BHjCjlnqA14" target="_blank" rel="noopener">&#9654; Ver el video completo (29:08)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1700.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401CCU6</li><li>Módulo RFID RC522 con tarjetas y llaveros</li><li>ST-Link y conversor USB serial</li><li>Librerías RC522, delays y uart</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeMX</a><a href="#f2">2 · Librería</a><a href="#f3">3 · Leer UID</a><a href="#f4">4 · Comparar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El módulo</h3><a class="min" href="https://youtu.be/BHjCjlnqA14?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Pines del RC522: VCC (3.3 V), RST, GND, IRQ (no se usa), MISO, MOSI, SCK y SS (SDA). Se usa SPI porque es el más rápido, pero el módulo admite como máximo 10 Mbit/s.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Reloj, LED y UART</h3><a class="min" href="https://youtu.be/BHjCjlnqA14?t=140" target="_blank" rel="noopener">&#9654; 2:20</a></div><p>HSE con cristal y PLL a 84 MHz. PC13 como salida con etiqueta led. USART1 asíncrono a 9600 hacia un cable USB serial.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>SPI1 por debajo de 10 MHz</h3><a class="min" href="https://youtu.be/BHjCjlnqA14?t=205" target="_blank" rel="noopener">&#9654; 3:25</a></div><p>SPI1 en Full-Duplex Master, Hardware NSS Signal deshabilitado. El Baud Rate Prescaler se elige para no pasar de 10 MHz: con este reloj, prescaler 16 da 5.25 MHz (con 8 se pasa a 10.5 MHz).</p><p>Dos pines más como GPIO_Output con etiquetas RC522_CS (habilitador) y RC522_RST.</p><p class="ojo">El prescaler correcto depende del reloj que le pongas al micro. Revisa en CubeMX el valor de Baud Rate que calcula.</p><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Includes</h3><a class="min" href="https://youtu.be/BHjCjlnqA14?t=390" target="_blank" rel="noopener">&#9654; 6:30</a></div><p>Se copian RC522.c/.h, delays y uart a la carpeta Librerias, se agrega al include path y se incluyen junto con las librerías estándar de C.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;delays.h&quot;
+#include &quot;uart.h&quot;
+#include &quot;RC522.h&quot;
+
+#include &quot;stdio.h&quot;
+#include &quot;stdint.h&quot;
+#include &quot;string.h&quot;
+#include &quot;stdlib.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>RC522.h</h3><a class="min" href="https://youtu.be/BHjCjlnqA14?t=422" target="_blank" rel="noopener">&#9654; 7:02</a></div><p>En el .h se pueden definir los pines a mano si no usas CubeMX, y están las instrucciones de lo que va en main.</p><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Variables</h3><a class="min" href="https://youtu.be/BHjCjlnqA14?t=454" target="_blank" rel="noopener">&#9654; 7:34</a></div><p>texto para la UART, codigo_rfid para el hash de 32 bits, TagType para el tipo de tarjeta y UID, el buffer del código único (en estas tarjetas son 5 bytes).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PV */
+char texto[50];
+// variables rfid
+uint32_t codigo_rfid;
+uint16_t TagType;       // almacena el tipo de tag
+extern uint8_t UID[];   // almacena el buffer del código de rfid</code></pre></div><div class="uno"><figure class="cap"><a href="img/510.webp" target="_blank"><img src="img/510.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Detectar y leer</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Inicializar y detectar tarjeta</h3><a class="min" href="https://youtu.be/BHjCjlnqA14?t=523" target="_blank" rel="noopener">&#9654; 8:43</a></div><p>MFRC522_isCard indica que hay una tarjeta en el lector. Útil para probar, pero no dice cuál es.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+MFRC522_Init();
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+
+while (1)
+{
+  if (MFRC522_isCard(&amp;TagType))
+  {
+    HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+    uartx_write_text(&amp;huart1, &quot;TARJETA DETECTADA\r\n&quot;);
+    HAL_Delay(200);
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Leer el UID</h3><a class="min" href="https://youtu.be/BHjCjlnqA14?t=767" target="_blank" rel="noopener">&#9654; 12:47</a></div><p>Con MFRC522_ReadCardSerial se leen los 5 bytes del código único y se envían en hexadecimal. Cada tarjeta da un código distinto, por ejemplo 0x73 0x78 0xE7 0xA6 0x4A.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// lee UID
+if (MFRC522_ReadCardSerial(UID))
+{
+  uartx_write_text(&amp;huart1, &quot;cod=&quot;);
+  // escribe el código
+  for (uint8_t cont = 0; cont &lt; 5; cont++)
+  {
+    sprintf(texto, &quot;0x%0X &quot;, UID[cont]);
+    uartx_write_text(&amp;huart1, texto);
+  }
+  uartx_write_text(&amp;huart1, &quot;\r\n&quot;);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/780.webp" target="_blank"><img src="img/780.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Reconocer tags</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Forma 1: comparar vectores</h3><a class="min" href="https://youtu.be/BHjCjlnqA14?t=908" target="_blank" rel="noopener">&#9654; 15:08</a></div><p>Se guarda el UID de cada tarjeta conocida en un vector constante y se compara con verifica. Funciona, pero cada tarjeta ocupa 5 bytes y la comparación recorre el vector.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const uint8_t codigo1[] = {0x73, 0x78, 0xE7, 0xA6, 0x4A};
+const uint8_t codigo2[] = {0x.., 0x.., 0x.., 0x.., 0x..};   // código de tu segunda tarjeta
+
+// dentro de if (MFRC522_ReadCardSerial(UID))
+if (verifica(codigo1, UID, 5) == 1)
+{
+  HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+  uartx_write_text(&amp;huart1, &quot;TAG1 DETECTADO\r\n&quot;);
+}
+else if (verifica(codigo2, UID, 5) == 1)
+{
+  uartx_write_text(&amp;huart1, &quot;TAG2 DETECTADO\r\n&quot;);
+}
+HAL_Delay(300);</code></pre></div><div class="dos"><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure><figure class="cap"><a href="img/1030.webp" target="_blank"><img src="img/1030.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure><figure class="cap"><a href="img/1130.webp" target="_blank"><img src="img/1130.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure><figure class="cap"><a href="img/1200.webp" target="_blank"><img src="img/1200.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Forma 2: algoritmo hash</h3><a class="min" href="https://youtu.be/BHjCjlnqA14?t=1297" target="_blank" rel="noopener">&#9654; 21:37</a></div><p>Hash_algoritmo convierte el UID leído en un número único de 32 bits. Se imprime una vez para conocer el número de cada tarjeta y luego se guarda con un #define: comparar es una sola operación y se ahorra memoria.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PD */
+#define tag1 2903407447   // código del tag 1
+#define tag2 1044690731   // código del tag 2
+
+// METODO HASH (dentro del while, con tarjeta presente)
+codigo_rfid = Hash_algoritmo();     // lee código único
+sprintf(texto, &quot;tag#=%lu\r\n&quot;, codigo_rfid);
+uartx_write_text(&amp;huart1, texto);
+
+// ANALISIS
+if (codigo_rfid == tag1)
+{
+  HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+  uartx_write_text(&amp;huart1, &quot;TAG1 DETECTADO\r\n&quot;);
+}
+else if (codigo_rfid == tag2)
+{
+  uartx_write_text(&amp;huart1, &quot;TAG2 DETECTADO\r\n&quot;);
+}
+HAL_Delay(500);</code></pre></div><p class="ojo">Los números tag1 y tag2 son los de las tarjetas del video. Pon los que te imprima tu lector.</p><div class="dos"><figure class="cap"><a href="img/1400.webp" target="_blank"><img src="img/1400.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure><figure class="cap"><a href="img/1500.webp" target="_blank"><img src="img/1500.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure><figure class="cap"><a href="img/1600.webp" target="_blank"><img src="img/1600.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure><figure class="cap"><a href="img/1660.webp" target="_blank"><img src="img/1660.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/BHjCjlnqA14?t=1686" target="_blank" rel="noopener">&#9654; 28:06</a></div><p>Con el tag 2 aparece TAG2 DETECTADO y su número; con el tag 1, TAG1 DETECTADO y el LED cambia. Una tarjeta desconocida solo muestra TARJETA DETECTADA y su número.</p><p>Las tarjetas también tienen memoria (8 kB) para guardar datos, descontar saldo, etc. Eso queda para otra clase.</p><div class="dos"><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure><figure class="cap"><a href="img/1700.webp" target="_blank"><img src="img/1700.webp" alt="Módulo RFID RC522 con STM32: leer el UID y algoritmo hash" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=BHjCjlnqA14" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
