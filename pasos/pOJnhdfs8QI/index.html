@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Programar STM32 desde MATLAB, parte 1: instalación del soporte · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Instalamos y configuramos el Embedded Coder Support Package for STMicroelectronics STM32 Processors en MATLAB, con las versiones de CubeMX y CubeProgrammer que pide.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/pOJnhdfs8QI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Programar STM32 desde MATLAB, parte 1: instalación del soporte · Paso a paso">
+  <meta property="og:description" content="Instalamos y configuramos el Embedded Coder Support Package for STMicroelectronics STM32 Processors en MATLAB, con las versiones de CubeMX y CubeProgrammer que pide.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/pOJnhdfs8QI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/pOJnhdfs8QI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>STM32 desde MATLAB: <span>instalación</span></h1>
+    <p class="lead">Primera parte de la serie para programar los STM32 desde MATLAB y Simulink, desde prender un LED hasta algoritmos de lógica difusa. Aquí solo se deja todo instalado: el paquete de soporte de hardware, las versiones antiguas de STM32CubeMX (6.4.0) y STM32CubeProgrammer (2.6.0) que exige el paquete, la validación de ambas rutas y el firmware STM32Cube. En la parte 2 se hace el primer programa.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=pOJnhdfs8QI" target="_blank" rel="noopener">&#9654; Ver el video completo (6:10)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/270.webp" alt="Programar STM32 desde MATLAB, parte 1: instalación del soporte"></figure>
+    <ul class="materiales"><li>MATLAB con Simulink y Embedded Coder</li><li>STM32CubeMX 6.4.0</li><li>STM32CubeProgrammer 2.6.0</li><li>Archivo STM32F4-Discovery_FW_V1.1.0 (lo pide el instalador al final)</li><li>Black Pill STM32F401 o STM32F411</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Add-On</a><a href="#f2">2 · Carpetas</a><a href="#f3">3 · Validar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Instalar el paquete</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Buscar el soporte STM32</h3><a class="min" href="https://youtu.be/pOJnhdfs8QI?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>En MATLAB: Home, Add-Ons, Get Hardware Support Packages. Se escribe STM32 y aparecen dos paquetes:</p><ul><li>Embedded Coder Support Package for STMicroelectronics STM32 Processors: para los micros (Black Pill, Blue Pill...). Es el que se usa en esta serie.</li><li>Simulink Coder Support Package for STMicroelectronics Nucleo Boards: solo para tarjetas Nucleo.</li></ul><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Programar STM32 desde MATLAB, parte 1: instalación del soporte" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Elegir la familia de micros</h3><a class="min" href="https://youtu.be/pOJnhdfs8QI?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>Después de instalarlo aparece la opción de configurarlo (Hardware Setup). En Select STM32 MCUs Family se puede marcar todo o solo la familia F4 si solo se va a trabajar con F401 o F411.</p><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Programar STM32 desde MATLAB, parte 1: instalación del soporte" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Versiones que pide</h3><a class="min" href="https://youtu.be/pOJnhdfs8QI?t=98" target="_blank" rel="noopener">&#9654; 1:38</a></div><p>La ventana STM32 Tools Information indica las versiones exactas: STM32CubeMX 6.4.0 y STM32CubeProgrammer 2.6.0. Aunque tengas versiones más nuevas instaladas, el paquete trabaja con estas.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Programar STM32 desde MATLAB, parte 1: instalación del soporte" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Versiones antiguas aparte</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Crear las carpetas</h3><a class="min" href="https://youtu.be/pOJnhdfs8QI?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><p>Para no tocar tus versiones nuevas, en C:\Program Files\STMicroelectronics crea una carpeta STM32CubeOLD y dentro STM32CubeMX y STM32CubeProgrammer. Al instalar cada programa antiguo, elige su carpeta como destino.</p><ul><li>Crea un icono en el escritorio para CubeMX 6.4.0, así sabes cuál es la versión vieja.</li><li>El CubeProgrammer viejo no hace falta abrirlo: MATLAB lo usa solo al programar.</li></ul><div class="dos"><figure class="cap"><a href="img/130.webp" target="_blank"><img src="img/130.webp" alt="Programar STM32 desde MATLAB, parte 1: instalación del soporte" loading="lazy"></a></figure><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Programar STM32 desde MATLAB, parte 1: instalación del soporte" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Validar y terminar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Validar STM32CubeMX</h3><a class="min" href="https://youtu.be/pOJnhdfs8QI?t=195" target="_blank" rel="noopener">&#9654; 3:15</a></div><p>En Validate STM32CubeMX se busca la carpeta donde quedó instalado y se presiona Validate. Si eliges una versión más nueva, avisa que puede haber incompatibilidades y que es bajo tu propio riesgo. Con la carpeta de la versión 6.4.0 aparece: The STM32CubeMX folder provided is valid.</p><p class="ojo">Si te sale el aviso de versión más avanzada, es que apuntaste a la carpeta de tu CubeMX nuevo. Regresa y elige la de STM32CubeOLD.</p><div class="dos"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Programar STM32 desde MATLAB, parte 1: instalación del soporte" loading="lazy"></a></figure><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Programar STM32 desde MATLAB, parte 1: instalación del soporte" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Validar STM32CubeProgrammer</h3><a class="min" href="https://youtu.be/pOJnhdfs8QI?t=263" target="_blank" rel="noopener">&#9654; 4:23</a></div><p>Igual con el programador: se selecciona la carpeta STM32CubeProgrammer dentro de STM32CubeOLD (la que contiene bin con STM32_Programmer_CLI) y se valida.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Programar STM32 desde MATLAB, parte 1: instalación del soporte" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Firmware STM32Cube</h3><a class="min" href="https://youtu.be/pOJnhdfs8QI?t=297" target="_blank" rel="noopener">&#9654; 4:57</a></div><p>Luego pide instalar el firmware de las familias (STM32F4xx, F7xx, G4xx...). Se deja el repositorio que propone y se presiona Install; tarda bastante si se marcan todas.</p><p>Al final pide el archivo STM32F4-Discovery_FW_V1.1.0: se copia en la carpeta STM32CubeOLD y se continúa con Next.</p><div class="dos"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Programar STM32 desde MATLAB, parte 1: instalación del soporte" loading="lazy"></a></figure><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Programar STM32 desde MATLAB, parte 1: instalación del soporte" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=pOJnhdfs8QI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

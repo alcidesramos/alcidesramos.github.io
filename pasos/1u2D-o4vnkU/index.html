@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leer el sensor de temperatura interno del STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leemos el sensor de temperatura interno de la Black Pill (STM32F401) por el ADC1, junto con un canal analógico externo, y enviamos voltaje y temperatura por la UART.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/1u2D-o4vnkU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Leer el sensor de temperatura interno del STM32 · Paso a paso">
+  <meta property="og:description" content="Leemos el sensor de temperatura interno de la Black Pill (STM32F401) por el ADC1, junto con un canal analógico externo, y enviamos voltaje y temperatura por la UART.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/1u2D-o4vnkU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/1u2D-o4vnkU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Sensor de <span>temperatura interno</span> del STM32</h1>
+    <p class="lead">El STM32 tiene un sensor de temperatura conectado a un canal interno del ADC. Proteus no lo simula (siempre marca 25 °C), así que la práctica se hace en una Black Pill real. Se configura el ADC1 con dos conversiones regulares: el canal 0 (un potenciómetro) y el canal del sensor de temperatura. Con las constantes V25 y Avg_Slope del datasheet y la fórmula del manual de referencia se calcula la temperatura en °C y se envía por la UART cada segundo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=1u2D-o4vnkU" target="_blank" rel="noopener">&#9654; Ver el video completo (12:55)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/725.webp" alt="Leer el sensor de temperatura interno del STM32"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401CCU6 (montaje físico; Proteus no simula este sensor)</li><li>Programador ST-Link</li><li>Conversor USB a serial conectado a USART1</li><li>Potenciómetro en PA0 (ADC1_IN0)</li><li>Librerías propias adc, uart y delays</li><li>Manual de referencia RM0368 y datasheet del STM32F401</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Fórmula</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · Código</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La fórmula</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Manual de referencia y datasheet</h3><a class="min" href="https://youtu.be/1u2D-o4vnkU?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>La fórmula está en el manual de referencia (RM0368, sección del ADC, Reading the temperature). Las constantes de cada micro están en su datasheet: buscando Avg_Slope aparecen los valores.</p><ul><li>Avg_Slope = 2.5 mV/°C (0.0025 V/°C)</li><li>V25 = 0.76 V (voltaje del sensor a 25 °C)</li><li>Temperatura (°C) = ((Vsense − V25) / Avg_Slope) + 25</li></ul><div class="uno"><figure class="cap"><a href="img/45.webp" target="_blank"><img src="img/45.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj y UART</h3><a class="min" href="https://youtu.be/1u2D-o4vnkU?t=135" target="_blank" rel="noopener">&#9654; 2:15</a></div><p>Proyecto nuevo con el STM32F401CCUx. En RCC se activa el cristal (HSE) y en Clock Configuration se lleva el PLL a 84 MHz. USART1 en modo asíncrono; como es un montaje físico se puede usar 115200 baudios. El LED de la tarjeta (PC13) queda como salida con la etiqueta LED.</p><div class="dos"><figure class="cap"><a href="img/145.webp" target="_blank"><img src="img/145.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>ADC1 con dos canales</h3><a class="min" href="https://youtu.be/1u2D-o4vnkU?t=205" target="_blank" rel="noopener">&#9654; 3:25</a></div><p>En Analog, ADC1 se marca IN0 y Temperature Sensor Channel. En User Constants se agrega ADC1 para que la librería lo reconozca.</p><p>En Parameter Settings: Number Of Conversion = 2, Scan Conversion habilitado y Discontinuous Conversion con 1 conversión. Rank 1 = Channel 0 y Rank 2 = canal del sensor de temperatura.</p><p class="ojo">El manual pide un tiempo de muestreo mayor que el mínimo del datasheet para el sensor de temperatura (unos 10 µs). Si la lectura sale inestable, sube el Sampling Time del Rank 2 a 480 ciclos.</p><div class="dos"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/275.webp" target="_blank"><img src="img/275.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Librerías y printf con decimales</h3><a class="min" href="https://youtu.be/1u2D-o4vnkU?t=308" target="_blank" rel="noopener">&#9654; 5:08</a></div><p>Se crea la carpeta Librerias en Core, se agrega al include path y se copian las librerías de ADC, UART y delays. En las propiedades del proyecto, MCU Settings, se habilita printf con float.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;uart.h&quot;
+#include &quot;adc.h&quot;
+#include &quot;delays.h&quot;
+#include &quot;string.h&quot;
+#include &quot;stdio.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/385.webp" target="_blank"><img src="img/385.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/1u2D-o4vnkU?t=474" target="_blank" rel="noopener">&#9654; 7:54</a></div><p>Una cadena para el texto, el voltaje del pin A0, el voltaje del sensor y la temperatura calculada. Faltaba declarar codigo, que guarda el valor del ADC.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PV */
+float voltaje, temp_voltios, temp_interna;
+char texto[100];
+uint16_t codigo;</code></pre></div><div class="uno"><figure class="cap"><a href="img/495.webp" target="_blank"><img src="img/495.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Lectura y cálculo en el while</h3><a class="min" href="https://youtu.be/1u2D-o4vnkU?t=576" target="_blank" rel="noopener">&#9654; 9:36</a></div><p>La primera lectura del ADC es el canal 0 y la segunda es el sensor de temperatura. Ambas se pasan a voltaje con 3.3/4095 y la segunda se convierte a grados con la fórmula del manual.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, &quot;Iniciando\r\n&quot;);
+
+while (1)
+{
+  // leer el voltaje de AN0
+  codigo = ADC_Read();
+  voltaje = codigo * 3.3 / 4095.0;
+
+  // leer la temperatura interna del micro
+  codigo = ADC_Read();
+  temp_voltios = codigo * 3.3 / 4095.0;   // voltaje del sensor interno
+
+  // datos sacados del datasheet
+  float const V25 = 0.76;          // V (voltaje típico a 25 °C)
+  float const Avg_Slope = 0.0025;  // V/°C
+  // fórmula sacada del manual de referencia
+  temp_interna = ((temp_voltios - V25) / Avg_Slope) + 25;
+
+  sprintf(texto, &quot;Volt=%.2f\r\nTEMP=%.2f\r\n\r\n&quot;, voltaje, temp_interna);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(1000);
+}</code></pre></div><p class="ojo">El orden importa: con Discontinuous Conversion cada ADC_Read() convierte el siguiente Rank, así que la primera lectura es AN0 y la segunda es la temperatura.</p><div class="dos"><figure class="cap"><a href="img/665.webp" target="_blank"><img src="img/665.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/630.webp" target="_blank"><img src="img/630.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba en la tarjeta</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Grabar y ver los datos</h3><a class="min" href="https://youtu.be/1u2D-o4vnkU?t=679" target="_blank" rel="noopener">&#9654; 11:19</a></div><p>Se graba con STM32CubeProgrammer y se abre el puerto serial con Hercules. Al resetear aparece Iniciando y luego el voltaje de AN0 (de 0 a 3.3 V moviendo el potenciómetro) y la temperatura del micro, que arranca en unos 35 °C y baja mientras se estabiliza.</p><p>Al tocar el microcontrolador con el dedo la temperatura sube a unos 38 °C.</p><div class="dos"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/725.webp" target="_blank"><img src="img/725.webp" alt="Leer el sensor de temperatura interno del STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>¿Para qué sirve?</h3><a class="min" href="https://youtu.be/1u2D-o4vnkU?t=716" target="_blank" rel="noopener">&#9654; 11:56</a></div><p>Para vigilar si el micro se está calentando demasiado en un proyecto y decidir si hace falta un disipador o ventilador. Si se calienta mucho puede resetearse o dañarse.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=1u2D-o4vnkU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Primer programa hecho en Simulink: un generador de pulsos hace parpadear el LED de PC13. Configuramos CubeMX 6.4 como lo exige MATLAB, generamos el .hex y lo simulamos en Proteus.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/pGZVnWD4wnw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus · Paso a paso">
+  <meta property="og:description" content="Primer programa hecho en Simulink: un generador de pulsos hace parpadear el LED de PC13. Configuramos CubeMX 6.4 como lo exige MATLAB, generamos el .hex y lo simulamos en Proteus.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/pGZVnWD4wnw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/pGZVnWD4wnw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>STM32 desde MATLAB: <span>LED en Simulink y Proteus</span></h1>
+    <p class="lead">Con el paquete de soporte ya instalado, se arma en Simulink un modelo de dos bloques (Pulse Generator y Digital Port Write en GPIOC pin 13). MATLAB no se comunica con el micro en tiempo real: genera el código y el .hex para que el STM32 trabaje solo. La clave está en preparar el .ioc de STM32CubeMX 6.4 con las opciones que MATLAB necesita (no generar main, librerías LL, sin static y un timer como base de tiempo en lugar del SysTick) y enlazarlo en Hardware Implementation.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=pGZVnWD4wnw" target="_blank" rel="noopener">&#9654; Ver el video completo (13:10)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/455.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus"></figure>
+    <ul class="materiales"><li>MATLAB y Simulink con el Embedded Coder Support Package for STM32 (parte 1)</li><li>STM32CubeMX 6.4.0</li><li>Proteus con el STM32F401</li><li>LED amarillo y resistencia de 220 Ω en PC13</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Simulink</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · Model Settings</a><a href="#f4">4 · Proteus</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Modelo en Simulink</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Bloques del paquete STM32</h3><a class="min" href="https://youtu.be/pGZVnWD4wnw?t=42" target="_blank" rel="noopener">&#9654; 0:42</a></div><p>En un modelo nuevo de Simulink se abre el Library Browser, sección Embedded Coder Support Package for STMicroelectronics STM32 Processors. Además de las Nucleo, hay bloques para tarjetas genéricas: Digital Port Write/Read, UART, PWM, I2C, Timer...</p><p>MATLAB no controla el micro desde el PC: genera el .hex para que el micro tenga el control, como en un control real.</p><div class="dos"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Digital Port Write y Pulse Generator</h3><a class="min" href="https://youtu.be/pGZVnWD4wnw?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Se agrega Digital Port Write con puerto GPIOC y pin 13 (el LED de la Black Pill). Se le conecta un Pulse Generator con amplitud 1 (es digital), periodo de 1 s y ancho de pulso del 50 %.</p><div class="dos"><figure class="cap"><a href="img/130.webp" target="_blank"><img src="img/130.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/455.webp" target="_blank"><img src="img/455.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto en CubeMX 6.4</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Micro, pin y reloj</h3><a class="min" href="https://youtu.be/pGZVnWD4wnw?t=144" target="_blank" rel="noopener">&#9654; 2:24</a></div><p>Se abre la versión antigua de CubeMX (6.4) y se elige el STM32F401CC o el F411. PC13 como GPIO_Output. Para Proteus se usa el oscilador interno a 16 MHz, que es lo que mejor simula; se puede activar el cristal en RCC para pasarlo después a la tarjeta real.</p><div class="dos"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Project Manager</h3><a class="min" href="https://youtu.be/pGZVnWD4wnw?t=245" target="_blank" rel="noopener">&#9654; 4:05</a></div><p>Nombre del proyecto (MATLAB1), carpeta de trabajo y Toolchain STM32CubeIDE. Estas opciones son obligatorias para que MATLAB lo acepte:</p><ul><li>Marcar Do not generate the main(): el main lo maneja MATLAB.</li><li>Desmarcar Generate Under Root.</li><li>Advanced Settings: GPIO y RCC con librerías LL (Low Layer), no HAL.</li><li>Advanced Settings: quitar Visibility (Static) en las funciones generadas.</li></ul><div class="dos"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/295.webp" target="_blank"><img src="img/295.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Base de tiempo con un timer</h3><a class="min" href="https://youtu.be/pGZVnWD4wnw?t=514" target="_blank" rel="noopener">&#9654; 8:34</a></div><p>En System Core, SYS, el Timebase Source no puede ser SysTick porque MATLAB lo necesita. Se elige un timer que no se vaya a usar, por ejemplo TIM10, y se vuelve a guardar el proyecto.</p><p class="ojo">Si olvidas este paso, la compilación desde MATLAB falla con error.</p><div class="uno"><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Configurar el modelo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Solver y hardware</h3><a class="min" href="https://youtu.be/pGZVnWD4wnw?t=347" target="_blank" rel="noopener">&#9654; 5:47</a></div><p>En Modeling, Model Settings:</p><ul><li>Solver: tipo Fixed-step (paso fijo).</li><li>Hardware Implementation: Hardware board = STM32F4xx Based. Tarda un rato en cargar.</li><li>Operating system/scheduler: Baremetal (código C puro) o FreeRTOS. Para esto cualquiera sirve; con Baremetal el programa arranca enseguida.</li><li>Target hardware resources: en Browse se selecciona el .ioc creado (MATLAB1.ioc). Detecta el F401 y hace la configuración.</li></ul><div class="dos"><figure class="cap"><a href="img/355.webp" target="_blank"><img src="img/355.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/385.webp" target="_blank"><img src="img/385.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/425.webp" target="_blank"><img src="img/425.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Carpeta de trabajo y compilar</h3><a class="min" href="https://youtu.be/pGZVnWD4wnw?t=448" target="_blank" rel="noopener">&#9654; 7:28</a></div><p>La carpeta actual de MATLAB debe ser la misma del proyecto, para que todo se genere ahí. En la pestaña Hardware, Build, Deploy & Start tiene dos opciones: solo compilar o compilar y programar. Para Proteus basta con Build.</p><p class="ojo">MATLAB tarda en terminar de escribir los archivos. Espera a que aparezcan untitled.hex y untitled.elf antes de buscarlos.</p><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Simular en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Circuito y prueba</h3><a class="min" href="https://youtu.be/pGZVnWD4wnw?t=664" target="_blank" rel="noopener">&#9654; 11:04</a></div><p>En Proteus: STM32F401, resistencia de 220 Ω y LED amarillo en PC13 a tierra. En las propiedades del micro, reloj de 16 MHz como en CubeMX y como programa el untitled.hex generado por MATLAB. Al correr la simulación el LED parpadea cada segundo.</p><div class="uno"><figure class="cap"><a href="img/745.webp" target="_blank"><img src="img/745.webp" alt="Programar STM32 desde MATLAB, parte 2: primer programa y simulación en Proteus" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=pGZVnWD4wnw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
