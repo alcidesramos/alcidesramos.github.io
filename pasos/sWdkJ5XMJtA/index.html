@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 12: Hola mundo en un Cortex-M7 (DevEBox H7xx) por USB (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Proyecto desde cero en STM32CubeMX para la DevEBox STM32H743 (Cortex-M7 a 400 MHz) y carga por el bootloader USB uniendo BOOT0 a 3.3 V con un jumper.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/sWdkJ5XMJtA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 12: Hola mundo en un Cortex-M7 (DevEBox H7xx) por USB (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Proyecto desde cero en STM32CubeMX para la DevEBox STM32H743 (Cortex-M7 a 400 MHz) y carga por el bootloader USB uniendo BOOT0 a 3.3 V con un jumper.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/sWdkJ5XMJtA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/sWdkJ5XMJtA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 12: Hola mundo en un <span>Cortex-M7</span> (DevEBox H743)</h1>
+    <p class="lead">La DevEBox H7xx es un "monstruo": STM32H743VIT6 Cortex-M7 de hasta 400 MHz, 2 MB de Flash y 1 MB de RAM, dos USB, microSD, HDMI-CEC, interfaz de cámara, conector para pantalla TFT por SPI y amplificadores operacionales. En esta clase creamos el proyecto desde cero en STM32CubeMX (cristal, Serial Wire, LED en PA1, reloj a 200 MHz), generamos el código para STM32CubeIDE y lo cargamos por USB. Como la placa no tiene botón de BOOT0, se entra al bootloader uniendo con un cable el pin BOOT0 a 3.3 V. Con HAL el código del hola mundo es el mismo en M0, M3, M4 y M7: solo cambia la configuración del micro.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=sWdkJ5XMJtA" target="_blank" rel="noopener">&#9654; Ver el video completo (10:28)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/600.webp" alt="Clase 12: Hola mundo en un Cortex-M7 (DevEBox H7xx) por USB (paso a paso)"></figure>
+    <ul class="materiales"><li>Placa DevEBox STM32H743VIT6 (MCUDEV DEVEBOX H7XX)</li><li>Cable USB</li><li>Un cable dupont o jumper (BOOT0 a 3.3 V)</li><li>STM32CubeMX, STM32CubeIDE y STM32CubeProgrammer</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Placa</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · Cargar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La placa</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Características de la DevEBox H7xx</h3><a class="min" href="https://youtu.be/sWdkJ5XMJtA?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>En el README del fabricante (repositorio MCUDEV_DEVEBOX_H7XX_M en GitHub) están sus datos: cristal de sistema de <b>25 MHz</b>, cristal RTC de 32.768 kHz, SWD (BOOT0, 3V3, GND, PA13/SWDIO, PA14/SWCLK), USB OTG, microSD, QSPI Flash, cámara y 2 amplificadores operacionales. Ahí también se ve que el LED de usuario está en <b>PA1</b>.</p><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="La DevEBox H743 (y otra H7)" loading="lazy"></a><figcaption>La DevEBox H743 (y otra H7)</figcaption></figure><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Especificaciones en el README" loading="lazy"></a><figcaption>Especificaciones en el README</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar en STM32CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Elegir el micro</h3><a class="min" href="https://youtu.be/sWdkJ5XMJtA?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><p><b>ACCESS TO MCU SELECTOR</b> y busca <b>STM32H743VITx</b>.</p><div class="uno"><figure class="cap"><a href="img/130.webp" target="_blank"><img src="img/130.webp" alt="Clase 12: Hola mundo en un Cortex-M7 (DevEBox H7xx) por USB (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Reloj, depuración y LED</h3><a class="min" href="https://youtu.be/sWdkJ5XMJtA?t=225" target="_blank" rel="noopener">&#9654; 3:45</a></div><ul><li><b>System Core → RCC</b>: HSE y LSE en Crystal/Ceramic Resonator (la placa trae los dos cristales).</li><li><b>Trace and Debug → DEBUG</b>: <b>Serial Wire</b> (en este micro está abajo, no en SYS).</li><li>Clic en <b>PA1</b> → GPIO_Output y etiqueta <b>led</b>.</li></ul><div class="dos"><figure class="cap"><a href="img/195.webp" target="_blank"><img src="img/195.webp" alt="Debug en Serial Wire" loading="lazy"></a><figcaption>Debug en Serial Wire</figcaption></figure><figure class="cap"><a href="img/225.webp" target="_blank"><img src="img/225.webp" alt="Pines de depuración PA13/PA14 asignados" loading="lazy"></a><figcaption>Pines de depuración PA13/PA14 asignados</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Subir el reloj</h3><a class="min" href="https://youtu.be/sWdkJ5XMJtA?t=260" target="_blank" rel="noopener">&#9654; 4:20</a></div><p>Por defecto queda en 64 MHz. En <b>Clock Configuration</b> escribe 200 en el reloj del sistema y deja que CubeMX busque la solución (puede llegar a 400 MHz, pero con 200 basta para empezar).</p><div class="uno"><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Clase 12: Hola mundo en un Cortex-M7 (DevEBox H7xx) por USB (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Project Manager y generar</h3><a class="min" href="https://youtu.be/sWdkJ5XMJtA?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><ul><li>Nombre: <b>cortexm7</b> y carpeta de destino.</li><li>Toolchain / IDE: <b>STM32CubeIDE</b>.</li><li><b>GENERATE CODE</b> y abre el proyecto en CubeIDE.</li></ul><div class="dos"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Project Manager" loading="lazy"></a><figcaption>Project Manager</figcaption></figure><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Proyecto abierto en CubeIDE" loading="lazy"></a><figcaption>Proyecto abierto en CubeIDE</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Código y carga por USB</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>El mismo hola mundo</h3><a class="min" href="https://youtu.be/sWdkJ5XMJtA?t=345" target="_blank" rel="noopener">&#9654; 5:45</a></div><p>Con HAL el código es igual que en el M0, M3 y M4. En el while(1) de <code>main.c</code>:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+  HAL_Delay(1500);
+}</code></pre></div><p class="ojo">Más adelante veremos registros para casos donde el tiempo es crítico; para empezar, HAL hace el código portable entre familias.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Entrar al bootloader: BOOT0 a 3.3 V</h3><a class="min" href="https://youtu.be/sWdkJ5XMJtA?t=400" target="_blank" rel="noopener">&#9654; 6:40</a></div><p>La placa no tiene botón de BOOT0, pero el pin sí está en el conector. Une con un cable <b>BOOT0</b> con <b>3.3 V</b>, desconecta y vuelve a conectar el USB: en STM32CubeProgrammer aparece <b>USB1</b> y ya te puedes conectar.</p><div class="dos"><figure class="cap"><a href="img/425.webp" target="_blank"><img src="img/425.webp" alt="Jumper de BOOT0 a 3.3 V y cable USB" loading="lazy"></a><figcaption>Jumper de BOOT0 a 3.3 V y cable USB</figcaption></figure><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="CubeProgrammer detecta el USB (DFU)" loading="lazy"></a><figcaption>CubeProgrammer detecta el USB (DFU)</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Cargar y ejecutar</h3><a class="min" href="https://youtu.be/sWdkJ5XMJtA?t=495" target="_blank" rel="noopener">&#9654; 8:15</a></div><ul><li><b>Connect</b>, <b>Open file</b> y elige el .elf de la carpeta Debug del proyecto cortexm7.</li><li><b>Download</b>.</li><li><b>Quita el jumper</b> de BOOT0 y reconecta el USB: ahora arranca tu programa y el LED parpadea.</li></ul><p class="ojo">Si dejas el jumper puesto, al reconectar vuelve a entrar al bootloader y parece que el programa no funciona. Una idea es poner un pulsador en BOOT0, como en la Black Pill.</p><div class="dos"><figure class="cap"><a href="img/495.webp" target="_blank"><img src="img/495.webp" alt="Cargando con el jumper puesto" loading="lazy"></a><figcaption>Cargando con el jumper puesto</figcaption></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="LED parpadeando tras quitar el jumper" loading="lazy"></a><figcaption>LED parpadeando tras quitar el jumper</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=sWdkJ5XMJtA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

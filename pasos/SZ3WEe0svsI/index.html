@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 11: Black Pill (Cortex-M4) por USB DFU (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="La Black Pill (STM32F401/F411, Cortex-M4) ya trae bootloader USB de fábrica: importamos la configuración de la Blue Pill, subimos el reloj a 84 MHz y programamos solo con el cable USB.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/SZ3WEe0svsI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 11: Black Pill (Cortex-M4) por USB DFU (paso a paso) · Paso a paso">
+  <meta property="og:description" content="La Black Pill (STM32F401/F411, Cortex-M4) ya trae bootloader USB de fábrica: importamos la configuración de la Blue Pill, subimos el reloj a 84 MHz y programamos solo con el cable USB.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/SZ3WEe0svsI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/SZ3WEe0svsI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 11: Hola mundo en la <span>Black Pill</span> por USB</h1>
+    <p class="lead">La Black Pill es más poderosa que la Blue Pill: Cortex-M4, versiones STM32F401CCU6 y STM32F411, más memoria (incluso acepta MicroPython). Se puede programar con ST-Link o por serial como vimos antes, pero su gran ventaja es que trae el bootloader USB (DFU) de fábrica en la ROM del sistema: no gasta memoria de programa y no hay que grabarle nada. En esta clase creamos el proyecto en STM32CubeMX importando la configuración (.ioc) del proyecto básico de la Blue Pill, ajustamos el reloj a 84 MHz, generamos el código para STM32CubeIDE y lo cargamos por USB con STM32CubeProgrammer.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=SZ3WEe0svsI" target="_blank" rel="noopener">&#9654; Ver el video completo (8:55)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/495.webp" alt="Clase 11: Black Pill (Cortex-M4) por USB DFU (paso a paso)"></figure>
+    <ul class="materiales"><li>Black Pill WeAct STM32F401CCU6 (o F411)</li><li>Cable USB tipo C</li><li>STM32CubeMX, STM32CubeIDE y STM32CubeProgrammer</li><li>El básico .ioc de la clase anterior (Blue Pill)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · La placa</a><a href="#f2">2 · Proyecto</a><a href="#f3">3 · Cargar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Conocer la Black Pill</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Pinout y diferencias con la Blue Pill</h3><a class="min" href="https://youtu.be/SZ3WEe0svsI?t=40" target="_blank" rel="noopener">&#9654; 0:40</a></div><p>Es un Cortex-M4 (la Blue Pill era Cortex-M3). El LED de usuario está en <b>PC13</b> y la placa tiene botones <b>BOOT0</b> y <b>RST</b>. Trabajaremos con la menos poderosa, la F401CCU6, que llega hasta 84 MHz.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Clase 11: Black Pill (Cortex-M4) por USB DFU (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Entrar en modo bootloader USB (DFU)</h3><a class="min" href="https://youtu.be/SZ3WEe0svsI?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><ul><li>Desconecta el cable USB.</li><li>Mantén presionado <b>BOOT0</b> y conecta el cable.</li><li>En STM32CubeProgrammer elige <b>USB</b> y pulsa el botón de refrescar: aparece <b>USB1</b>. Ya puedes soltar BOOT0.</li><li>Pulsa <b>Connect</b>.</li></ul><p class="ojo">Si no aparece el puerto USB, repite: desconecta, presiona BOOT0 y vuelve a conectar.</p><div class="dos"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Conectar con BOOT0 presionado" loading="lazy"></a><figcaption>Conectar con BOOT0 presionado</figcaption></figure><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="CubeProgrammer en modo USB (DFU)" loading="lazy"></a><figcaption>CubeProgrammer en modo USB (DFU)</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Crear el proyecto importando la configuración</h2><p class="intro">En lugar de configurar todo de cero, pasamos la configuración de pines del proyecto de la Blue Pill al nuevo micro.</p><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Nuevo proyecto en STM32CubeMX</h3><a class="min" href="https://youtu.be/SZ3WEe0svsI?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>En STM32CubeMX: <b>ACCESS TO MCU SELECTOR</b> y busca <b>STM32F401CCUx</b> (o el F411 si es tu placa).</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 11: Black Pill (Cortex-M4) por USB DFU (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>File → Import Project</h3><a class="min" href="https://youtu.be/SZ3WEe0svsI?t=270" target="_blank" rel="noopener">&#9654; 4:30</a></div><ul><li>Elige el <b>básico.ioc</b> de la Blue Pill.</li><li>Marca <b>Import Project Settings</b>.</li><li><b>Try Import</b> y luego <b>OK</b>. Ignora los avisos: solo importamos la configuración de pines, no el código.</li></ul><div class="dos"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 11: Black Pill (Cortex-M4) por USB DFU (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Clase 11: Black Pill (Cortex-M4) por USB DFU (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Revisar pines y subir el reloj</h3><a class="min" href="https://youtu.be/SZ3WEe0svsI?t=285" target="_blank" rel="noopener">&#9654; 4:45</a></div><p>Quedan configurados el LED (PC13 con etiqueta led), el puerto serial USART1, los pines de programación SWD y el cristal. En <b>Clock Configuration</b> el reloj queda en 72 MHz; como este micro llega a 84 MHz, escribe <b>84</b> en HCLK y Enter.</p><div class="uno"><figure class="cap"><a href="img/285.webp" target="_blank"><img src="img/285.webp" alt="Clase 11: Black Pill (Cortex-M4) por USB DFU (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Generar el código</h3><a class="min" href="https://youtu.be/SZ3WEe0svsI?t=310" target="_blank" rel="noopener">&#9654; 5:10</a></div><ul><li><b>Project Manager</b>: nombre del proyecto (ej. basico) y carpeta.</li><li>Toolchain / IDE: <b>STM32CubeIDE</b>.</li><li><b>GENERATE CODE</b> y abre el proyecto en CubeIDE.</li></ul><div class="uno"><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="Clase 11: Black Pill (Cortex-M4) por USB DFU (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Código y carga por USB</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>El parpadeo</h3><a class="min" href="https://youtu.be/SZ3WEe0svsI?t=420" target="_blank" rel="noopener">&#9654; 7:00</a></div><p>En <code>main.c</code>, dentro del while(1), el mismo código de la clase pasada. Compila (Build) y verifica 0 errores.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+  HAL_Delay(200);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 11: Black Pill (Cortex-M4) por USB DFU (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Cargar con STM32CubeProgrammer</h3><a class="min" href="https://youtu.be/SZ3WEe0svsI?t=475" target="_blank" rel="noopener">&#9654; 7:55</a></div><ul><li>Pon la placa en modo DFU (BOOT0 + conectar) y dale <b>Connect</b> por USB.</li><li><b>Open file</b>: busca el <code>basico.elf</code> en la carpeta Debug del proyecto.</li><li><b>Download</b>.</li></ul><div class="dos"><figure class="cap"><a href="img/455.webp" target="_blank"><img src="img/455.webp" alt="Modo USB en CubeProgrammer" loading="lazy"></a><figcaption>Modo USB en CubeProgrammer</figcaption></figure><figure class="cap"><a href="img/475.webp" target="_blank"><img src="img/475.webp" alt="Abrir el .elf de la carpeta Debug" loading="lazy"></a><figcaption>Abrir el .elf de la carpeta Debug</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Ejecutar</h3><a class="min" href="https://youtu.be/SZ3WEe0svsI?t=495" target="_blank" rel="noopener">&#9654; 8:15</a></div><p>Para que el programa arranque hay que sacar el micro del modo programación: desconecta y vuelve a conectar el USB (sin BOOT0). El LED parpadea. Sin programador, solo con un cable USB.</p><div class="uno"><figure class="cap"><a href="img/495.webp" target="_blank"><img src="img/495.webp" alt="Clase 11: Black Pill (Cortex-M4) por USB DFU (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=SZ3WEe0svsI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
