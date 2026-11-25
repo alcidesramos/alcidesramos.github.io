@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="sprintf convierte variables (enteros con y sin signo, hexadecimal, flotantes, cadenas) en texto para el LCD o el puerto serie. Formatos %u, %d, %X, %f, %s, ancho, relleno con ceros, signo, 0x, decimales y cómo habilitar float en STM32CubeIDE.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/jgcakY53md4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso) · Paso a paso">
+  <meta property="og:description" content="sprintf convierte variables (enteros con y sin signo, hexadecimal, flotantes, cadenas) en texto para el LCD o el puerto serie. Formatos %u, %d, %X, %f, %s, ancho, relleno con ceros, signo, 0x, decimales y cómo habilitar float en STM32CubeIDE.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/jgcakY53md4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/jgcakY53md4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 32: mostrar variables con <span>sprintf</span></h1>
+    <p class="lead">Hasta ahora escribíamos texto fijo. Con sprintf de stdio.h guardamos en un arreglo el texto ya formateado de una o varias variables y luego lo mostramos con Lcd_Text. Consume bastante memoria, así que conviene un Cortex-M3 o superior.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=jgcakY53md4" target="_blank" rel="noopener">&#9654; Ver el video completo (15:36)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/700.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)"></figure>
+    <ul class="materiales"><li>Proyecto del LCD de la clase 31 (delays y lcd)</li><li>Tabla de formatos de sprintf</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Preparar</a><a href="#f2">2 · Enteros</a><a href="#f3">3 · float</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La tabla de formatos</h3><a class="min" href="https://youtu.be/jgcakY53md4?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><ul><li><b>%u</b> entero sin signo (16 bits), <b>%d</b> o <b>%i</b> con signo</li><li><b>%lu</b> / <b>%ld</b> para 32 bits</li><li><b>%o</b> octal, <b>%x</b> / <b>%X</b> hexadecimal</li><li><b>%f</b> flotante, <b>%e</b> / <b>%E</b> notación científica</li><li><b>%c</b> carácter, <b>%s</b> cadena</li><li>Flags: <b>-</b> justifica a la izquierda, <b>+</b> fuerza el signo, <b>#</b> pone 0x en hex, <b>0</b> rellena con ceros</li><li>Un número es el ancho mínimo; <b>.n</b> es la cantidad de decimales</li></ul><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Librerías y arreglo de texto</h3><a class="min" href="https://youtu.be/jgcakY53md4?t=97" target="_blank" rel="noopener">&#9654; 1:37</a></div><p>Incluye <code>stdio.h</code> y <code>string.h</code> y declara un arreglo donde sprintf guardará el texto (con 50 posiciones vas sobrado):</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;stdio.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;string.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char texto[50];</code></pre></div><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Lo básico</h3><a class="min" href="https://youtu.be/jgcakY53md4?t=166" target="_blank" rel="noopener">&#9654; 2:46</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;HOLA MUNDO&quot;);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Text(2, 1, texto);</code></pre></div><div class="uno"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Enteros</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Entero sin signo</h3><a class="min" href="https://youtu.be/jgcakY53md4?t=236" target="_blank" rel="noopener">&#9654; 3:56</a></div><p>Crea variables de prueba (uint16_t, int16_t, float y una cadena) y muestra un contador:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;CNT1=%u&quot;, cont8);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Text(2, 1, texto);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>cont8++;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Delay_ms(200);</code></pre></div><div class="uno"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Ancho, ceros y hexadecimal</h3><a class="min" href="https://youtu.be/jgcakY53md4?t=337" target="_blank" rel="noopener">&#9654; 5:37</a></div><p><code>%3u</code> reserva 3 posiciones, <code>%03u</code> rellena con ceros, <code>%-3u</code> justifica a la izquierda. <code>%X</code> muestra en hexadecimal y <code>%#X</code> le agrega el 0x.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;CNT1=%#03X&quot;, cont8);</code></pre></div><div class="uno"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Con signo</h3><a class="min" href="https://youtu.be/jgcakY53md4?t=474" target="_blank" rel="noopener">&#9654; 7:54</a></div><p>Para una variable con signo usa <b>%d</b>. Con <b>%+d</b> siempre aparece el signo, + o −.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;CNT2=%3d&quot;, cont8s);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Text(3, 1, texto);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>cont8s--;</code></pre></div><div class="uno"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Varias variables en una línea</h3><a class="min" href="https://youtu.be/jgcakY53md4?t=588" target="_blank" rel="noopener">&#9654; 9:48</a></div><p>Cada formato toma la variable que le corresponde, en orden. Cuida que el formato coincida con el tipo (%u sin signo, %d con signo) y que quepa en el display.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;CNT1=%-u CNT1=%3d&quot;, cont8, cont8s);</code></pre></div><div class="dos"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Cadenas</h3><a class="min" href="https://youtu.be/jgcakY53md4?t=723" target="_blank" rel="noopener">&#9654; 12:03</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;CNT2=%s&quot;, ok);   // ok es un arreglo char</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Text(4, 1, texto);</code></pre></div><div class="uno"><figure class="cap"><a href="img/750.webp" target="_blank"><img src="img/750.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Flotantes</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>El float no sale</h3><a class="min" href="https://youtu.be/jgcakY53md4?t=757" target="_blank" rel="noopener">&#9654; 12:37</a></div><p>Por defecto STM32CubeIDE usa una versión reducida de la librería (newlib-nano) sin soporte de float en printf, para ahorrar memoria.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;CNTf=%f&quot;, contf);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Text(4, 1, texto);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>contf += 0.65;</code></pre></div><div class="uno"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Habilitar float en sprintf</h3><a class="min" href="https://youtu.be/jgcakY53md4?t=823" target="_blank" rel="noopener">&#9654; 13:43</a></div><p>Clic derecho en el proyecto → <b>Properties → C/C++ Build → Settings → MCU Settings</b> y marca <b>Use float with printf from newlib-nano (-u _printf_float)</b>. Si también lo necesitas para scanf, marca la otra casilla. Apply and Close. El programa ocupa más memoria.</p><div class="uno"><figure class="cap"><a href="img/850.webp" target="_blank"><img src="img/850.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Limitar los decimales</h3><a class="min" href="https://youtu.be/jgcakY53md4?t=856" target="_blank" rel="noopener">&#9654; 14:16</a></div><p><code>%.2f</code> deja 2 decimales. <code>%4.2f</code> además fija un ancho total de 4 caracteres, contando el punto y los decimales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;CNTf=%.2f&quot;, contf);</code></pre></div><div class="uno"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 32: usar sprintf en STM32 para mostrar variables en el LCD (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=jgcakY53md4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
