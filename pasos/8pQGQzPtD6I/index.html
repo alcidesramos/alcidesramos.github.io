@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 74 STM32: memoria SD por SPI con FatFs · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leemos y escribimos archivos en una memoria SD por SPI con FatFs: crear, agregar datos, leer línea a línea y un datalogger de temperatura con expulsión segura.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/8pQGQzPtD6I/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 74 STM32: memoria SD por SPI con FatFs · Paso a paso">
+  <meta property="og:description" content="Leemos y escribimos archivos en una memoria SD por SPI con FatFs: crear, agregar datos, leer línea a línea y un datalogger de temperatura con expulsión segura.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/8pQGQzPtD6I/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/8pQGQzPtD6I/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Memoria <span>SD</span> por SPI con FatFs</h1>
+    <p class="lead">En esta clase conectamos una memoria SD a la BlackPill STM32F401 por SPI y activamos el middleware FatFs en CubeMX. Agregamos la librería fatfs_sd, hacemos los cambios en stm32f4xx_it.c y user_diskio.c, y probamos en Proteus con una imagen de memoria que se puede revisar con UltraISO. Al final armamos un pequeño datalogger que guarda un contador y la temperatura del LM35 en Data.txt, con un pulsador para retirar la memoria sin dañar los archivos.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=8pQGQzPtD6I" target="_blank" rel="noopener">&#9654; Ver el video completo (35:33)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1530.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Proteus (BlackPill STM32F401, SD card, LM35, terminal virtual)</li><li>Imagen de memoria SD (sdcard_image.mmc) y UltraISO portable para revisarla</li><li>Librerías fatfs_sd, uart, adc y pinout.h (de la clase anterior)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pines, UART, ADC, SPI y FatFs</a><a href="#f2">2 · fatfs_sd, interrupciones y user_diskio</a><a href="#f3">3 · Montar, escribir y leer</a><a href="#f4">4 · FA_OPEN_APPEND y temperatura</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configuración en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto y archivos de Proteus</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=190" target="_blank" rel="noopener">&#9654; 3:10</a></div><p>Creamos el proyecto (STM32F401CCU) en una carpeta vacía. Luego copiamos ahí el archivo de Proteus y la imagen de la memoria sdcard_image.mmc.</p><div class="dos"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>LED, pulsador, UART y ADC</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=250" target="_blank" rel="noopener">&#9654; 4:10</a></div><p>PC13 (LED de la tarjeta) como salida con etiqueta LED.</p><p>PB10 como entrada con etiqueta sw y pull-up, porque el pulsador va a tierra. Servirá para expulsar la memoria.</p><p>USART1 en modo asíncrono a 9600 baudios para ver mensajes, y ADC1 IN0 para el sensor de temperatura.</p><div class="dos"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>SPI y pin SD_CS</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=335" target="_blank" rel="noopener">&#9654; 5:35</a></div><p>PA4 como salida con etiqueta obligatoria SD_CS (habilitador de la memoria).</p><p>SPI1 en Full-Duplex Master. Ajustamos el prescaler a 8 para tener 2 MBits/s, ideal para Proteus.</p><p class="ojo">En la vida real la memoria aguanta más velocidad: con estas librerías se llegó a 10–12 MHz.</p><div class="dos"><figure class="cap"><a href="img/335.webp" target="_blank"><img src="img/335.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Activar FatFs</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=430" target="_blank" rel="noopener">&#9654; 7:10</a></div><p>En Middleware > FATFS marcamos User-defined. Dejamos MAX_SS en 512 (el sector mínimo) y la opción Tiny habilitada para ahorrar memoria. Luego generamos código con el engranaje.</p><div class="uno"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Librerías y archivos del sistema</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Carpeta Librerias e includes</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=500" target="_blank" rel="noopener">&#9654; 8:20</a></div><p>Creamos Core/Librerias, la agregamos a los Include paths y copiamos fatfs_sd.c/.h, adc, uart y pinout.h.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;stdio.h&quot;
+#include &quot;stdint.h&quot;
+#include &quot;stdlib.h&quot;
+#include &quot;string.h&quot;
+
+#include &quot;adc.h&quot;
+#include &quot;uart.h&quot;
+#include &quot;pinout.h&quot;
+#include &quot;fatfs_sd.h&quot;</code></pre></div><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar fatfs_sd.h</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=665" target="_blank" rel="noopener">&#9654; 11:05</a></div><p>En fatfs_sd.h se indica el SPI usado (hspi1) y el pin de habilitación. Como SD_CS ya se definió en CubeMX, esas líneas quedan comentadas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define SPI_TIMEOUT 100
+extern SPI_HandleTypeDef hspi1;
+#define HSPI_SDCARD &amp;hspi1</code></pre></div><div class="uno"><figure class="cap"><a href="img/665.webp" target="_blank"><img src="img/665.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Temporizadores en stm32f4xx_it.c</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=700" target="_blank" rel="noopener">&#9654; 11:40</a></div><p>En las variables privadas del archivo de interrupciones declaramos Timer1 y Timer2, y los descontamos cada milisegundo dentro de SysTick_Handler. Son el time-out que evita que la lectura de la memoria se bloquee.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* variables privadas */
+extern uint16_t Timer1, Timer2;
+
+/* dentro de SysTick_Handler(void) */
+if (Timer1 &gt; 0) Timer1--;
+if (Timer2 &gt; 0) Timer2--;</code></pre></div><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Cambios en user_diskio.c</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=870" target="_blank" rel="noopener">&#9654; 14:30</a></div><p>En FATFS/Target/user_diskio.c incluimos fatfs_sd.h y cambiamos el return de cada función por la función de la librería. Con Ctrl+Espacio el editor las autocompleta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;fatfs_sd.h&quot;
+
+/* USER_initialize */ return SD_disk_initialize(pdrv);
+/* USER_status */     return SD_disk_status(pdrv);
+/* USER_read */       return SD_disk_read(pdrv, buff, sector, count);
+/* USER_write */      return SD_disk_write(pdrv, buff, sector, count);
+/* USER_ioctl */      return SD_disk_ioctl(pdrv, cmd, buff);</code></pre></div><p class="ojo">Es mejor hacer estos cambios a mano que reemplazar el archivo: CubeMX lo regenera y una versión nueva puede cambiar.</p><div class="dos"><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Primera prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Variables en main.c</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=1060" target="_blank" rel="noopener">&#9654; 17:40</a></div><p>Variables para manejar la memoria. SD_BUFFER limita a 100 bytes cada línea escrita; el buffer de _MAX_SS solo hace falta si el micro va a formatear la memoria.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>FATFS memsd;
+FATFS *pfs;
+FIL archivo;
+FRESULT fres;      // resultado de operaciones con la memoria
+uint32_t fre_clust;
+uint32_t totalSpace, freeSpace;
+char SD_BUFFER[100];
+char texto[100];   // aquí se guarda lo que se lee
+//char SD_BUFFER[_MAX_SS]; // solo si se desea formatear</code></pre></div><div class="dos"><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/1340.webp" target="_blank"><img src="img/1340.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Función SD_PRUEBA</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=1130" target="_blank" rel="noopener">&#9654; 18:50</a></div><p>Monta la memoria, crea el archivo ARZ.txt, escribe tres líneas, lo cierra y lo vuelve a abrir para leerlo línea por línea con f_gets, enviando cada línea por el puerto serial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void SD_PRUEBA()
+{
+  HAL_Delay(500);  // retardo de inicialización
+  if (f_mount(&amp;memsd, &quot;&quot;, 1) == FR_OK) uartx_write_text(&amp;huart1, &quot;memoria encontrada\r\n&quot;);
+  else uartx_write_text(&amp;huart1, &quot;memoria no encontrada\r\n&quot;);
+
+  // abre un archivo y si no existe lo crea
+  if (f_open(&amp;archivo, &quot;ARZ.txt&quot;, FA_OPEN_ALWAYS | FA_READ | FA_WRITE) != FR_OK)
+    uartx_write_text(&amp;huart1, &quot;Archivo no creado\r\n&quot;);
+  else uartx_write_text(&amp;huart1, &quot;Archivo creado\r\n&quot;);
+
+  f_puts(&quot;PROBANDO\r\n&quot;, &amp;archivo);
+  f_puts(&quot;FUNCIONANDO\r\n&quot;, &amp;archivo);
+  f_puts(&quot;mas datos\r\n&quot;, &amp;archivo);
+  f_close(&amp;archivo);
+
+  // lectura línea por línea
+  f_open(&amp;archivo, &quot;ARZ.txt&quot;, FA_READ);
+  while (f_gets(texto, sizeof(texto), &amp;archivo))
+    uartx_write_text(&amp;huart1, texto);
+  f_close(&amp;archivo);
+}</code></pre></div><p class="ojo">Cada archivo que se abre se debe cerrar con f_close; si no, la memoria se puede corromper. f_mount(NULL, "", 1) desmonta la memoria.</p><div class="dos"><figure class="cap"><a href="img/1130.webp" target="_blank"><img src="img/1130.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/1160.webp" target="_blank"><img src="img/1160.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Modos de apertura de f_open</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=1270" target="_blank" rel="noopener">&#9654; 21:10</a></div><ul><li>FA_READ: lectura.</li><li>FA_WRITE: escritura.</li><li>FA_OPEN_EXISTING: abre un archivo existente; si no existe da error.</li><li>FA_CREATE_NEW: crea un archivo; si ya existe da error.</li><li>FA_CREATE_ALWAYS: crea el archivo y si existe lo sobrescribe.</li><li>FA_OPEN_ALWAYS: abre el archivo y si no existe lo crea.</li><li>FA_OPEN_APPEND: abre para agregar al final y si no existe lo crea.</li></ul><div class="uno"><figure class="cap"><a href="img/1270.webp" target="_blank"><img src="img/1270.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Simulación y revisión con UltraISO</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=1530" target="_blank" rel="noopener">&#9654; 25:30</a></div><p>En main llamamos SD_PRUEBA() antes del while y dentro del while ponemos PIN_BLINK(LED) con HAL_Delay(200) para ver que el programa no se bloqueó.</p><p>En Proteus cargamos sdcard_image.mmc en la memoria (32 MB) y el .hex en el micro. El terminal muestra lo leído; con UltraISO abrimos la imagen y vemos el archivo ARZ.txt creado.</p><div class="dos"><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/1500.webp" target="_blank"><img src="img/1500.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/1530.webp" target="_blank"><img src="img/1530.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/1570.webp" target="_blank"><img src="img/1570.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Agregar datos y datalogger</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Agregar texto a un archivo</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=1640" target="_blank" rel="noopener">&#9654; 27:20</a></div><p>Con FA_OPEN_APPEND el archivo no se borra: cada vez que el micro arranca agrega las líneas al final. Con FA_CREATE_ALWAYS se crea Data.txt nuevo en cada arranque.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// abre un archivo existente para agregar datos
+if (f_open(&amp;archivo, &quot;suscribete.txt&quot;, FA_OPEN_APPEND | FA_READ | FA_WRITE) == FR_OK)
+{
+  HAL_Delay(1);
+  f_puts(&quot;AL MEJOR\r\n&quot;, &amp;archivo);
+  f_puts(&quot;CANAL\r\n&quot;, &amp;archivo);
+  f_puts(&quot;EMBEBIDOS\r\n&quot;, &amp;archivo);
+  f_close(&amp;archivo);
+}
+
+// crea el nuevo archivo para almacenar los datos
+f_open(&amp;archivo, &quot;Data.txt&quot;, FA_CREATE_ALWAYS | FA_READ | FA_WRITE);
+f_close(&amp;archivo);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1640.webp" target="_blank"><img src="img/1640.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/1820.webp" target="_blank"><img src="img/1820.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Guardar temperatura y retirar la memoria</h3><a class="min" href="https://youtu.be/8pQGQzPtD6I?t=1880" target="_blank" rel="noopener">&#9654; 31:20</a></div><p>En el while leemos el ADC, convertimos a grados (LM35), armamos la línea con sprintf y la agregamos a Data.txt. Si se presiona el pulsador, se deja de escribir y hay 3 segundos para retirar la memoria con seguridad.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint16_t codigo;
+float temperatura;
+uint16_t cont = 0;
+
+while (1)
+{
+  PIN_BLINK(LED);
+  codigo = ADC_Read();
+  temperatura = codigo * 3.3 * 100.0 / 4095.0;
+  sprintf(texto, &quot;%u\t%.1f\r\n&quot;, cont, temperatura);
+  cont++;
+  if (PIN_READ(sw) == 1)
+  {
+    f_open(&amp;archivo, &quot;Data.txt&quot;, FA_OPEN_APPEND | FA_READ | FA_WRITE);
+    HAL_Delay(1);
+    f_puts(texto, &amp;archivo);
+    f_close(&amp;archivo);
+  }
+  else
+  {
+    uartx_write_text(&amp;huart1, &quot;puede retirar la memoria\r\n&quot;);
+    HAL_Delay(3000);
+  }
+  HAL_Delay(200);
+}</code></pre></div><p class="ojo">Para que sprintf imprima flotantes hay que activar en Properties > C/C++ Build > Settings > MCU Settings la opción Use float with printf. Sin eso, la temperatura no aparece en el archivo.</p><div class="dos"><figure class="cap"><a href="img/1880.webp" target="_blank"><img src="img/1880.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure><figure class="cap"><a href="img/1960.webp" target="_blank"><img src="img/1960.webp" alt="Clase 74 STM32: memoria SD por SPI con FatFs" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=8pQGQzPtD6I" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
