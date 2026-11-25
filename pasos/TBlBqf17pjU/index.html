@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="En lugar de un escalón, se registran entrada (PWM) y salida (RPM) moviendo el potenciómetro con Serial Oscilloscope, se identifica la planta en PID Tuner con datos arbitrarios y se prueba el nuevo PID.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/TBlBqf17pjU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB · Paso a paso">
+  <meta property="og:description" content="En lugar de un escalón, se registran entrada (PWM) y salida (RPM) moviendo el potenciómetro con Serial Oscilloscope, se identifica la planta en PID Tuner con datos arbitrarios y se prueba el nuevo PID.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/TBlBqf17pjU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/TBlBqf17pjU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 118: <span>Sintonizar el PID con datos de entrada y salida</span></h1>
+    <p class="lead">Quinto capítulo de la serie del motor DC. La identificación con un solo escalón dio alrededor de 78-83% de ajuste; aquí se usan datos más ricos. Sin PID, el potenciómetro se mapea directo a la entrada del motor (0 a 4200) y se envían entrada y RPM por el serial. Con el data log de Serial Oscilloscope se graban varias subidas y bajadas, MATLAB grafica las dos señales y PID Tuner identifica la planta con datos arbitrarios de entrada y salida. Las nuevas constantes se cargan en PID.h y en Teleplot se ve que la velocidad sigue al set point mejor que con el método del escalón.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=TBlBqf17pjU" target="_blank" rel="noopener">&#9654; Ver el video completo (12:25)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/660.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB"></figure>
+    <ul class="materiales"><li>Montaje del motor DC de las clases anteriores</li><li>Serial Oscilloscope para el data log</li><li>MATLAB con PID Tuner y System Identification</li><li>VS Code con Teleplot para la prueba final</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Sin PID, con el potenciómetro</a><a href="#f2">2 · Datos arbitrarios de entrada y salida</a><a href="#f3">3 · Set point contra RPM en Teleplot</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Registrar entrada y salida</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Entrada al motor desde el potenciómetro</h3><a class="min" href="https://youtu.be/TBlBqf17pjU?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>Se comenta el PID y el escalón del capítulo anterior. El potenciómetro se mapea a la entrada del motor (0 a 4200) y se aplica directo al PWM.</p><p>Se envían dos datos separados por coma: la entrada aplicada al motor y la salida medida (RPM). Para dos datos se usa Serial Oscilloscope en vez de Teleplot.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>setpoint=ADC_Read(&amp;hadc1)*222.0/4095.0;
+float entrada=map(setpoint,0,222.0,0,4200);
+//PID_Control(RPM);
+PWM_valor(&amp;PWM1, entrada);
+
+// Serial Oscilloscope
+sprintf(texto,&quot;%.1f,%.1f\r&quot;,entrada,RPM);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Data log en Serial Oscilloscope</h3><a class="min" href="https://youtu.be/TBlBqf17pjU?t=232" target="_blank" rel="noopener">&#9654; 3:52</a></div><p>Se abre el puerto y en la ventana de canales se ve la entrada (roja) y las RPM (verde).</p><p>En Log To File se inicia el registro y se mueve el potenciómetro varias veces arriba y abajo. Luego se detiene el log y se copia el archivo a la carpeta de MATLAB.</p><p>Este método es más preciso que un solo escalón, sobre todo en sistemas complejos.</p><div class="dos"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Identificar en MATLAB</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Graficar entrada y salida</h3><a class="min" href="https://youtu.be/TBlBqf17pjU?t=332" target="_blank" rel="noopener">&#9654; 5:32</a></div><p>El script lee el archivo del log, toma la primera columna como entrada y la segunda como salida, y las grafica juntas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>clc, clear all, close all
+
+datos = readmatrix(&#x27;oscilo.csv&#x27;);
+datain  = datos(:, 1);   % entrada (PWM)
+dataout = datos(:, 2);   % salida (RPM)
+
+figure(1)
+plot(datain, &#x27;b-&#x27;, &#x27;DisplayName&#x27;,&#x27;ENTRADA&#x27;);
+hold on
+plot(dataout, &#x27;r-&#x27;, &#x27;DisplayName&#x27;,&#x27;SALIDA&#x27;);
+legend;
+xlabel(&#x27;TIEMPO&#x27;);
+ylabel(&#x27;RPM&#x27;);
+grid on;</code></pre></div><p class="ojo">El nombre del archivo del log puede variar; usa el que guardaste desde Serial Oscilloscope.</p><div class="uno"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Importar en PID Tuner</h3><a class="min" href="https://youtu.be/TBlBqf17pjU?t=397" target="_blank" rel="noopener">&#9654; 6:37</a></div><p>Se abre PID Tuner (PID estándar) y en la identificación de planta se elige Get I/O Data con datos arbitrarios de entrada y salida.</p><p>Output signal: dataout. Input signal: datain. Sample time: 20 ms (el del timer).</p><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Estimar la planta</h3><a class="min" href="https://youtu.be/TBlBqf17pjU?t=463" target="_blank" rel="noopener">&#9654; 7:43</a></div><p>Con Auto Estimate se obtiene un modelo de un polo con cerca de 76% de ajuste. Volver a estimar a veces mejora el resultado.</p><p>Se aplica la planta y se vuelve a la pestaña PID Tuner, ajustando respuesta rápida y comportamiento robusto.</p><div class="dos"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Nuevas constantes</h3><a class="min" href="https://youtu.be/TBlBqf17pjU?t=530" target="_blank" rel="noopener">&#9654; 8:50</a></div><p>Show Parameters entrega Kp = 310.3606, Ti = 254.7424 y Td = 2.9673, distintas a las del método del escalón. Se cargan en PID.h.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define PID_kp 310.3606
+#define PID_ki 254.7424
+#define PID_kd 2.9673</code></pre></div><p class="ojo">PID Tuner da Ti y Td en forma estándar; si tu librería usa kp, ki, kd en forma paralela, convierte con ki = Kp/Ti y kd = Kp·Td, o pide el formato paralelo en PID Tuner.</p><div class="uno"><figure class="cap"><a href="img/545.webp" target="_blank"><img src="img/545.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Probar el PID</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Activar el PID</h3><a class="min" href="https://youtu.be/TBlBqf17pjU?t=565" target="_blank" rel="noopener">&#9654; 9:25</a></div><p>En el callback del timer al PID le entran las RPM y su salida ut va al PWM. Se comenta el envío para Serial Oscilloscope y se envían set point y RPM a Teleplot.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>setpoint=ADC_Read(&amp;hadc1)*222.0/4095.0;
+PID_Control(RPM);
+PWM_valor(&amp;PWM1, ut);
+
+sprintf(texto,&quot;&gt;SP:%.1f\n&quot;,setpoint);
+uartx_write_text(&amp;huart1, texto);
+sprintf(texto,&quot;&gt;OUT:%.1f\n&quot;,RPM);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/TBlBqf17pjU?t=629" target="_blank" rel="noopener">&#9654; 10:29</a></div><p>En Teleplot la velocidad (OUT) sigue al set point (SP) y responde mejor que con las constantes del escalón.</p><p>Hay tres formas válidas de llegar al PID: con la respuesta al escalón, con datos de entrada y salida, o a mano con la gráfica (Ziegler-Nichols).</p><div class="uno"><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Clase 118: Control de motor DC, capítulo 5: PID con datos de entrada y salida en MATLAB" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=TBlBqf17pjU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
