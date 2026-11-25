@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 114: Control de motor DC, capítulo 1: lazo abierto · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Primer capítulo de la serie de control de motor DC: tarjeta propia con Blackpill y puente H, PWM a 20 kHz, velocidad con potenciómetro (lazo abierto) y lectura de la frecuencia del motor por input capture.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/NRudNTw0RFM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 114: Control de motor DC, capítulo 1: lazo abierto · Paso a paso">
+  <meta property="og:description" content="Primer capítulo de la serie de control de motor DC: tarjeta propia con Blackpill y puente H, PWM a 20 kHz, velocidad con potenciómetro (lazo abierto) y lectura de la frecuencia del motor por input capture.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/NRudNTw0RFM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/NRudNTw0RFM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 114: <span>Motor DC en lazo abierto</span></h1>
+    <p class="lead">Se presenta una tarjeta diseñada para control de velocidad y posición de un motor DC con encoder: Blackpill, conexión a un puente H, potenciómetro, entrada de encoder, dos LED y puerto serial. En CubeIDE se configura TIM1 canal 1 como input capture a 1 µs para medir la frecuencia del motor, TIM2 canal 1 como PWM de 20 kHz en PA15, el ADC para el potenciómetro y PA11/PA12 para la dirección. El potenciómetro se mapea al rango útil del motor (1300 a 4200) y se lee la frecuencia como base para el lazo cerrado del siguiente capítulo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=NRudNTw0RFM" target="_blank" rel="noopener">&#9654; Ver el video completo (31:30)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/85.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto"></figure>
+    <ul class="materiales"><li>Blackpill STM32F401 en la tarjeta de control de motor</li><li>Puente H (tipo L298N) alimentado a 12 V</li><li>Motor DC con encoder / sensor de velocidad</li><li>Potenciómetro</li><li>Adaptador de 12 V y conversor serial-USB</li><li>Librerías del canal: adc_x, PWMB, Frecuencia, MAP y uart</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Hardware de la serie</a><a href="#f2">2 · Reloj, input capture, serial, PWM y ADC</a><a href="#f3">3 · PWMB y Frecuencia</a><a href="#f4">4 · Prueba de PWM y potenciómetro</a><a href="#f5">5 · Base para el lazo cerrado</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La tarjeta de control</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Esquemático y PCB</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>La tarjeta tiene la Blackpill, dos LED, conector para el puente H (PWM, IN1, IN2, 5 V y tierra), entrada para el motor con encoder, un potenciómetro, un segundo encoder de cuadratura y el puerto serial.</p><p>En el conector del encoder de cuadratura el orden es SW, A y B; al conectarlo verifica los pines.</p><div class="dos"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/85.webp" target="_blank"><img src="img/85.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Conexión completa</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>El adaptador de 12 V alimenta el puente H, y de su salida de 5 V se alimenta la tarjeta.</p><p>La señal PWM controla la velocidad e IN1/IN2 la dirección. El potenciómetro va entre 3.3 V y tierra con el cursor al ADC.</p><p class="ojo">El cursor (pin central) del potenciómetro es el que va al ADC; en el esquema del video quedó marcado al revés.</p><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración en CubeIDE</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj a 84 MHz</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=235" target="_blank" rel="noopener">&#9654; 3:55</a></div><p>Se crea el proyecto MOTOR_CONTROL con el STM32F401CCUx. En RCC se elige cristal externo y con el PLL se lleva el reloj a 84 MHz.</p><div class="uno"><figure class="cap"><a href="img/255.webp" target="_blank"><img src="img/255.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>TIM1 canal 1: input capture</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=269" target="_blank" rel="noopener">&#9654; 4:29</a></div><p>TIM1 Channel1 en Input Capture direct mode: por ahí se mide la frecuencia (velocidad) del motor.</p><p>Prescaler 84-1 para que cada cuenta sea 1 µs. Se puede poner un filtro de entrada pequeño (2) si hay ruido.</p><div class="dos"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>USART1</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=380" target="_blank" rel="noopener">&#9654; 6:20</a></div><p>USART1 en modo asíncrono a 115200 baudios. El pin TX se remapea al que tiene la tarjeta: con Ctrl sostenido se arrastra el pin a su nueva posición.</p><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>TIM2 canal 1: PWM a 20 kHz</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=415" target="_blank" rel="noopener">&#9654; 6:55</a></div><p>La salida del motor está en PA15, que corresponde a TIM2 canal 1. Se configura como PWM Generation CH1 y se arrastra el pin a PA15.</p><p>El puente H acepta hasta unos 40 kHz; se usa 20 kHz. Con 84 MHz y preescalador 0 el periodo es 4200. Se deja habilitado el auto-reload preload.</p><div class="dos"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/495.webp" target="_blank"><img src="img/495.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>ADC, LED y pines de dirección</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=522" target="_blank" rel="noopener">&#9654; 8:42</a></div><p>En Analog se habilita ADC1 con un solo canal, sin DMA, para el potenciómetro.</p><p>PB3 y PB4 como GPIO_Output para los LED de la tarjeta.</p><p>PA11 y PA12 como GPIO_Output con los nombres M11 y M12: son la dirección del motor (IN1, IN2 del puente H).</p><p class="ojo">Si olvidas configurar M11 y M12, el PWM llega al puente H pero el motor no gira.</p><div class="dos"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librerías</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Agregar e incluir librerías</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=662" target="_blank" rel="noopener">&#9654; 11:02</a></div><p>Se crea la carpeta Librerias, se agrega al include path y se copian adc_x, PWMB, Frecuencia, MAP y uart. Se incluyen también stdio, stdlib, string y stdint, y se habilita float con printf en las propiedades del proyecto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+#include &quot;adc_x.h&quot;
+#include &quot;PWMB.h&quot;
+#include &quot;Frecuencia.h&quot;
+#include &quot;MAP.h&quot;
+
+#include &quot;stdio.h&quot;
+#include &quot;stdlib.h&quot;
+#include &quot;string.h&quot;
+#include &quot;stdint.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/850.webp" target="_blank"><img src="img/850.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configurar PWMB y Frecuencia</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=894" target="_blank" rel="noopener">&#9654; 14:54</a></div><p>En PWMB.c la escala se pone en 4200 (el periodo del timer) y se asocia el PWM al TIM2 canal 1.</p><p>En Frecuencia.c se declara una sola entrada asociada al TIM1 canal 1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// PWMB.c
+float escala=4200;
+extern TIM_HandleTypeDef htim2;
+PWMS PWM1 = {&amp;htim2, &amp;(TIM2-&gt;CCR1), TIM_CHANNEL_1};
+
+// Frecuencia.c
+extern TIM_HandleTypeDef htim1;
+FRECS FREC1 = {&amp;htim1, &amp;(TIM1-&gt;CCR1), TIM_CHANNEL_1, TIM_FLAG_CC1};</code></pre></div><div class="dos"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Mover el motor</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Prueba de velocidad</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=1038" target="_blank" rel="noopener">&#9654; 17:18</a></div><p>Se fija la dirección (M11 en 1 y M12 en 0; para el otro sentido se invierten), se inicia el PWM y se prueba a media velocidad y luego al máximo.</p><p>El motor tiene una inercia que hay que vencer: este motor no se mueve por debajo de 1300, así que su rango útil es de 1300 a 4200.</p><p>Ese valor mínimo depende de cada motor y hay que medirlo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_GPIO_WritePin(M11_GPIO_Port, M11_Pin, 1);
+HAL_GPIO_WritePin(M12_GPIO_Port, M12_Pin, 0);
+
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+PWM_init(&amp;PWM1);
+PWM_valor(&amp;PWM1, 2000);
+HAL_Delay(3000);
+PWM_valor(&amp;PWM1, 4200);
+HAL_Delay(3000);
+PWM_valor(&amp;PWM1, 0);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/1240.webp" target="_blank"><img src="img/1240.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Velocidad con el potenciómetro</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=1393" target="_blank" rel="noopener">&#9654; 23:13</a></div><p>Se lee el ADC (0 a 4095) y con map se lleva al rango útil del motor (1300 a 4200). Ese valor va directo al PWM y se imprime por el serial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char texto[100];
+uint16_t codigo=0;
+
+while (1)
+{
+  codigo=ADC_Read(&amp;hadc1);
+  codigo=map(codigo,0,4095,1300,4200);
+  PWM_valor(&amp;PWM1, codigo);
+  sprintf(texto,&quot;%d\r\n\r\n&quot;,codigo);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(300);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/1760.webp" target="_blank"><img src="img/1760.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Leer la frecuencia del motor</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Interrupción de captura</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=1641" target="_blank" rel="noopener">&#9654; 27:21</a></div><p>En el TIM1 se habilita en NVIC la interrupción de captura (TIM1 capture compare) y se regenera el código.</p><p>Antes del while se llama Frec_init(&FREC1), y en la rutina de interrupción del TIM1 (stm32f4xx_it.c) se llama Frec_INT_Analiza(&FREC1), incluyendo Frecuencia.h en ese archivo.</p><p>En el while se lee la frecuencia en la variable frecuencia1 con la función de lectura de la librería y se imprime junto al código del potenciómetro.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// stm32f4xx_it.c, en la interrupción de captura del TIM1
+Frec_INT_Analiza(&amp;FREC1);</code></pre></div><p class="ojo">Después de habilitar la interrupción en CubeMX hay que regenerar el código; si no, la rutina del TIM1 no aparece en stm32f4xx_it.c.</p><div class="uno"><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>El problema del lazo abierto</h3><a class="min" href="https://youtu.be/NRudNTw0RFM?t=1812" target="_blank" rel="noopener">&#9654; 30:12</a></div><p>Al subir el potenciómetro la frecuencia sube. Si con el motor girando a unos 1200 Hz se frena con la mano, la frecuencia cae a 500 y el sistema no corrige nada.</p><p>Por eso se necesita lazo cerrado: en el siguiente capítulo se usa esta frecuencia como realimentación para un PID.</p><div class="uno"><figure class="cap"><a href="img/1830.webp" target="_blank"><img src="img/1830.webp" alt="Clase 114: Control de motor DC, capítulo 1: lazo abierto" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=NRudNTw0RFM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
