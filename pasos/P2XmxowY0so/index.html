@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Dibujar líneas, rectángulos, triángulos, círculos y elipses en la TFT ILI9488, y mostrar imágenes completas convertidas con LCD Image Converter.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/P2XmxowY0so/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes · Paso a paso">
+  <meta property="og:description" content="Dibujar líneas, rectángulos, triángulos, círculos y elipses en la TFT ILI9488, y mostrar imágenes completas convertidas con LCD Image Converter.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/P2XmxowY0so/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/P2XmxowY0so/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 124: TFT ILI9488 <span>figuras e imágenes</span></h1>
+    <p class="lead">Seguimos con la librería de la pantalla TFT ILI9488 por SPI. Primero recorremos las funciones de figuras que trae la librería (línea, rectángulo, triángulo, círculo, rectángulo redondeado y elipse, rellenas o solo borde), separándolas con un retardo y un fillScreen para ver cada una. Luego agregamos la función draw_bitmap, que pinta una imagen guardada como arreglo en flash con posición y escala. Una imagen de pantalla completa (480x320) no cabe en la flash del F411, así que pasamos a la Blackpill U585 (2 MB de flash) para mostrar imágenes completas en horizontal y en vertical. Al final se explica cómo convertir cualquier foto a arreglo C con el programa gratuito LCD Image Converter.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=P2XmxowY0so" target="_blank" rel="noopener">&#9654; Ver el video completo (19:18)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1066.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes"></figure>
+    <ul class="materiales"><li>Pantalla TFT ILI9488 3.5" SPI (480x320)</li><li>Blackpill STM32F411 (figuras e imágenes pequeñas)</li><li>Blackpill STM32U585 de 2 MB de flash (imágenes de pantalla completa)</li><li>STM32CubeIDE con la librería ili9488 de la clase anterior</li><li>LCD Image Converter (gratuito)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Funciones de dibujo de la librería</a><a href="#f2">2 · draw_bitmap y arreglos en flash</a><a href="#f3">3 · Más flash para fotos grandes</a><a href="#f4">4 · De .jpg a arreglo C</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Figuras geométricas</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Funciones disponibles en la librería</h3><a class="min" href="https://youtu.be/P2XmxowY0so?t=40" target="_blank" rel="noopener">&#9654; 0:40</a></div><p>Al final del archivo ili9488.h está la ayuda con todas las funciones de dibujo: línea, rectángulo, rectángulo relleno, triángulo, triángulo relleno, círculo, rectángulo con esquinas redondeadas, elipse y elipse rellena.</p><p>Todas reciben coordenadas en píxeles, el color (COLOR_RED, COLOR_BLUE, COLOR_BLUEVIOLET...) y, las que solo dibujan borde, el grosor de la línea.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Probar las figuras una por una</h3><a class="min" href="https://youtu.be/P2XmxowY0so?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>En el main, después de ILI9488_Init() y setRotation(horizontal), se llama cada figura. Entre una y otra se pone un HAL_Delay y un fillScreen(COLOR_WHITE) para borrar la pantalla y ver cada figura sola.</p><p>Las líneas que no se quieren probar se comentan con // para ir viéndolas de a una.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ILI9488_Init();
+setRotation(horizontal);
+fillScreen(COLOR_BLUE);
+
+draw_string(50, 0, &quot;SUSCRIBANSE&quot;, COLOR_WHITE, font2);
+draw_string(20, 100, &quot;AL CANAL&quot;, COLOR_RED, font4);
+draw_string_fondo(0, 200, &quot;HOLA&quot;, COLOR_WHITE, COLOR_BLACK, font4);
+HAL_Delay(2000);
+
+draw_line(0, 0, 100, 100, COLOR_BLUEVIOLET, 3);   // x1,y1,x2,y2,color,grosor
+HAL_Delay(3000);
+fillScreen(COLOR_WHITE);
+
+draw_fill_rectangle(0, 0, 100, 100, COLOR_BLUEVIOLET);
+HAL_Delay(3000);
+fillScreen(COLOR_WHITE);
+
+draw_fill_triangulo(100, 0, 50, 100, 200, 100, COLOR_BLUE); // 3 vertices
+HAL_Delay(3000);
+fillScreen(COLOR_WHITE);
+
+draw_circulo(100, 100, 50, COLOR_BLUEVIOLET, 3);  // centro, radio, color, grosor
+HAL_Delay(3000);
+fillScreen(COLOR_WHITE);
+
+draw_fill_rectangulo_red(0, 0, 100, 100, 5, COLOR_BLUEVIOLET); // esquinas redondeadas
+HAL_Delay(3000);
+fillScreen(COLOR_WHITE);
+
+draw_elipse(120, 80, 50, 30, COLOR_RED, 5);      // centro, radio x, radio y
+HAL_Delay(3000);
+fillScreen(COLOR_WHITE);
+
+draw_fill_elipse(120, 80, 50, 30, COLOR_BLUE);</code></pre></div><p class="ojo">Los nombres de los parámetros de grosor y radio de esquina se tomaron de lo que se ve en pantalla; revisa la ayuda al final de ili9488.h para el orden exacto en tu versión de la librería.</p><div class="dos"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Resultado en la pantalla</h3><a class="min" href="https://youtu.be/P2XmxowY0so?t=340" target="_blank" rel="noopener">&#9654; 5:40</a></div><p>Se compila, se descarga y en la TFT van apareciendo las figuras cada 3 segundos.</p><div class="uno"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Mostrar imágenes</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Función draw_bitmap</h3><a class="min" href="https://youtu.be/P2XmxowY0so?t=400" target="_blank" rel="noopener">&#9654; 6:40</a></div><p>Se agrega a ili9488.c (y su prototipo a ili9488.h) una función que recibe la posición x, y, una escala y el arreglo de la imagen.</p><p>Los dos primeros valores del arreglo son el ancho y el alto; el resto son los colores de cada píxel en formato RGB565. Se abre una ventana de dibujo con setAddrWindow y se envían todos los píxeles seguidos. Con escala 2 cada píxel se repite en horizontal y vertical, y la imagen sale al doble de tamaño.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void draw_bitmap(uint16_t x1, uint16_t y1, int scale, const unsigned int *bmp)
+{
+    int width  = bmp[0];   // Ancho
+    int height = bmp[1];   // Alto
+    unsigned int this_byte;
+
+    int x2 = x1 + (width  * scale) - 1;
+    int y2 = y1 + (height * scale) - 1;
+
+    // configurar ventana de dibujo en el TFT
+    setAddrWindow(x1, y1, x2, y2);
+
+    HAL_GPIO_WritePin(TFT_CS_GPIO_Port, TFT_CS_Pin, GPIO_PIN_RESET);
+
+    // recorrer todos los pixeles
+    for (int i = 0; i &lt; height; i++) {
+        for (int sv = 0; sv &lt; scale; sv++) {
+            for (int j = 0; j &lt; width; j++) {
+                this_byte = bmp[2 + (i * width) + j];
+                for (int sh = 0; sh &lt; scale; sh++) {
+                    write16BitColor(this_byte);
+                }
+            }
+        }
+    }
+
+    HAL_GPIO_WritePin(TFT_CS_GPIO_Port, TFT_CS_Pin, GPIO_PIN_SET);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Guardar la imagen como arreglo</h3><a class="min" href="https://youtu.be/P2XmxowY0so?t=505" target="_blank" rel="noopener">&#9654; 8:25</a></div><p>Las imágenes se guardan en un archivo imagenes.h dentro de la carpeta de librerías, cada una como un arreglo const (así queda en flash y no en RAM).</p><p>El arreglo empieza por ancho y alto, y luego los datos de color.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const unsigned int tigre[] = {
+    480, 320,          // ancho, alto
+    0x18c3, 0x18c3, 0x18c3, /* ... datos de LCD Image Converter ... */
+};</code></pre></div><div class="uno"><figure class="cap"><a href="img/505.webp" target="_blank"><img src="img/505.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Dibujar la imagen en el main</h3><a class="min" href="https://youtu.be/P2XmxowY0so?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>Se incluye imagenes.h en el main y se llama draw_bitmap con la posición, la escala y el nombre del arreglo. Una imagen pequeña cabe sin problema en el F411.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;imagenes.h&quot;
+
+draw_bitmap(300, 0, 1, zorro);   // imagen pequeña en x=300, y=0, escala 1</code></pre></div><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Imágenes de pantalla completa en el U585</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Por qué no cabe en el F411</h3><a class="min" href="https://youtu.be/P2XmxowY0so?t=790" target="_blank" rel="noopener">&#9654; 13:10</a></div><p>Una imagen de 480x320 son 153.600 píxeles. Guardada como arreglo de unsigned int ocupa unos 600 KB, más que toda la flash del F411 (512 KB), y el proyecto no compila.</p><p>Por eso el mismo proyecto se pasa a la Blackpill STM32U585, que tiene 2 MB de flash. Se copian las librerías ili9488, fonts e imagenes y se configura el SPI igual que en el F411.</p><p class="ojo">Si guardas los píxeles como uint16_t (const uint16_t imagen[]) en vez de unsigned int, cada píxel ocupa 2 bytes y la imagen pesa la mitad. En ese caso cambia también el tipo del parámetro bmp en draw_bitmap.</p><div class="uno"><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Imagen horizontal y vertical</h3><a class="min" href="https://youtu.be/P2XmxowY0so?t=1000" target="_blank" rel="noopener">&#9654; 16:40</a></div><p>Para una imagen de 480x320 se usa setRotation(horizontal); para una de 320x480 se cambia a setRotation(vertical) antes de dibujarla.</p><p>En la ventana Build Analyzer se ve el uso de la flash: con dos imágenes completas el U585 queda alrededor de 628 KB de 2 MB.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>setRotation(horizontal);
+fillScreen(ILI9488_RED);
+
+draw_bitmap(0, 0, 1, tigre);    // 480x320
+HAL_Delay(2000);
+
+setRotation(vertical);
+draw_bitmap(0, 0, 1, Dobby);    // 320x480</code></pre></div><div class="dos"><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Convertir fotos con LCD Image Converter</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Abrir la imagen</h3><a class="min" href="https://youtu.be/P2XmxowY0so?t=1033" target="_blank" rel="noopener">&#9654; 17:13</a></div><p>Primero se ajusta la foto a 480x320 (horizontal) o 320x480 (vertical) como máximo con cualquier editor.</p><p>En LCD Image Converter se abre con File > Open y se elige el archivo .jpg o .bmp.</p><div class="uno"><figure class="cap"><a href="img/1033.webp" target="_blank"><img src="img/1033.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Configurar la conversión y copiar los datos</h3><a class="min" href="https://youtu.be/P2XmxowY0so?t=1066" target="_blank" rel="noopener">&#9654; 17:46</a></div><p>En Options > Conversion se elige el preset de color de 16 bits (R5G6B5), que es el formato que usa la pantalla.</p><p>Con Show Preview aparece la imagen y, al lado, todos los datos en hexadecimal. Se seleccionan y copian.</p><p>Se pegan en imagenes.h dentro de un arreglo nuevo, escribiendo antes el ancho y el alto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const unsigned int Dobby[] = {
+    320, 480,          // ancho, alto (vertical)
+    /* pegar aquí los datos copiados del Preview */
+};</code></pre></div><div class="dos"><figure class="cap"><a href="img/1066.webp" target="_blank"><img src="img/1066.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure><figure class="cap"><a href="img/1101.webp" target="_blank"><img src="img/1101.webp" alt="Clase 124 STM32: Pantalla TFT ILI9488, figuras e imágenes" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=P2XmxowY0so" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
