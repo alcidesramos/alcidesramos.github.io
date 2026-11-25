@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 9. Hola mundo en un Cortex-M3: Blue Pill (parte 1) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Crear el proyecto de la Blue Pill (STM32F103C8T6) desde STM32CubeIDE, configurar el LED en PC13 y el reloj a 72 MHz, y programarla por serial con el bootloader y con ST-Link.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/DB7kbDEHgVY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 9. Hola mundo en un Cortex-M3: Blue Pill (parte 1) · Paso a paso">
+  <meta property="og:description" content="Crear el proyecto de la Blue Pill (STM32F103C8T6) desde STM32CubeIDE, configurar el LED en PC13 y el reloj a 72 MHz, y programarla por serial con el bootloader y con ST-Link.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/DB7kbDEHgVY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/DB7kbDEHgVY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Clase 9 · Paso a paso</span>
+    <h1>Hola mundo en la <span>Blue Pill</span> · parte 1</h1>
+    <p class="lead">Hola mundo con la Blue Pill, esta vez todo desde STM32CubeIDE sin abrir CubeMX aparte. Se configura el cristal, el reloj a 72 MHz y el LED de PC13, y se programa de dos formas: con un cable USB-serial usando el bootloader de fábrica, y con el ST-Link desde el IDE.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=DB7kbDEHgVY" target="_blank" rel="noopener">&#9654; Ver el video completo (13:13)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/470.webp" alt="Clase 9. Hola mundo en un Cortex-M3: Blue Pill (parte 1)"></figure>
+    <ul class="materiales"><li><b>Tarjeta:</b> Blue Pill (STM32F103C8T6, cristal 8 MHz, LED en PC13)</li><li><b>Para programar:</b> cable USB-serial (CH340, PL2303, FT232, CP2102…) o ST-Link V2</li><li><b>Software:</b> STM32CubeIDE, STM32CubeProgrammer</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Código</a><a href="#f3">3 · Serial</a><a href="#f4">4 · ST-Link</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto en STM32CubeIDE</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Nuevo proyecto STM32</h3><a class="min" href="https://youtu.be/DB7kbDEHgVY?t=84" target="_blank" rel="noopener">&#9654; 1:24</a></div><p><b>File → New → STM32 Project</b>, busca <code>STM32F103C8T6</code>, dale nombre (<code>basico1</code>) y desmarca la ubicación por defecto para guardarlo en tu carpeta.</p><div class="dos"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Clase 9. Hola mundo en un Cortex-M3: Blue Pill (parte 1)" loading="lazy"></a></figure><figure class="cap"><a href="img/130.webp" target="_blank"><img src="img/130.webp" alt="Clase 9. Hola mundo en un Cortex-M3: Blue Pill (parte 1)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>LED en PC13 y cristal</h3><a class="min" href="https://youtu.be/DB7kbDEHgVY?t=221" target="_blank" rel="noopener">&#9654; 3:41</a></div><p>Según el pinout de la Blue Pill, el LED está en <b>PC13</b>: <b>GPIO_Output</b> con etiqueta <code>led</code>. En <b>RCC → HSE: Crystal/Ceramic Resonator</b> (cristal de 8 MHz).</p><div class="dos"><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Pinout de la Blue Pill" loading="lazy"></a><figcaption>Pinout de la Blue Pill</figcaption></figure><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="RCC con cristal externo" loading="lazy"></a><figcaption>RCC con cristal externo</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Reloj a 72 MHz</h3><a class="min" href="https://youtu.be/DB7kbDEHgVY?t=255" target="_blank" rel="noopener">&#9654; 4:15</a></div><p>En <b>Clock Configuration</b>, HCLK a <b>72 MHz</b>, el máximo del F103. Al guardar el <code>.ioc</code> se genera el código.</p><div class="uno"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 9. Hola mundo en un Cortex-M3: Blue Pill (parte 1)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Parpadeo</h3><a class="min" href="https://youtu.be/DB7kbDEHgVY?t=318" target="_blank" rel="noopener">&#9654; 5:18</a></div><p>En <code>Core/Src/main.c</code>, dentro del while. Si el IDE no reconoce <code>led_Pin</code>, compila una vez primero.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN WHILE */
+while (1)
+{
+  HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+  HAL_Delay(200);
+  /* USER CODE END WHILE */</code></pre></div><div class="uno"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 9. Hola mundo en un Cortex-M3: Blue Pill (parte 1)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programar por serial</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Conectar el cable USB-serial</h3><a class="min" href="https://youtu.be/DB7kbDEHgVY?t=151" target="_blank" rel="noopener">&#9654; 2:31</a></div><p>Solo hacen falta TX y RX del cable a <b>PA10 (RX1)</b> y <b>PA9 (TX1)</b>. Si la tarjeta se alimenta por su USB del mismo PC, no hace falta unir GND ni positivo. Instala el driver del cable que tengas.</p><div class="uno"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Clase 9. Hola mundo en un Cortex-M3: Blue Pill (parte 1)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>BOOT0 en 1 y cargar con CubeProgrammer</h3><a class="min" href="https://youtu.be/DB7kbDEHgVY?t=462" target="_blank" rel="noopener">&#9654; 7:42</a></div><p>Pasa el jumper de <b>BOOT0</b> (el de afuera) a 1 y reinicia: el micro entra en modo bootloader. En CubeProgrammer escoge <b>UART</b>, el puerto COM (míralo en el Administrador de dispositivos), <b>Connect</b>, abre el <code>.elf</code> de la carpeta Debug y <b>Download</b>. Luego regresa BOOT0 a 0 y reinicia.</p><div class="dos"><figure class="cap"><a href="img/505.webp" target="_blank"><img src="img/505.webp" alt="CubeProgrammer por UART" loading="lazy"></a><figcaption>CubeProgrammer por UART</figcaption></figure><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Abrir el .elf" loading="lazy"></a><figcaption>Abrir el .elf</figcaption></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Programar con ST-Link</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Desde el IDE con Run</h3><a class="min" href="https://youtu.be/DB7kbDEHgVY?t=595" target="_blank" rel="noopener">&#9654; 9:55</a></div><p>Conecta el ST-Link y pulsa <b>Run</b>. La primera vez pregunta el depurador: escoge ST-LINK. Si el micro es original, programa directo sin desconectar nada. Cambia el retardo a 1200 para ver que sí cambió.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_Delay(1200);</code></pre></div><div class="uno"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 9. Hola mundo en un Cortex-M3: Blue Pill (parte 1)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Si el micro no es original</h3><a class="min" href="https://youtu.be/DB7kbDEHgVY?t=728" target="_blank" rel="noopener">&#9654; 12:08</a></div><p>El IDE no deja depurar ni programar un clon. Usa CubeProgrammer con <b>ST-Link → Connect</b>, abre el archivo y <b>Download</b>.</p><div class="uno"><figure class="cap"><a href="img/735.webp" target="_blank"><img src="img/735.webp" alt="Clase 9. Hola mundo en un Cortex-M3: Blue Pill (parte 1)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=DB7kbDEHgVY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Primer programa (parpadeo de LED) en la STM32F030 Demo Board: configuración en CubeMX, código entre USER CODE BEGIN/END, y programación por ST-Link, Keil y puerto serial.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/uzsI4K9HqVA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6) · Paso a paso">
+  <meta property="og:description" content="Primer programa (parpadeo de LED) en la STM32F030 Demo Board: configuración en CubeMX, código entre USER CODE BEGIN/END, y programación por ST-Link, Keil y puerto serial.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/uzsI4K9HqVA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/uzsI4K9HqVA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Clase 8 · Paso a paso</span>
+    <h1>Hola mundo en un <span>Cortex-M0</span></h1>
+    <p class="lead">El hola mundo con la tarjeta STM32F030 Demo Board (Cortex-M0, 20 pines): configurar cristal, reloj y el LED en CubeMX, escribir el código en el lugar correcto para que CubeMX no lo borre, y programarla de tres formas: STM32CubeProgrammer con ST-Link, Keil µVision y por serial con el bootloader.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=uzsI4K9HqVA" target="_blank" rel="noopener">&#9654; Ver el video completo (18:21)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/15.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)"></figure>
+    <ul class="materiales"><li><b>Tarjeta:</b> STM32F030 Demo Board (STM32F030F4P6, cristal 8 MHz, LED en PA4)</li><li><b>Programador:</b> ST-Link V2 o cable USB-serial</li><li><b>Software:</b> STM32CubeMX, STM32CubeIDE, Keil µVision, STM32CubeProgrammer</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Tarjeta</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · Código</a><a href="#f4">4 · Programar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La tarjeta</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>STM32F030 Demo Board</h3><a class="min" href="https://youtu.be/uzsI4K9HqVA?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Micro STM32F030F4P6 de 20 pines. El USB es solo para alimentación (el micro no tiene USB). Se programa con ST-Link (pines GND, CLK, DIO, 3V3) o por serial (TXD/RXD). Tiene botón de reset, jumper de BOOT0 y un LED en <b>PA4</b>.</p><div class="uno"><figure class="cap"><a href="img/515.webp" target="_blank"><img src="img/515.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Escoger el micro y el cristal</h3><a class="min" href="https://youtu.be/uzsI4K9HqVA?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>Nuevo proyecto con <code>STM32F030F4</code>. En <b>System Core → RCC</b>, <b>High Speed Clock (HSE): Crystal/Ceramic Resonator</b>, porque la tarjeta trae cristal de 8 MHz.</p><div class="dos"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)" loading="lazy"></a></figure><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Reloj al máximo (48 MHz)</h3><a class="min" href="https://youtu.be/uzsI4K9HqVA?t=133" target="_blank" rel="noopener">&#9654; 2:13</a></div><p>En <b>Clock Configuration</b> escribe 48 en HCLK y Enter: CubeMX calcula el PLL (multiplicadores y divisores) para llegar a esa frecuencia.</p><div class="uno"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>El LED como salida</h3><a class="min" href="https://youtu.be/uzsI4K9HqVA?t=169" target="_blank" rel="noopener">&#9654; 2:49</a></div><p>Clic en <b>PA4 → GPIO_Output</b> y etiqueta <code>led</code>. En GPIO se puede escoger <b>push-pull</b> (0 o 3.3 V) u <b>open drain</b> (con resistencia a 5 V da 5 V, útil para interfaces).</p><div class="uno"><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Generar el proyecto</h3><a class="min" href="https://youtu.be/uzsI4K9HqVA?t=203" target="_blank" rel="noopener">&#9654; 3:23</a></div><p>En <b>Project Manager</b>: nombre (<code>holamundo_M0</code>), carpeta y <b>Toolchain/IDE</b>: <b>STM32CubeIDE</b> (o MDK-ARM para Keil). <b>Generate Code</b> y abrir.</p><div class="uno"><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El código</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Parpadeo en el while(1)</h3><a class="min" href="https://youtu.be/uzsI4K9HqVA?t=306" target="_blank" rel="noopener">&#9654; 5:06</a></div><p>En <code>Core/Src/main.c</code>, dentro del <code>while (1)</code>. Con Ctrl + espacio, el IDE completa los nombres.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN WHILE */
+while (1)
+{
+  HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+  HAL_Delay(200);   // milisegundos
+  /* USER CODE END WHILE */
+
+  /* USER CODE BEGIN 3 */
+}
+/* USER CODE END 3 */</code></pre></div><div class="uno"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Escribe solo entre USER CODE BEGIN y END</h3><a class="min" href="https://youtu.be/uzsI4K9HqVA?t=406" target="_blank" rel="noopener">&#9654; 6:46</a></div><p>Si vuelves a generar código desde CubeMX, todo lo que esté fuera de un bloque <code>/* USER CODE BEGIN x */ … /* USER CODE END x */</code> se borra. Eso vale para includes, variables, defines y código.</p><p class="ojo"><b>Ojo:</b> código fuera de los bloques USER CODE = código perdido al regenerar.</p></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Programar la tarjeta</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>CubeIDE + ST-Link: error con un clon</h3><a class="min" href="https://youtu.be/uzsI4K9HqVA?t=509" target="_blank" rel="noopener">&#9654; 8:29</a></div><p>Conecta GND, SWCLK, SWDIO y 3.3 V del ST-Link. Compila en <b>Release</b>. En <b>Debug Configurations</b> escoge ST-LINK (SWD). Como el micro no es original, CubeIDE da error y no programa.</p><div class="uno"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Solución: STM32CubeProgrammer</h3><a class="min" href="https://youtu.be/uzsI4K9HqVA?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>Abre el programador, conéctate por ST-Link, abre el <code>.elf</code> (o el <code>.hex</code>, activándolo en <b>MCU Post build outputs</b>) y <b>Download</b>. El LED parpadea.</p><div class="dos"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)" loading="lazy"></a></figure><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Con Keil µVision</h3><a class="min" href="https://youtu.be/uzsI4K9HqVA?t=692" target="_blank" rel="noopener">&#9654; 11:32</a></div><p>En CubeMX cambia el Toolchain a <b>MDK-ARM</b> y genera. Keil avisa <i>Not a genuine ST Device</i>, pero al aceptar sí programa. Hay que desconectar y conectar la tarjeta para que arranque.</p><div class="uno"><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Por serial con el bootloader</h3><a class="min" href="https://youtu.be/uzsI4K9HqVA?t=862" target="_blank" rel="noopener">&#9654; 14:22</a></div><p>Sin ST-Link: cable USB-serial a TXD/RXD (y GND). Pasa el jumper <b>BOOT0 a 3.3 V</b>, reinicia, y en CubeProgrammer escoge <b>UART</b>, el puerto COM, <b>Connect</b> y <b>Download</b>. Luego regresa BOOT0 a 0 y reinicia para que corra el programa.</p><p class="ojo"><b>Ojo:</b> con algunos clones la programación por serial graba pero el programa no corre. En ese caso, mejor el ST-Link.</p><div class="uno"><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Clase 8. Hola mundo en un Cortex-M0 (STM32F030F4P6)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=uzsI4K9HqVA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
