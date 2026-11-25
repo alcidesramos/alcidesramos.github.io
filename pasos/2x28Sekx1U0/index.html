@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un retardo por software en microsegundos que no depende de la optimización del compilador, y cómo calibrarlo midiendo ciclos con el DWT y una hoja de cálculo. Factor 8 para Blue Pill a 72 MHz y 12 para Black Pill F401 a 84 MHz.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/2x28Sekx1U0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Un retardo por software en microsegundos que no depende de la optimización del compilador, y cómo calibrarlo midiendo ciclos con el DWT y una hoja de cálculo. Factor 8 para Blue Pill a 72 MHz y 12 para Black Pill F401 a 84 MHz.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/2x28Sekx1U0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/2x28Sekx1U0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Retardos en <span>microsegundos</span> con ciclos en C</h1>
+    <p class="lead">En internet se consiguen retardos por software con un factor ya puesto, pero nadie explica cómo calcularlo si cambias de placa o de reloj. Aquí medimos cuántos ciclos tarda el retardo con el contador DWT, sacamos la ecuación con una regresión en Excel y comprobamos el resultado con un analizador lógico.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=2x28Sekx1U0" target="_blank" rel="noopener">&#9654; Ver el video completo (15:07)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/175.webp" alt="Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso)"></figure>
+    <ul class="materiales"><li>Blue Pill STM32F103 y/o Black Pill STM32F401</li><li>ST-Link</li><li>Analizador lógico</li><li>Hoja de cálculo para la regresión</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Función</a><a href="#f2">2 · Calibrar</a><a href="#f3">3 · Probar</a><a href="#f4">4 · F401</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La función de retardo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Sin optimización solo dentro del retardo</h3><a class="min" href="https://youtu.be/2x28Sekx1U0?t=97" target="_blank" rel="noopener">&#9654; 1:37</a></div><p>Cada programador elige la optimización del compilador (Properties → C/C++ Build → Settings → Optimization: -O0, -O1, -O2, -O3, -Os). Si cambia, cambian los ciclos del retardo. Por eso la función guarda la optimización, compila el retardo con <b>-O0</b> y al final la restaura.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El código</h3><a class="min" href="https://youtu.be/2x28Sekx1U0?t=160" target="_blank" rel="noopener">&#9654; 2:40</a></div><p>El retardo es un contador que baja desde <code>reta*factor</code>. Para calibrar, empieza con factor 1:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#pragma GCC push_options          // guarda la optimizacion</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#pragma GCC optimize (&quot;O0&quot;)       // sin optimizacion</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void delay_us_C (uint32_t reta)   // reta = us deseados</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    uint32_t calibra;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    calibra = reta*1;             // ecuacion de calibracion</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    while (calibra--);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>}</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#pragma GCC pop_options           // recupera la optimizacion</code></pre></div><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Calibrar con el DWT</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Contar ciclos en depuración</h3><a class="min" href="https://youtu.be/2x28Sekx1U0?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>Activa el contador de ciclos DWT (visto en la clase 18) y en el while pon a cero <b>CYCCNT</b> antes de cada retardo. Depura con un breakpoint después de cada llamada y mira <code>DWT-&gt;CYCCNT</code> en Expressions.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>DWT-&gt;CTRL |= DWT_CTRL_CYCCNTENA_Msk;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    DWT-&gt;CYCCNT = 0;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    delay_us_C(10);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    DWT-&gt;CYCCNT = 0;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    delay_us_C(100);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    DWT-&gt;CYCCNT = 0;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    delay_us_C(500);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>}</code></pre></div><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Sacar el factor en la hoja de cálculo</h3><a class="min" href="https://youtu.be/2x28Sekx1U0?t=238" target="_blank" rel="noopener">&#9654; 3:58</a></div><p>Con la Blue Pill a 72 MHz: 10 → 120 ciclos, 100 → 930, 500 → 4530. Dividiendo por la frecuencia salen los µs reales que dura cada llamada. La regresión da <b>y = 8x − 3.3</b>: el factor es <b>8</b>.</p><p class="ojo">No uses decimales en la ecuación: las operaciones con decimales hacen el retardo mucho más lento. Redondea (11.6 → 11 o 12).</p><div class="uno"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Probar con el analizador</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Blue Pill a 72 MHz, factor 8</h3><a class="min" href="https://youtu.be/2x28Sekx1U0?t=307" target="_blank" rel="noopener">&#9654; 5:07</a></div><p>Pon <code>calibra = reta*8;</code> y genera un pulso en PB11 en modo atómico:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>salida_GPIO_Port-&gt;BSRR = salida_Pin;        // 1</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>delay_us_C(10);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>salida_GPIO_Port-&gt;BSRR = salida_Pin &lt;&lt; 16;  // 0</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>delay_us_C(10);</code></pre></div><div class="dos"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Pulso en modo atómico" loading="lazy"></a><figcaption>Pulso en modo atómico</figcaption></figure><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="10 µs: mide 10.7 µs" loading="lazy"></a><figcaption>10 µs: mide 10.7 µs</figcaption></figure><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="1 µs: mide 1.7 µs" loading="lazy"></a><figcaption>1 µs: mide 1.7 µs</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Cristales lentos</h3><a class="min" href="https://youtu.be/2x28Sekx1U0?t=440" target="_blank" rel="noopener">&#9654; 7:20</a></div><p>En Proteus a 16 MHz el factor sale 1.7 (usa 1 o 2). A 8 MHz el retardo mínimo ya tarda unos 15 µs: imposible tener precisión. Usa relojes de 16 MHz o más.</p><div class="uno"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Black Pill F401 a 84 MHz</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Repetir la calibración</h3><a class="min" href="https://youtu.be/2x28Sekx1U0?t=571" target="_blank" rel="noopener">&#9654; 9:31</a></div><p>Mismo procedimiento: 10 → 97 ciclos, 100 → 727, 500 → 3527. El factor sale <b>12</b>. Verifica en el Clock Configuration que la placa de verdad está a 84 MHz.</p><div class="dos"><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Ajuste fino</h3><a class="min" href="https://youtu.be/2x28Sekx1U0?t=707" target="_blank" rel="noopener">&#9654; 11:47</a></div><p>Con factor 12 el pulso de 1 µs mide unos 1.4 µs. Restando el término de la ecuación (−4) mejora a unos 1.1 µs:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>calibra = reta*12 - 4;   // F401 a 84 MHz</code></pre></div><p class="ojo">Para una F411 a 100 MHz el factor será más alto: repite la calibración. En el próximo video, el mismo retardo en ensamblador, mucho más preciso.</p><div class="dos"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Retardos en microsegundos parte 1: con ciclos en C, calibrados para Blue Pill y Black Pill (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=2x28Sekx1U0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
