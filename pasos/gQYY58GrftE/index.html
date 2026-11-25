@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conceptos básicos de microcontroladores: compilador, programador, firmware, bootloader y debugger (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Memoria de programa y de datos; de código máquina a C++; qué hace el compilador; qué es el firmware y el .hex; programador (quemador), bootloader y debugger.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/gQYY58GrftE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Conceptos básicos de microcontroladores: compilador, programador, firmware, bootloader y debugger (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Memoria de programa y de datos; de código máquina a C++; qué hace el compilador; qué es el firmware y el .hex; programador (quemador), bootloader y debugger.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/gQYY58GrftE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/gQYY58GrftE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Conceptos básicos: <span>compilador, firmware, bootloader</span> y debugger</h1>
+    <p class="lead">El vocabulario que se usa en todo el curso. Cómo se organiza la memoria de un micro, cómo pasamos de un lenguaje que entendemos a los ceros y unos que guarda la Flash, y qué papel juegan el compilador, el programador o quemador, el bootloader y el depurador.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=gQYY58GrftE" target="_blank" rel="noopener">&#9654; Ver el video completo (9:18)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/110.webp" alt="Conceptos básicos de microcontroladores: compilador, programador, firmware, bootloader y debugger (paso a paso)"></figure>
+    
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Memoria</a><a href="#f2">2 · Compilar</a><a href="#f3">3 · Herramientas</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Memorias del micro</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Programa y datos</h3><a class="min" href="https://youtu.be/gQYY58GrftE?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><ul><li><b>Memoria de programa</b>: Flash, no volátil; ahí queda el programa aunque se quite la energía.</li><li><b>Memoria de datos</b>: RAM, para lo que se procesa en el momento (temperaturas, cálculos…).</li><li>Algunos micros traen una pequeña <b>EEPROM</b> para datos que no se deben perder (por ejemplo una clave que el usuario cambió). Otros no la tienen y hay que usar parte de la Flash o una memoria externa.</li></ul><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Conceptos básicos de microcontroladores: compilador, programador, firmware, bootloader y debugger (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Del código a la Flash</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Niveles de lenguaje</h3><a class="min" href="https://youtu.be/gQYY58GrftE?t=64" target="_blank" rel="noopener">&#9654; 1:04</a></div><ul><li><b>Código máquina</b>: los ceros y unos que entiende el micro (antes se programaba con códigos en hexadecimal).</li><li><b>Ensamblador</b>: instrucciones como <code>ADD A,B</code> o <code>MOV A,40</code>. Muy poderoso, pero lento de desarrollar y distinto para cada familia.</li><li><b>Alto nivel</b>: BASIC, Pascal, <b>C/C++</b> y ahora MicroPython.</li><li><b>Sistema operativo</b> (RTOS): ya cargado en el micro; se programa encima de él.</li></ul><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Conceptos básicos de microcontroladores: compilador, programador, firmware, bootloader y debugger (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Compilar</h3><a class="min" href="https://youtu.be/gQYY58GrftE?t=162" target="_blank" rel="noopener">&#9654; 2:42</a></div><p>Pasar de un lenguaje de nivel superior a código máquina se llama <b>compilar</b>. El software del PC con el que se programa (STM32CubeIDE, Keil, etc.) se llama <b>compilador</b>, no programador. El resultado es un archivo <b>.hex</b> o <b>.bin</b> que va a la Flash.</p><p>MicroPython es distinto: es un intérprete ya instalado en el micro.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Firmware</h3><a class="min" href="https://youtu.be/gQYY58GrftE?t=264" target="_blank" rel="noopener">&#9654; 4:24</a></div><p>Es el código en lenguaje máquina, el programa guardado en la memoria de programa del micro. Es tu idea, y conviene protegerlo para que no la copien; en el curso veremos cómo.</p><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Conceptos básicos de microcontroladores: compilador, programador, firmware, bootloader y debugger (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Cargar y depurar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Quemador o programador</h3><a class="min" href="https://youtu.be/gQYY58GrftE?t=297" target="_blank" rel="noopener">&#9654; 4:57</a></div><p>Para pasar el .hex al micro se necesita un <b>hardware programador</b> (quemador) y su <b>software</b>. A veces el software viene dentro del compilador si es de la misma empresa. Compilador, programador y micro deben ser coherentes entre sí.</p><div class="uno"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Conceptos básicos de microcontroladores: compilador, programador, firmware, bootloader y debugger (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Bootloader (gestor de arranque)</h3><a class="min" href="https://youtu.be/gQYY58GrftE?t=362" target="_blank" rel="noopener">&#9654; 6:02</a></div><p>Es un firmware o preprograma en el micro que le permite programarse a sí mismo, sin programador externo (como Arduino).</p><ul><li>Si lo grabas tú una vez, <b>ocupa espacio</b> de la memoria de programa.</li><li>Los STM32 traen uno <b>de fábrica</b> en una memoria aparte (no ocupa espacio) por serial, USB, SPI, I2C…</li><li>Con bootloader normalmente <b>no hay depuración</b>: para eso hace falta el programador.</li></ul><div class="dos"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Conceptos básicos de microcontroladores: compilador, programador, firmware, bootloader y debugger (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Conceptos básicos de microcontroladores: compilador, programador, firmware, bootloader y debugger (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Debugger (depurador)</h3><a class="min" href="https://youtu.be/gQYY58GrftE?t=489" target="_blank" rel="noopener">&#9654; 8:09</a></div><p>Permite correr el programa paso a paso y ver variables, registros del micro, funciones y timers, para encontrar errores u optimizar el código. Normalmente es por hardware, con el mismo programador (ST-Link). También existe por software: por ejemplo en Proteus se depura sin tener el micro conectado.</p><div class="uno"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Conceptos básicos de microcontroladores: compilador, programador, firmware, bootloader y debugger (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=gQYY58GrftE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

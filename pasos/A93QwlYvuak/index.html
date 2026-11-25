@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conceptos básicos de microcontroladores: hardware mínimo (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Comparando un PIC16F877A con un STM32F103C8T6: alimentación (VDD/VSS, VDDA/VSSA), circuito de reset, cristal con sus condensadores, PLL y puertos.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/A93QwlYvuak/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Conceptos básicos de microcontroladores: hardware mínimo (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Comparando un PIC16F877A con un STM32F103C8T6: alimentación (VDD/VSS, VDDA/VSSA), circuito de reset, cristal con sus condensadores, PLL y puertos.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/A93QwlYvuak/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/A93QwlYvuak/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Conceptos básicos: el <span>hardware mínimo</span> de un micro</h1>
+    <p class="lead">Mucha gente compra la Blue Pill o un Arduino sin saber qué lleva alrededor el micro. Aunque sean familias distintas, todo micro necesita lo mismo para arrancar: alimentación, circuito de reset y reloj (cristal). Lo vemos sobre los pinouts de un PIC16F877A y un STM32F103C8T6, y lo armamos en Proteus.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=A93QwlYvuak" target="_blank" rel="noopener">&#9654; Ver el video completo (9:43)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/470.webp" alt="Conceptos básicos de microcontroladores: hardware mínimo (paso a paso)"></figure>
+    <ul class="materiales"><li>Datasheet o pinout del micro</li><li>Proteus (opcional, para dibujar el circuito)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Alimentación</a><a href="#f2">2 · Reset</a><a href="#f3">3 · Cristal</a><a href="#f4">4 · Puertos</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Alimentación</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>VDD y VSS</h3><a class="min" href="https://youtu.be/A93QwlYvuak?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><ul><li><b>VDD</b>: positivo. Un micro con pines a ambos lados suele tener varios VDD.</li><li><b>VSS</b>: tierra.</li><li><b>VDDA / VSSA</b>: alimentación y tierra de la parte análoga (convertidor A/D); se separan para reducir ruido, aunque normalmente se conectan igual.</li><li>El PIC16F877A va a 5 V; el STM32F103 a <b>3.3 V</b>.</li></ul><p class="ojo">Conecta TODOS los VDD y TODOS los VSS, no solo uno. En ambientes industriales con ruido, dejar alguno suelto da problemas.</p><div class="uno"><figure class="cap"><a href="img/25.webp" target="_blank"><img src="img/25.webp" alt="Conceptos básicos de microcontroladores: hardware mínimo (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>En Proteus</h3><a class="min" href="https://youtu.be/A93QwlYvuak?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Proteus oculta los pines de alimentación y no hace falta conectarlos (ni el cristal: la frecuencia se pone en las propiedades del micro). En la vida real sí son obligatorios.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Conceptos básicos de microcontroladores: hardware mínimo (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Reset</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pin de reset</h3><a class="min" href="https://youtu.be/A93QwlYvuak?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>En el PIC se llama <b>MCLR</b> (con raya encima) y en el STM32 <b>NRST</b>: la raya o la N indican que se resetea con nivel bajo (0).</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Tres formas de conectarlo</h3><a class="min" href="https://youtu.be/A93QwlYvuak?t=168" target="_blank" rel="noopener">&#9654; 2:48</a></div><ul><li>Cable directo a positivo (sin reset manual).</li><li>Una resistencia <b>pull-up de 10 kΩ</b> a positivo.</li><li>Resistencia pull-up de 10 kΩ más un <b>pulsador a tierra</b>: al pulsar va a 0 y se resetea.</li></ul><p class="ojo">No siempre se pone botón de reset: en un dron, por ejemplo, el programa debe ser robusto o resetearse por software (watchdog).</p><div class="uno"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Conceptos básicos de microcontroladores: hardware mínimo (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Reloj</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Cristal y PLL</h3><a class="min" href="https://youtu.be/A93QwlYvuak?t=346" target="_blank" rel="noopener">&#9654; 5:46</a></div><p>El cristal de cuarzo fija la velocidad. El PIC acepta de 0 a 20 MHz; el STM32F103 hasta 16 MHz, pero puede correr más rápido gracias al <b>PLL</b>, un multiplicador de frecuencia (lo veremos en el curso).</p><p>Pines OSC1/OSC2 en el PIC y OSC_IN/OSC_OUT (PD0/PD1) en el STM32. Si el pin tiene más nombres, el micro trae oscilador interno y puede trabajar sin cristal.</p><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Conceptos básicos de microcontroladores: hardware mínimo (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Condensadores del cristal</h3><a class="min" href="https://youtu.be/A93QwlYvuak?t=450" target="_blank" rel="noopener">&#9654; 7:30</a></div><p>Para estabilizar la frecuencia se pone un condensador de cada pata del cristal a tierra, de <b>10–22 pF</b> (en el video 15 pF).</p><div class="dos"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="PIC y STM32 con reset y cristal" loading="lazy"></a><figcaption>PIC y STM32 con reset y cristal</figcaption></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Detalle del cristal del STM32" loading="lazy"></a><figcaption>Detalle del cristal del STM32</figcaption></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Puertos</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Lo que queda libre</h3><a class="min" href="https://youtu.be/A93QwlYvuak?t=515" target="_blank" rel="noopener">&#9654; 8:35</a></div><p>Los demás pines son los <b>puertos</b>: en el STM32 PA0…PA15, PB0…PB15 (puerto A, B…); en el PIC RA, RB, RC… Son las entradas y salidas con las que se programa. Con alimentación + reset + cristal, cualquier micro está listo para trabajar.</p><div class="uno"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Conceptos básicos de microcontroladores: hardware mínimo (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=A93QwlYvuak" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
