@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 123: Pantalla TFT ILI9488, textos personalizados · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Pantalla TFT ILI9488 de 3.5&quot; (480x320) por SPI: conexión, SPI a menos de 15 MHz, inicialización, orientación, texto con y sin fondo, y cómo crear fonts propios con GLCD Font Creator.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/7mPNZSDV8dQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 123: Pantalla TFT ILI9488, textos personalizados · Paso a paso">
+  <meta property="og:description" content="Pantalla TFT ILI9488 de 3.5&quot; (480x320) por SPI: conexión, SPI a menos de 15 MHz, inicialización, orientación, texto con y sin fondo, y cómo crear fonts propios con GLCD Font Creator.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/7mPNZSDV8dQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/7mPNZSDV8dQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 123: <span>TFT ILI9488 con fonts propios</span></h1>
+    <p class="lead">Primer video de la serie de la pantalla ILI9488 de 3.5 pulgadas. Se explican sus pines (alimentación de 3.3 o 5 V, CS, RESET, DC, MOSI, SCK, LED y MISO opcional) y se configura el STM32F411 a máxima velocidad con SPI1 en modo solo transmisión a unos 12 Mbit/s, porque la pantalla admite hasta 15 MHz. La librería de base se tomó de internet y se amplió con funciones propias de figuras, dashboard y fonts personalizables. Se inicia la pantalla, se elige la orientación, se pinta el fondo, se escriben textos con varios fonts y se crea uno nuevo con GLCD Font Creator.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=7mPNZSDV8dQ" target="_blank" rel="noopener">&#9654; Ver el video completo (21:41)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/810.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados"></figure>
+    <ul class="materiales"><li>Blackpill STM32F411</li><li>Pantalla TFT 3.5" ILI9488 (SPI)</li><li>Librerías del canal: ili9488, fonts e imagenes</li><li>MikroElektronika GLCD Font Creator (gratuito)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pines</a><a href="#f2">2 · SPI y pines</a><a href="#f3">3 · ili9488, fonts e imágenes</a><a href="#f4">4 · Iniciar, orientar y pintar</a><a href="#f5">5 · GLCD Font Creator</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Pines de la ILI9488</h3><a class="min" href="https://youtu.be/7mPNZSDV8dQ?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>VCC (3.3 o 5 V) y GND; CS, RESET y DC/RS van al micro; SDI (MOSI) y SCK al bus SPI.</p><p>LED es la luz de fondo: si va al micro se puede apagar para ahorrar energía; si no, se conecta a 3.3 V.</p><p>SDO (MISO) es opcional: solo se necesita para leer de la pantalla.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>SPI1 solo transmisión</h3><a class="min" href="https://youtu.be/7mPNZSDV8dQ?t=164" target="_blank" rel="noopener">&#9654; 2:44</a></div><p>En SPI1 se elige Transmit Only Master para no gastar el pin MISO. Quedan SCK y MOSI.</p><div class="dos"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Pines de control y velocidad</h3><a class="min" href="https://youtu.be/7mPNZSDV8dQ?t=229" target="_blank" rel="noopener">&#9654; 3:49</a></div><p>Cuatro salidas con estos nombres: TFT_CS, TFT_RST, TFT_DC y TFT_LED (opcional).</p><p>Se pone cristal externo y el PLL a la máxima velocidad del micro para que dibujar sea rápido.</p><p>En el SPI (8 bits) el prescaler se sube a 8 para quedar en unos 12 Mbit/s. La pantalla admite hasta 15 MHz según el datasheet.</p><p class="ojo">Con 20 MHz también funcionó, pero lo recomendable es no pasar de 15 MHz.</p><div class="uno"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librerías</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Agregar e incluir</h3><a class="min" href="https://youtu.be/7mPNZSDV8dQ?t=378" target="_blank" rel="noopener">&#9654; 6:18</a></div><p>Se crea la carpeta Librerias con ili9488, fonts e imagenes, se agrega al include path y se incluyen en main.c. También se habilita float con printf.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;ili9488.h&quot;
+#include &quot;fonts.h&quot;
+#include &quot;imagenes.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Primer dibujo</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Iniciar la pantalla</h3><a class="min" href="https://youtu.be/7mPNZSDV8dQ?t=573" target="_blank" rel="noopener">&#9654; 9:33</a></div><p>Se inicia la pantalla, se elige la orientación (horizontal, horizontal invertida, vertical o vertical invertida) y se llena de un color.</p><p>La luz de fondo debe estar encendida: con el pin TFT_LED en alto, o conectando LED a 3.3 V.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ILI9488_Init();
+setRotation(horizontal);
+HAL_GPIO_WritePin(TFT_LED_GPIO_Port, TFT_LED_Pin, 1);  // luz de fondo
+fillScreen(COLOR_BLUE);</code></pre></div><div class="dos"><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Escribir texto</h3><a class="min" href="https://youtu.be/7mPNZSDV8dQ?t=715" target="_blank" rel="noopener">&#9654; 11:55</a></div><p>draw_string escribe sin fondo en la posición x, y con un color y un font. Hay varios fonts de distintos tamaños (10x2, 19x3, 25x3...).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>draw_string(0, 0, &quot;SUSCRIBANSE&quot;, COLOR_WHITE, font2);
+draw_string(20, 100, &quot;AL CANAL&quot;, COLOR_RED, font4);</code></pre></div><div class="dos"><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure><figure class="cap"><a href="img/810.webp" target="_blank"><img src="img/810.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Crear un font</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Generar el font</h3><a class="min" href="https://youtu.be/7mPNZSDV8dQ?t=896" target="_blank" rel="noopener">&#9654; 14:56</a></div><p>En GLCD Font Creator: File > New Font > Import an existing system font, se elige la letra, el estilo y el tamaño (por ejemplo 28).</p><p>Cada carácter se puede editar: mover, quitar columnas o rotar. Luego Export for GLCD, se elige mikroC y se copia el código.</p><div class="dos"><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure><figure class="cap"><a href="img/1010.webp" target="_blank"><img src="img/1010.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Adaptarlo en fonts.c</h3><a class="min" href="https://youtu.be/7mPNZSDV8dQ?t=1029" target="_blank" rel="noopener">&#9654; 17:09</a></div><p>Se pega el arreglo en fonts.c con el nombre font5 y se cambia short por char.</p><p>En la cabecera va el alto del font (42 en el ejemplo) y el número de bytes por columna: el ancho 55 dividido entre 8 y redondeado hacia arriba = 7.</p><p>fonts.h ya declara hasta 20 fonts; si necesitas más, agrégalos también allí.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const unsigned char font5[] = {42, 7,
+  0x00, 0x00, 0x00, ...   // datos exportados
+};</code></pre></div><div class="dos"><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Texto con fondo</h3><a class="min" href="https://youtu.be/7mPNZSDV8dQ?t=1129" target="_blank" rel="noopener">&#9654; 18:49</a></div><p>draw_string_fondo escribe con color de letra y color de fondo. Con el nuevo font5 se tienen tres tipos de letra distintos en pantalla.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>draw_string_fondo(0, 200, &quot;HOLA&quot;, COLOR_WHITE, COLOR_BLACK, font5);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1170.webp" target="_blank"><img src="img/1170.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure><figure class="cap"><a href="img/1280.webp" target="_blank"><img src="img/1280.webp" alt="Clase 123: Pantalla TFT ILI9488, textos personalizados" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=7mPNZSDV8dQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
