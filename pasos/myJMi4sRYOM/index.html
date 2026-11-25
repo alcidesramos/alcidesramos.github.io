@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 85 STM32: Introducción a las interrupciones con Timers · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Primera clase de interrupciones: un timer (TIM1) genera una interrupción cada 200 ms y, dentro de la rutina, se hacen parpadear LEDs con distintos periodos usando un contador.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/myJMi4sRYOM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 85 STM32: Introducción a las interrupciones con Timers · Paso a paso">
+  <meta property="og:description" content="Primera clase de interrupciones: un timer (TIM1) genera una interrupción cada 200 ms y, dentro de la rutina, se hacen parpadear LEDs con distintos periodos usando un contador.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/myJMi4sRYOM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/myJMi4sRYOM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Interrupciones por <span>Timer</span> en STM32</h1>
+    <p class="lead">Se arma en Proteus una BlackPill con 4 LEDs. LED1 parpadea en el main con HAL_Delay, mientras que TIM1 se configura con base de tiempo de 200 ms y su interrupción de actualización (update) se habilita en el NVIC. Dentro del manejador TIM1_UP_TIM10_IRQHandler se conmuta LED2 en cada interrupción y LED3 cada 3 interrupciones (600 ms) usando un contador. Se explican las prioridades del NVIC (0 a 15, donde 0 es la más alta), los bits de grupo de prioridad y la subprioridad, y la idea de que un solo timer base sirve para generar varios periodos sin bloquear el programa.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=myJMi4sRYOM" target="_blank" rel="noopener">&#9654; Ver el video completo (24:06)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1430.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Proteus (simulación BlackPill STM32F401/F411)</li><li>4 LEDs con resistencias de 220 Ω</li><li>Librería pinout.h (macros PIN_BLINK, PIN_ON…)</li><li>Hoja de cálculo para PSC/ARR del timer</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proteus, reloj y pinout.h</a><a href="#f2">2 · Base de 200 ms e interrupción update</a><a href="#f3">3 · IRQHandler, contador y arranque</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Montaje y proyecto base</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito en Proteus</h3><a class="min" href="https://youtu.be/myJMi4sRYOM?t=160" target="_blank" rel="noopener">&#9654; 2:40</a></div><p>BlackPill con 4 LEDs (220 Ω): LED1 en B0, LED2 en A7, LED3 en A2 y LED4 en A0. Alimentación a 3.3 V y VDDA unido a la red de 3.3 V para que la simulación arranque.</p><div class="uno"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pines y reloj a 16 MHz</h3><a class="min" href="https://youtu.be/myJMi4sRYOM?t=350" target="_blank" rel="noopener">&#9654; 5:50</a></div><p>En CubeMX se configuran los 4 pines como GPIO_Output con etiquetas LED1..LED4. El reloj se deja en 16 MHz (HSI), por lo que el reloj de timers de APB2 también queda en 16 MHz.</p><div class="dos"><figure class="cap"><a href="img/350.webp" target="_blank"><img src="img/350.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Salida .hex, printf float y pinout.h</h3><a class="min" href="https://youtu.be/myJMi4sRYOM?t=520" target="_blank" rel="noopener">&#9654; 8:40</a></div><p>En las propiedades del proyecto se habilita la generación del .hex (para cargarlo en Proteus) y el uso de float en printf. Se copia la librería pinout.h dentro de Core/Librerias y se agrega la ruta de include.</p><div class="uno"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>LED1 en el while</h3><a class="min" href="https://youtu.be/myJMi4sRYOM?t=650" target="_blank" rel="noopener">&#9654; 10:50</a></div><p>En el main se deja parpadeando LED1 con un retardo bloqueante, para comparar luego con lo que hace la interrupción:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;pinout.h&quot;
+
+while (1)
+{
+    PIN_BLINK(LED1);
+    HAL_Delay(2000);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar TIM1 y el NVIC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Cálculo de PSC y ARR</h3><a class="min" href="https://youtu.be/myJMi4sRYOM?t=720" target="_blank" rel="noopener">&#9654; 12:00</a></div><p>Con reloj de 16 MHz y un periodo deseado de 200 ms: T = (PSC+1)·(ARR)/f. Con PSC = 100-1 y ARR = 16000 se obtiene 100·16000/16 MHz = 0.2 s.</p><div class="uno"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>TIM1 en Internal Clock</h3><a class="min" href="https://youtu.be/myJMi4sRYOM?t=800" target="_blank" rel="noopener">&#9654; 13:20</a></div><p>TIM1 → Clock Source: Internal Clock. Prescaler 100-1, Counter Period 16000 y auto-reload preload habilitado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Prescaler (PSC)      = 100-1
+Counter Period (ARR) = 16000
+auto-reload preload  = Enable</code></pre></div><div class="uno"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Habilitar la interrupción en el NVIC</h3><a class="min" href="https://youtu.be/myJMi4sRYOM?t=950" target="_blank" rel="noopener">&#9654; 15:50</a></div><p>En la pestaña NVIC Settings de TIM1 se marca "TIM1 update interrupt and TIM10 global interrupt".</p><ul><li>Las prioridades van de 0 a 15; 0 es la más alta.</li><li>Los bits de grupo de prioridad reparten entre prioridad (preemption) y subprioridad.</li><li>Si dos interrupciones tienen la misma prioridad, decide la subprioridad.</li><li>En este ejemplo la prioridad se deja en 1.</li></ul><div class="dos"><figure class="cap"><a href="img/950.webp" target="_blank"><img src="img/950.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure><figure class="cap"><a href="img/1040.webp" target="_blank"><img src="img/1040.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Código de la interrupción</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Rutina en stm32f4xx_it.c</h3><a class="min" href="https://youtu.be/myJMi4sRYOM?t=1110" target="_blank" rel="noopener">&#9654; 18:30</a></div><p>En stm32f4xx_it.c se incluye pinout.h, se declara un contador en las variables privadas y dentro de TIM1_UP_TIM10_IRQHandler (antes de HAL_TIM_IRQHandler) se conmutan los LEDs:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;pinout.h&quot;
+
+/* USER CODE BEGIN PV */
+uint8_t contador = 0;
+
+void TIM1_UP_TIM10_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 0 */
+  PIN_BLINK(LED2);          // cada 200 ms
+  contador++;
+  if (contador &gt;= 3)        // cada 600 ms
+  {
+    PIN_BLINK(LED3);
+    contador = 0;
+  }
+  /* USER CODE END TIM1_UP_TIM10_IRQn 0 */
+  HAL_TIM_IRQHandler(&amp;htim1);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1110.webp" target="_blank"><img src="img/1110.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure><figure class="cap"><a href="img/1170.webp" target="_blank"><img src="img/1170.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Arrancar el timer con interrupción</h3><a class="min" href="https://youtu.be/myJMi4sRYOM?t=1210" target="_blank" rel="noopener">&#9654; 20:10</a></div><p>En el main, antes del while, se inicia el timer en modo interrupción:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_TIM_Base_Start_IT(&amp;htim1);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1210.webp" target="_blank"><img src="img/1210.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Simulación</h3><a class="min" href="https://youtu.be/myJMi4sRYOM?t=1240" target="_blank" rel="noopener">&#9654; 20:40</a></div><p>Al simular, LED1 cambia cada 2 s desde el while, LED2 cada 200 ms y LED3 cada 600 ms desde la interrupción, sin que el HAL_Delay del main afecte a los LEDs del timer.</p><div class="dos"><figure class="cap"><a href="img/1240.webp" target="_blank"><img src="img/1240.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure><figure class="cap"><a href="img/1350.webp" target="_blank"><img src="img/1350.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Ideas clave</h3><a class="min" href="https://youtu.be/myJMi4sRYOM?t=1400" target="_blank" rel="noopener">&#9654; 23:20</a></div><p>Un solo timer base puede generar varios periodos usando contadores dentro de la interrupción.</p><p class="ojo">Las rutinas de interrupción deben ser cortas: nada de HAL_Delay ni procesos largos dentro de ellas.</p><div class="dos"><figure class="cap"><a href="img/1400.webp" target="_blank"><img src="img/1400.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure><figure class="cap"><a href="img/1430.webp" target="_blank"><img src="img/1430.webp" alt="Clase 85 STM32: Introducción a las interrupciones con Timers" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=myJMi4sRYOM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
