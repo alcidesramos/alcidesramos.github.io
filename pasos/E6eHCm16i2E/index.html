@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32U585CIU6: la Blackpill con esteroides (Cortex-M33) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Presentación de la tarjeta WeAct STM32U585CIU6, compatible pin a pin con la Blackpill, y recorrido por sus periféricos en CubeMX.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/E6eHCm16i2E/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="STM32U585CIU6: la Blackpill con esteroides (Cortex-M33) · Paso a paso">
+  <meta property="og:description" content="Presentación de la tarjeta WeAct STM32U585CIU6, compatible pin a pin con la Blackpill, y recorrido por sus periféricos en CubeMX.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/E6eHCm16i2E/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/E6eHCm16i2E/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>STM32U585: <span>Blackpill con esteroides</span></h1>
+    <p class="lead">Video corto de presentación de la tarjeta WeAct Studio con el STM32U585CIU6 (Cortex-M33, 160 MHz). Tiene el mismo formato y pinout que la Blackpill (reset, BOOT, LED, pulsador, USB-C), así que se puede cambiar una por otra en el protoboard. En STM32CubeIDE se revisan los periféricos que trae: ADC de hasta 20 canales, comparadores, DAC de dos salidas, amplificadores operacionales, VREFBUF, timers de bajo consumo, OCTOSPI para memorias flash, cinco puertos seriales, USB OTG, y bloques de cómputo como CORDIC, FMAC y el filtro digital MDF.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=E6eHCm16i2E" target="_blank" rel="noopener">&#9654; Ver el video completo (3:23)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/45.webp" alt="STM32U585CIU6: la Blackpill con esteroides (Cortex-M33)"></figure>
+    <ul class="materiales"><li>Tarjeta WeAct STM32U585CIU6 (formato Blackpill)</li><li>STM32CubeIDE con soporte para la familia STM32U5</li><li>Cable USB tipo C</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Qué es y por qué reemplaza a la Blackpill</a><a href="#f2">2 · Recorrido por lo que trae el micro</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La tarjeta</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Esquemático de la WeAct U585</h3><a class="min" href="https://youtu.be/E6eHCm16i2E?t=25" target="_blank" rel="noopener">&#9654; 0:25</a></div><p>La tarjeta de WeAct Studio usa el STM32U585CIU6, un Cortex-M33 orientado a seguridad y bajo consumo, superior al M4 de la Blackpill.</p><p>El esquemático muestra la misma distribución que la Blackpill: botones de RESET y BOOT, cristal de RTC, LED, pulsador de usuario, regulador de 3.3 V y conector USB tipo C.</p><p>Como el pinout es compatible, basta con quitar la Blackpill del protoboard y poner esta en su lugar.</p><p class="ojo">Al ser pin a pin compatible, los montajes que ya tienes con la Blackpill sirven, pero el proyecto de CubeIDE hay que crearlo de nuevo para el STM32U585.</p><div class="uno"><figure class="cap"><a href="img/25.webp" target="_blank"><img src="img/25.webp" alt="STM32U585CIU6: la Blackpill con esteroides (Cortex-M33)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Periféricos en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Crear el proyecto y ver System Core</h3><a class="min" href="https://youtu.be/E6eHCm16i2E?t=45" target="_blank" rel="noopener">&#9654; 0:45</a></div><p>Se crea un proyecto en STM32CubeIDE eligiendo el STM32U585CIUx. En Pinout & Configuration aparece la lista de periféricos por categorías.</p><p>En System Core está el núcleo, DMA, GPIO, la caché (ICACHE/DCACHE), RCC, el watchdog y la opción de TrustZone/seguridad.</p><div class="uno"><figure class="cap"><a href="img/45.webp" target="_blank"><img src="img/45.webp" alt="STM32U585CIU6: la Blackpill con esteroides (Cortex-M33)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Parte análoga</h3><a class="min" href="https://youtu.be/E6eHCm16i2E?t=70" target="_blank" rel="noopener">&#9654; 1:10</a></div><p>Analog trae ADC1 y ADC4 (hasta 20 canales), dos comparadores (COMP1, COMP2), un DAC con dos salidas, dos amplificadores operacionales (OPAMP1, OPAMP2) y VREFBUF para entregar un voltaje de referencia hacia afuera.</p><p>Los timers incluyen los de bajo consumo (LPTIM) además de los timers generales y avanzados.</p><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="STM32U585CIU6: la Blackpill con esteroides (Cortex-M33)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Conectividad</h3><a class="min" href="https://youtu.be/E6eHCm16i2E?t=115" target="_blank" rel="noopener">&#9654; 1:55</a></div><p>En Connectivity hay FDCAN, cuatro I2C, OCTOSPI (SPI de 4 u 8 líneas para memorias flash de alta densidad), SPI normales, un LPUART de bajo consumo y USART1-3 más UART4 y UART5.</p><p>También trae USB OTG con soporte completo para USB tipo C.</p><div class="dos"><figure class="cap"><a href="img/95.webp" target="_blank"><img src="img/95.webp" alt="STM32U585CIU6: la Blackpill con esteroides (Cortex-M33)" loading="lazy"></a></figure><figure class="cap"><a href="img/115.webp" target="_blank"><img src="img/115.webp" alt="STM32U585CIU6: la Blackpill con esteroides (Cortex-M33)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Bloques de cómputo: CORDIC y FMAC</h3><a class="min" href="https://youtu.be/E6eHCm16i2E?t=140" target="_blank" rel="noopener">&#9654; 2:20</a></div><p>En Computing aparecen aceleradores por hardware: CORDIC para funciones trigonométricas, FMAC para filtros (multiplicación-acumulación), CRC para el cálculo automático de errores, y HASH/PKA para algoritmos de seguridad.</p><p>Estos bloques descargan al CPU de cálculos matemáticos pesados.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="STM32U585CIU6: la Blackpill con esteroides (Cortex-M33)" loading="lazy"></a></figure><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="STM32U585CIU6: la Blackpill con esteroides (Cortex-M33)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>MDF: filtros digitales por hardware</h3><a class="min" href="https://youtu.be/E6eHCm16i2E?t=175" target="_blank" rel="noopener">&#9654; 2:55</a></div><p>El bloque MDF1 (filtro digital multifunción) tiene varias instancias de filtro configurables: filtros CIC, Sinc4/Sinc5, filtro pasa altos para quitar el offset de DC, control de ganancia y detector de límites.</p><p>Es muy útil para micrófonos digitales y procesamiento de señal sin cargar el CPU.</p><p class="ojo">La tarjeta cabe en el protoboard y deja espacio libre para conectar más pines, igual que la Blackpill.</p><div class="dos"><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="STM32U585CIU6: la Blackpill con esteroides (Cortex-M33)" loading="lazy"></a></figure><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="STM32U585CIU6: la Blackpill con esteroides (Cortex-M33)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=E6eHCm16i2E" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
