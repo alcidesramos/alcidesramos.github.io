@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 110 STM32: detección del nivel de audio de un PC o celular · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Acopla la salida de audio de un PC o celular al ADC con un LM358, detecta el pico de la señal y clasifícalo en seis niveles, como para un vúmetro.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/D1Dr36pIfhE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 110 STM32: detección del nivel de audio de un PC o celular · Paso a paso">
+  <meta property="og:description" content="Acopla la salida de audio de un PC o celular al ADC con un LM358, detecta el pico de la señal y clasifícalo en seis niveles, como para un vúmetro.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/D1Dr36pIfhE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/D1Dr36pIfhE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Nivel de <span>audio</span> con el STM32</h1>
+    <p class="lead">La salida de audio tiene alrededor de 1 V y parte negativa, que el micro no acepta. Un amplificador operacional de alimentación simple (LM358 o MCP6002) deja solo la parte positiva, con un capacitor que sostiene el pico y una resistencia que lo descarga. El STM32 toma 200 muestras con el ADC, se queda con el máximo y lo compara con cinco umbrales para dar el nivel 1 a 6 por el puerto serial.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=D1Dr36pIfhE" target="_blank" rel="noopener">&#9654; Ver el video completo (12:51)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/720.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill) u otro STM32</li><li>Amplificador operacional LM358 o MCP6002</li><li>Capacitores de 100 nF, resistencia de 2,2 kΩ y conector de audio</li><li>Cable de audio del PC o celular</li><li>Conversor USB-serial y Hercules</li><li>Generador de tonos (NCH Tone Generator) o cualquier audio</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Acople</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · Máximo</a><a href="#f4">4 · Vúmetro</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El circuito</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Quitar la parte negativa</h3><a class="min" href="https://youtu.be/D1Dr36pIfhE?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El audio entra al operacional (LM358 o MCP6002, alimentados con fuente simple a 5 V) con un capacitor de 100 nF de desacople cerca de la alimentación. A la salida, C2 de 100 nF mantiene el nivel del pico y R1 de 2,2 kΩ lo descarga cuando no hay señal, para que no quede un voltaje fijo.</p><div class="dos"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Simulación en Proteus</h3><a class="min" href="https://youtu.be/D1Dr36pIfhE?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>Con una señal seno de 1 V de pico, el osciloscopio muestra que a la salida solo queda la parte positiva. Como el audio no pasa de 1,8 V, se puede llevar directo al ADC sin superar los 3,3 V; un zener de 3,3 V sería una protección opcional. Proteus también permite cargar un archivo de audio en el generador.</p><div class="dos"><figure class="cap"><a href="img/95.webp" target="_blank"><img src="img/95.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure><figure class="cap"><a href="img/145.webp" target="_blank"><img src="img/145.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar el micro</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj, ADC y USART</h3><a class="min" href="https://youtu.be/D1Dr36pIfhE?t=205" target="_blank" rel="noopener">&#9654; 3:25</a></div><p>Crea el proyecto audio, activa el cristal externo con el PLL a 100 MHz (84 MHz en un F401). Activa un canal del ADC1 (IN1) sin más cambios y el USART1 asíncrono a 115200.</p><div class="dos"><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure><figure class="cap"><a href="img/285.webp" target="_blank"><img src="img/285.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Librerías</h3><a class="min" href="https://youtu.be/D1Dr36pIfhE?t=305" target="_blank" rel="noopener">&#9654; 5:05</a></div><p>Crea la carpeta Librerias, agrégala al include path y copia adc_x y uart. Incluye también las librerías estándar y activa Use float with printf.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+#include &quot;adc_x.h&quot;
+
+#include &quot;stdio.h&quot;
+#include &quot;stdint.h&quot;
+#include &quot;stdlib.h&quot;
+#include &quot;string.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Detectar el pico</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Buscar el máximo de 200 muestras</h3><a class="min" href="https://youtu.be/D1Dr36pIfhE?t=404" target="_blank" rel="noopener">&#9654; 6:44</a></div><p>En el while se leen 200 muestras, se convierten a voltaje y se guarda la mayor. El número de muestras se puede cambiar según la rapidez que necesites. Declara char texto[50]; y agrega un retardo para no saturar el serial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    float max = 0;
+    for (uint16_t cuen = 0; cuen &lt; 200; cuen++)
+    {
+        uint16_t codigo = ADC_Read(&amp;hadc1);
+        float voltaje = codigo*3.3/4095.0;
+        if (voltaje &gt; max) max = voltaje;  //busca maximo
+    }
+    sprintf(texto, &quot;Max=%.3f\r\n\r\n&quot;, max);
+    uartx_write_text(&amp;huart1, texto);
+    HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Probar con un tono</h3><a class="min" href="https://youtu.be/D1Dr36pIfhE?t=538" target="_blank" rel="noopener">&#9654; 8:58</a></div><p>Con un tono continuo de 1 kHz al máximo volumen el pico llega a unos 1,6 V; al bajar el volumen baja a 0,6 o 0,5 V. Así se encuentran los niveles mínimo y máximo de tu señal.</p><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Clasificar en niveles</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Comparar el pico</h3><a class="min" href="https://youtu.be/D1Dr36pIfhE?t=370" target="_blank" rel="noopener">&#9654; 6:10</a></div><p>Define cinco umbrales de voltaje (n1 a n5) entre el mínimo y el máximo que mediste; si tu audio es más bajo, bájalos. Con un audio real (no un tono) el nivel sube y baja como las barras de un vúmetro.</p><p>Con una cadena de if se decide el nivel. En lugar del serial, aquí se encenderían los LED de un vúmetro o se activaría cualquier carga.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// ejemplo: ajusta los valores a tu señal
+#define n1 0.3
+#define n2 0.6
+#define n3 0.9
+#define n4 1.2
+#define n5 1.5
+
+if (max &lt; n1)
+    uartx_write_text(&amp;huart1, &quot;NIVEL 1\r\n&quot;);
+else if ((max &gt;= n1) &amp;&amp; (max &lt; n2))
+    uartx_write_text(&amp;huart1, &quot;NIVEL 2\r\n&quot;);
+else if ((max &gt;= n2) &amp;&amp; (max &lt; n3))
+    uartx_write_text(&amp;huart1, &quot;NIVEL 3\r\n&quot;);
+else if ((max &gt;= n3) &amp;&amp; (max &lt; n4))
+    uartx_write_text(&amp;huart1, &quot;NIVEL 4\r\n&quot;);
+else if ((max &gt;= n4) &amp;&amp; (max &lt; n5))
+    uartx_write_text(&amp;huart1, &quot;NIVEL 5\r\n&quot;);
+else if (max &gt;= n5)
+    uartx_write_text(&amp;huart1, &quot;NIVEL 6\r\n&quot;);</code></pre></div><div class="dos"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/D1Dr36pIfhE?t=704" target="_blank" rel="noopener">&#9654; 11:44</a></div><p>Al máximo volumen marca NIVEL 6 y al ir bajando pasa por 5, 4, 3, 2 hasta 1. El micro ya detecta el pico de la señal de audio para activar lo que necesites.</p><div class="dos"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Clase 110 STM32: detección del nivel de audio de un PC o celular" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=D1Dr36pIfhE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
