@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 75 STM32: librería para motores paso a paso con LabVIEW · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Controlamos dos motores paso a paso sin bloquear el programa usando el SysTick, en modo continuo o por número de pasos, y los manejamos desde LabVIEW por serial.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/RTduyquKRUg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 75 STM32: librería para motores paso a paso con LabVIEW · Paso a paso">
+  <meta property="og:description" content="Controlamos dos motores paso a paso sin bloquear el programa usando el SysTick, en modo continuo o por número de pasos, y los manejamos desde LabVIEW por serial.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/RTduyquKRUg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/RTduyquKRUg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Motores <span>paso a paso</span> con interrupción y LabVIEW</h1>
+    <p class="lead">Primero repasamos cómo funcionan los motores paso a paso: bipolares y unipolares (5, 6 u 8 cables), paso simple, paso doble, medio paso y micropasos con drivers como el A4988. Luego armamos en Proteus una BlackPill STM32F401 con dos motores manejados por ULN2003A. La librería Pasopaso usa la interrupción del SysTick (1 ms) para dar los pasos, así que no se gasta ningún timer y el programa principal queda libre. Cada motor puede girar a la derecha, a la izquierda o quedarse quieto, en modo continuo o dando un número de pasos, con velocidad de 0 a 100. Al final recibimos comandos por UART con DMA e IDLE y movemos los motores desde un panel en LabVIEW.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=RTduyquKRUg" target="_blank" rel="noopener">&#9654; Ver el video completo (37:25)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2170.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Proteus (BlackPill STM32F401, 2 motores paso a paso, ULN2003A, COMPIM)</li><li>Librerías Pasopaso, bits y uart_int_idle_dma</li><li>LabVIEW y un emulador de puertos serie virtuales</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Bobinas y modos de paso</a><a href="#f2">2 · Pines de las bobinas, SysTick y UART</a><a href="#f3">3 · Configuración e interrupción</a><a href="#f4">4 · Variables de control</a><a href="#f5">5 · UART con DMA e IDLE</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Teoría de motores paso a paso</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Bipolar y unipolar</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>Casi todos dan 200 pasos por vuelta (1,8° por paso). Para manejarlos necesitamos cuatro señales, una por bobina.</p><p>En los unipolares de 8, 6 o 5 cables se unen los comunes a la alimentación del motor (12 V, 15 V) y quedan cuatro bobinas. Con el tester en resistencia se identifican: el común da la mitad del valor.</p><ul><li>Paso simple: una bobina a la vez.</li><li>Paso doble: dos bobinas a la vez, más torque.</li><li>Medio paso: alterna una y dos bobinas, combina torque y suavidad.</li></ul><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Drivers</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>Se pueden manejar con transistores Darlington (TIP122), con ULN2003 (500 mA), ULN2803, o con puente H como el L298 (2 A por canal). Drivers como el A4988 usan solo dos pines (dirección y pasos) y permiten micropasos con MS1, MS2 y MS3.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Circuito y CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Circuito en Proteus</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=320" target="_blank" rel="noopener">&#9654; 5:20</a></div><p>Motor 1 en PA4 a PA7 y motor 2 en PB0, PB1, PB2 y PB10, cada uno a través de un ULN2003A. El LED de la tarjeta y el puerto serial (COMPIM) completan el montaje.</p><div class="dos"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Base de tiempo con SysTick</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=510" target="_blank" rel="noopener">&#9654; 8:30</a></div><p>En System Core > SYS el Timebase Source queda en SysTick: es una interrupción de 1 ms que ya viene activa, así que no gastamos los timers del usuario.</p><div class="uno"><figure class="cap"><a href="img/510.webp" target="_blank"><img src="img/510.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>UART y pines</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>USART1 asíncrono a 9600 baudios y PC13 como salida con etiqueta LED.</p><p>Las bobinas como salidas, con estos nombres exactos porque la librería los usa: M1B1, M1B2, M1B3, M1B4 y M2B1, M2B2, M2B3, M2B4.</p><p class="ojo">Si un nombre queda mal escrito (por ejemplo M1B3) la compilación falla con «M1B3 no está declarada». Revisa las etiquetas y vuelve a generar código.</p><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería Pasopaso</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Copiar las librerías</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=730" target="_blank" rel="noopener">&#9654; 12:10</a></div><p>En Core/Librerias pegamos Pasopaso.c/.h y bits.c/.h (Pasopaso ya incluye bits.h), las agregamos a los Include paths y en main.c incluimos solo Pasopaso.h.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;Pasopaso.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Modo de paso, factor y segundo motor</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=1130" target="_blank" rel="noopener">&#9654; 18:50</a></div><p>En Pasopaso.c se elige la secuencia (paso simple, doble o medio paso) dejando sin comentar la que se quiera usar. Con #define M2 se habilita el segundo motor; si solo usas uno, coméntalo y no hace falta configurar sus pines.</p><p>En Pasopaso.h, factor indica cada cuántos milisegundos se da un paso a velocidad 100 y vel_max es la velocidad máxima.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// Pasopaso.c
+#define M2   // si se va a usar otro motor
+
+// paso simple
+char codigo1[] = {0b0001, 0b0010, 0b0100, 0b1000};
+char codigo2[] = {0b0001, 0b0010, 0b0100, 0b1000};
+
+// Pasopaso.h
+#define factor  10   // a velocidad 100 da un paso cada 10 ms
+#define vel_max 100</code></pre></div><p class="ojo">Si el motor se queda pegado a velocidades altas, sube factor (15, 20, 30). En Proteus la velocidad 100 con factor 10 ya es demasiado rápida.</p><div class="uno"><figure class="cap"><a href="img/1130.webp" target="_blank"><img src="img/1130.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Interrupción en stm32f4xx_it.c</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=1040" target="_blank" rel="noopener">&#9654; 17:20</a></div><p>Incluimos Pasopaso.h, declaramos fact_vel en las variables privadas y en SysTick_Handler llamamos a pasopaso_int() cada factor milisegundos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;Pasopaso.h&quot;
+
+/* USER CODE BEGIN PV */
+uint16_t fact_vel = 0;
+
+/* dentro de SysTick_Handler(void) */
+fact_vel++;
+if (fact_vel &gt;= factor)
+{
+  pasopaso_int();
+  fact_vel = 0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1040.webp" target="_blank"><img src="img/1040.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Cómo funciona por dentro</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=1290" target="_blank" rel="noopener">&#9654; 21:30</a></div><p>En cada llamada se cuenta la velocidad; cuando llega a vel_max+1-velo_m1 se da un paso (por eso 100 es lo más rápido). En modo pasos, al completar n_pasos1 el motor pasa a quieto. Según estado_giro1 se avanza o retrocede en la secuencia y saca_secuenciaM1 lee cada bit del código y lo escribe en su bobina.</p><div class="dos"><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/1330.webp" target="_blank"><img src="img/1330.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Usar la librería</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Órdenes desde main</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=1390" target="_blank" rel="noopener">&#9654; 23:10</a></div><p>Todo funciona por interrupción: basta con cambiar las variables y el motor responde. Aquí el motor 1 gira continuo a la izquierda y el motor 2 da 5 pasos a la derecha.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+estado_giro1 = izquierda;   // derecha, izquierda o quieto
+estado_giro2 = derecha;
+
+velo_m1 = 50;                // 0 a 100
+velo_m2 = 30;
+
+n_pasos2 = 5;                // pasos a dar en modo pasos
+
+estado_modo1 = continuo;     // continuo o pasos
+estado_modo2 = pasos;
+/* USER CODE END 2 */</code></pre></div><div class="dos"><figure class="cap"><a href="img/1390.webp" target="_blank"><img src="img/1390.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/1460.webp" target="_blank"><img src="img/1460.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Simulación</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=1500" target="_blank" rel="noopener">&#9654; 25:00</a></div><p>Cargamos el .hex en Proteus: el motor 1 gira sin parar y el motor 2 da sus 5 pasos y se detiene. Como no hay bloqueo, podemos cambiar las órdenes después (por ejemplo, tras un HAL_Delay(3000) pasar el motor 1 a la derecha con velo_m1 = 70).</p><div class="uno"><figure class="cap"><a href="img/1500.webp" target="_blank"><img src="img/1500.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Control por serial con LabVIEW</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Activar DMA e interrupción</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=1730" target="_blank" rel="noopener">&#9654; 28:50</a></div><p>Copiamos la librería uart_int_idle_dma. En USART1 > DMA Settings agregamos un canal de recepción (RX) y en NVIC Settings activamos la interrupción global del USART1.</p><div class="dos"><figure class="cap"><a href="img/1700.webp" target="_blank"><img src="img/1700.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/1730.webp" target="_blank"><img src="img/1730.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Variables e inicialización</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=1770" target="_blank" rel="noopener">&#9654; 29:30</a></div><p>En uart_int_idle_dma.h se define el puerto y el tamaño de la trama. En main.c incluimos la librería y declaramos sus variables; antes del while llamamos uartdat_it_idle_dma_init() y en el while revisamos la bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart_int_idle_dma.h&quot;
+
+// variables recepción por idle
+uint8_t trama_rx[trama_size];
+char flag_rx = 0;
+uint16_t num_datos;
+// para procesarx
+char procesa[30];
+char dato;
+
+/* USER CODE BEGIN 2 */
+uartdat_it_idle_dma_init();
+
+while (1)
+{
+  if (flag_rx == 1)
+  {
+    procesarx();
+    flag_rx = 0;
+    uartdat_it_idle_dma_init();
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1770.webp" target="_blank"><img src="img/1770.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/1840.webp" target="_blank"><img src="img/1840.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Procesar los comandos</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=1940" target="_blank" rel="noopener">&#9654; 32:20</a></div><p>procesarx() busca cada comando en la trama con strstr. Los valores se capturan con strtok entre «=» y «*» y se convierten con atoi.</p><ul><li>m1der*, m1izq*, m1stop*: giro del motor 1 (igual con m2 para el motor 2).</li><li>vel1=NN*: velocidad del motor 1 y lo pasa a modo continuo.</li><li>pap1=NN*: número de pasos del motor 1 y lo pasa a modo pasos (pap2 para el motor 2).</li></ul><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void procesarx(void)
+{
+  if (strstr(trama_rx, &quot;m1der*&quot;)) estado_giro1 = derecha;
+  else if (strstr(trama_rx, &quot;m1izq*&quot;)) estado_giro1 = izquierda;
+  else if (strstr(trama_rx, &quot;m1stop*&quot;)) estado_giro1 = quieto;
+  else if (strstr(trama_rx, &quot;m2der*&quot;)) estado_giro2 = derecha;
+  else if (strstr(trama_rx, &quot;m2izq*&quot;)) estado_giro2 = izquierda;
+  else if (strstr(trama_rx, &quot;m2stop*&quot;)) estado_giro2 = quieto;
+  else if (strstr(trama_rx, &quot;vel1&quot;))
+  {
+    strcpy(procesa, strtok(trama_rx, &quot;=&quot;));  // inicia captura después del =
+    strcpy(procesa, strtok(0, &quot;*&quot;));         // captura hasta el *
+    dato = atoi(procesa);
+    estado_modo1 = continuo;
+    velo_m1 = dato;
+  }
+  else if (strstr(trama_rx, &quot;pap2&quot;))
+  {
+    strcpy(procesa, strtok(trama_rx, &quot;=&quot;));
+    strcpy(procesa, strtok(0, &quot;*&quot;));
+    dato = atoi(procesa);
+    pasos2 = 0;              // limpia el contador de pasos
+    estado_modo2 = pasos;
+    n_pasos2 = dato;         // número de pasos a dar
+  }
+  // vel2 y pap1 se hacen igual
+  memset(trama_rx, 0, trama_size);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1900.webp" target="_blank"><img src="img/1900.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/1940.webp" target="_blank"><img src="img/1940.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.4</span><h3>Panel de LabVIEW</h3><a class="min" href="https://youtu.be/RTduyquKRUg?t=2100" target="_blank" rel="noopener">&#9654; 35:00</a></div><p>Con un emulador de puertos virtuales conectamos Proteus (COMPIM) y LabVIEW. El panel tiene, por motor, botones de izquierda, derecha y parar, un control de velocidad y un campo de pasos. LabVIEW trabaja por eventos y envía el comando cada vez que cambia un control.</p><p class="ojo">Si con velocidad alta el motor se queda quieto, no es un error de la librería: la bobina no alcanza a responder. Sube factor en Pasopaso.h.</p><div class="dos"><figure class="cap"><a href="img/2100.webp" target="_blank"><img src="img/2100.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/2170.webp" target="_blank"><img src="img/2170.webp" alt="Clase 75 STM32: librería para motores paso a paso con LabVIEW" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=RTduyquKRUg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
