@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se agrega control a la clase 91: un switch de Virtuino (V00) prende o apaga el LED de la placa y un slider (V01) cambia el ancho de pulso de un PWM, recibiendo las órdenes por serial con DMA + IDLE.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/fwqgzvHZUZs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino · Paso a paso">
+  <meta property="og:description" content="Se agrega control a la clase 91: un switch de Virtuino (V00) prende o apaga el LED de la placa y un slider (V01) cambia el ancho de pulso de un PWM, recibiendo las órdenes por serial con DMA + IDLE.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/fwqgzvHZUZs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/fwqgzvHZUZs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Control y monitoreo WiFi con <span>DT-06 y Virtuino</span></h1>
+    <p class="lead">El montaje pasa a físico con una BlackPill STM32F411 a 100 MHz, el DT-06, el DS18B20 y el pulsador; el monitoreo sigue igual (cada 4 s). Para el control se agregan en Virtuino un switch y un slider en memorias virtuales V00 y V01, configurados para enviar el valor solo cuando cambian. El STM32 recibe las tramas con la librería uart_int_idle_dma (clase 87) y en procesa_rx busca V00=1 / V00=0 para el LED y V01= para capturar el valor con strtok y aplicarlo a un PWM en TIM2 CH1 (50 Hz) con la librería PWMB. Un analizador lógico muestra el cambio de ancho de pulso.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=fwqgzvHZUZs" target="_blank" rel="noopener">&#9654; Ver el video completo (18:02)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1040.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino"></figure>
+    <ul class="materiales"><li>BlackPill STM32F411 (100 MHz)</li><li>Módulo WiFi DT-06</li><li>DS18B20 y pulsador</li><li>Celular con Virtuino</li><li>Analizador lógico (opcional)</li><li>Librerías uart_int_idle_dma, PWMB, ds18b20, delays, pinout y uart del canal</li><li>Hercules para monitorear la línea serial</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Switch V00 y qué envía la app</a><a href="#f2">2 · Librería DMA + IDLE y procesa_rx</a><a href="#f3">3 · Slider V01 al ancho de pulso</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Órdenes desde Virtuino</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Montaje físico</h3><a class="min" href="https://youtu.be/fwqgzvHZUZs?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La simulación con lectura serial se volvía muy lenta, así que se pasa a la tarjeta real (STM32F411). El pulsador maneja la bombilla de la app y el DS18B20 el indicador; por la lentitud de Virtuino el monitoreo se envía cada 4 s.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Agregar un switch</h3><a class="min" href="https://youtu.be/fwqgzvHZUZs?t=101" target="_blank" rel="noopener">&#9654; 1:41</a></div><p>Se desbloquea el panel y se agrega un switch en el mismo servidor, en memoria virtual V00. En la opción de refresco se elige que envíe solo cuando se presiona, así el micro no recibe el valor del control en cada consulta.</p><div class="dos"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Ver la trama que llega al micro</h3><a class="min" href="https://youtu.be/fwqgzvHZUZs?t=203" target="_blank" rel="noopener">&#9654; 3:23</a></div><p>Monitoreando con Hercules el pin que recibe el micro (TX del módulo), al pulsar el switch llega algo como !V00=1$ o !V00=0$, junto con las consultas de los valores que monitorea la app.</p><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Recepción en el STM32</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Inicializar la recepción</h3><a class="min" href="https://youtu.be/fwqgzvHZUZs?t=301" target="_blank" rel="noopener">&#9654; 5:01</a></div><p>Se agregan uart_int_idle_dma.c/.h (clase 87). Antes del while se inicia la recepción y en el while se procesa cuando llega una trama:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartdat_it_idle_dma_init();
+
+while (1)
+{
+    if (flag_rx == 1)
+    {
+        procesa_rx();
+        flag_rx = 0;
+        uartdat_it_idle_dma_init();
+    }
+    /* ...monitoreo de temperatura y pulsador */
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Procesar el switch</h3><a class="min" href="https://youtu.be/fwqgzvHZUZs?t=369" target="_blank" rel="noopener">&#9654; 6:09</a></div><p>Basta con buscar V00=1 o V00=0. El LED de la BlackPill es de lógica invertida, por eso con 1 se apaga el pin:</p><p>Al tocar el switch en el celular, después de unos segundos el LED azul de la tarjeta cambia, mientras la app sigue mostrando la temperatura y el estado del pulsador.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void procesa_rx()
+{
+    if (strstr(trama_rx, &quot;V00=1&quot;))      PIN_OFF(LED);   // LED invertido: enciende
+    else if (strstr(trama_rx, &quot;V00=0&quot;)) PIN_ON(LED);    // apaga
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Control analógico con PWM</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Slider en Virtuino</h3><a class="min" href="https://youtu.be/fwqgzvHZUZs?t=548" target="_blank" rel="noopener">&#9654; 9:08</a></div><p>Se agrega un slider en memoria virtual V01, de 0 a 100 %, que envíe solo cuando se mueve. En Hercules se ve llegar !V01=50$, !V01=80$…</p><div class="uno"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>PWM en TIM2 canal 1</h3><a class="min" href="https://youtu.be/fwqgzvHZUZs?t=683" target="_blank" rel="noopener">&#9654; 11:23</a></div><p>TIM2 con reloj interno y PWM Generation CH1. Con el micro a 100 MHz: Prescaler 100-1 y Counter Period 20000 para 50 Hz, auto-reload habilitado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Prescaler (PSC)      = 100-1
+Counter Period (ARR) = 20000      // 50 Hz
+auto-reload preload  = Enable</code></pre></div><div class="dos"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Librería PWMB</h3><a class="min" href="https://youtu.be/fwqgzvHZUZs?t=758" target="_blank" rel="noopener">&#9654; 12:38</a></div><p>En PWMB.c la escala se deja de 0 a 100 y se declara la salida; en el main se inicializa:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float escala = 100;
+extern TIM_HandleTypeDef htim2;
+PWMS PWM1 = {&amp;htim2, &amp;(TIM2-&gt;CCR1), TIM_CHANNEL_1};
+
+/* en main() */
+PWM_init(&amp;PWM1);
+PWM_valor(&amp;PWM1, 50);   // prueba al 50 %</code></pre></div><div class="dos"><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Capturar el valor del slider</h3><a class="min" href="https://youtu.be/fwqgzvHZUZs?t=891" target="_blank" rel="noopener">&#9654; 14:51</a></div><p>En procesa_rx se agrega la orden V01: se captura lo que hay entre = y $, se convierte y se aplica al PWM:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>else if (strstr(trama_rx, &quot;V01=&quot;))
+{
+    strcpy(procesa, strtok(trama_rx, &quot;=&quot;));  // inicia captura
+    strcpy(procesa, strtok(0, &quot;$&quot;));          // captura hasta el $
+    ancho = atoi(procesa);                     // cadena a numero
+    PWM_valor(&amp;PWM1, ancho);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/920.webp" target="_blank"><img src="img/920.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure><figure class="cap"><a href="img/950.webp" target="_blank"><img src="img/950.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Resultado</h3><a class="min" href="https://youtu.be/fwqgzvHZUZs?t=1006" target="_blank" rel="noopener">&#9654; 16:46</a></div><p>Al mover el slider, en 4 o 5 segundos el analizador lógico muestra el nuevo ancho de pulso; el switch sigue controlando el LED y el monitoreo continúa. La lentitud es propia de Virtuino; con una app propia o una plataforma IoT es más rápido.</p><div class="uno"><figure class="cap"><a href="img/1040.webp" target="_blank"><img src="img/1040.webp" alt="Clase 93 STM32: control y monitoreo por WiFi con DT-06 y Virtuino" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=fwqgzvHZUZs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
