@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 45: Librerías PWM para control de motores DC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Qué es el PWM, cómo configurar dos canales PWM del TIM1 a 100 Hz, una librería de dos funciones (PWM_init y pwm_valor en porcentaje) y el control de velocidad de un motor DC desde LabVIEW.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/hNp0Ox3xM5Y/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 45: Librerías PWM para control de motores DC · Paso a paso">
+  <meta property="og:description" content="Qué es el PWM, cómo configurar dos canales PWM del TIM1 a 100 Hz, una librería de dos funciones (PWM_init y pwm_valor en porcentaje) y el control de velocidad de un motor DC desde LabVIEW.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/hNp0Ox3xM5Y/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/hNp0Ox3xM5Y/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Librería <span>PWM</span> para motores DC</h1>
+    <p class="lead">El PWM es una señal de frecuencia fija en la que se varía el tiempo en alto (ciclo útil). Se usa en motores DC, servos, LEDs RGB, fuentes conmutadas, DAC, inversores y radiocontrol. En el L293D el PWM va a los pines de habilitación (EN1, EN2). Se configuran los canales 1 y 2 del TIM1 como PWM Generation, se definen constantes para la librería, se calcula prescaler y periodo para 100 Hz y se pasa el ciclo útil en porcentaje. Al final LabVIEW envía VEL1=valor y el micro cambia la velocidad.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=hNp0Ox3xM5Y" target="_blank" rel="noopener">&#9654; Ver el video completo (29:06)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1690.webp" alt="Clase 45: Librerías PWM para control de motores DC"></figure>
+    <ul class="materiales"><li>STM32F401 (o Blue Pill) en Proteus</li><li>Puente H L293D y motor DC</li><li>Osciloscopio y contador de frecuencia de Proteus</li><li>Librería PWM.c / PWM.h del curso</li><li>Hoja Excel para calcular el periodo</li><li>LabVIEW (programa de la clase 42) para enviar la velocidad</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Ciclo útil</a><a href="#f2">2 · TIM1 CH1 y CH2</a><a href="#f3">3 · PWM_init y pwm_valor</a><a href="#f4">4 · VEL1=</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Teoría</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>¿Qué es una señal PWM?</h3><a class="min" href="https://youtu.be/hNp0Ox3xM5Y?t=71" target="_blank" rel="noopener">&#9654; 1:11</a></div><p>La frecuencia (o el periodo) es fija; por ejemplo, 1 kHz equivale a 1 ms. Lo que cambia es cuánto de ese periodo está en alto: 50 %, 90 %, 20 %... El tiempo en bajo es el resto.</p><p>Con eso se controla la potencia media sobre cargas inductivas, la velocidad de motores o la luminosidad de LEDs.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Aplicaciones del PWM y ciclo útil del 50 %" loading="lazy"></a><figcaption>Aplicaciones del PWM y ciclo útil del 50 %</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>¿Qué frecuencia usar en un motor?</h3><a class="min" href="https://youtu.be/hNp0Ox3xM5Y?t=302" target="_blank" rel="noopener">&#9654; 5:02</a></div><p>Depende de la inductancia y la resistencia del motor y del puente H. Normalmente se usa entre 50 Hz y 1 kHz.</p><p>En frecuencias audibles (20 Hz a 20 kHz) el motor puede chillar; a mayor frecuencia puede perder algo de torque.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Circuito</h3><a class="min" href="https://youtu.be/hNp0Ox3xM5Y?t=269" target="_blank" rel="noopener">&#9654; 4:29</a></div><p>El sentido de giro se maneja con IN1/IN2 del L293D (clases anteriores). El PWM va a los pines de habilitación EN1 y EN2.</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="L293D con EN1 y EN2 conectados al PWM" loading="lazy"></a><figcaption>L293D con EN1 y EN2 conectados al PWM</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Canales PWM del TIM1</h3><a class="min" href="https://youtu.be/hNp0Ox3xM5Y?t=401" target="_blank" rel="noopener">&#9654; 6:41</a></div><p>En Timers → TIM1: Clock Source <b>Internal Clock</b>, Channel1 <b>PWM Generation CH1</b> y Channel2 <b>PWM Generation CH2</b>.</p><p>Los timers 2 y 5 son de 32 bits; los demás, de 16 bits. Cada timer tiene 4 canales.</p><p class="ojo">Si el canal 2 no se deja elegir es porque su pin está ocupado (aquí por la USART). Quita ese pin para que CubeMX remapee: el TX pasó a PB6. Quedan EN1 en PA8 y EN2 en PA9.</p><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Configuración del TIM" loading="lazy"></a><figcaption>Configuración del TIM</figcaption></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Canal 1 en PA8" loading="lazy"></a><figcaption>Canal 1 en PA8</figcaption></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Canal 2 en PA9" loading="lazy"></a><figcaption>Canal 2 en PA9</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Prescaler y periodo</h3><a class="min" href="https://youtu.be/hNp0Ox3xM5Y?t=1017" target="_blank" rel="noopener">&#9654; 16:57</a></div><p>Con el reloj a 16 MHz (simulación), para 100 Hz: Prescaler = 16-1 (el timer cuenta a 1 MHz, 1 µs por cuenta) y Counter Period (ARR) = 10000.</p><p>Sin prescaler harían falta 160 000 cuentas, más que el máximo de 65 535 de un timer de 16 bits. La hoja Excel del curso hace el cálculo: con 84 MHz el prescaler sería 84-1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>f_PWM = f_reloj / ((PSC + 1) * ARR)
+100 Hz = 16 000 000 / (16 * 10 000)</code></pre></div><div class="dos"><figure class="cap"><a href="img/1050.webp" target="_blank"><img src="img/1050.webp" alt="Cálculo en la hoja Excel" loading="lazy"></a><figcaption>Cálculo en la hoja Excel</figcaption></figure><figure class="cap"><a href="img/1150.webp" target="_blank"><img src="img/1150.webp" alt="Prescaler 16-1 y Counter Period en CubeMX" loading="lazy"></a><figcaption>Prescaler 16-1 y Counter Period en CubeMX</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería PWM</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Constantes de usuario</h3><a class="min" href="https://youtu.be/hNp0Ox3xM5Y?t=616" target="_blank" rel="noopener">&#9654; 10:16</a></div><p>En Parameter Settings → User Constants agrega estas constantes. CubeMX las escribe en main.h. También puedes ponerlas a mano en PWM.h si usas otro timer o canal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define PWMT1    htim1          // handle del timer
+#define PWMTIM1  TIM1           // timer (para leer ARR)
+#define PWM1_CH  TIM_CHANNEL_1
+#define PWM1     TIM1-&gt;CCR1     // registro de comparación del canal 1
+#define PWM2_CH  TIM_CHANNEL_2
+#define PWM2     TIM1-&gt;CCR2</code></pre></div><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Añadir constante PWM1_CH" loading="lazy"></a><figcaption>Añadir constante PWM1_CH</figcaption></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Lista de constantes" loading="lazy"></a><figcaption>Lista de constantes</figcaption></figure><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="PWM.h" loading="lazy"></a><figcaption>PWM.h</figcaption></figure><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Definiciones en PWM.h" loading="lazy"></a><figcaption>Definiciones en PWM.h</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Las dos funciones</h3><a class="min" href="https://youtu.be/hNp0Ox3xM5Y?t=984" target="_blank" rel="noopener">&#9654; 16:24</a></div><p><b>PWM_init</b> arranca el PWM del canal. <b>pwm_valor</b> recibe un porcentaje (0 a 100) y lo convierte en cuentas con una regla de tres sobre el ARR.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* PWM.c */
+#include &quot;PWM.h&quot;
+
+void PWM_init(TIM_HandleTypeDef *PWM, uint16_t canal)
+{
+    HAL_TIM_PWM_Start(PWM, canal);
+}
+
+void pwm_valor(uint32_t *canal, float valor)
+{
+    *canal = valor * (float)PWMTIM1-&gt;ARR / 100.0;   // 0 a 100 %
+}</code></pre></div><p class="ojo">Como CCR1 es volatile, el compilador puede dar un warning al pasar &PWM1. Funciona igual; si quieres quitarlo, declara el parámetro como volatile uint32_t *canal.</p><div class="uno"><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="PWM.c" loading="lazy"></a><figcaption>PWM.c</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Usarla en main</h3><a class="min" href="https://youtu.be/hNp0Ox3xM5Y?t=1185" target="_blank" rel="noopener">&#9654; 19:45</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PWM_init(&amp;PWMT1, PWM1_CH);   // TIM1 canal 1
+PWM_init(&amp;PWMT1, PWM2_CH);   // TIM1 canal 2
+
+pwm_valor(&amp;PWM1, 10);        // 10 %
+pwm_valor(&amp;PWM2, 50);        // 50 %</code></pre></div><div class="dos"><figure class="cap"><a href="img/1250.webp" target="_blank"><img src="img/1250.webp" alt="Inicialización en main.c" loading="lazy"></a><figcaption>Inicialización en main.c</figcaption></figure><figure class="cap"><a href="img/1420.webp" target="_blank"><img src="img/1420.webp" alt="Osciloscopio: 10 % y 50 %" loading="lazy"></a><figcaption>Osciloscopio: 10 % y 50 %</figcaption></figure><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="Comprobación de la frecuencia" loading="lazy"></a><figcaption>Comprobación de la frecuencia</figcaption></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Velocidad desde LabVIEW</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Recibir la velocidad en el micro</h3><a class="min" href="https://youtu.be/hNp0Ox3xM5Y?t=1476" target="_blank" rel="noopener">&#9654; 24:36</a></div><p>En la función que procesa las órdenes (clase 40) agrega un caso: si llega <code>VEL1=valor/</code>, toma lo que está entre '=' y '/' y llévalo al PWM1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>else if (strstr(trama_rx, &quot;VEL1=&quot;))
+{
+    strcpy(texto, strtok(trama_rx, &quot;=&quot;));   // inicia los tokens
+    strcpy(texto, strtok(0, &quot;/&quot;));          // valor
+    valor = atoi(texto);
+    pwm_valor(&amp;PWM1, valor);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1500.webp" target="_blank"><img src="img/1500.webp" alt="Caso VEL1= en el procesamiento" loading="lazy"></a><figcaption>Caso VEL1= en el procesamiento</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Gauge en LabVIEW</h3><a class="min" href="https://youtu.be/hNp0Ox3xM5Y?t=1542" target="_blank" rel="noopener">&#9654; 25:42</a></div><p>Agrega un control numérico tipo gauge de 0 a 100. Duplica un evento, cámbialo a <i>Gauge: Value Change</i>, convierte el número a cadena (Number To Fractional String) y concatena <code>VEL1=</code> + valor + <code>/*</code> antes de VISA Write.</p><p class="ojo">En la simulación Proteus no va en tiempo real si el PC está muy cargado. En el siguiente video se agrega la librería para servos.</p><div class="dos"><figure class="cap"><a href="img/1630.webp" target="_blank"><img src="img/1630.webp" alt="Evento del gauge" loading="lazy"></a><figcaption>Evento del gauge</figcaption></figure><figure class="cap"><a href="img/1690.webp" target="_blank"><img src="img/1690.webp" alt="Velocidad del motor controlada desde LabVIEW" loading="lazy"></a><figcaption>Velocidad del motor controlada desde LabVIEW</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=hNp0Ox3xM5Y" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

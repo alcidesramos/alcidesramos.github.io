@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 44: Transmisión serial en el micro, recepción Bluetooth en el celular · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Mostrar temperatura, voltaje y el estado de un pulsador en la app Bluetooth Electronics. Aquí la trama la impone la app: *Tvalor*, *Vvalor* y *LR255G0B0* para un LED de color.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/0UP6U24F8wQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 44: Transmisión serial en el micro, recepción Bluetooth en el celular · Paso a paso">
+  <meta property="og:description" content="Mostrar temperatura, voltaje y el estado de un pulsador en la app Bluetooth Electronics. Aquí la trama la impone la app: *Tvalor*, *Vvalor* y *LR255G0B0* para un LED de color.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/0UP6U24F8wQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/0UP6U24F8wQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Del STM32 al <span>celular</span> por Bluetooth</h1>
+    <p class="lead">Es la versión celular de la clase 43. El micro (en Proteus) transmite por el HC-05 en COM17 y la app Bluetooth Electronics recibe. A diferencia de LabVIEW, la app define el formato: un '*', una letra de recepción, el valor y otro '*'. Se agrega un termómetro (letra T), un medidor de voltaje (letra V) y un LED RGB (letra L). Después de cada envío se espera 5 ms porque el celular es más lento que el PC.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=0UP6U24F8wQ" target="_blank" rel="noopener">&#9654; Ver el video completo (14:07)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/680.webp" alt="Clase 44: Transmisión serial en el micro, recepción Bluetooth en el celular"></figure>
+    <ul class="materiales"><li>Programa de la clase 43 (ADC voltaje y LM35, pulsador en PB10)</li><li>Módulo HC-05 emparejado con el PC (COM17)</li><li>Celular Android con Bluetooth Electronics</li><li>Proteus con COMPIM en COM17</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · HC-05</a><a href="#f2">2 · Letra T</a><a href="#f3">3 · Letra V</a><a href="#f4">4 · Letra L</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Conexión</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Puerto del módulo y conexión de la app</h3><a class="min" href="https://youtu.be/0UP6U24F8wQ?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El HC-05 está conectado al PC por un adaptador USB-serial en COM17, y el COMPIM de Proteus usa ese mismo puerto.</p><p>En la app pulsa Conectar, elige el módulo y conecta. Luego abre un panel en modo edición.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Editor de paneles de la app" loading="lazy"></a><figcaption>Editor de paneles de la app</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Temperatura</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Termómetro y texto</h3><a class="min" href="https://youtu.be/0UP6U24F8wQ?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Agrega un indicador tipo termómetro y un texto encima para ver el número. A los dos ponles el mismo <i>Receive Character</i>: <code>T</code>.</p><p>En el rango pon mínimo 0 y máximo 100; también puedes elegir divisiones y textos.</p><p class="ojo">La app solo muestra el dato si llega como <code>*</code> + letra + valor + <code>*</code>. Ya no puedes inventar la trama como en LabVIEW.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Receive Character T y formato *T50*" loading="lazy"></a><figcaption>Receive Character T y formato *T50*</figcaption></figure><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Rango 0 a 100" loading="lazy"></a><figcaption>Rango 0 a 100</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Trama en el micro</h3><a class="min" href="https://youtu.be/0UP6U24F8wQ?t=214" target="_blank" rel="noopener">&#9654; 3:34</a></div><p>Cambia la impresión de la temperatura al formato de la app y espera 5 ms después de enviar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;*T%.2f*&quot;, temperatura);
+uartx_write_text(&amp;huart1, texto);
+HAL_Delay(5);</code></pre></div><div class="dos"><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Cambio de la trama en el código" loading="lazy"></a><figcaption>Cambio de la trama en el código</figcaption></figure><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Temperatura en el celular" loading="lazy"></a><figcaption>Temperatura en el celular</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Voltaje</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Medidor de 0 a 5 V</h3><a class="min" href="https://youtu.be/0UP6U24F8wQ?t=282" target="_blank" rel="noopener">&#9654; 4:42</a></div><p>Agrega un medidor (meter) y un texto con <i>Receive Character</i> <code>V</code>. Rango de 0 a 5 con 5 divisiones.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Trama del voltaje</h3><a class="min" href="https://youtu.be/0UP6U24F8wQ?t=388" target="_blank" rel="noopener">&#9654; 6:28</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;*V%.1f*&quot;, voltaje);
+uartx_write_text(&amp;huart1, texto);
+HAL_Delay(5);</code></pre></div><p class="ojo">En el video, con printf directo la simulación se trababa y no llegaba nada. La solución fue armar el texto con sprintf y enviarlo con la función de la UART, más el retardo de 5 ms.</p><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Trama *V en el código" loading="lazy"></a><figcaption>Trama *V en el código</figcaption></figure><figure class="cap"><a href="img/630.webp" target="_blank"><img src="img/630.webp" alt="Temperatura con sprintf y retardo de 5 ms" loading="lazy"></a><figcaption>Temperatura con sprintf y retardo de 5 ms</figcaption></figure><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Temperatura y voltaje en el celular" loading="lazy"></a><figcaption>Temperatura y voltaje en el celular</figcaption></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>LED de color</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Indicador LED en la app</h3><a class="min" href="https://youtu.be/0UP6U24F8wQ?t=693" target="_blank" rel="noopener">&#9654; 11:33</a></div><p>Agrega un LED con <i>Receive Character</i> <code>L</code>. El color se envía como <code>*L</code>R<i>rojo</i>G<i>verde</i>B<i>azul</i><code>*</code>, con valores de 0 a 255.</p><div class="uno"><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Formato de color del LED: *LR255G200B0*" loading="lazy"></a><figcaption>Formato de color del LED: *LR255G200B0*</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Enviar rojo o negro según el pulsador</h3><a class="min" href="https://youtu.be/0UP6U24F8wQ?t=726" target="_blank" rel="noopener">&#9654; 12:06</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (HAL_GPIO_ReadPin(sw_GPIO_Port, sw_Pin) == 0)
+    uartx_write_text(&amp;huart1, &quot;*LR255G0B0*&quot;);   // rojo
+else
+    uartx_write_text(&amp;huart1, &quot;*LR0G0B0*&quot;);     // negro (apagado)
+HAL_Delay(5);</code></pre></div><p class="ojo">Al presionar el pulsador el LED del celular se pone rojo y al soltarlo se pone negro. Sigue siendo comunicación en un solo sentido; más adelante se hace en ambos sentidos con interrupciones.</p><div class="dos"><figure class="cap"><a href="img/770.webp" target="_blank"><img src="img/770.webp" alt="Trama del LED en el código" loading="lazy"></a><figcaption>Trama del LED en el código</figcaption></figure><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Tramas *V, *L y *T en la terminal" loading="lazy"></a><figcaption>Tramas *V, *L y *T en la terminal</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=0UP6U24F8wQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
