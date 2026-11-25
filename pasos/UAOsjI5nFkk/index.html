@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 76 STM32: nueva librería PWM para cualquier timer y canal · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Actualizamos la librería de PWM: cada salida se define una sola vez con su timer y canal, y luego basta PWM_init y PWM_valor con un porcentaje.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/UAOsjI5nFkk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 76 STM32: nueva librería PWM para cualquier timer y canal · Paso a paso">
+  <meta property="og:description" content="Actualizamos la librería de PWM: cada salida se define una sola vez con su timer y canal, y luego basta PWM_init y PWM_valor con un porcentaje.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/UAOsjI5nFkk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/UAOsjI5nFkk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Librería <span>PWM</span> para cualquier timer y canal</h1>
+    <p class="lead">Repasamos qué es el PWM y dónde se usa (motores DC, servos, LEDs, fuentes conmutadas, inversores). Calculamos con una hoja de Excel el prescaler y el periodo para 50 Hz con el reloj de 16 MHz que simula Proteus, generamos la señal primero con la HAL y después con la nueva librería PWMB. En ella cada PWM es una estructura con el timer, el registro CCR y el canal, así que podemos usar cualquier timer y cualquier canal, en cualquier orden, y cambiar el ciclo útil con una sola función.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=UAOsjI5nFkk" target="_blank" rel="noopener">&#9654; Ver el video completo (24:29)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1440.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Proteus (BlackPill STM32F401 y osciloscopio)</li><li>Hoja de Excel para calcular el PWM</li><li>Librería PWMB.c / PWMB.h</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · BlackPill en Proteus</a><a href="#f2">2 · Prescaler, periodo y ciclo útil</a><a href="#f3">3 · Estructura, init y valor</a><a href="#f4">4 · PWM3 en TIM2 a 100 Hz</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto y circuito</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito en Proteus</h3><a class="min" href="https://youtu.be/UAOsjI5nFkk?t=250" target="_blank" rel="noopener">&#9654; 4:10</a></div><p>Colocamos la BlackPill, unimos el reset y en Design > Configure Power Rails ponemos VCC/VDD en 3.3 V y pasamos VDDA a esa red.</p><p>Las salidas PA8 (pwm1) y PA11 (pwm2) van a un osciloscopio.</p><div class="dos"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar el timer</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Calcular con la hoja de Excel</h3><a class="min" href="https://youtu.be/UAOsjI5nFkk?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>Ponemos la frecuencia del micro (16 MHz en Proteus) y la frecuencia deseada (50 Hz). Sin prescaler el contador debería ser 320.000, más de lo que admite un timer de 16 bits (65.535). Solo TIM2 y TIM5 son de 32 bits.</p><p>Con prescaler 100 el periodo queda en 3.200, y eso también es la resolución: el PWM podrá variar de 0 a 3.200. Para 50 % de ciclo útil el registro vale 1.600.</p><p class="ojo">Al micro se le carga prescaler − 1 (100-1), porque el contador arranca en cero.</p><div class="dos"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Canales en CubeMX</h3><a class="min" href="https://youtu.be/UAOsjI5nFkk?t=630" target="_blank" rel="noopener">&#9654; 10:30</a></div><p>En TIM1 activamos Internal Clock y elegimos los canales: CH1 y CH4 en PWM Generation (no tienen que ir en orden).</p><p>En Parameter Settings: Prescaler 100-1, Counter Period 3200, Pulse inicial 1600 en el canal 1 y 480 (15 %) en el canal 4. Activamos auto-reload preload para una frecuencia más estable.</p><p class="ojo">Todos los canales de un mismo timer comparten frecuencia. Para otra frecuencia se usa otro timer.</p><div class="dos"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/630.webp" target="_blank"><img src="img/630.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Arranque con la HAL</h3><a class="min" href="https://youtu.be/UAOsjI5nFkk?t=800" target="_blank" rel="noopener">&#9654; 13:20</a></div><p>Con la HAL hay que iniciar cada canal indicando timer y canal. Funciona, pero cambiar el ciclo útil después también exige timer y canal cada vez.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_TIM_PWM_Start(&amp;htim1, TIM_CHANNEL_1);
+HAL_TIM_PWM_Start(&amp;htim1, TIM_CHANNEL_4);</code></pre></div><div class="uno"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería PWMB</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Agregar la librería</h3><a class="min" href="https://youtu.be/UAOsjI5nFkk?t=870" target="_blank" rel="noopener">&#9654; 14:30</a></div><p>Creamos Core/Libreria, copiamos PWMB.c y PWMB.h, agregamos la carpeta a los Include paths e incluimos la librería en main.c.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;PWMB.h&quot;</code></pre></div><div class="dos"><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configurar PWMB.c</h3><a class="min" href="https://youtu.be/UAOsjI5nFkk?t=980" target="_blank" rel="noopener">&#9654; 16:20</a></div><p>escala define el rango del valor: 100 para trabajar en porcentaje; con más resolución (3.200) se puede usar 1000.</p><p>Declaramos como extern cada timer usado y definimos cada PWM con su timer, su registro CCR y su canal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float escala = 100;   // define la escala a trabajar el pwm
+
+// incluir los timer usados
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim2;
+
+// configurar cada salida pwm usada
+PWMS PWM1 = {&amp;htim1, &amp;(TIM1-&gt;CCR1), TIM_CHANNEL_1};
+PWMS PWM2 = {&amp;htim1, &amp;(TIM1-&gt;CCR4), TIM_CHANNEL_4};
+PWMS PWM3 = {&amp;htim2, &amp;(TIM2-&gt;CCR2), TIM_CHANNEL_2};</code></pre></div><p class="ojo">Si usas un timer nuevo y no lo declaras como extern, aparece el error «htim2 undeclared».</p><div class="dos"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/980.webp" target="_blank"><img src="img/980.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/1415.webp" target="_blank"><img src="img/1415.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Usar la librería en main</h3><a class="min" href="https://youtu.be/UAOsjI5nFkk?t=1110" target="_blank" rel="noopener">&#9654; 18:30</a></div><p>El nombre PWM1, PWM2… no tiene que coincidir con el canal: la estructura ya sabe qué timer y canal usar. Iniciamos antes del while y en el while cambiamos el ciclo útil.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+PWM_init(&amp;PWM1);
+PWM_init(&amp;PWM2);
+PWM_init(&amp;PWM3);
+/* USER CODE END 2 */
+
+while (1)
+{
+  PWM_valor(&amp;PWM1, 10);   // pwm y valor en la escala
+  PWM_valor(&amp;PWM2, 90);
+  PWM_valor(&amp;PWM3, 20);
+  HAL_Delay(200);
+  PWM_valor(&amp;PWM1, 90);
+  PWM_valor(&amp;PWM2, 10);
+  PWM_valor(&amp;PWM3, 80);
+  HAL_Delay(200);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1040.webp" target="_blank"><img src="img/1040.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/1110.webp" target="_blank"><img src="img/1110.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/1370.webp" target="_blank"><img src="img/1370.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Resultado</h3><a class="min" href="https://youtu.be/UAOsjI5nFkk?t=1210" target="_blank" rel="noopener">&#9654; 20:10</a></div><p>En el osciloscopio vemos los dos canales de TIM1 a 50 Hz alternando entre 10 % y 90 %.</p><div class="dos"><figure class="cap"><a href="img/1170.webp" target="_blank"><img src="img/1170.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/1210.webp" target="_blank"><img src="img/1210.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Agregar otro timer</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>TIM2 canal 2</h3><a class="min" href="https://youtu.be/UAOsjI5nFkk?t=1310" target="_blank" rel="noopener">&#9654; 21:50</a></div><p>Activamos TIM2 con Internal Clock y el canal 2 en PWM (PA1). Como es otro timer, puede tener otra frecuencia: 100 Hz con prescaler 100-1 y periodo 1600.</p><p>Luego basta agregar la línea PWM3 en PWMB.c, el extern de htim2 y llamar PWM_init(&PWM3).</p><div class="dos"><figure class="cap"><a href="img/1260.webp" target="_blank"><img src="img/1260.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/1310.webp" target="_blank"><img src="img/1310.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Tres PWM funcionando</h3><a class="min" href="https://youtu.be/UAOsjI5nFkk?t=1440" target="_blank" rel="noopener">&#9654; 24:00</a></div><p>Ahora tenemos tres señales PWM en dos timers distintos y con canales distintos, todas manejadas con las mismas dos funciones.</p><div class="uno"><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="Clase 76 STM32: nueva librería PWM para cualquier timer y canal" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=UAOsjI5nFkk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
