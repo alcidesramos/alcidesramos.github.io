@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 98 STM32: dimmer AC con detección de cruce por cero · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Control de potencia de cargas AC (bombillo, ventilador, licuadora) detectando el cruce por cero con un optoacoplador y disparando un TRIAC con retardo por timer. Se simula con una BlackPill F401, se prueba en una F411 a 100 MHz y se pasa a una tarjeta económica con STM32G031.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/q8DNjBJKE4I/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 98 STM32: dimmer AC con detección de cruce por cero · Paso a paso">
+  <meta property="og:description" content="Control de potencia de cargas AC (bombillo, ventilador, licuadora) detectando el cruce por cero con un optoacoplador y disparando un TRIAC con retardo por timer. Se simula con una BlackPill F401, se prueba en una F411 a 100 MHz y se pasa a una tarjeta económica con STM32G031.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/q8DNjBJKE4I/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/q8DNjBJKE4I/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Dimmer AC: control de energía con <span>cruce por cero</span></h1>
+    <p class="lead">Se explican dos tarjetas de potencia (con 4N25 más puente rectificador o con H11AA1) que se conectan a cualquier micro por 4 pines: VCC, GND, CRUCE y DISPARO. A 60 Hz cada semiciclo dura 8.33 ms; al detectar el cruce por cero se espera un tiempo y se dispara el TRIAC con un MOC3021: cuanto antes se dispara, más energía recibe la carga. En el STM32 el pin de cruce genera una interrupción EXTI; ahí se carga el tiempo en el ARR de un timer en microsegundos y, cuando el timer desborda, se da un pulso de 10 µs al TRIAC. Un potenciómetro (ADC) se mapea entre los límites LIM_SUP y LIM_INF. Luego se lleva el código a una F411 con HSE y PLL a 100 MHz y finalmente a un STM32G031 de bajo costo, resolviendo la falta de la librería de retardos interna y de printf con float.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=q8DNjBJKE4I" target="_blank" rel="noopener">&#9654; Ver el video completo (57:55)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2840.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero"></figure>
+    <ul class="materiales"><li>BlackPill STM32F401 (simulación) y STM32F411 (física)</li><li>Tarjeta con STM32G031F6P6</li><li>Tarjeta de cruce por cero y TRIAC (4N25 o H11AA1, MOC3021, TRIAC BT136/BTA)</li><li>Resistencias 3 × 33k (o 39k) de 1/2 W, 10k, 220 Ω, 330 Ω, 470 Ω</li><li>Red snubber 390 Ω 1 W + 10 nF 100 V (para cargas inductivas)</li><li>Potenciómetro</li><li>Bombillo halógeno, ventilador o licuadora</li><li>Analizador lógico (opcional)</li><li>Librerías CRUCE_CERO, adc, MAP, delays, pinout, uart y floattostr del canal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Cruce por cero, TRIAC y cálculo de resistencias</a><a href="#f2">2 · Pines, timer y librería</a><a href="#f3">3 · 100 MHz y medición del pulso</a><a href="#f4">4 · Menos memoria, mismas funciones</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Teoría y hardware</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La idea del control</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=131" target="_blank" rel="noopener">&#9654; 2:11</a></div><p>La tarjeta entrega un pulso cada vez que la señal AC pasa por cero. A 60 Hz el período es 16.66 ms y, rectificado, cada semiciclo dura 8.33 ms. Tras el pulso se espera un tiempo y se dispara el TRIAC: disparar a 1 ms entrega casi toda la energía, a 7 ms muy poca. La energía es inversamente proporcional al tiempo de espera.</p><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Detector de cruce con 4N25</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=230" target="_blank" rel="noopener">&#9654; 3:50</a></div><p>La red se rectifica para encender el LED del optoacoplador; mientras hay tensión el transistor conduce y el pin de CRUCE está en 0; cerca del cero el LED se apaga y una pull-up de 10k pone el pin en 1. El LED se apaga por debajo de ~1 V, así que el pulso dura unos cientos de microsegundos. Sirven 4N25, 4N26, 4N35 o similares; la versión con H11AA1 no necesita puente rectificador.</p><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Resistencia de entrada</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=331" target="_blank" rel="noopener">&#9654; 5:31</a></div><p>Para unos 11 mA con 110 V se necesita ≈10k, pero disiparía P = V²/R = 110²/10k ≈ 1.2 W. Por eso se usan tres resistencias de 33k (o 39k) de 1/2 W en serie: ≈11k (o 13k) y 1.5 W repartidos. En 220 V se recalcula.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>R = V / I = 110 V / 11 mA ≈ 10 kΩ
+P = V² / R = 110² / 10k ≈ 1.2 W
+3 × 33k (1/2 W) en serie = 11 kΩ, 1.5 W</code></pre></div><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Etapa de disparo</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=464" target="_blank" rel="noopener">&#9654; 7:44</a></div><p>El micro enciende el LED de un MOC3020/3021/3030 con 220 Ω; el MOC dispara el TRIAC a través de su resistencia de gate. No use un MOC3041 porque tiene detector de cruce interno. Para cargas inductivas (ventiladores, motores universales) es obligatoria la red snubber de 390 Ω 1 W con 10 nF de poliéster; con cargas resistivas puede omitirse junto con la red RC que recomienda el fabricante. El TRIAC se elige según la corriente de la carga.</p><div class="uno"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto simulado (F401)</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pines y periféricos</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=785" target="_blank" rel="noopener">&#9654; 13:05</a></div><p>En Proteus el micro va a 16 MHz. Se configura USART1 para monitorear, PB12 como salida DISP, PB13 como GPIO_EXTI13 con etiqueta C_CERO (flanco de subida, sin pull) y un canal ADC para el potenciómetro. En NVIC se habilita la EXTI de PB13.</p><div class="dos"><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Timer en microsegundos</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=960" target="_blank" rel="noopener">&#9654; 16:00</a></div><p>TIM5 con reloj interno, Prescaler 16-1 (1 µs por cuenta) y Counter Period 10000 (el semiciclo no pasa de 8.33 ms; el ARR se cambia en cada disparo). Se habilita su interrupción. En el proyecto se activa float por software (por Proteus) y la salida .hex.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Prescaler (PSC)      = 16-1     // MHz del reloj - 1
+Counter Period (ARR) = 10000</code></pre></div><div class="uno"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Librerías</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=1076" target="_blank" rel="noopener">&#9654; 17:56</a></div><p>En Core/Librerias se copian adc, CRUCE_CERO, delays, MAP, pinout y uart. En CRUCE_CERO.h se indica el timer y los límites de disparo:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define TIM_CERO   htim5   // timer usado
+#define TIM_CERO_V TIM5
+
+// limites en microsegundos minimo y maximo para disparo
+#define LIM_INF  300    // resistiva (inductiva: 1500)
+#define LIM_SUP  8000
+#define LIM_BASE 100    // offset de encendido y apagado</code></pre></div><div class="dos"><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/1130.webp" target="_blank"><img src="img/1130.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Interrupción de cruce</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=1183" target="_blank" rel="noopener">&#9654; 19:43</a></div><p>Si el valor está cerca del mínimo se deja el TRIAC encendido (máxima energía), si está cerca del máximo se apaga; en otro caso se carga el tiempo en el ARR y se arranca el timer:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint16_t cero_valor = LIM_SUP;
+
+void flanco_cero_int()
+{
+    if (__HAL_GPIO_EXTI_GET_IT(C_CERO_Pin) != RESET)
+    {
+        // si es menor que el limite inferior enciende
+        if (cero_valor &lt;= LIM_INF + LIM_BASE) PIN_ON(DISP);
+        // si es superior al superior apaga
+        else if (cero_valor &gt;= LIM_SUP - LIM_BASE) PIN_OFF(DISP);
+        // sino activa el timer
+        else
+        {
+            TIM_CERO_V-&gt;ARR = cero_valor;                    // carga valor de disparo
+            __HAL_TIM_CLEAR_FLAG(&amp;TIM_CERO, TIM_FLAG_UPDATE);  // limpia bandera
+            HAL_TIM_Base_Start_IT(&amp;TIM_CERO);                 // empieza el timer
+        }
+    }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1200.webp" target="_blank"><img src="img/1200.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/1340.webp" target="_blank"><img src="img/1340.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Interrupción del timer: disparo</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=1316" target="_blank" rel="noopener">&#9654; 21:56</a></div><p>Al desbordar, se detiene el timer y se da un pulso de 10 µs al TRIAC (basta para que quede conduciendo hasta el siguiente cruce):</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void timer_cero_int()
+{
+    HAL_TIM_Base_Stop_IT(&amp;TIM_CERO);  // para el timer
+    PIN_ON(DISP);                     // enciende el triac
+    delay_us(10);                     // retardo de disparo
+    PIN_OFF(DISP);                    // apaga el triac
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1400.webp" target="_blank"><img src="img/1400.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Main con potenciómetro</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=1383" target="_blank" rel="noopener">&#9654; 23:03</a></div><p>Se lee el ADC (0–4095), se mapea entre LIM_SUP y LIM_INF y se entrega al cruce por cero. En stm32f4xx_it.c se incluye CRUCE_CERO.h, se llama flanco_cero_int() en la EXTI y timer_cero_int() en la interrupción de TIM5:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>cruce_init();
+
+while (1)
+{
+    codigo = ADC_Read();
+    tiempo = map(codigo, 0, 4095, LIM_SUP, LIM_INF);
+    sprintf(texto, &quot;VALOR=%u\r\n&quot;, codigo);
+    uartx_write_text(&amp;huart1, texto);
+    sprintf(texto, &quot;float=%.1f\r\n\r\n&quot;, tiempo);
+    uartx_write_text(&amp;huart1, texto);
+    Cruce_set(&amp;tiempo);
+    HAL_Delay(500);
+}
+
+/* stm32f4xx_it.c */
+void EXTI15_10_IRQHandler(void) { flanco_cero_int(); HAL_GPIO_EXTI_IRQHandler(C_CERO_Pin); }
+void TIM5_IRQHandler(void)      { timer_cero_int();  HAL_TIM_IRQHandler(&amp;htim5); }</code></pre></div><div class="dos"><figure class="cap"><a href="img/1450.webp" target="_blank"><img src="img/1450.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/1490.webp" target="_blank"><img src="img/1490.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/1660.webp" target="_blank"><img src="img/1660.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Tarjeta física F411</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Cambios para la F411</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=1802" target="_blank" rel="noopener">&#9654; 30:02</a></div><p>Se activa el HSE y se lleva el PLL a 100 MHz (84 MHz en una F401). El único cambio en el timer es el prescaler: 100-1.</p><div class="dos"><figure class="cap"><a href="img/1830.webp" target="_blank"><img src="img/1830.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/1860.webp" target="_blank"><img src="img/1860.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Ver el cruce con el analizador</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=1937" target="_blank" rel="noopener">&#9654; 32:17</a></div><p>El pulso de cruce dura unos 229 µs, por eso el límite inferior no puede ser 200 µs: se usa 250–300 µs para cargas resistivas, o ~1.5 ms para inductivas (la corriente se desfasa y el bombillo o motor oscilaría). Al mover el potenciómetro el pulso de disparo se desplaza dentro de los 8.33 ms.</p><div class="uno"><figure class="cap"><a href="img/2030.webp" target="_blank"><img src="img/2030.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Tarjeta económica STM32G031</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Proyecto para el G031</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=2069" target="_blank" rel="noopener">&#9654; 34:29</a></div><p>Micro STM32G031F6P6. USART1 a 9600, PA3 como DISP, PA2 como C_CERO (EXTI), un canal ADC y TIM1 con Prescaler 64-1 y su interrupción de update. Reloj HSI a 64 MHz (la tarjeta no tiene cristal, así se aprovechan más pines).</p><div class="dos"><figure class="cap"><a href="img/2190.webp" target="_blank"><img src="img/2190.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/2270.webp" target="_blank"><img src="img/2270.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Librerías y ajustes</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=2334" target="_blank" rel="noopener">&#9654; 38:54</a></div><p>Se copian las mismas librerías más floattostr, porque en este micro con poca memoria no conviene printf con float. La librería de retardos interna (DWT) no existe para la serie G0, así que se configura TIM3 (Prescaler 64-1, auto-reload) como base de microsegundos en delays.h. El tiempo se imprime con floattostr:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>floattostr(texto, tiempo, 2);   // 2 decimales
+uartx_write_text(&amp;huart1, &quot;TIEMPO=&quot;);
+uartx_write_text(&amp;huart1, texto);
+uartx_write_text(&amp;huart1, &quot;\r\n\r\n&quot;);</code></pre></div><p class="ojo">Si el TRIAC parpadea en vez de apagarse a mínima energía, revise que en cada cruce el pin de disparo se apague antes de decidir si se vuelve a disparar.</p><div class="dos"><figure class="cap"><a href="img/2400.webp" target="_blank"><img src="img/2400.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/2720.webp" target="_blank"><img src="img/2720.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/2930.webp" target="_blank"><img src="img/2930.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/3420.webp" target="_blank"><img src="img/3420.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/q8DNjBJKE4I?t=3305" target="_blank" rel="noopener">&#9654; 55:05</a></div><p>La tarjeta de bajo costo controla la intensidad del bombillo igual que la BlackPill: el pulso de disparo se mueve en el tiempo según el potenciómetro, ocupando alrededor del 76 % de la memoria del G031.</p><div class="dos"><figure class="cap"><a href="img/2840.webp" target="_blank"><img src="img/2840.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure><figure class="cap"><a href="img/3330.webp" target="_blank"><img src="img/3330.webp" alt="Clase 98 STM32: dimmer AC con detección de cruce por cero" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=q8DNjBJKE4I" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
