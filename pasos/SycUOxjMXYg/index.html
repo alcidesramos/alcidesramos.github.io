@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 73 STM32: macros con #define para manejar pines · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Creamos macros con el operador ## para encender, apagar, conmutar y leer pines por su etiqueta, y las guardamos en una librería pinout.h.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/SycUOxjMXYg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 73 STM32: macros con #define para manejar pines · Paso a paso">
+  <meta property="og:description" content="Creamos macros con el operador ## para encender, apagar, conmutar y leer pines por su etiqueta, y las guardamos en una librería pinout.h.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/SycUOxjMXYg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/SycUOxjMXYg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Macros con <span>#define</span> para manejar pines IN/OUT</h1>
+    <p class="lead">En esta clase simplificamos el manejo de GPIO en STM32. En lugar de escribir HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 1) cada vez, creamos macros con #define que usan el operador ## para pegar la etiqueta del pin con _GPIO_Port y _Pin. Así basta escribir PIN_ON(LED1). Probamos todo en Proteus con una BlackPill STM32F401, tres LEDs y un pulsador, y al final movemos las macros a una librería propia (pinout.h) para reutilizarlas en cualquier proyecto.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=SycUOxjMXYg" target="_blank" rel="noopener">&#9654; Ver el video completo (40:33)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1760.webp" alt="Clase 73 STM32: macros con #define para manejar pines"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Proteus (BlackPill STM32F401)</li><li>3 LEDs con resistencias de 220 Ω</li><li>1 pulsador</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · BlackPill, 3 LEDs y un pulsador</a><a href="#f2">2 · Etiquetas de pines y .hex</a><a href="#f3">3 · PIN_ON, PIN_OFF, PIN_PUT, PIN_BLINK, PIN_READ</a><a href="#f4">4 · Código final</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Circuito en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Montar el circuito</h3><a class="min" href="https://youtu.be/SycUOxjMXYg?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>Colocamos la BlackPill STM32F401 y conectamos tres LEDs con resistencias de 220 Ω en PA0, PA1 y PA2, y un pulsador en PA3 hacia tierra.</p><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure><figure class="cap"><a href="img/770.webp" target="_blank"><img src="img/770.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Configurar la alimentación</h3><a class="min" href="https://youtu.be/SycUOxjMXYg?t=820" target="_blank" rel="noopener">&#9654; 13:40</a></div><p>En Design > Configure Power Rails ponemos VCC/VDD en 3.3 V y pasamos VDDA a la misma red para que el micro simule correctamente.</p><div class="uno"><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto en CubeIDE</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Crear el proyecto</h3><a class="min" href="https://youtu.be/SycUOxjMXYg?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>File > New > STM32 Project y elegimos el STM32F401CCU (BlackPill).</p><div class="dos"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar y etiquetar los pines</h3><a class="min" href="https://youtu.be/SycUOxjMXYg?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>PA0, PA1 y PA2 como GPIO_Output; PA3 como GPIO_Input con pull-up interno.</p><p>Con clic derecho > Enter User Label les ponemos nombre: LED1, LED2, LED3 y SW1. Estas etiquetas son la clave de las macros, porque CubeMX genera LED1_Pin y LED1_GPIO_Port en main.h.</p><p class="ojo">El pulsador va a tierra, por eso se activa el pull-up: suelto lee 1 y presionado lee 0.</p><div class="dos"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Generar el archivo .hex</h3><a class="min" href="https://youtu.be/SycUOxjMXYg?t=700" target="_blank" rel="noopener">&#9654; 11:40</a></div><p>En Properties > C/C++ Build > Settings > MCU Post build outputs marcamos Convert to Intel Hex file, para cargarlo en Proteus.</p><div class="uno"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>La forma tradicional</h3><a class="min" href="https://youtu.be/SycUOxjMXYg?t=660" target="_blank" rel="noopener">&#9654; 11:00</a></div><p>Así se enciende un LED con la HAL. Funciona, pero es largo de escribir:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 1);</code></pre></div><div class="uno"><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Macros con ##</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Primera macro</h3><a class="min" href="https://youtu.be/SycUOxjMXYg?t=1140" target="_blank" rel="noopener">&#9654; 19:00</a></div><p>El operador ## concatena el parámetro con el resto del texto. Si escribimos PIN_ON(LED2), el preprocesador lo reemplaza por HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, 1).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define PIN_ON(pin) HAL_GPIO_WritePin(pin##_GPIO_Port, pin##_Pin, 1)</code></pre></div><div class="dos"><figure class="cap"><a href="img/1140.webp" target="_blank"><img src="img/1140.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure><figure class="cap"><a href="img/1250.webp" target="_blank"><img src="img/1250.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Crear la librería pinout.h</h3><a class="min" href="https://youtu.be/SycUOxjMXYg?t=1380" target="_blank" rel="noopener">&#9654; 23:00</a></div><p>Creamos una carpeta Librerias dentro de Core y en ella un Header File llamado pinout.h. Como solo tiene macros, no necesita archivo .c.</p><p>Recordar agregar la carpeta a los Include paths del proyecto.</p><div class="dos"><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure><figure class="cap"><a href="img/1540.webp" target="_blank"><img src="img/1540.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Contenido de pinout.h</h3><a class="min" href="https://youtu.be/SycUOxjMXYg?t=1760" target="_blank" rel="noopener">&#9654; 29:20</a></div><p>Estas son todas las macros de la librería:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;main.h&quot;
+#ifndef LIBRERIAS_PINOUT_H_
+#define LIBRERIAS_PINOUT_H_
+
+#define PIN_ON(pin)          HAL_GPIO_WritePin(pin##_GPIO_Port, pin##_Pin, 1)
+#define PIN_OFF(pin)         HAL_GPIO_WritePin(pin##_GPIO_Port, pin##_Pin, 0)
+#define PIN_PUT(pin, value)  ((value) ? PIN_ON(pin) : PIN_OFF(pin))
+#define PIN_BLINK(pin)       HAL_GPIO_TogglePin(pin##_GPIO_Port, pin##_Pin)
+#define PIN_READ(pin)        HAL_GPIO_ReadPin(pin##_GPIO_Port, pin##_Pin)
+
+#endif /* LIBRERIAS_PINOUT_H_ */</code></pre></div><div class="dos"><figure class="cap"><a href="img/1760.webp" target="_blank"><img src="img/1760.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure><figure class="cap"><a href="img/1580.webp" target="_blank"><img src="img/1580.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Uso en main.c</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Programa de prueba</h3><a class="min" href="https://youtu.be/SycUOxjMXYg?t=1920" target="_blank" rel="noopener">&#9654; 32:00</a></div><p>Incluimos la librería y usamos las macros: LED2 queda encendido, LED1 parpadea y LED3 copia el estado del pulsador.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;pinout.h&quot;
+/* USER CODE END Includes */
+
+/* USER CODE BEGIN 2 */
+PIN_ON(LED2);
+/* USER CODE END 2 */
+
+while (1)
+{
+  PIN_BLINK(LED1);
+  HAL_Delay(200);
+  PIN_PUT(LED3, PIN_READ(SW1));
+}</code></pre></div><p class="ojo">Las macros solo funcionan si el pin tiene etiqueta (User Label) en CubeMX; si no, no existen LEDx_Pin ni LEDx_GPIO_Port y da error de compilación.</p><div class="dos"><figure class="cap"><a href="img/1860.webp" target="_blank"><img src="img/1860.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure><figure class="cap"><a href="img/1920.webp" target="_blank"><img src="img/1920.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure><figure class="cap"><a href="img/1960.webp" target="_blank"><img src="img/1960.webp" alt="Clase 73 STM32: macros con #define para manejar pines" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=SycUOxjMXYg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
