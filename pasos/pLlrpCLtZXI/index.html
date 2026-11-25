@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 10: Blue Pill con bootloader USB (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Grabar una vez un bootloader USB HID en la Blue Pill y desde ahí programarla solo con el cable USB, sin ST-Link.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/pLlrpCLtZXI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 10: Blue Pill con bootloader USB (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Grabar una vez un bootloader USB HID en la Blue Pill y desde ahí programarla solo con el cable USB, sin ST-Link.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/pLlrpCLtZXI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/pLlrpCLtZXI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 10: Blue Pill con <span>bootloader USB</span></h1>
+    <p class="lead">En esta clase cargamos en la Blue Pill (STM32F103C8) un bootloader USB HID adaptado del de MikroElektronika. Se graba una sola vez con el ST-Link desde STM32CubeProgrammer; después cualquier programa hecho en STM32CubeIDE se carga solo con el cable USB usando el programa mikroBootloader. Para que funcione hay que generar el .hex y crear los proyectos a partir del archivo .ioc base, que deja el reloj a 72 MHz y el USB a 48 MHz igual que el bootloader.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=pLlrpCLtZXI" target="_blank" rel="noopener">&#9654; Ver el video completo (12:14)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/690.webp" alt="Clase 10: Blue Pill con bootloader USB (paso a paso)"></figure>
+    <ul class="materiales"><li>Blue Pill (STM32F103C8T6)</li><li>ST-Link V2 (solo para grabar el bootloader una vez)</li><li>Cable USB (micro USB o tipo C según la placa)</li><li>STM32CubeProgrammer y STM32CubeIDE</li><li>Carpeta "Blue pill" del curso: bootloader .hex, mikroBootloader USB HID.exe y el .ioc básico</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Bootloader</a><a href="#f2">2 · Proyecto</a><a href="#f3">3 · Cargar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Grabar el bootloader (una sola vez)</h2><p class="intro">El bootloader ocupa un pedazo de la flash al inicio, pero a cambio ya no necesitas programador: los estudiantes pueden cargar sus programas solo con el USB.</p><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Los archivos del bootloader</h3><a class="min" href="https://youtu.be/pLlrpCLtZXI?t=80" target="_blank" rel="noopener">&#9654; 1:20</a></div><p>En la carpeta USB HID Bootloader están el driver, el programa <b>mikroBootloader USB HID.exe</b> y el proyecto original de mikroC para ARM, configurado a 72 MHz. El .hex ya compilado viene en la carpeta del curso.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Clase 10: Blue Pill con bootloader USB (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Abrir el .hex en STM32CubeProgrammer</h3><a class="min" href="https://youtu.be/pLlrpCLtZXI?t=160" target="_blank" rel="noopener">&#9654; 2:40</a></div><ul><li>Conecta la Blue Pill con el ST-Link y pulsa <b>Connect</b>.</li><li>Pestaña <b>Open file</b> y elige el .hex del bootloader.</li><li>Pulsa <b>Download</b> para grabarlo.</li></ul><p class="ojo">Si sale "failed to erase memory", la flash está protegida: quita la protección (RDP) o haz un Full chip erase y vuelve a intentar.</p><div class="dos"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Conectado con el ST-Link" loading="lazy"></a><figcaption>Conectado con el ST-Link</figcaption></figure><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Archivo del bootloader abierto, listo para Download" loading="lazy"></a><figcaption>Archivo del bootloader abierto, listo para Download</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Desde ahora basta el cable USB</h3><a class="min" href="https://youtu.be/pLlrpCLtZXI?t=240" target="_blank" rel="noopener">&#9654; 4:00</a></div><p>Desconecta el ST-Link y conecta la placa directo al PC con el cable USB. Al energizarse, el bootloader espera unos 5 segundos una conexión; si no llega, arranca el programa del usuario.</p><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 10: Blue Pill con bootloader USB (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Preparar el proyecto en CubeIDE</h2><p class="intro">El bootloader solo acepta archivos .hex, y el reloj del programa debe coincidir con el del bootloader.</p><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Activar la salida .hex</h3><a class="min" href="https://youtu.be/pLlrpCLtZXI?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><ul><li>Clic derecho en el proyecto → <b>Properties</b>.</li><li><b>C/C++ Build → Settings → MCU Post build outputs</b>.</li><li>Marca <b>Convert to Intel Hex file (-O ihex)</b> y aplica.</li><li>Compila: el .hex queda en la carpeta <code>Debug</code> del proyecto.</li></ul><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 10: Blue Pill con bootloader USB (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Crear el proyecto desde el .ioc básico</h3><a class="min" href="https://youtu.be/pLlrpCLtZXI?t=450" target="_blank" rel="noopener">&#9654; 7:30</a></div><p>La forma recomendada es <b>File → New → STM32 Project from an Existing STM32CubeMX Configuration File (.ioc)</b> y elegir el .ioc "básico" que entrego. Así el cristal externo (HSE 8 MHz), el SYSCLK a 72 MHz y el USB a 48 MHz quedan iguales a los del bootloader.</p><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Menú New del CubeIDE" loading="lazy"></a><figcaption>Menú New del CubeIDE</figcaption></figure><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Elegir el .ioc y el nombre del proyecto" loading="lazy"></a><figcaption>Elegir el .ioc y el nombre del proyecto</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Revisar pines y reloj</h3><a class="min" href="https://youtu.be/pLlrpCLtZXI?t=520" target="_blank" rel="noopener">&#9654; 8:40</a></div><p>El .ioc ya trae el LED en PC13, el USART1 y el TIM4. En Clock Configuration comprueba HCLK = 72 MHz.</p><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Pinout del STM32F103C8" loading="lazy"></a><figcaption>Pinout del STM32F103C8</figcaption></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Reloj a 72 MHz" loading="lazy"></a><figcaption>Reloj a 72 MHz</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>El código del parpadeo</h3><a class="min" href="https://youtu.be/pLlrpCLtZXI?t=620" target="_blank" rel="noopener">&#9654; 10:20</a></div><p>En el while(1) de <code>main.c</code> va el parpadeo del LED (el pin tiene la etiqueta led):</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+  HAL_Delay(1200);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="main.c generado desde el .ioc" loading="lazy"></a><figcaption>main.c generado desde el .ioc</figcaption></figure><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Toggle del LED y compilación sin errores" loading="lazy"></a><figcaption>Toggle del LED y compilación sin errores</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Cargar el programa por USB</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Usar mikroBootloader</h3><a class="min" href="https://youtu.be/pLlrpCLtZXI?t=345" target="_blank" rel="noopener">&#9654; 5:45</a></div><ul><li>Abre <b>mikroBootloader USB HID</b>.</li><li>Desconecta y vuelve a conectar la placa, y antes de 5 s pulsa <b>Connect</b>.</li><li><b>Browse for HEX</b>: elige el .hex de la carpeta Debug.</li><li><b>Begin uploading</b> y espera "Completed successfully".</li></ul><div class="uno"><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="Clase 10: Blue Pill con bootloader USB (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/pLlrpCLtZXI?t=690" target="_blank" rel="noopener">&#9654; 11:30</a></div><p>Al terminar la carga la placa se reinicia y el LED de PC13 parpadea cada 1,2 s, todo sin programador.</p><p class="ojo">Si tardas más de 5 s en dar Connect, el bootloader salta al programa anterior. Desconecta, reconecta y repite.</p><div class="uno"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase 10: Blue Pill con bootloader USB (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=pLlrpCLtZXI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
