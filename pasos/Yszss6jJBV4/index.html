@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 104 STM32: detectando colores con el sensor TCS34725 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Lee los valores RGB del sensor de color TCS34725 por I2C en modo rápido y envíalos por el puerto serial.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/Yszss6jJBV4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 104 STM32: detectando colores con el sensor TCS34725 · Paso a paso">
+  <meta property="og:description" content="Lee los valores RGB del sensor de color TCS34725 por I2C en modo rápido y envíalos por el puerto serial.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/Yszss6jJBV4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Yszss6jJBV4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Detecta colores con el <span>TCS34725</span></h1>
+    <p class="lead">Se conecta el sensor de color TCS34725 al STM32F411 por I2C (solo VIN, GND, SDA y SCL), se configura el I2C en Fast Mode a 400 kHz y el USART1 a 9600, y se usa una librería de terceros adaptada para elegir el I2C. Con getRGB se obtienen rojo, verde y azul y se envían por serial cada 600 ms. Se prueba acercando objetos verdes, rojos, azules y amarillos.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Yszss6jJBV4" target="_blank" rel="noopener">&#9654; Ver el video completo (9:33)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/520.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill)</li><li>Módulo sensor de color TCS34725</li><li>Conversor USB-serial</li><li>Librerías TCS34725.c/.h (terceros, adaptada) y uart.c/.h</li><li>Hercules u otra terminal serial</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · 4 pines</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · getRGB</a><a href="#f4">4 · Colores</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Conexión del sensor</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Pines del TCS34725</h3><a class="min" href="https://youtu.be/Yszss6jJBV4?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Conecta Vin a 5 V, GND a tierra, SDA y SCL al I2C del micro. El pin LED no se conecta: así el LED del módulo queda siempre encendido. Si trabajas con batería puedes llevarlo a un pin del micro y apagarlo con un 0 cuando no estés leyendo. El pin INT es para interrupciones y tampoco se usa.</p><div class="dos"><figure class="cap"><a href="img/10.webp" target="_blank"><img src="img/10.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar el proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>USART1 a 9600</h3><a class="min" href="https://youtu.be/Yszss6jJBV4?t=105" target="_blank" rel="noopener">&#9654; 1:45</a></div><p>Crea el proyecto (COLOR_CANAL) y activa USART1 en modo Asynchronous a 9600 baudios para enviar los datos del color.</p><div class="uno"><figure class="cap"><a href="img/115.webp" target="_blank"><img src="img/115.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>I2C1 en modo rápido</h3><a class="min" href="https://youtu.be/Yszss6jJBV4?t=125" target="_blank" rel="noopener">&#9654; 2:05</a></div><p>Activa I2C1 y en Parameter Settings cambia I2C Speed Mode a Fast Mode (400 kHz); este sensor lo necesita así. Guarda para generar el código.</p><div class="uno"><figure class="cap"><a href="img/130.webp" target="_blank"><img src="img/130.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Librerías e includes</h3><a class="min" href="https://youtu.be/Yszss6jJBV4?t=143" target="_blank" rel="noopener">&#9654; 2:23</a></div><p>Crea la carpeta Librerias, agrégala al include path y copia TCS34725.c/.h y uart.c/.h. En main.c inclúyelas junto con las librerías estándar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;uart.h&quot;
+#include &quot;TCS34725.h&quot;
+
+#include &quot;stdio.h&quot;
+#include &quot;stdint.h&quot;
+#include &quot;stdlib.h&quot;
+#include &quot;string.h&quot;
+/* USER CODE END Includes */</code></pre></div><div class="dos"><figure class="cap"><a href="img/205.webp" target="_blank"><img src="img/205.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Elegir el I2C en la librería</h3><a class="min" href="https://youtu.be/Yszss6jJBV4?t=215" target="_blank" rel="noopener">&#9654; 3:35</a></div><p>La librería original escribía siempre por el I2C2. Se adaptó para que en TCS34725.h indiques el handle que uses (hi2c1, hi2c2 o hi2c3); el .c usa ese define en HAL_I2C_Master_Transmit y en las lecturas.</p><div class="uno"><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Leer los colores</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Variables</h3><a class="min" href="https://youtu.be/Yszss6jJBV4?t=248" target="_blank" rel="noopener">&#9654; 4:08</a></div><p>Crea un buffer de texto para el serial y las tres variables de color.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PV */
+char texto[100];
+int rojo, verde, azul;
+/* USER CODE END PV */</code></pre></div><div class="uno"><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Probar el serial</h3><a class="min" href="https://youtu.be/Yszss6jJBV4?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>Antes de usar el sensor comprueba la comunicación enviando un mensaje al iniciar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+/* USER CODE END 2 */</code></pre></div><div class="uno"><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Leer y enviar cada 600 ms</h3><a class="min" href="https://youtu.be/Yszss6jJBV4?t=362" target="_blank" rel="noopener">&#9654; 6:02</a></div><p>getRGB guarda en ese orden rojo, verde y azul. Luego se formatean y se envían por el serial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    getRGB(&amp;rojo, &amp;verde, &amp;azul);
+    sprintf(texto, &quot;R=%d   V=%d    A=%d\r\n\r\n&quot;, rojo, verde, azul);
+    uartx_write_text(&amp;huart1, texto);
+    HAL_Delay(600);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Valores en reposo</h3><a class="min" href="https://youtu.be/Yszss6jJBV4?t=500" target="_blank" rel="noopener">&#9654; 8:20</a></div><p>Sin objeto delante el sensor da valores parecidos en los tres canales (en el video unos 76, 95 y 84).</p><div class="uno"><figure class="cap"><a href="img/505.webp" target="_blank"><img src="img/505.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Verde, rojo, azul y amarillo</h3><a class="min" href="https://youtu.be/Yszss6jJBV4?t=510" target="_blank" rel="noopener">&#9654; 8:30</a></div><p>Con un objeto verde sube el canal verde (a 116), con uno rojo el rojo sube a 213 y con uno azul el azul sube a 105 según la tonalidad. El amarillo sube rojo y verde mientras el azul queda bajo. Con esos valores se puede hacer un algoritmo que compare los canales para identificar el color.</p><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure><figure class="cap"><a href="img/555.webp" target="_blank"><img src="img/555.webp" alt="Clase 104 STM32: detectando colores con el sensor TCS34725" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Yszss6jJBV4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
