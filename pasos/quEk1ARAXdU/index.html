@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 53: Librería para el sensor de luz ambiente BH1750 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Proyecto desde cero en la Black Pill F401: I2C a 100 kHz, una librería de cuatro funciones para el BH1750 (init, write, read_data, Lumen) y lectura de la luz por la UART.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/quEk1ARAXdU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 53: Librería para el sensor de luz ambiente BH1750 · Paso a paso">
+  <meta property="og:description" content="Proyecto desde cero en la Black Pill F401: I2C a 100 kHz, una librería de cuatro funciones para el BH1750 (init, write, read_data, Lumen) y lectura de la luz por la UART.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/quEk1ARAXdU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/quEk1ARAXdU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Sensor de luz <span>BH1750</span> por I2C</h1>
+    <p class="lead">El BH1750 mide intensidad lumínica por I2C. Según el modo, tiene alta resolución (hasta 8191) o baja resolución (hasta 65528). La librería enciende el sensor, le envía el modo, lee 2 bytes y lo apaga. Proteus no lo simula, así que se prueba en una protoboard con la Black Pill y un adaptador USB-serial.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=quEk1ARAXdU" target="_blank" rel="noopener">&#9654; Ver el video completo (13:40)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/800.webp" alt="Clase 53: Librería para el sensor de luz ambiente BH1750"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401CC (cristal de 25 MHz)</li><li>Módulo BH1750</li><li>Adaptador USB-serial</li><li>Programador ST-LINK</li><li>Librerías BH1750, delays y uart del curso</li><li>Terminal serie (Hercules)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeMX</a><a href="#f2">2 · BH1750.c</a><a href="#f3">3 · main.c</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto nuevo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Placa y reloj</h3><a class="min" href="https://youtu.be/quEk1ARAXdU?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Crea un proyecto STM32 para el STM32F401CC. En RCC activa el cristal (HSE) y en Clock Configuration pon la entrada en 25 MHz, PLL y 84 MHz de HCLK.</p><div class="dos"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Black Pill y BH1750 en la protoboard" loading="lazy"></a><figcaption>Black Pill y BH1750 en la protoboard</figcaption></figure><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Reloj a 84 MHz" loading="lazy"></a><figcaption>Reloj a 84 MHz</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>I2C, UART y LED</h3><a class="min" href="https://youtu.be/quEk1ARAXdU?t=98" target="_blank" rel="noopener">&#9654; 1:38</a></div><p>Activa I2C1 con la configuración por defecto (100 kHz), USART1 asíncrona a 9600 y PC13 como salida con etiqueta <code>led</code>.</p><p>En I2C1 → User Constants → <b>Add IP Handle Label</b> escribe <code>i2c_pin</code>: la librería usa ese nombre, así puedes cambiar a I2C2 sin tocarla.</p><div class="dos"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Activar I2C1" loading="lazy"></a><figcaption>Activar I2C1</figcaption></figure><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Etiqueta i2c_pin" loading="lazy"></a><figcaption>Etiqueta i2c_pin</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Librerías e includes</h3><a class="min" href="https://youtu.be/quEk1ARAXdU?t=164" target="_blank" rel="noopener">&#9654; 2:44</a></div><p>Crea la carpeta Librerias dentro de Core, agrégala al path y copia BH1750, delays y uart.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+#include &quot;BH1750.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+#include &quot;stdint.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Includes" loading="lazy"></a><figcaption>Includes</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Dirección y modos (BH1750.h)</h3><a class="min" href="https://youtu.be/quEk1ARAXdU?t=364" target="_blank" rel="noopener">&#9654; 6:04</a></div><p>Con el pin ADDR a tierra la dirección de escritura es 0x46. Baja resolución (8 lx) llega hasta 65528; alta resolución (1 lx) hasta 8191.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define BH1750_address_w  0x46
+#define power_down        0x00
+#define power_up          0x01
+
+// baja resolución: hasta 65528
+#define continua_LO_1     0b00010011   // 0x13</code></pre></div><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Definiciones y modos en BH1750.h" loading="lazy"></a><figcaption>Definiciones y modos en BH1750.h</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Escribir y leer por I2C</h3><a class="min" href="https://youtu.be/quEk1ARAXdU?t=430" target="_blank" rel="noopener">&#9654; 7:10</a></div><p>Escribir es enviar un byte a la dirección del sensor. Leer es recibir 2 bytes y unirlos: la parte alta se desplaza 8 bits y se combina con la baja. Ambas con timeout de 300 ms por si el sensor no responde.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;BH1750.h&quot;
+extern I2C_HandleTypeDef hi2c1;
+uint8_t BH1750_dato[2];
+
+void BH1750_init(void)
+{
+    delay_us_dwt_init();
+    delay_ms(50);              // 20 ms mínimo por datasheet
+    BH1750_write(power_down);
+}
+
+void BH1750_write(uint8_t dato)
+{
+    BH1750_dato[0] = dato;
+    HAL_I2C_Master_Transmit(&amp;i2c_pin, BH1750_address_w, BH1750_dato, 1, 300);
+}
+
+uint16_t BH1750_read_data(void)
+{
+    uint16_t luz = 0;
+    uint8_t BH1750_dato[5];
+    HAL_I2C_Master_Receive(&amp;i2c_pin, BH1750_address_w, BH1750_dato, 2, 300);
+    luz = ((uint16_t)BH1750_dato[0] &lt;&lt; 8) | BH1750_dato[1];
+    return luz;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="init y write" loading="lazy"></a><figcaption>init y write</figcaption></figure><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="read_data" loading="lazy"></a><figcaption>read_data</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Leer en un modo</h3><a class="min" href="https://youtu.be/quEk1ARAXdU?t=493" target="_blank" rel="noopener">&#9654; 8:13</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint16_t BH1750_Lumen(uint8_t modo)
+{
+    uint16_t lumen = 0;
+    BH1750_write(power_up);
+    BH1750_write(modo);
+    lumen = BH1750_read_data();
+    delay_ms(120);             // retardo de lectura por datasheet
+    BH1750_write(power_down);
+    return lumen;
+}</code></pre></div><p class="ojo">La hoja de datos pide esperar el tiempo de medición (unos 16 ms en baja resolución y 120 ms en alta) después de enviar el modo. Si ves valores atrasados, pon el delay antes de BH1750_read_data(). Para tener lux exactos divide el valor entre 1.2.</p><div class="uno"><figure class="cap"><a href="img/510.webp" target="_blank"><img src="img/510.webp" alt="BH1750_Lumen" loading="lazy"></a><figcaption>BH1750_Lumen</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Leer y enviar</h3><a class="min" href="https://youtu.be/quEk1ARAXdU?t=526" target="_blank" rel="noopener">&#9654; 8:46</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint16_t luz = 0;
+char texto[50];
+
+/* USER CODE BEGIN 2 */
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+BH1750_init();
+/* USER CODE END 2 */
+
+while (1)
+{
+    luz = BH1750_Lumen(continua_LO_1);
+    sprintf(texto, &quot;LUMEN=%u\r\n&quot;, luz);
+    uartx_write_text(&amp;huart1, texto);
+    HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+    HAL_Delay(1000);
+}</code></pre></div><p class="ojo">En el video al principio no funcionaba: la inicialización quedó fuera de USER CODE BEGIN 2 y CubeMX la borró al regenerar. Todo tu código debe ir entre los comentarios USER CODE.</p><div class="dos"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Variable luz" loading="lazy"></a><figcaption>Variable luz</figcaption></figure><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Bucle de lectura" loading="lazy"></a><figcaption>Bucle de lectura</figcaption></figure><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Inicialización dentro de USER CODE" loading="lazy"></a><figcaption>Inicialización dentro de USER CODE</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Prueba real</h3><a class="min" href="https://youtu.be/quEk1ARAXdU?t=693" target="_blank" rel="noopener">&#9654; 11:33</a></div><p>Programa con STM32CubeProgrammer (archivo .elf), abre el puerto en Hercules y resetea la placa. Con la luz del cuarto marca unas decenas; al acercar una lámpara sube a miles.</p><div class="dos"><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="Programación y primeras lecturas" loading="lazy"></a><figcaption>Programación y primeras lecturas</figcaption></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Lecturas al acercar una lámpara" loading="lazy"></a><figcaption>Lecturas al acercar una lámpara</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=quEk1ARAXdU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

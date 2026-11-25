@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 51: Comunicación full duplex USB serial (CDC) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Usar el USB propio del STM32 como puerto serie virtual (CDC) para transmitir y recibir a la vez: CDC_Receive_FS copia lo que llega en trama_rx y el programa procesa las órdenes de la clase 40.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/b7dsZupTLCs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 51: Comunicación full duplex USB serial (CDC) · Paso a paso">
+  <meta property="og:description" content="Usar el USB propio del STM32 como puerto serie virtual (CDC) para transmitir y recibir a la vez: CDC_Receive_FS copia lo que llega en trama_rx y el programa procesa las órdenes de la clase 40.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/b7dsZupTLCs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/b7dsZupTLCs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Full duplex por <span>USB CDC</span></h1>
+    <p class="lead">En la clase 34 el micro solo transmitía por USB CDC. Ahora también recibe: la función CDC_Receive_FS de usbd_cdc_if.c se llama sola cada vez que llegan datos (es una interrupción), así que el micro puede transmitir y recibir al mismo tiempo. Se copia lo recibido en trama_rx, se procesan las órdenes (M1DER*, M1IZQ*, M1STOP*) y se borra la trama para no repetir. Proteus no simula el USB, así que se prueba con la placa real (Black Pill F401) y un terminal como Hercules.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=b7dsZupTLCs" target="_blank" rel="noopener">&#9654; Ver el video completo (15:08)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/870.webp" alt="Clase 51: Comunicación full duplex USB serial (CDC)"></figure>
+    <ul class="materiales"><li>Placa STM32F401 (Black Pill) con cable USB-C</li><li>Programador ST-LINK</li><li>Driver Virtual COM Port de ST instalado en Windows</li><li>Librerías usb_cdc y printf_out del curso</li><li>Terminal serie (Hercules)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · USB device CDC</a><a href="#f2">2 · Repaso</a><a href="#f3">3 · CDC_Receive_FS</a><a href="#f4">4 · Full duplex</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Activar USB OTG FS y la clase CDC</h3><a class="min" href="https://youtu.be/b7dsZupTLCs?t=97" target="_blank" rel="noopener">&#9654; 1:37</a></div><p>En Connectivity → USB_OTG_FS elige Mode <b>Device_Only</b>. En Middleware → USB_DEVICE elige Class <b>Communication Device Class (Virtual Port Com)</b>.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Clase 51: Comunicación full duplex USB serial (CDC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Reloj para el USB</h3><a class="min" href="https://youtu.be/b7dsZupTLCs?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><p>El reloj queda en rojo: el USB necesita exactamente 48 MHz. Usa el cristal externo (HSE) y deja que CubeMX resuelva los divisores (Resolve Clock Issues). Puede tardar. El sistema queda en 84 MHz y la salida USB en 48 MHz.</p><div class="dos"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Aviso de reloj mal configurado" loading="lazy"></a><figcaption>Aviso de reloj mal configurado</figcaption></figure><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Resolviendo el árbol de reloj" loading="lazy"></a><figcaption>Resolviendo el árbol de reloj</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Transmitir</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Librerías e includes</h3><a class="min" href="https://youtu.be/b7dsZupTLCs?t=197" target="_blank" rel="noopener">&#9654; 3:17</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;usb_device.h&quot;
+#include &quot;uart.h&quot;
+#include &quot;usb_cdc.h&quot;
+#include &quot;printf_out.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;</code></pre></div><div class="dos"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Includes en main.c" loading="lazy"></a><figcaption>Includes en main.c</figcaption></figure><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Librerías usb_cdc y printf_out" loading="lazy"></a><figcaption>Librerías usb_cdc y printf_out</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Probar la transmisión</h3><a class="min" href="https://youtu.be/b7dsZupTLCs?t=293" target="_blank" rel="noopener">&#9654; 4:53</a></div><p>Programa la placa con el ST-LINK. Windows crea un puerto COM nuevo (aquí COM16). Envía algo en el bucle para comprobar que llega.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>usb_uart_write(&quot;HOLA\r\n&quot;);</code></pre></div><p class="ojo">Sin el driver Virtual COM Port de ST, Windows no reconoce el puerto. En Proteus no se puede simular el USB.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Programa anterior (UART) que se adapta al USB" loading="lazy"></a><figcaption>Programa anterior (UART) que se adapta al USB</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Recibir</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Buffer externo</h3><a class="min" href="https://youtu.be/b7dsZupTLCs?t=369" target="_blank" rel="noopener">&#9654; 6:09</a></div><p>En main.c crea <code>uint8_t trama_rx[64];</code> (64 es el tamaño de paquete del USB FS). En USB_DEVICE/App/usbd_cdc_if.c declárala como externa en USER CODE PV.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PV */
+extern uint8_t trama_rx[64];
+/* USER CODE END PV */</code></pre></div><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="usbd_cdc_if.c" loading="lazy"></a><figcaption>usbd_cdc_if.c</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Copiar lo recibido</h3><a class="min" href="https://youtu.be/b7dsZupTLCs?t=406" target="_blank" rel="noopener">&#9654; 6:46</a></div><p>CDC_Receive_FS se llama automáticamente cada vez que llega un paquete. Antes del return, borra trama_rx, copia lo que trae Buf (con su largo) y limpia Buf.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
+{
+    /* USER CODE BEGIN 6 */
+    USBD_CDC_SetRxBuffer(&amp;hUsbDeviceFS, &amp;Buf[0]);
+    USBD_CDC_ReceivePacket(&amp;hUsbDeviceFS);
+    memset(trama_rx, 0, 64);           // limpia el buffer final
+    memcpy(trama_rx, Buf, *Len);       // pasa la info al buffer
+    memset(Buf, 0, *Len);
+    return (USBD_OK);
+    /* USER CODE END 6 */
+}</code></pre></div><p class="ojo">Agrega #include "string.h" en usbd_cdc_if.c para memset y memcpy. A diferencia de la UART, no hace falta esperar un '*': llega el paquete completo.</p><div class="dos"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="CDC_Receive_FS original" loading="lazy"></a><figcaption>CDC_Receive_FS original</figcaption></figure><figure class="cap"><a href="img/490.webp" target="_blank"><img src="img/490.webp" alt="Zona de usuario" loading="lazy"></a><figcaption>Zona de usuario</figcaption></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Código agregado" loading="lazy"></a><figcaption>Código agregado</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Eco de prueba</h3><a class="min" href="https://youtu.be/b7dsZupTLCs?t=543" target="_blank" rel="noopener">&#9654; 9:03</a></div><p>En el bucle envía de vuelta lo que hay en trama_rx. Funciona, pero se repite sin parar porque la trama conserva el último valor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>usb_uart_write(trama_rx);</code></pre></div><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Eco de trama_rx" loading="lazy"></a><figcaption>Eco de trama_rx</figcaption></figure><figure class="cap"><a href="img/625.webp" target="_blank"><img src="img/625.webp" alt="La orden se repite" loading="lazy"></a><figcaption>La orden se repite</figcaption></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Procesar órdenes</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Responder a cada orden</h3><a class="min" href="https://youtu.be/b7dsZupTLCs?t=657" target="_blank" rel="noopener">&#9654; 10:57</a></div><p>Vuelve a llamar a procesarx() de la clase 40. Como aquí no hay motor conectado, cada función responde por el USB lo que haría.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void m1derecha(void)
+{
+    HAL_GPIO_WritePin(M11_GPIO_Port, M11_Pin, 0);
+    HAL_GPIO_WritePin(M12_GPIO_Port, M12_Pin, 1);
+    usb_uart_write(&quot;GIRANDO A LA DERECHA\r\n&quot;);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Mensaje en m1derecha" loading="lazy"></a><figcaption>Mensaje en m1derecha</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Borrar la trama al final</h3><a class="min" href="https://youtu.be/b7dsZupTLCs?t=793" target="_blank" rel="noopener">&#9654; 13:13</a></div><p>El micro envía HOLA continuamente y además responde cuando llega una orden. Para que la respuesta salga una sola vez, al final de procesarx() borra trama_rx.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    }   // fin del procesamiento
+    memset(trama_rx, 0, 64);   // borra la trama para no repetir
+}</code></pre></div><p class="ojo">En el video el primer intento (memset(trama_rx,0,)) no compiló por falta del tamaño. Debe ser memset(trama_rx, 0, 64).</p><div class="dos"><figure class="cap"><a href="img/780.webp" target="_blank"><img src="img/780.webp" alt="Respuesta repetida" loading="lazy"></a><figcaption>Respuesta repetida</figcaption></figure><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="memset al final de procesarx" loading="lazy"></a><figcaption>memset al final de procesarx</figcaption></figure><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Una respuesta por orden" loading="lazy"></a><figcaption>Una respuesta por orden</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=b7dsZupTLCs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
