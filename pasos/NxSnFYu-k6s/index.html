@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Generamos la señal de 800 kHz de los WS2812B con PWM y DMA, sin carga para el micro, y la convertimos en una librería con colores RGB, brillo con corrección gamma y efecto arcoíris.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/NxSnFYu-k6s/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA · Paso a paso">
+  <meta property="og:description" content="Generamos la señal de 800 kHz de los WS2812B con PWM y DMA, sin carga para el micro, y la convertimos en una librería con colores RGB, brillo con corrección gamma y efecto arcoíris.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/NxSnFYu-k6s/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/NxSnFYu-k6s/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>LEDs <span>WS2812B</span> NeoPixel con PWM y DMA</h1>
+    <p class="lead">Los LEDs WS2812B (NeoPixel) se manejan con un solo cable de datos: cada LED recibe 24 bits (verde, rojo, azul) codificados por el ancho del pulso en un periodo de 1,25 µs. En esta clase lo resolvemos con un timer en PWM a 800 kHz y el DMA, que saca un buffer de anchos de pulso directamente al timer sin cargar al micro. Primero lo probamos a mano con un buffer, resolvemos dos problemas (la última muestra que se repite y el primer bit inestable) y luego usamos la librería ws2812b con funciones para color, brillo con corrección gamma y efectos como el arcoíris generado en la página NeoPixel Effect Generator.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=NxSnFYu-k6s" target="_blank" rel="noopener">&#9654; Ver el video completo (48:08)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2810.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA"></figure>
+    <ul class="materiales"><li>BlackPill STM32F411 (100 MHz, cristal de 25 MHz)</li><li>Tira de LEDs WS2812B y fuente de 5 V</li><li>Analizador lógico (opcional)</li><li>Librería ws2812b.c / ws2812b.h</li><li>Hoja de Excel para calcular el PWM</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Tiempos y trama de 24 bits</a><a href="#f2">2 · Reloj, Excel y TIM1</a><a href="#f3">3 · Sacar un buffer de pulsos</a><a href="#f4">4 · Configuración y funciones</a><a href="#f5">5 · NeoPixel Effect Generator</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Cómo funciona el WS2812B</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Tiempos de la señal</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>El periodo de cada bit es 1,25 µs (800 kHz). Un 0 es un pulso en alto de 0,4 µs y un 1 es un pulso en alto de 0,8 µs. Para que los LEDs tomen una trama nueva la línea debe quedar en bajo más de 50 µs (reset).</p><p>Cada LED usa 24 bits en orden G-R-B (verde, rojo, azul). Con varios LEDs en serie se envían todas las tramas seguidas. La librería convierte a RGB para usar los códigos de color comunes.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Timer en PWM a 800 kHz</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj a máxima velocidad</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=260" target="_blank" rel="noopener">&#9654; 4:20</a></div><p>Activamos el cristal externo con PLL y llevamos el micro a 100 MHz (84 MHz en un F401, 72 MHz en una Blue Pill). Este proyecto se prueba en físico: con estas velocidades es más real que en Proteus.</p><div class="uno"><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Calcular el periodo y los anchos</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=450" target="_blank" rel="noopener">&#9654; 7:30</a></div><p>Con la hoja de Excel: a 100 MHz, sin prescaler, el contador llega a 125 para 800 kHz. Un ancho de 80 da 0,8 µs (bit 1) y uno de 40 da 0,4 µs (bit 0).</p><p class="ojo">Estos valores cambian con la frecuencia de tu micro. Recalcúlalos y ajústalos en la librería.</p><div class="dos"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>TIM1 CH1 en PWM</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=500" target="_blank" rel="noopener">&#9654; 8:20</a></div><p>TIM1 con Internal Clock, CH1 en PWM Generation, Prescaler 0 (1-1) y Counter Period 125. Para probar ponemos Pulse 80 y lo arrancamos con la HAL.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_TIM_PWM_Start(&amp;htim1, TIM_CHANNEL_1);</code></pre></div><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/550.webp" target="_blank"><img src="img/550.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Verificar la señal</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=550" target="_blank" rel="noopener">&#9654; 9:10</a></div><p>Con el analizador lógico vemos 800 kHz (1,25 µs) y un pulso en alto de unos 792 ns: ya generamos el bit 1.</p><div class="uno"><figure class="cap"><a href="img/550.webp" target="_blank"><img src="img/550.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>PWM con DMA</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Activar el DMA</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=595" target="_blank" rel="noopener">&#9654; 9:55</a></div><p>En TIM1 > DMA Settings agregamos TIM1_CH1 con dirección Memory To Peripheral (del buffer al timer) y modo Normal (envía la trama una sola vez).</p><div class="uno"><figure class="cap"><a href="img/595.webp" target="_blank"><img src="img/595.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Buffer de prueba</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=850" target="_blank" rel="noopener">&#9654; 14:10</a></div><p>Cada bit es un valor de ancho de pulso: 80 para 1 y 40 para 0. El primer LED en rojo es: 8 bits de verde en 0, 8 de rojo en 1 y 8 de azul en 0.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint16_t pixel_buff[] = {
+  0,                                  // cero inicial (ver nota)
+  40, 40, 40, 40, 40, 40, 40, 40,     // verde 0x00
+  80, 80, 80, 80, 80, 80, 80, 80,     // rojo  0xFF
+  40, 40, 40, 40, 40, 40, 40, 40,     // azul  0x00
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,       // 41 ceros = reset de 50 µs
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0
+};
+
+HAL_TIM_PWM_Start_DMA(&amp;htim1, TIM_CHANNEL_1,
+                      (uint32_t *)pixel_buff, sizeof(pixel_buff)/2);</code></pre></div><p class="ojo">Al terminar, el DMA deja el timer repitiendo el último valor. Por eso la trama acaba con ceros: así la línea queda en bajo y además se cumple el reset (41 × 1,25 µs ≈ 50 µs).</p><div class="dos"><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/850.webp" target="_blank"><img src="img/850.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Primer LED encendido</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=905" target="_blank" rel="noopener">&#9654; 15:05</a></div><p>El primer LED enciende rojo. Para el segundo en verde se agregan otros 24 valores con el 80 en el bloque verde.</p><div class="dos"><figure class="cap"><a href="img/905.webp" target="_blank"><img src="img/905.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/1420.webp" target="_blank"><img src="img/1420.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>El primer bit inestable</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=1380" target="_blank" rel="noopener">&#9654; 23:00</a></div><p>A veces el primer LED cambiaba de color: con prioridad baja, el DMA tarda un poco en atender la primera petición y el primer pulso sale un poco más largo. Subir la prioridad del DMA lo mejora, pero la solución de la librería es poner un 0 al inicio del buffer, así el primer pulso real ya sale bien.</p><div class="uno"><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Librería ws2812b</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Configurar ws2812b.h</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=1510" target="_blank" rel="noopener">&#9654; 25:10</a></div><p>Copiamos ws2812b.c/.h a Core/Librerias y la incluimos en main.c. En el .h se indica el número de LEDs, los anchos del 1 y del 0, el timer y el canal. Se puede descomentar brillo para usar el control de brillo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;ws2812b.h&quot;
+
+// ws2812b.h
+#define led_num  12        // número de LEDs
+#define PWM_1    80        // ancho de pulso del 1
+#define PWM_0    40        // ancho de pulso del 0
+
+extern TIM_HandleTypeDef htim1;
+#define ws2812_timer  htim1
+#define ws2812_canal  TIM_CHANNEL_1
+
+//#define brillo   // si se quiere trabajar con brillo</code></pre></div><div class="uno"><figure class="cap"><a href="img/1510.webp" target="_blank"><img src="img/1510.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Cómo arma la trama</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=1590" target="_blank" rel="noopener">&#9654; 26:30</a></div><p>Guarda el color de cada LED en una matriz, arma los 24 bits por LED (pasando de RGB a GRB), agrega el 0 inicial y los ceros de reset al final, y envía todo por DMA. Con brillo aplica corrección gamma, porque el ojo no percibe el brillo de forma lineal; para micros con poca memoria hay una opción lineal de 0 a 100 %.</p><div class="dos"><figure class="cap"><a href="img/1590.webp" target="_blank"><img src="img/1590.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/1650.webp" target="_blank"><img src="img/1650.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Encender LEDs</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=1760" target="_blank" rel="noopener">&#9654; 29:20</a></div><p>Se carga el color de cada LED y luego se envía la trama.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>WS2812_LED_N_Color(0, 255, 0, 0);   // LED 0 rojo
+WS2812_LED_N_Color(1, 0, 255, 0);   // LED 1 verde
+WS2812_LED_N_Color(2, 0, 0, 255);   // LED 2 azul
+WS2812_Manda_Trama();</code></pre></div><div class="dos"><figure class="cap"><a href="img/1760.webp" target="_blank"><img src="img/1760.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/1800.webp" target="_blank"><img src="img/1800.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Efectos con for</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=2120" target="_blank" rel="noopener">&#9654; 35:20</a></div><p>Con ciclos for se hacen efectos: encender uno a uno hacia un lado y apagarlos o cambiar de color al regresar. Para el brillo se declara float brilloled en main y se activa #define brillo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>for (uint8_t led = 0; led &lt; 8; led++)
+{
+  WS2812_LED_N_Color(led, 0, 255, 0);
+  WS2812_Manda_Trama();
+  HAL_Delay(80);
+}
+for (int8_t led = 7; led &gt;= 0; led--)
+{
+  WS2812_LED_N_Color(led, 255, 0, 0);
+  WS2812_Manda_Trama();
+  HAL_Delay(120);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1925.webp" target="_blank"><img src="img/1925.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/2000.webp" target="_blank"><img src="img/2000.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/2120.webp" target="_blank"><img src="img/2120.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Efecto arcoíris</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Generar el efecto</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=2350" target="_blank" rel="noopener">&#9654; 39:10</a></div><p>En la página LED Strip Effects Generator (adrianotiger.github.io/Neopixel-Effect-Generator) agregamos una tira, elegimos el tipo NEO_GRB, 12 LEDs, 800 kHz y el efecto Rainbow, y generamos el código para Arduino.</p><div class="dos"><figure class="cap"><a href="img/2240.webp" target="_blank"><img src="img/2240.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/2350.webp" target="_blank"><img src="img/2350.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Adaptarlo a STM32</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=2510" target="_blank" rel="noopener">&#9654; 41:50</a></div><p>Copiamos la función del efecto a ws2812b.c con el nombre ws2812_rainbown_izq y hacemos estos cambios:</p><ul><li>El tiempo con millis se cambia por HAL_Delay(40).</li><li>La variable del paso se declara como uint16_t paso y arranca en 0; el reset del efecto es volver paso a 0.</li><li>strip.setPixelColor se reemplaza por WS2812_LED_N_Color y después de cada uno se llama WS2812_Manda_Trama().</li><li>Igual se hace ws2812_rainbown_der para el otro sentido.</li></ul><div class="dos"><figure class="cap"><a href="img/2420.webp" target="_blank"><img src="img/2420.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/2510.webp" target="_blank"><img src="img/2510.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/NxSnFYu-k6s?t=2810" target="_blank" rel="noopener">&#9654; 46:50</a></div><p>En el while llamamos ws2812_rainbown_izq() o ws2812_rainbown_der() y la tira muestra el arcoíris en movimiento.</p><p class="ojo">Si el arcoíris solo llega a una parte de la tira, revisa led_num: debe ser igual al número de LEDs que usas.</p><div class="dos"><figure class="cap"><a href="img/2570.webp" target="_blank"><img src="img/2570.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/2810.webp" target="_blank"><img src="img/2810.webp" alt="Clase 80 STM32: LEDs WS2812B (NeoPixel) con PWM y DMA" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=NxSnFYu-k6s" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
