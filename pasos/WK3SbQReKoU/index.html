@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 46: Librería para MAX6675, leyendo termocupla tipo K · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leer una termocupla tipo K (hasta unos 1000 °C) con el MAX6675 usando tres pines GPIO: se generan 16 pulsos de reloj, se arma el dato bit a bit, se desplaza 3 posiciones y se multiplica por 0.25.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/WK3SbQReKoU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 46: Librería para MAX6675, leyendo termocupla tipo K · Paso a paso">
+  <meta property="og:description" content="Leer una termocupla tipo K (hasta unos 1000 °C) con el MAX6675 usando tres pines GPIO: se generan 16 pulsos de reloj, se arma el dato bit a bit, se desplaza 3 posiciones y se multiplica por 0.25.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/WK3SbQReKoU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/WK3SbQReKoU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Termocupla tipo K con <span>MAX6675</span></h1>
+    <p class="lead">El MAX6675 entrega la temperatura de una termocupla K por una interfaz serie simple: el micro baja CS, genera el reloj SCK y lee el bit en SO en cada pulso. De los 16 bits, los 3 menos significativos no son temperatura, así que se desplaza a la derecha 3 veces y cada cuenta vale 0.25 °C. La librería se hace por software con HAL_GPIO y Delay_us (DWT), sin usar el periférico SPI.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=WK3SbQReKoU" target="_blank" rel="noopener">&#9654; Ver el video completo (6:03)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/355.webp" alt="Clase 46: Librería para MAX6675, leyendo termocupla tipo K"></figure>
+    <ul class="materiales"><li>STM32F401 (o Blue Pill)</li><li>Módulo MAX6675 con termocupla tipo K</li><li>Proteus: MAX6675, termocupla TCK y fuente DC de mV</li><li>Librerías max6675.c/.h, delays (Delay_us con DWT) y uart del curso</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proteus</a><a href="#f2">2 · max6675.c</a><a href="#f3">3 · main.c</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Circuito</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>MAX6675 y termocupla</h3><a class="min" href="https://youtu.be/WK3SbQReKoU?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Coloca el MAX6675 y una termocupla tipo K (busca TCK). Para que la simulación se parezca a una termocupla real, conecta en la unión fría (CJ) un generador DC de 1 mV.</p><p>SO es entrada del micro (dato), SCK lo genera el micro (reloj) y CS habilita el módulo.</p><div class="dos"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="MAX6675 y termocupla en Proteus" loading="lazy"></a><figcaption>MAX6675 y termocupla en Proteus</figcaption></figure><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Generador DC en la unión fría" loading="lazy"></a><figcaption>Generador DC en la unión fría</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pines en CubeMX</h3><a class="min" href="https://youtu.be/WK3SbQReKoU?t=107" target="_blank" rel="noopener">&#9654; 1:47</a></div><p>Además de la USART, configura tres pines con estas etiquetas exactas (la librería las usa):</p><ul><li><code>DAT_MAX</code> (PA0): GPIO_Input, a SO</li><li><code>CK_MAX</code> (PA1): GPIO_Output, a SCK</li><li><code>CS_MAX</code> (PA2): GPIO_Output, a CS</li></ul><div class="uno"><figure class="cap"><a href="img/115.webp" target="_blank"><img src="img/115.webp" alt="Pines MAX en CubeMX" loading="lazy"></a><figcaption>Pines MAX en CubeMX</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Trama del MAX6675</h3><a class="min" href="https://youtu.be/WK3SbQReKoU?t=139" target="_blank" rel="noopener">&#9654; 2:19</a></div><p>Según la hoja de datos se leen 16 bits. D15 es un bit de relleno, D14 a D3 son los 12 bits de temperatura, D2 indica termocupla abierta y D1-D0 son ID y estado. Por eso se desplaza el dato 3 veces a la derecha y se multiplica por 0.25 °C.</p><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Tiempos y formato de salida en la hoja de datos" loading="lazy"></a><figcaption>Tiempos y formato de salida en la hoja de datos</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Inicializar y dar un pulso</h3><a class="min" href="https://youtu.be/WK3SbQReKoU?t=139" target="_blank" rel="noopener">&#9654; 2:19</a></div><p>El reloj arranca en 0 y CS en 1 (módulo apagado), con 100 ms de espera. Cada pulso sube el reloj, lee SO y vuelve a bajar el reloj.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;max6675.h&quot;
+
+void MAX6675_init(void)
+{
+    HAL_GPIO_WritePin(CK_MAX_GPIO_Port, CK_MAX_Pin, 0);  // reloj en 0
+    HAL_GPIO_WritePin(CS_MAX_GPIO_Port, CS_MAX_Pin, 1);  // apaga el módulo
+    HAL_Delay(100);
+}
+
+uint8_t MAX6675_pulso(void)
+{
+    uint8_t lei;
+    HAL_GPIO_WritePin(CK_MAX_GPIO_Port, CK_MAX_Pin, 1);  // sube el reloj
+    Delay_us(10);
+    lei = HAL_GPIO_ReadPin(DAT_MAX_GPIO_Port, DAT_MAX_Pin);
+    HAL_GPIO_WritePin(CK_MAX_GPIO_Port, CK_MAX_Pin, 0);  // baja el reloj
+    Delay_us(10);
+    return lei;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="MAX6675_init" loading="lazy"></a><figcaption>MAX6675_init</figcaption></figure><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="MAX6675_pulso" loading="lazy"></a><figcaption>MAX6675_pulso</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Leer la temperatura</h3><a class="min" href="https://youtu.be/WK3SbQReKoU?t=205" target="_blank" rel="noopener">&#9654; 3:25</a></div><p>Con CS en 0 se dan los pulsos del bit 15 al 0. El dato arranca en cero y solo se ponen los unos en su posición con una OR.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float MAX6675_lee(void)
+{
+    uint16_t sensor_dato;
+    uint16_t max6675_dato = 0;   // importante: arranca en 0
+    int8_t cont;
+
+    HAL_GPIO_WritePin(CS_MAX_GPIO_Port, CS_MAX_Pin, 0);   // habilita
+    for (cont = 15; cont &gt;= 0; cont--)
+    {
+        if (MAX6675_pulso() == 1)
+            max6675_dato = max6675_dato | 1 &lt;&lt; cont;
+    }
+    HAL_GPIO_WritePin(CS_MAX_GPIO_Port, CS_MAX_Pin, 1);   // apaga
+
+    sensor_dato = (max6675_dato &gt;&gt; 3);   // quita los 3 bits bajos
+    return ((float)sensor_dato * 0.25);
+}</code></pre></div><p class="ojo">Si quieres detectar la termocupla desconectada, revisa el bit 2 antes de desplazar: (max6675_dato & 0x04) distinto de 0 indica sensor abierto.</p><div class="dos"><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Bucle de lectura" loading="lazy"></a><figcaption>Bucle de lectura</figcaption></figure><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Desplazamiento y escala" loading="lazy"></a><figcaption>Desplazamiento y escala</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Includes y bucle</h3><a class="min" href="https://youtu.be/WK3SbQReKoU?t=273" target="_blank" rel="noopener">&#9654; 4:33</a></div><p>Incluye las librerías, stdio.h y string.h para sprintf. Inicializa el contador DWT de Delay_us y el MAX6675, y envía la temperatura por la UART cada segundo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+#include &quot;delays.h&quot;
+#include &quot;max6675.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+
+float temperatura;
+char texto[30];
+
+/* USER CODE BEGIN 2 */
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+delay_us_dwt_init();
+MAX6675_init();
+
+while (1)
+{
+    temperatura = MAX6675_lee();
+    sprintf(texto, &quot;temperatura=%.1f\r\n&quot;, temperatura);
+    uartx_write_text(&amp;huart1, texto);
+    HAL_Delay(1000);
+}</code></pre></div><p class="ojo">Para imprimir float con sprintf activa -u _printf_float (clase de sprintf).</p><div class="dos"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Includes" loading="lazy"></a><figcaption>Includes</figcaption></figure><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="Bucle principal" loading="lazy"></a><figcaption>Bucle principal</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/WK3SbQReKoU?t=336" target="_blank" rel="noopener">&#9654; 5:36</a></div><p>Con 71 °C en la termocupla la terminal muestra 70.8; al subir a 74 °C muestra 73.8. La resolución es 0.25 °C.</p><div class="dos"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Simulación en marcha" loading="lazy"></a><figcaption>Simulación en marcha</figcaption></figure><figure class="cap"><a href="img/355.webp" target="_blank"><img src="img/355.webp" alt="Temperatura en la terminal virtual" loading="lazy"></a><figcaption>Temperatura en la terminal virtual</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=WK3SbQReKoU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

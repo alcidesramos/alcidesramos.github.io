@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 46: Librerías para manejo de servomotores · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Mover servos con los canales 3 y 4 del TIM1 a 50 Hz, junto con los dos PWM de motores DC de la clase 45. La librería convierte un ángulo (-90 a 90) en el ancho de pulso con la ecuación de una recta, y los límites se calibran.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/rRhuqXGphNQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 46: Librerías para manejo de servomotores · Paso a paso">
+  <meta property="og:description" content="Mover servos con los canales 3 y 4 del TIM1 a 50 Hz, junto con los dos PWM de motores DC de la clase 45. La librería convierte un ángulo (-90 a 90) en el ancho de pulso con la ecuación de una recta, y los límites se calibran.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/rRhuqXGphNQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/rRhuqXGphNQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Librería para <span>servomotores</span></h1>
+    <p class="lead">Un servo usa PWM de 50 Hz (20 ms). El ángulo depende del ancho del pulso: en la teoría clásica 0.5 ms es -90°, 1.5 ms es 0° y 2.5 ms es +90°, pero muchos servos (y los de Proteus) van de 1 a 2 ms. Como 50 Hz también sirve para la mayoría de motores DC, se usa un solo timer: canales 1 y 2 para motores DC, canales 3 y 4 para servos. La librería tiene SERVO_init y SERVO_ANG, y los límites en ms y en grados son configurables.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=rRhuqXGphNQ" target="_blank" rel="noopener">&#9654; Ver el video completo (11:16)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/640.webp" alt="Clase 46: Librerías para manejo de servomotores"></figure>
+    <ul class="materiales"><li>Proyecto de la clase 45 (librería PWM)</li><li>Dos servomotores en Proteus (SER1 y SER2)</li><li>Osciloscopio de Proteus</li><li>Librería servos.c / servos.h del curso</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pulso y ángulo</a><a href="#f2">2 · TIM1 a 50 Hz</a><a href="#f3">3 · SERVO_ANG</a><a href="#f4">4 · Proteus</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Teoría</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Señal de un servo</h3><a class="min" href="https://youtu.be/rRhuqXGphNQ?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>Periodo fijo de 20 ms (50 Hz). Solo importa el ancho del pulso positivo:</p><ul><li>0.5 ms → -90° (o 0° si cuentas de 0 a 180)</li><li>1.5 ms → 0° (centro)</li><li>2.5 ms → +90° (o 180°)</li></ul><p class="ojo">Hoy muchos servos se mueven entre 1 y 2 ms, y los de Proteus también. Por eso la librería deja calibrar los límites.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Ancho de pulso y posición del servo" loading="lazy"></a><figcaption>Ancho de pulso y posición del servo</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Circuito</h3><a class="min" href="https://youtu.be/rRhuqXGphNQ?t=133" target="_blank" rel="noopener">&#9654; 2:13</a></div><p>Se agregan dos servos (SER1 y SER2) y se llevan al osciloscopio junto a EN1 y EN2 de los motores DC.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Servos SER1 y SER2 y motores DC" loading="lazy"></a><figcaption>Servos SER1 y SER2 y motores DC</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Canales 3 y 4 y periodo de 20 ms</h3><a class="min" href="https://youtu.be/rRhuqXGphNQ?t=165" target="_blank" rel="noopener">&#9654; 2:45</a></div><p>En TIM1 activa también Channel3 y Channel4 como <b>PWM Generation</b>. Deja el prescaler en 16-1 (1 µs por cuenta a 16 MHz) y cambia el <b>Counter Period</b> de 10000 a <b>20000</b>: 20 ms, es decir 50 Hz.</p><p>Al crear los canales CubeMX puede remapear la USART a otros pines; revisa el circuito.</p><div class="dos"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="CH1 a CH4 en PWM Generation" loading="lazy"></a><figcaption>CH1 a CH4 en PWM Generation</figcaption></figure><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Counter Period de 20000" loading="lazy"></a><figcaption>Counter Period de 20000</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Constantes de usuario</h3><a class="min" href="https://youtu.be/rRhuqXGphNQ?t=263" target="_blank" rel="noopener">&#9654; 4:23</a></div><p>Igual que en la clase 45, agrega en User Constants los nombres de los servos (CubeMX los escribe en main.h). O descomenta el bloque de definiciones en servos.h.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define PWMTIM1    TIM1
+#define PWMT1      htim1
+#define SERVO1_CH  TIM_CHANNEL_3
+#define SERVO2_CH  TIM_CHANNEL_4
+#define SERVO1     TIM1-&gt;CCR3
+#define SERVO2     TIM1-&gt;CCR4</code></pre></div><p class="ojo">Servo 1 no es el canal 1: SERVO1 usa el canal 3 y SERVO2 el canal 4. Los canales 1 y 2 siguen siendo PWM1 y PWM2 de los motores DC.</p><div class="dos"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="User Constants" loading="lazy"></a><figcaption>User Constants</figcaption></figure><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Definiciones generadas en main.h" loading="lazy"></a><figcaption>Definiciones generadas en main.h</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería de servos</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Límites configurables (servos.h)</h3><a class="min" href="https://youtu.be/rRhuqXGphNQ?t=363" target="_blank" rel="noopener">&#9654; 6:03</a></div><p>Pon el ancho de pulso mínimo y máximo de tu servo en ms y el rango de ángulos que quieres usar. Escribe siempre los valores con decimal (1.0, no 1).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// límites en ms de los servos
+#define ser_lim_inf_ms  1.0     // 0.5 si tu servo llega a 0.5 ms
+#define ser_lim_sup_ms  2.0     // 2.5 si llega a 2.5 ms
+
+// movimiento deseado del servo
+#define ser_inf  -90.0           // o 0.0
+#define ser_sup   90.0           // o 180.0
+
+void SERVO_init(TIM_HandleTypeDef *servo, uint16_t canal);
+void SERVO_ANG(uint32_t *canal, float posi);</code></pre></div><div class="dos"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="servos.h" loading="lazy"></a><figcaption>servos.h</figcaption></figure><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Límites de 1.0 a 2.0 ms" loading="lazy"></a><figcaption>Límites de 1.0 a 2.0 ms</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Ecuación de la recta (servos.c)</h3><a class="min" href="https://youtu.be/rRhuqXGphNQ?t=397" target="_blank" rel="noopener">&#9654; 6:37</a></div><p>SERVO_ANG calcula el ancho de pulso para el ángulo pedido con la recta que pasa por (ser_inf, lim_inf) y (ser_sup, lim_sup), y lo pasa a microsegundos (cuentas del timer).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;servos.h&quot;
+
+void SERVO_init(TIM_HandleTypeDef *servo, uint16_t canal)
+{
+    HAL_TIM_PWM_Start(servo, canal);
+}
+
+void SERVO_ANG(uint32_t *canal, float posi)
+{
+    float calcu;
+    calcu = (ser_lim_sup_ms - ser_lim_inf_ms) / (ser_sup - ser_inf);
+    calcu = calcu * (posi - ser_inf);
+    calcu = (calcu + ser_lim_inf_ms) * 1000.0;   // ms a µs
+    *canal = calcu;
+}</code></pre></div><p class="ojo">El ×1000 supone que el timer cuenta 1 µs por tick (prescaler = MHz del reloj - 1). Si cambias el prescaler, ajusta ese factor.</p><div class="dos"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="servos.c" loading="lazy"></a><figcaption>servos.c</figcaption></figure><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Paso a microsegundos" loading="lazy"></a><figcaption>Paso a microsegundos</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Usarla en main</h3><a class="min" href="https://youtu.be/rRhuqXGphNQ?t=463" target="_blank" rel="noopener">&#9654; 7:43</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PWM_init(&amp;PWMT1, PWM1_CH);      // motores DC
+PWM_init(&amp;PWMT1, PWM2_CH);
+
+SERVO_init(&amp;PWMT1, SERVO1_CH);  // servos
+SERVO_init(&amp;PWMT1, SERVO2_CH);
+
+SERVO_ANG(&amp;SERVO1, 30);         // 30 grados
+SERVO_ANG(&amp;SERVO2, -60);        // -60 grados</code></pre></div><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Inicialización de servos" loading="lazy"></a><figcaption>Inicialización de servos</figcaption></figure><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="main.c completo" loading="lazy"></a><figcaption>main.c completo</figcaption></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Ver los ángulos</h3><a class="min" href="https://youtu.be/rRhuqXGphNQ?t=594" target="_blank" rel="noopener">&#9654; 9:54</a></div><p>Al correr la simulación los servos marcan 30° y -60°. Cambiando a -80 y 90 se mueven a esas posiciones.</p><p>Con un solo timer puedes manejar 4 salidas: motores DC y servos combinados como quieras. Las dos librerías son independientes.</p><p class="ojo">Queda de tarea moverlos desde LabVIEW, igual que la velocidad del motor en la clase 45.</p><div class="dos"><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Pulsos de los servos en el osciloscopio" loading="lazy"></a><figcaption>Pulsos de los servos en el osciloscopio</figcaption></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Servos en -80° y +90°" loading="lazy"></a><figcaption>Servos en -80° y +90°</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=rRhuqXGphNQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
