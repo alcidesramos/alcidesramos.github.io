@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 127 STM32: Librería para TFT ILI9341 o ST7789V · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Adaptación de la librería de WeAct para la pantalla TFT de 2.8&quot; 240x320 por SPI, que funciona igual con el controlador ILI9341 o el ST7789V.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/U9vyOKXWfso/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V · Paso a paso">
+  <meta property="og:description" content="Adaptación de la librería de WeAct para la pantalla TFT de 2.8&quot; 240x320 por SPI, que funciona igual con el controlador ILI9341 o el ST7789V.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/U9vyOKXWfso/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/U9vyOKXWfso/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 127: TFT <span>ILI9341 / ST7789V</span></h1>
+    <p class="lead">Video corto para alumnos que compraron la pantalla WeAct de 2.8 pulgadas (240x320) y no lograban hacer funcionar las librerías de internet. Se parte del ejemplo oficial de WeAct para el STM32F411 y se adapta: se renombra LCD a TFT, los pines se llaman como los definimos en CubeMX, se puede elegir el puerto SPI y la orientación de la pantalla. La misma librería detecta si la pantalla trae ILI9341 o ST7789. Se configura el proyecto en una Blackpill F411, se agregan las librerías y se escribe texto, números, un círculo y un rectángulo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=U9vyOKXWfso" target="_blank" rel="noopener">&#9654; Ver el video completo (14:56)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/725.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V"></figure>
+    <ul class="materiales"><li>Blackpill STM32F411CEU</li><li>Pantalla WeAct 2.8" TFT 240x320 SPI (ILI9341 o ST7789V)</li><li>Programador ST-LINK</li><li>Librerías TFT_.c/.h, font.h y pinout.h</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Repositorio WeAct</a><a href="#f2">2 · SPI1 y pines de control</a><a href="#f3">3 · TFT_, font y pinout</a><a href="#f4">4 · Texto, números y figuras</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Librería original</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Descargar el ejemplo</h3><a class="min" href="https://youtu.be/U9vyOKXWfso?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>En el GitHub de WeActStudio (TFT-LCD-Module), en Examples > LCD_Test_STM32F411 > Display, están los archivos lcd.c, lcd.h y lcdfont.h.</p><p>Solo se usan lcd (renombrada TFT_) y la de fuentes (renombrada font). El logo, las imágenes y el touch xpt2046 se dejan para otro video.</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Conexiones</h3><a class="min" href="https://youtu.be/U9vyOKXWfso?t=175" target="_blank" rel="noopener">&#9654; 2:55</a></div><p>SCK a PA5, SDO (MISO) a PA6, SDA (MOSI) a PA7. Pines de salida: TFT_CS en PB0, TFT_RST en PB1, TFT_DC (dato/comando) en PB2 y TFT_LED en PB10 para la luz de fondo.</p><p>El pin BL (LED) es opcional: si lo conectas a 3.3 V la pantalla queda siempre encendida. Con un PWM podrías controlar el brillo. El pin IM de modo paralelo no se usa, viene en SPI por defecto.</p><div class="uno"><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar SPI y reloj</h3><a class="min" href="https://youtu.be/U9vyOKXWfso?t=215" target="_blank" rel="noopener">&#9654; 3:35</a></div><p>Connectivity > SPI1 en Full-Duplex Master, datos de 8 bits.</p><p>RCC con cristal externo (HSE) y en Clock Configuration el micro a su máxima velocidad (100 MHz en el F411).</p><div class="dos"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V" loading="lazy"></a></figure><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Pines de salida</h3><a class="min" href="https://youtu.be/U9vyOKXWfso?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>PB0, PB1, PB2 y PB10 como GPIO_Output, con las etiquetas TFT_CS, TFT_RST, TFT_DC y TFT_LED. Los nombres deben ser exactamente esos porque la librería los usa así.</p><p class="ojo">En el video la compilación dio error porque una etiqueta quedó como RTS en lugar de RST. Revisa bien los nombres.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Agregar la librería</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Carpeta de librerías</h3><a class="min" href="https://youtu.be/U9vyOKXWfso?t=440" target="_blank" rel="noopener">&#9654; 7:20</a></div><p>Se crea Core/Librerias, se agrega al include path y se pegan TFT_.c, TFT_.h, font.h y pinout.c/.h (librería propia para manejar pines).</p><p>En el main solo se incluyen pinout.h y TFT_.h. font.h ya va incluido dentro de la librería; si lo incluyes también en el main aparece el error multiple definition.</p><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Cambios hechos a la librería</h3><a class="min" href="https://youtu.be/U9vyOKXWfso?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>En TFT_.h se elige el puerto SPI (1, 2, 3...) y las orientaciones: vertical, horizontal y sus versiones invertidas.</p><p>En TFT_.c las macros de los pines usan los nombres de CubeMX (TFT_CS, TFT_DC, TFT_RST) y todas las funciones LCD_ pasaron a llamarse TFT_.</p><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Usar la pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Iniciar y poner fondo</h3><a class="min" href="https://youtu.be/U9vyOKXWfso?t=560" target="_blank" rel="noopener">&#9654; 9:20</a></div><p>TFT_Init() inicia la pantalla, TFT_direction() fija la orientación y TFT_Clear() pinta el fondo.</p><p>Si no se enciende el pin TFT_LED no se ve nada aunque la pantalla esté funcionando.</p><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V" loading="lazy"></a></figure><figure class="cap"><a href="img/725.webp" target="_blank"><img src="img/725.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Texto, números y figuras</h3><a class="min" href="https://youtu.be/U9vyOKXWfso?t=760" target="_blank" rel="noopener">&#9654; 12:40</a></div><p>TFTdev.id indica qué controlador detectó la librería, así se escribe en pantalla si es ILI9341 o ST7789.</p><p>TFT_ShowString recibe posición, texto, color, fondo, tamaño de letra (16) y un último parámetro de modo: con 0 pinta el fondo del texto y con 1 escribe encima de lo que ya hay, sin fondo.</p><p>TFT_ShowIntNum muestra un número con la cantidad de dígitos indicada; TFT_DrawCircle y TFT_Fill dibujan un círculo y un rectángulo relleno.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;pinout.h&quot;
+#include &quot;TFT_.h&quot;      // font.h ya lo incluye la libreria, no lo incluyas aqui
+/* USER CODE END Includes */
+
+/* USER CODE BEGIN 2 */
+PIN_ON(TFT_LED);                 // enciende la luz de fondo (o BL a 3.3 V)
+
+TFT_Init();                      // inicia el TFT
+TFT_direction(Horizontal);       // direccion de escritura
+HAL_Delay(100);
+TFT_Clear(YELLOW);               // color de fondo
+
+if (TFTdev.id == 0)              // la libreria detecta el controlador
+    TFT_ShowString(10, 40, (uint8_t *)&quot;2.8 Inch ILI9341 TFT&quot;, RED, BLACK, 16, 0);
+else
+    TFT_ShowString(10, 40, (uint8_t *)&quot;2.8 Inch ST7789 TFT&quot;, RED, BLACK, 16, 0);
+
+TFT_ShowString(10, 56, (uint8_t *)&quot;TFT_W:&quot;, GREEN, BLACK, 16, 0);
+TFT_ShowIntNum(58, 56, TFT_W, 3, WHITE, BLACK, 16);
+
+TFT_ShowString(90, 56, (uint8_t *)&quot;TFT_H:&quot;, BLUE, BLACK, 16, 0);
+TFT_ShowIntNum(138, 56, TFT_H, 3, WHITE, BLACK, 16);
+
+TFT_DrawCircle(200, 50, 30, BLUE);
+TFT_Fill(0, 120, 50, 170, WHITE);
+/* USER CODE END 2 */</code></pre></div><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V" loading="lazy"></a></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/U9vyOKXWfso?t=840" target="_blank" rel="noopener">&#9654; 14:00</a></div><p>En la pantalla aparece "2.8 Inch ILI9341 TFT", el ancho 240 y alto 320, el círculo azul y el rectángulo blanco sobre fondo amarillo.</p><p>Cambiando el último parámetro de TFT_ShowString a 1, el texto rojo queda sin el fondo negro.</p><div class="uno"><figure class="cap"><a href="img/865.webp" target="_blank"><img src="img/865.webp" alt="Clase 127 STM32: Librería para TFT ILI9341 o ST7789V" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=U9vyOKXWfso" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
