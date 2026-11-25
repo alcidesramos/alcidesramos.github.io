@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 110 STM32: guardando datos en la memoria flash interna · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Guarda y lee un dato de 32 bits en el último sector de la flash de un STM32F4 y evita que el programa lo sobrescriba.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/sBJaIXppxIA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 110 STM32: guardando datos en la memoria flash interna · Paso a paso">
+  <meta property="og:description" content="Guarda y lee un dato de 32 bits en el último sector de la flash de un STM32F4 y evita que el programa lo sobrescriba.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/sBJaIXppxIA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/sBJaIXppxIA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Guardar datos en la <span>flash interna</span></h1>
+    <p class="lead">Con dos funciones (Flash_Write y Flash_Read) se guarda un dato de 32 bits en un sector libre de la flash interna del STM32F411. Se explica cómo elegir el sector según el tamaño del programa, por qué no conviene escribir muy seguido (ciclos de borrado limitados) y cómo programar con STM32CubeProgrammer cuando el depurador ya no deja cargar el programa.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=sBJaIXppxIA" target="_blank" rel="noopener">&#9654; Ver el video completo (5:32)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/280.webp" alt="Clase 110 STM32: guardando datos en la memoria flash interna"></figure>
+    <ul class="materiales"><li>STM32F411CEU6 o STM32F401 (Black Pill)</li><li>ST-Link</li><li>STM32CubeProgrammer</li><li>Conversor USB-serial y Hercules</li><li>Librerías flash_interna.c/.h y uart.c/.h</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Mapa de la flash</a><a href="#f2">2 · flash_interna</a><a href="#f3">3 · main</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Elegir el sector</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Sectores de la flash</h3><a class="min" href="https://youtu.be/sBJaIXppxIA?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La flash se organiza en sectores. El STM32F401xB/C tiene sectores 0 a 5 (el 5 empieza en 0x0802 0000, 128 KB) y el STM32F411CEU6 de 512 KB llega al sector 7, que empieza en 0x0806 0000.</p><p>El dato debe ir en un sector que tu programa no ocupe: si usas el último sector de 128 KB del F411, el programa debe caber en unos 384 KB.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Clase 110 STM32: guardando datos en la memoria flash interna" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Cuidado con escribir seguido</h3><a class="min" href="https://youtu.be/sBJaIXppxIA?t=68" target="_blank" rel="noopener">&#9654; 1:08</a></div><p>Para escribir hay que borrar el sector completo, y la flash soporta un número limitado de borrados (del orden de 10 000). Guardar cada hora o cada día está bien; cada pocos segundos acabará dañando la memoria.</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Clase 110 STM32: guardando datos en la memoria flash interna" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Escribir un dato</h3><a class="min" href="https://youtu.be/sBJaIXppxIA?t=103" target="_blank" rel="noopener">&#9654; 1:43</a></div><p>Flash_Write desbloquea la flash, borra el sector, programa una palabra de 32 bits en la dirección inicial del sector, espera a que termine y vuelve a bloquearla. Cambia la dirección y el sector al último de tu micro (aquí el 7 del F411).</p><p>Leer es simplemente acceder a la dirección como puntero de 32 bits.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;stm32f4xx_hal.h&quot;
+
+#define FLASH_ADDR_SECTOR_7  0x08060000
+
+HAL_StatusTypeDef Flash_Write(uint32_t data)
+{
+    HAL_StatusTypeDef status;
+    //desbloquea flash
+    HAL_FLASH_Unlock();
+    //borra antes de escribir
+    FLASH_Erase_Sector(FLASH_SECTOR_7, VOLTAGE_RANGE_3);
+
+    status = HAL_FLASH_Program(TYPEPROGRAM_WORD, FLASH_ADDR_SECTOR_7, data);
+    while (__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY));  // espera que termine
+    // Bloquea
+    HAL_FLASH_Lock();
+    return status;
+}
+
+uint32_t Flash_Read(void)
+{
+    return *(uint32_t *)FLASH_ADDR_SECTOR_7;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/130.webp" target="_blank"><img src="img/130.webp" alt="Clase 110 STM32: guardando datos en la memoria flash interna" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Probar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Guardar una vez y leer</h3><a class="min" href="https://youtu.be/sBJaIXppxIA?t=137" target="_blank" rel="noopener">&#9654; 2:17</a></div><p>En main se escribe el número 1017 una sola vez y luego se lee y se envía por el serial. Una vez guardado, comenta la línea de escritura para no gastar la memoria.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+//Flash_Write(1017);   // solo la primera vez
+
+uint32_t dato = Flash_Read();
+char texto[50];
+sprintf(texto, &quot; leido=%lu\r\n&quot;, dato);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 110 STM32: guardando datos en la memoria flash interna" loading="lazy"></a></figure><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="Clase 110 STM32: guardando datos en la memoria flash interna" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Programar con STM32CubeProgrammer</h3><a class="min" href="https://youtu.be/sBJaIXppxIA?t=202" target="_blank" rel="noopener">&#9654; 3:22</a></div><p>Después de escribir la flash, el depurador de CubeIDE puede no dejar cargar el programa. Abre STM32CubeProgrammer, conecta el ST-Link, carga el .elf del proyecto y pulsa Start Programming.</p><p class="ojo">Para volver a depurar desde CubeIDE hay que borrar toda la flash (Full chip erase) en CubeProgrammer; eso también borra el dato guardado.</p><div class="dos"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 110 STM32: guardando datos en la memoria flash interna" loading="lazy"></a></figure><figure class="cap"><a href="img/225.webp" target="_blank"><img src="img/225.webp" alt="Clase 110 STM32: guardando datos en la memoria flash interna" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/sBJaIXppxIA?t=270" target="_blank" rel="noopener">&#9654; 4:30</a></div><p>Al resetear el micro sin la línea de escritura, sigue leyendo 1017: el dato quedó guardado en la flash.</p><div class="dos"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Clase 110 STM32: guardando datos en la memoria flash interna" loading="lazy"></a></figure><figure class="cap"><a href="img/305.webp" target="_blank"><img src="img/305.webp" alt="Clase 110 STM32: guardando datos en la memoria flash interna" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=sBJaIXppxIA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
