@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 126 STM32: Librería para el acelerómetro ADXL345 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leer el acelerómetro ADXL345 por I2C con una librería propia, pasar a gravedades, calcular pitch y roll y enviarlos por el puerto serial.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/lLgp0dJeypw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 126 STM32: Librería para el acelerómetro ADXL345 · Paso a paso">
+  <meta property="og:description" content="Leer el acelerómetro ADXL345 por I2C con una librería propia, pasar a gravedades, calcular pitch y roll y enviarlos por el puerto serial.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/lLgp0dJeypw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/lLgp0dJeypw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 126: acelerómetro <span>ADXL345</span></h1>
+    <p class="lead">Video corto con la librería del ADXL345, un acelerómetro de 3 ejes por I2C. Solo mide aceleraciones, pero como la gravedad siempre está presente se pueden calcular dos ángulos de inclinación: pitch y roll. El giro sobre el eje Z (yaw o rumbo) no se puede medir con este sensor; para eso hace falta un giroscopio o una brújula (por eso, si puedes elegir, un MPU6050 trae acelerómetro y giroscopio). Se configura I2C1 y USART1 en una Blackpill STM32F401, se agregan las librerías ADXL345 y uart, y se envían aceleraciones y ángulos al computador.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=lLgp0dJeypw" target="_blank" rel="noopener">&#9654; Ver el video completo (8:43)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/500.webp" alt="Clase 126 STM32: Librería para el acelerómetro ADXL345"></figure>
+    <ul class="materiales"><li>Blackpill STM32F401CCU</li><li>Módulo acelerómetro ADXL345 (GY-291)</li><li>Convertidor USB-serial</li><li>Programador ST-LINK</li><li>Librerías ADXL345.c/.h y uart.c/.h</li><li>Hercules u otra terminal serial</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · I2C1 y USART1</a><a href="#f2">2 · Inicializar, leer y calcular ángulos</a><a href="#f3">3 · Leer y enviar por serial</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto y periféricos</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El sensor</h3><a class="min" href="https://youtu.be/lLgp0dJeypw?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>El ADXL345 es un acelerómetro digital de 3 ejes con resolución de hasta 13 bits y comunicación I2C o SPI. Aquí se usa por I2C.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 126 STM32: Librería para el acelerómetro ADXL345" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Crear el proyecto y configurar</h3><a class="min" href="https://youtu.be/lLgp0dJeypw?t=115" target="_blank" rel="noopener">&#9654; 1:55</a></div><p>Nuevo proyecto STM32 para la STM32F401CCU, llamado ADXL345_CANAL.</p><p>En el .ioc solo se activan dos cosas: I2C1 (donde está conectado el sensor) y USART1 a 115200 baudios para mandar los datos al computador. Se genera el código.</p><div class="uno"><figure class="cap"><a href="img/115.webp" target="_blank"><img src="img/115.webp" alt="Clase 126 STM32: Librería para el acelerómetro ADXL345" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Carpeta de librerías e includes</h3><a class="min" href="https://youtu.be/lLgp0dJeypw?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>Se crea la carpeta Librerias dentro de Core, se pegan ADXL345.c/.h y uart.c/.h, y se agrega la carpeta al include path (clic derecho > Add/Remove include path).</p><p>En el main se incluyen las dos librerías más stdio.h y string.h para usar sprintf. Se declara un buffer de texto de 50 caracteres.</p><div class="dos"><figure class="cap"><a href="img/165.webp" target="_blank"><img src="img/165.webp" alt="Clase 126 STM32: Librería para el acelerómetro ADXL345" loading="lazy"></a></figure><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 126 STM32: Librería para el acelerómetro ADXL345" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La librería ADXL345</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Configuración en ADXL345.h</h3><a class="min" href="https://youtu.be/lLgp0dJeypw?t=230" target="_blank" rel="noopener">&#9654; 3:50</a></div><p>La dirección del sensor (0xA6) no se cambia. Lo que sí hay que ajustar es el I2C que usa tu micro: hi2c1, hi2c2, etc.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define ADXL_I2CAddress 0xA6     // direccion del sensor (no se cambia)
+#define ADXL345I2C hi2c1          // i2c a usar (cambiar si usas otro)
+
+extern float ADXL345_ACELX, ADXL345_ACELY, ADXL345_ACELZ;
+extern float acel_pitch, acel_roll;
+extern I2C_HandleTypeDef ADXL345I2C;
+
+void ADXL345_Init(void);
+void ADXL345_READ_ACEL();
+void ADXL345_Angulos();</code></pre></div><div class="dos"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 126 STM32: Librería para el acelerómetro ADXL345" loading="lazy"></a></figure><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Clase 126 STM32: Librería para el acelerómetro ADXL345" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Funciones de la librería</h3><a class="min" href="https://youtu.be/lLgp0dJeypw?t=260" target="_blank" rel="noopener">&#9654; 4:20</a></div><p>ADXL345_Init verifica el ID del chip (0xE5) y pone el sensor en modo medición.</p><p>ADXL345_READ_ACEL lee los 6 bytes de datos desde el registro 0x32, arma los valores de 16 bits y los pasa a gravedades (g).</p><p>ADXL345_Angulos calcula pitch y roll con atan2f a partir de las aceleraciones. EPSILON evita dividir por cero.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void ADXL345_Init(void)
+{
+  uint8_t chipID;
+  ADXL345_Read(0x00, &amp;chipID, 1);   // registro DEVID
+  if (chipID == 0xE5)
+  {
+    ADXL345_Write_Reg(0x2D, 0x00);  // POWER_CTL: reset
+    ADXL345_Write_Reg(0x2D, 0x08);  // POWER_CTL: modo medicion
+  }
+}
+
+void ADXL345_READ_ACEL()
+{
+  ADXL345_Read(0x32, ADXL345_BUF, 6);   // DATAX0 ... DATAZ1
+  int16_t RAWX = ((ADXL345_BUF[1] &lt;&lt; 8) | ADXL345_BUF[0]);
+  int16_t RAWY = ((ADXL345_BUF[3] &lt;&lt; 8) | ADXL345_BUF[2]);
+  int16_t RAWZ = ((ADXL345_BUF[5] &lt;&lt; 8) | ADXL345_BUF[4]);
+  // paso a gravedades
+  ADXL345_ACELX = RAWX * .0078;
+  ADXL345_ACELY = RAWY * .0078;
+  ADXL345_ACELZ = RAWZ * .0078;
+}
+
+void ADXL345_Angulos()
+{
+  float denom = sqrtf(ADXL345_ACELY * ADXL345_ACELY + ADXL345_ACELZ * ADXL345_ACELZ);
+  if (denom &lt; EPSILON) denom = EPSILON;
+  acel_pitch = atan2f(ADXL345_ACELX, denom) * RAD_TO_DEG;
+
+  denom = sqrtf(ADXL345_ACELX * ADXL345_ACELX + ADXL345_ACELZ * ADXL345_ACELZ);
+  if (denom &lt; EPSILON) denom = EPSILON;
+  acel_roll = atan2f(ADXL345_ACELY, denom) * RAD_TO_DEG;
+}</code></pre></div><p class="ojo">El factor .0078 g por cuenta depende del rango configurado en el sensor. Si cambias el rango en el registro DATA_FORMAT (0x31), ajusta también ese factor.</p><div class="dos"><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Clase 126 STM32: Librería para el acelerómetro ADXL345" loading="lazy"></a></figure><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 126 STM32: Librería para el acelerómetro ADXL345" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Código del main</h3><a class="min" href="https://youtu.be/lLgp0dJeypw?t=370" target="_blank" rel="noopener">&#9654; 6:10</a></div><p>Se inicializa el sensor antes del while. En el while se leen las aceleraciones, se calculan los ángulos y se envían por USART1 cada 500 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;ADXL345.h&quot;
+#include &quot;uart.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+/* USER CODE END Includes */
+
+/* USER CODE BEGIN PV */
+char texto[50];
+/* USER CODE END PV */
+
+/* USER CODE BEGIN 2 */
+ADXL345_Init();
+/* USER CODE END 2 */
+
+while (1)
+{
+  ADXL345_READ_ACEL();   // lee aceleraciones en g
+  ADXL345_Angulos();     // calcula pitch y roll
+
+  sprintf(texto, &quot;AX=%.2f  AY=%.2f  AZ=%.2f\r\n&quot;, ADXL345_ACELX, ADXL345_ACELY, ADXL345_ACELZ);
+  uartx_write_text(&amp;huart1, texto);
+
+  sprintf(texto, &quot;pitch=%.2f  roll=%.2f\r\n\r\n&quot;, acel_pitch, acel_roll);
+  uartx_write_text(&amp;huart1, texto);
+
+  HAL_Delay(500);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="Clase 126 STM32: Librería para el acelerómetro ADXL345" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Habilitar float en sprintf</h3><a class="min" href="https://youtu.be/lLgp0dJeypw?t=380" target="_blank" rel="noopener">&#9654; 6:20</a></div><p>Para que %.2f funcione: clic derecho al proyecto > Properties > C/C++ Build > Settings > MCU Settings y marcar "Use float with printf from newlib-nano (-u _printf_float)". Apply.</p><div class="uno"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 126 STM32: Librería para el acelerómetro ADXL345" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/lLgp0dJeypw?t=500" target="_blank" rel="noopener">&#9654; 8:20</a></div><p>En la terminal serial (115200) aparecen AX, AY, AZ en g y pitch y roll en grados.</p><p>Al inclinar la tarjeta hacia un lado el pitch se vuelve negativo y hacia el otro positivo; lo mismo con el roll en el otro eje.</p><p>En Z solo se ve el cambio de aceleración al moverlo; no hay ángulo de giro porque no hay inclinación respecto a la gravedad.</p><div class="uno"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase 126 STM32: Librería para el acelerómetro ADXL345" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=lLgp0dJeypw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
