@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Recibir un carácter por UART con HAL_UART_Receive y usarlo como orden en un switch para conmutar LEDs. Por qué es bloqueante, cómo verlo en Proteus y cómo mandar las órdenes desde otra aplicación o desde el celular por Bluetooth.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/wYdas21XvCU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Recibir un carácter por UART con HAL_UART_Receive y usarlo como orden en un switch para conmutar LEDs. Por qué es bloqueante, cómo verlo en Proteus y cómo mandar las órdenes desde otra aplicación o desde el celular por Bluetooth.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/wYdas21XvCU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/wYdas21XvCU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 39: recepción serial <span>básica bloqueante</span></h1>
+    <p class="lead">Primera forma de recibir datos por el puerto serie: el programa se queda esperando un carácter y según cuál llegue hace una acción. Es la más sencilla, pero mientras no llega nada el programa no hace otra cosa. En las siguientes clases se mejora.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=wYdas21XvCU" target="_blank" rel="noopener">&#9654; Ver el video completo (17:15)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/700.webp" alt="Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso)"></figure>
+    <ul class="materiales"><li>STM32F401 (Proteus)</li><li>3 LEDs con resistencias en PB0, PB1, PB2</li><li>Virtual Terminal y COMPIM</li><li>Librería uart.c/.h</li><li>Emulador de puertos COM y terminal serie (Hercules)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeMX</a><a href="#f2">2 · Recibir</a><a href="#f3">3 · COMPIM</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito en Proteus</h3><a class="min" href="https://youtu.be/wYdas21XvCU?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Virtual Terminal cruzado con el micro: su RXD a <b>TX (PA9)</b> y su TXD a <b>RX (PA10)</b>. Tres LEDs en PB0, PB1 y PB2.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>USART1 y LEDs</h3><a class="min" href="https://youtu.be/wYdas21XvCU?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>USART1 asíncrono a 9600 baudios. PB0, PB1 y PB2 como salida con etiquetas <b>led1</b>, <b>led2</b>, <b>led3</b>. Para simular, oscilador interno a 16 MHz.</p><div class="uno"><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Librería y variable</h3><a class="min" href="https://youtu.be/wYdas21XvCU?t=197" target="_blank" rel="noopener">&#9654; 3:17</a></div><p>Agrega la librería uart en Core/Librerias e inclúyela. Declara la variable donde se guardará el carácter recibido:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint8_t dato;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, &quot;HOLA\r\n&quot;);</code></pre></div><div class="dos"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Recibir</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>HAL_UART_Receive bloqueante</h3><a class="min" href="https://youtu.be/wYdas21XvCU?t=436" target="_blank" rel="noopener">&#9654; 7:16</a></div><p>Con timeout <b>HAL_MAX_DELAY</b> el programa se queda esperando hasta que llegue un carácter. Mientras tanto, el LED que antes titilaba deja de hacerlo: eso es lo bloqueante.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    HAL_UART_Receive(&amp;huart1, &amp;dato, 1, HAL_MAX_DELAY);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    HAL_GPIO_TogglePin(led1_GPIO_Port, led1_Pin);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    HAL_Delay(200);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>}</code></pre></div><p class="ojo">Es <code>HAL_UART_Receive</code>, no <code>HAL_UART_Receive_DMA</code>, que es otro modo.</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Eco en el Virtual Terminal</h3><a class="min" href="https://youtu.be/wYdas21XvCU?t=567" target="_blank" rel="noopener">&#9654; 9:27</a></div><p>Para ver lo que escribes, clic derecho en el Virtual Terminal → <b>Echo Typed Characters</b>. Cada tecla hace avanzar el programa una vez.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Órdenes con switch</h3><a class="min" href="https://youtu.be/wYdas21XvCU?t=610" target="_blank" rel="noopener">&#9654; 10:10</a></div><p>Según el carácter recibido, una acción distinta:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>switch (dato)</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    case &#x27;A&#x27;:</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>        HAL_GPIO_TogglePin(led2_GPIO_Port, led2_Pin);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>        break;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    case &#x27;B&#x27;:</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>        HAL_GPIO_TogglePin(led3_GPIO_Port, led3_Pin);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>        break;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>}</code></pre></div><p class="ojo">Desventajas: solo tienes un carácter por orden y con ruido una letra puede convertirse en otra. En la parte 2 se usan órdenes compuestas.</p><div class="dos"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Órdenes desde fuera</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>COMPIM y terminales de monitoreo</h3><a class="min" href="https://youtu.be/wYdas21XvCU?t=700" target="_blank" rel="noopener">&#9654; 11:40</a></div><p>COMPIM no es cruzado: RX del micro con su RXD y TX con TX. El RX del micro solo puede venir de un emisor; para monitorear usa Virtual Terminals solo con su entrada conectada (uno en TX y otro en RX).</p><div class="dos"><figure class="cap"><a href="img/750.webp" target="_blank"><img src="img/750.webp" alt="Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Desde otra aplicación</h3><a class="min" href="https://youtu.be/wYdas21XvCU?t=799" target="_blank" rel="noopener">&#9654; 13:19</a></div><p>Crea un par de puertos virtuales (COM1 ↔ COM2) a 9600. COMPIM en COM1 y una terminal (Hercules) en COM2: enviar A o B conmuta los LEDs. Puede ser LabVIEW o cualquier programa con puerto serie.</p><div class="uno"><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 39: recepción serial UART básica y bloqueante en STM32, órdenes de un carácter (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Desde el celular</h3><a class="min" href="https://youtu.be/wYdas21XvCU?t=898" target="_blank" rel="noopener">&#9654; 14:58</a></div><p>Con el puerto COM Bluetooth de Windows (clase 33) en COMPIM y una app de terminal serie Bluetooth en el celular, se mandan las mismas letras.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=wYdas21XvCU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
