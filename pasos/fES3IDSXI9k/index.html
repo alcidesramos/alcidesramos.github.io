@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 1. Introducción al curso STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Qué tarjetas STM32, programadores y software se usan en el curso, y cómo simular la Blue Pill y la Black Pill en Proteus con las librerías propias.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/fES3IDSXI9k/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 1. Introducción al curso STM32 · Paso a paso">
+  <meta property="og:description" content="Qué tarjetas STM32, programadores y software se usan en el curso, y cómo simular la Blue Pill y la Black Pill en Proteus con las librerías propias.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/fES3IDSXI9k/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/fES3IDSXI9k/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Clase 1 · Paso a paso</span>
+    <h1>Introducción al curso <span>STM32</span></h1>
+    <p class="lead">Presentación del curso: las tarjetas que se van a usar (Blue Pill, Black Pill, Nucleo y Cortex-M7), cómo programarlas aunque no tengas el programador original, y cómo seguir el curso sin hardware simulando en Proteus con modelos propios en 2D, PCB y 3D.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=fES3IDSXI9k" target="_blank" rel="noopener">&#9654; Ver el video completo (10:23)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/500.webp" alt="Clase 1. Introducción al curso STM32"></figure>
+    <ul class="materiales"><li><b>Tarjetas:</b> Blue Pill (F103), Black Pill (F401/F411), Nucleo L476, H7xx</li><li><b>Programador:</b> ST-Link V2 clon (≈5 USD)</li><li><b>Simulación:</b> Proteus con STM32F103 y F401</li><li><b>Librerías:</b> <a href="https://github.com/alcidesramos/LIBRERIAS_PROTEUS_2026" target="_blank" rel="noopener">LIBRERIAS_PROTEUS_2026</a></li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · El curso</a><a href="#f2">2 · Tarjetas</a><a href="#f3">3 · Programar</a><a href="#f4">4 · Proteus</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Qué se va a aprender</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Micros de 8, 16 o 32 bits: saber cuándo usar cada uno</h3><a class="min" href="https://youtu.be/fES3IDSXI9k?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>ST fabrica micros de 8 y 32 bits. Los de 32 bits son muy potentes, pero no todo proyecto los necesita: un micro de 8 pines de 1 a 3 dólares puede ser la mejor opción. Como ingeniero, la idea es escoger el micro adecuado.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Cómo está organizado el curso</h3><a class="min" href="https://youtu.be/fES3IDSXI9k?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><ul><li>Familias Cortex-M3 a M7, con tarjetas originales y de terceros.</li><li>Simulación en Proteus para quien no tenga la tarjeta.</li><li>Dos listas en YouTube: <b>curso</b> (paso a paso, desde cero) y <b>proyectos</b> (temas más avanzados).</li><li>Videos cortos, por partes si hace falta.</li></ul></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Las tarjetas del curso</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Blue Pill (Cortex-M3, STM32F103)</h3><a class="min" href="https://youtu.be/fES3IDSXI9k?t=97" target="_blank" rel="noopener">&#9654; 1:37</a></div><p>Pequeña y económica, con mucho más poder que un Arduino. Se programará por puerto serial y luego por USB con bootloader. Hay clones que no traen un STM32 original, y se verá cómo trabajarlos.</p><div class="dos"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Blue Pill" loading="lazy"></a><figcaption>Blue Pill</figcaption></figure><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Blue Pill montada en una tarjeta propia" loading="lazy"></a><figcaption>Blue Pill montada en una tarjeta propia</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Black Pill (Cortex-M4, F401 / F411)</h3><a class="min" href="https://youtu.be/fES3IDSXI9k?t=163" target="_blank" rel="noopener">&#9654; 2:43</a></div><p>Desde los Cortex-M4 se pueden programar solo por USB, sin programador, gracias al bootloader DFU de fábrica.</p><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase 1. Introducción al curso STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Cortex-M7 y Nucleo L476</h3><a class="min" href="https://youtu.be/fES3IDSXI9k?t=194" target="_blank" rel="noopener">&#9654; 3:14</a></div><ul><li>Tarjetas H7: USB para programar, memoria QSPI de alta velocidad y tarjeta SD.</li><li>Nucleo L476 (Cortex-M4) original de ST: trae el programador incluido.</li></ul></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programadores</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>ST-Link V2 clon</h3><a class="min" href="https://youtu.be/fES3IDSXI9k?t=294" target="_blank" rel="noopener">&#9654; 4:54</a></div><p>Un clon del ST-Link V2 cuesta alrededor de 5 dólares y funciona sin problema. Con los Cortex-M4 en adelante ni siquiera es necesario. En el curso se verá además cómo depurar y cómo proteger el micro para que no lo clonen.</p></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Simular sin tarjeta en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Micros STM32 que trae Proteus</h3><a class="min" href="https://youtu.be/fES3IDSXI9k?t=359" target="_blank" rel="noopener">&#9654; 5:59</a></div><p>Busca <code>STM32</code> en Proteus: trae Cortex-M3 desde el <b>STM32F103</b> (Blue Pill) y Cortex-M4 <b>STM32F401</b> (Black Pill). En versiones nuevas, al buscar <code>BLUEPILL</code> sale la tarjeta lista con sus pines.</p><div class="dos"><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="Búsqueda de STM32 en Proteus" loading="lazy"></a><figcaption>Búsqueda de STM32 en Proteus</figcaption></figure><figure class="cap"><a href="img/415.webp" target="_blank"><img src="img/415.webp" alt="Modelo BLUEPILL" loading="lazy"></a><figcaption>Modelo BLUEPILL</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Librerías propias: esquemático, PCB y 3D</h3><a class="min" href="https://youtu.be/fES3IDSXI9k?t=425" target="_blank" rel="noopener">&#9654; 7:05</a></div><p>Modelos hechos por el profesor de la Blue Pill, la Black Pill y la Nucleo L476: se ven como la tarjeta real en el esquemático, traen huella para diseñar tu PCB y modelo 3D para mostrar al cliente cómo queda.</p><div class="dos"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Esquemático" loading="lazy"></a><figcaption>Esquemático</figcaption></figure><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="PCB" loading="lazy"></a><figcaption>PCB</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Programas y librerías para instalar</h3><a class="min" href="https://youtu.be/fES3IDSXI9k?t=520" target="_blank" rel="noopener">&#9654; 8:40</a></div><p>En la descripción del video está el enlace con los programas gratuitos de ST (STM32CubeIDE, CubeMX, CubeProgrammer) y la librería de Proteus. Los archivos que empiezan por <code>ARZ</code> son los modelos propios: se pegan en la carpeta de librerías de Proteus.</p><div class="uno"><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Clase 1. Introducción al curso STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=fES3IDSXI9k" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

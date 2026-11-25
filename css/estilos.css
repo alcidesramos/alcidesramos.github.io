@@ -334,3 +334,7 @@ nav a, header nav li a { white-space: nowrap; }
 .res-gh-llevar button { cursor: pointer; font-family: inherit; }
 #gh-extra { scroll-margin-top: 90px; }
 .btn-gh { margin-top: 14px; cursor: pointer; font-family: inherit; }
+
+/* Boton y sello "paso a paso" en las tarjetas de clase */
+.btn-pasos { background: var(--led); border-color: var(--led); color: var(--fondo); }
+.clase-img .insignia-pasos { position: absolute; right: 8px; bottom: 8px; font: 600 12px var(--mono); background: var(--led); color: var(--fondo); padding: 2px 8px; border-radius: 6px; }

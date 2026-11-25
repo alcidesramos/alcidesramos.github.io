@@ -30,6 +30,7 @@
         <span class="clase-fallback" aria-hidden="true"><span>${esc(grupoDe[curso] || '')}</span></span>
         <img src="${(window.MINIATURAS && window.MINIATURAS[v.id]) || `img/cursos/${v.id}.jpg`}" alt="" loading="lazy" onerror="if(!this.dataset.r){this.dataset.r=1;this.src='https://i.ytimg.com/vi/${v.id}/mqdefault.jpg'}else{this.remove()}">
         <span class="play" aria-hidden="true"></span>
+        ${(window.PASOS && window.PASOS[v.id]) ? '<span class="insignia-pasos">Paso a paso</span>' : ''}
         ${insignia ? `<span class="insignia">${insignia}</span>` : ''}
       </a>
       <div class="clase-cuerpo">
@@ -37,6 +38,7 @@
         <h3>${esc(v.t)}</h3>
         ${v.d ? `<p>${esc(v.d)}</p>` : ''}
         <div class="clase-acciones">
+          ${(window.PASOS && window.PASOS[v.id]) ? `<a class="btn-mini btn-pasos" href="pasos/${v.id}/">Ver paso-paso</a>` : ''}
           <a class="btn-mini btn-video" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">Ver video</a>
           ${codigos}
         </div>

@@ -1,0 +1,41 @@
+/* Paginas "paso a paso" de cada video (pasos/<id>/) */
+.pap .contenedor { width: min(980px, 100% - 32px); }
+.pap .barra .contenedor { width: min(var(--max), 100% - 32px); }
+.pap-cab { padding: 96px 0 28px; border-bottom: 1px solid var(--borde); background: radial-gradient(ellipse at 20% 0%, rgba(60,242,196,.10), transparent 60%); }
+.pap-cab h1 { font-size: clamp(28px, 4.6vw, 44px); line-height: 1.1; margin: 10px 0 14px; letter-spacing: -.02em; }
+.pap-cab h1 span { color: var(--cobre); }
+.pap-cab .lead { color: #cfe2db; font-size: 18px; max-width: 760px; margin: 0 0 22px; }
+.volver { display: block; width: fit-content; font-size: 14px; color: var(--suave); text-decoration: none; margin-bottom: 14px; }
+.volver:hover { color: var(--led); }
+.portada { margin: 26px 0 0; border-radius: var(--radio); overflow: hidden; border: 1px solid var(--borde); }
+.materiales { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin: 22px 0 0; padding: 0; list-style: none; }
+.materiales li { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 10px; padding: 10px 14px; font-size: 15px; }
+.materiales b { color: var(--cobre); font-weight: 600; }
+nav.indice { position: sticky; top: 64px; z-index: 5; background: rgba(6,18,15,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--borde); }
+nav.indice .contenedor { display: flex; gap: 6px; overflow-x: auto; padding: 10px 0; scrollbar-width: thin; }
+nav.indice a { flex: none; font-size: 14px; color: var(--suave); text-decoration: none; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--borde); }
+nav.indice a:hover { color: var(--texto); background: rgba(60,242,196,.1); }
+.fase { padding: 36px 0 6px; scroll-margin-top: 110px; }
+.fase h2 { font-size: 27px; margin: 6px 0 4px; }
+.fase .intro { color: var(--suave); margin: 0 0 18px; }
+.paso { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: var(--radio); padding: 20px 22px; margin: 0 0 18px; }
+.paso-cab { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.paso .num { font-family: var(--mono); color: var(--fondo); background: var(--led); border-radius: 6px; padding: 1px 8px; font-size: 14px; font-weight: 600; }
+.paso h3 { margin: 0; font-size: 20px; flex: 1 1 240px; }
+.paso .min { font-family: var(--mono); font-size: 14px; text-decoration: none; color: var(--cobre); border: 1px solid rgba(227,162,83,.4); border-radius: 999px; padding: 3px 12px; white-space: nowrap; }
+.paso .min:hover { background: rgba(227,162,83,.12); }
+.paso ul { padding-left: 20px; margin: 10px 0; }
+.paso li { margin: 3px 0; }
+.paso figure { margin: 14px 0 4px; border-radius: 10px; overflow: hidden; border: 1px solid var(--borde); }
+.paso figcaption { font-size: 14px; color: var(--suave); padding: 8px 12px; background: var(--fondo-2); }
+.paso .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 700px) { .paso .dos { grid-template-columns: 1fr; } .paso { padding: 16px; } }
+.pap code { font-family: var(--mono); font-size: .88em; background: rgba(60,242,196,.08); padding: 1px 6px; border-radius: 4px; color: #bff7e6; }
+.codigo { position: relative; margin: 12px 0; }
+.codigo pre { background: #031310; border: 1px solid var(--borde); border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.55; margin: 0; }
+.codigo pre code { background: none; padding: 0; color: #d6efe7; }
+.copiar { position: absolute; top: 8px; right: 8px; font: 600 12px var(--sans); color: var(--led); background: rgba(60,242,196,.12); border: 1px solid rgba(60,242,196,.35); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+.ojo { border-left: 3px solid var(--cobre); background: rgba(227,162,83,.08); padding: 10px 14px; border-radius: 0 8px 8px 0; margin: 12px 0; font-size: 16px; }
+.ojo b { color: var(--cobre); }
+.btn-pasos { background: rgba(60,242,196,.22); border-color: var(--led); color: var(--texto); }
+.paso .uno figure { max-width: 760px; }
