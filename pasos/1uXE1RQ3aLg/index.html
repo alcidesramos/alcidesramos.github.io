@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con la librería UBIDOTS del canal, el STM32 envía por el DT-06 la temperatura y el pulsador a Ubidots con un POST, lee con GET un switch y un slider para manejar el LED y un PWM, y se configura un evento que envía un correo.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/1uXE1RQ3aLg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos) · Paso a paso">
+  <meta property="og:description" content="Con la librería UBIDOTS del canal, el STM32 envía por el DT-06 la temperatura y el pulsador a Ubidots con un POST, lee con GET un switch y un slider para manejar el LED y un PWM, y se configura un evento que envía un correo.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/1uXE1RQ3aLg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/1uXE1RQ3aLg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>IoT con <span>DT-06 y Ubidots</span>: enviar, recibir y eventos</h1>
+    <p class="lead">El DT-06 se configura (clase 95) para conectarse a internet y a things.ubidots.com por el puerto 80, de modo que lo que el micro escribe por serial llega al servidor. La librería UBIDOTS arma las peticiones HTTP: Ubidots_POST construye en una sola trama el encabezado y el JSON con las variables, y Ubidots_GET pide el último valor de una variable; Ubidot_GET_Valor lo extrae de la respuesta. La recepción usa DMA + IDLE en USART1 (Ubidots) y queda USART2 libre para monitorear. La espera de respuesta no es bloqueante: se sale apenas el servidor responde. En el tablero se ven el LED y la temperatura, y desde la web se manejan el LED de la placa y el ancho de pulso. Por último se crea un evento que manda un correo cuando la temperatura supera 32 °C y se comparte el dashboard con un enlace público.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=1uXE1RQ3aLg" target="_blank" rel="noopener">&#9654; Ver el video completo (27:16)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/870.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)"></figure>
+    <ul class="materiales"><li>BlackPill STM32F411 con DS18B20, pulsador y LED</li><li>Módulo WiFi DT-06 configurado hacia things.ubidots.com:80 (clase 95)</li><li>Cuenta en Ubidots con un device y su token</li><li>Librerías UBIDOTS, uart_int_idle_dma, PWMB, ds18b20, delays, pinout y uart del canal</li><li>Analizador lógico (opcional)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Token, device y puertos</a><a href="#f2">2 · Interrupción, espera y POST</a><a href="#f3">3 · Temperatura y pulsador al tablero</a><a href="#f4">4 · Switch y slider de la web</a><a href="#f5">5 · Correo por alarma y enlace público</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Librería UBIDOTS</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué se va a hacer</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Desde cualquier parte del mundo se va a prender el LED de la tarjeta, cambiar un PWM, ver la temperatura de un DS18B20 y el estado de un pulsador. El DT-06 ya debe estar conectado a la red y apuntando a Ubidots por el puerto 80 (explicado en la clase 95).</p><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Configurar UBIDOTS.h</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=129" target="_blank" rel="noopener">&#9654; 2:09</a></div><p>En el .h se pone el token de su cuenta, el nombre del device, los tiempos máximos de espera y el puerto serial donde está el DT-06:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define Token  &quot;BBUS-xxxxxxxxxxxxxxxxxxxxxxxx&quot;  // su token de Ubidots
+#define Device &quot;SUSCRIBETE&quot;                     // nombre del device
+#define TIME_POST 4   // tiempo de espera respuesta POST (s)
+#define TIME_GET  3   // tiempo de espera respuesta GET (s)
+
+#define ubidot_tramatx_size   500   // largo max trama a enviar
+#define uartubidotreg  USART1        // puerto del DT-06
+#define uartubidot     huart1
+#define trama_rx_ubidots_size 1000   // la respuesta del GET es larga</code></pre></div><p class="ojo">El token es personal: no lo publique ni lo comparta.</p><div class="uno"><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Dos puertos seriales</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=228" target="_blank" rel="noopener">&#9654; 3:48</a></div><p>La librería uart_int_idle_dma se deja en USART2 para monitorear o recibir otras órdenes, y UBIDOTS usa USART1. Si no va a usar el segundo puerto, puede poner el mismo y comentar su análisis en el callback.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define uartdatosreg USART2   // en uart_int_idle_dma.h
+#define uartdatos    huart2</code></pre></div><div class="dos"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Cómo funciona por dentro</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Callback compartido</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=329" target="_blank" rel="noopener">&#9654; 5:29</a></div><p>El mismo HAL_UARTEx_RxEventCallback atiende los dos puertos; para Ubidots llama a Ubidots_Interrupt, que detiene el DMA y levanta su bandera:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+    if ((flag_rx == 0) &amp;&amp; (huart-&gt;Instance == uartdatosreg))
+    {
+        HAL_UART_DMAStop(&amp;uartdatos);
+        num_datos = Size;
+        flag_rx = 1;
+    }
+    // solo si se usa ubidots
+    Ubidots_Interrupt(huart);
+}
+
+void Ubidots_Interrupt(UART_HandleTypeDef *huart)
+{
+    if ((flag_rx_ubidots == 0) &amp;&amp; (huart-&gt;Instance == uartubidotreg))
+    {
+        HAL_UART_DMAStop(&amp;uartubidot);
+        flag_rx_ubidots = 1;
+    }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Espera que no bloquea</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>En vez de esperar siempre el tiempo completo, se espera en pasos de 1 ms y se sale apenas el servidor responde:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Ubidot_delay(uint16_t tiem)
+{
+    for (uint16_t cuen = 0; cuen &lt; tiem * 1000; cuen++)
+    {
+        HAL_Delay(1);
+        if (flag_rx_ubidots == 1) break;
+    }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>El POST en una sola trama</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=466" target="_blank" rel="noopener">&#9654; 7:46</a></div><p>Ubidots_POST arma el encabezado HTTP con el device, el token y el largo del JSON, y añade el JSON con las variables:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Ubidots_POST()
+{
+    ubidots_dma_init();
+    memset(ubidots_tx, 0, ubidot_tramatx_size);
+    sprintf(ubidots_tx,
+        &quot;POST /api/v1.6/devices/%s/?token=%s HTTP/1.1\r\n&quot;
+        &quot;Host: things.ubidots.com\r\n&quot;
+        &quot;Content-Type: application/json\r\n&quot;
+        &quot;Content-Length: %d\r\n&quot;
+        &quot;\r\n&quot;
+        &quot;%s&quot;,
+        Device, Token, ubidot_tramavar_size, ubidot_var);
+    flag_rx_ubidots = 0;
+    uartx_write_text(&amp;uartubidot, ubidots_tx);
+    Ubidot_delay(TIME_POST);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Enviar datos (POST)</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Variables y arranque</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=668" target="_blank" rel="noopener">&#9654; 11:08</a></div><p>En el main se declaran temperatura (float) y led (uint8_t), se inicializan retardos y PWM y se apaga el LED (en la BlackPill es invertido).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float temperatura;
+uint8_t led;
+char texto[100];
+
+delay_Init();
+PWM_init(&amp;PWM1);
+PWM_valor(&amp;PWM1, 0);
+PIN_ON(LED);   // apaga el LED (logica invertida)</code></pre></div><div class="dos"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Armar el JSON y enviar</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=701" target="_blank" rel="noopener">&#9654; 11:41</a></div><p>Se arma la trama de variables con sus nombres en Ubidots (%u para enteros, %.1f para decimales), se calcula su largo y se llama al POST:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>temperatura = DS18b20_temp();
+led = PIN_READ(SW);
+
+// ARMA TRAMA DE VARIABLES
+sprintf(ubidot_var, &quot;{\&quot;led\&quot;: %u,\&quot;temperatura\&quot;: %.1f}&quot;, led, temperatura);
+ubidot_tramavar_size = strlen(ubidot_var);
+// LLAMA POST
+Ubidots_POST();</code></pre></div><div class="uno"><figure class="cap"><a href="img/770.webp" target="_blank"><img src="img/770.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba del POST</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=834" target="_blank" rel="noopener">&#9654; 13:54</a></div><p>En el dashboard el indicador LED sigue al pulsador y el termómetro a la temperatura, casi en tiempo real, porque la espera termina en cuanto responde el servidor.</p><div class="uno"><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Recibir datos (GET)</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>La petición GET</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=935" target="_blank" rel="noopener">&#9654; 15:35</a></div><p>Ubidots_GET arma la petición con el device, la variable a leer y el token, y espera la respuesta. Ubidot_GET_Valor busca en la respuesta la palabra value", captura desde los dos puntos hasta la coma y retorna ese número (−2 si no encontró el valor, −1 si el servidor no respondió).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(ubidots_tx,
+    &quot;GET /api/v1.6/devices/%s/%s/values?page_size=1&amp;token=%s HTTP/1.1\r\n&quot;
+    &quot;Host: things.ubidots.com\r\n\r\n&quot;,
+    Device, lee_var, Token);</code></pre></div><div class="uno"><figure class="cap"><a href="img/980.webp" target="_blank"><img src="img/980.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Slider al PWM y switch al LED</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=1142" target="_blank" rel="noopener">&#9654; 19:02</a></div><p>Se pide cada variable y se aplica. El valor siempre llega como float; el LED se niega porque es invertido:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// analiza el get
+Ubidots_GET(&quot;pwm&quot;);
+ubidot_float = Ubidot_GET_Valor();
+PWM_valor(&amp;PWM1, (uint32_t)ubidot_float);
+
+Ubidots_GET(&quot;suiche&quot;);
+ubidot_float = Ubidot_GET_Valor();
+PIN_PUT(LED, !(uint8_t)ubidot_float);
+
+HAL_Delay(100);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure><figure class="cap"><a href="img/1210.webp" target="_blank"><img src="img/1210.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Prueba de control</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=1274" target="_blank" rel="noopener">&#9654; 21:14</a></div><p>Al mover el slider a 86 o 18 el analizador lógico muestra el nuevo ancho de pulso, y el switch de la web prende y apaga el LED de la tarjeta, mientras la temperatura y el pulsador se siguen enviando.</p><div class="uno"><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Eventos y compartir</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Evento por temperatura</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=1378" target="_blank" rel="noopener">&#9654; 22:58</a></div><p>En Events se crea uno nuevo: variable temperatura, condición mayor o igual a 32 (no use igual con decimales). En Actions se elige enviar un correo con el mensaje deseado. En el plan gratuito el correo es limitado.</p><div class="uno"><figure class="cap"><a href="img/1420.webp" target="_blank"><img src="img/1420.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Compartir el dashboard</h3><a class="min" href="https://youtu.be/1uXE1RQ3aLg?t=1555" target="_blank" rel="noopener">&#9654; 25:55</a></div><p>En Dashboard → compartir → Create new link se obtiene un enlace público (o un iframe para incrustar) para que cualquiera vea el tablero desde cualquier lugar.</p><div class="uno"><figure class="cap"><a href="img/1590.webp" target="_blank"><img src="img/1590.webp" alt="Clase 96 STM32: IoT con DT-06 y Ubidots (POST, GET y eventos)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=1uXE1RQ3aLg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
