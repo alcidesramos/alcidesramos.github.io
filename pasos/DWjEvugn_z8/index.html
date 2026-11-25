@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="La lectura de encoders de la clase 105 empaquetada en una librería con estructuras: declarar, inicializar y leer posición y velocidad.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/DWjEvugn_z8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura · Paso a paso">
+  <meta property="og:description" content="La lectura de encoders de la clase 105 empaquetada en una librería con estructuras: declarar, inicializar y leer posición y velocidad.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/DWjEvugn_z8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/DWjEvugn_z8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Librería para <span>varios encoders</span></h1>
+    <p class="lead">Con la librería encoder.c/.h cada encoder es una estructura ENCODERS asociada a un timer. Se declara en encoder.c, se inicializa con Encoder_init indicando 4X, 2X o 1X, la librería atiende la interrupción de captura y Encoder_velo (llamada desde el SysTick) calcula la velocidad. Se lee la perilla en el TIM3 y luego se agrega el encoder del motor en el TIM1.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=DWjEvugn_z8" target="_blank" rel="noopener">&#9654; Ver el video completo (15:56)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/925.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill) a 100 MHz</li><li>Encoder tipo perilla en PA6/PA7 (TIM3) y encoder del motor en PA8/PA9 (TIM1)</li><li>Librerías encoder.c/.h y uart.c/.h</li><li>Conversor USB-serial (TX en PB6) y Hercules</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeMX</a><a href="#f2">2 · encoder.c/.h</a><a href="#f3">3 · Un encoder</a><a href="#f4">4 · TIM1</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configurar el micro</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Reloj y TIM3 en modo encoder</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=72" target="_blank" rel="noopener">&#9654; 1:12</a></div><p>Crea el proyecto ENCODER_LIBRERIAS. Activa el cristal externo y el PLL a 100 MHz. En TIM3 elige Combined Channels: Encoder Mode, pon Encoder Mode en TI1 and TI2 (4X) y habilita su interrupción global.</p><div class="uno"><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>USART1</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=144" target="_blank" rel="noopener">&#9654; 2:24</a></div><p>Activa USART1 asíncrono a 115200 y, si tu tarjeta lo usa, remapea TX a PB6 (Ctrl + clic sobre el pin y arrástralo). Guarda para generar el código.</p><div class="uno"><figure class="cap"><a href="img/155.webp" target="_blank"><img src="img/155.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Agregar la librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Copiar e incluir</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=182" target="_blank" rel="noopener">&#9654; 3:02</a></div><p>Crea la carpeta Librerias, agrégala al include path y copia encoder.c/.h y uart.c/.h. Habilita Use float with printf en MCU Settings. En main.c incluye las librerías.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;encoder.h&quot;
+#include &quot;uart.h&quot;
+
+#include &quot;stdio.h&quot;
+#include &quot;stdlib.h&quot;
+#include &quot;stdint.h&quot;
+#include &quot;string.h&quot;</code></pre></div><div class="dos"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Declarar el encoder en encoder.c</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>Declara como externo el handle del timer y crea la estructura ENCODERS con el handle y la instancia. El .h ya trae extern para ENCODER1 a ENCODER4; el nombre y el timer no tienen que coincidir en número.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//incluir los timer usados
+extern TIM_HandleTypeDef htim3;
+
+//configura encoder a usar
+ENCODERS ENCODER1 = {&amp;htim3, TIM3};</code></pre></div><div class="uno"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Interrupción incluida en la librería</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=333" target="_blank" rel="noopener">&#9654; 5:33</a></div><p>La librería ya contiene HAL_TIM_IC_CaptureCallback. Hay un bloque if por cada encoder; para el segundo se descomenta y se cambia al ENCODER2.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    //agregar por cada encoder usado
+    if (htim-&gt;Instance == ENCODER1.TIMX)
+    {
+        ENCODER1.pulsos = __HAL_TIM_GET_COUNTER(htim);
+        ENCODER1.posicion = (int16_t)ENCODER1.pulsos / ENCODER1.resolucion;
+        ENCODER1.velo = ENCODER1.posicion;
+    }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Velocidad en Encoder_velo</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=409" target="_blank" rel="noopener">&#9654; 6:49</a></div><p>En Encoder_velo hay tres líneas por cada encoder cuya velocidad quieras calcular; el procedimiento siempre termina limpiando el contador. Se calcula cada 500 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Encoder_velo()
+{
+    encoder_velo++;
+    if (encoder_velo &gt; 500)
+    {
+        //repetir por cada encoder que se quiera saber velocidad
+        ENCODER1.velo = ENCODER1.velo - ENCODER1.velo_ant;
+        ENCODER1.velo_ant = ENCODER1.velo;
+        ENCODER1.velocidad = ENCODER1.velo / 0.5;  //500 ms
+
+        //va al final
+        encoder_velo = 0;  //limpia el encoder
+    }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Llamar desde el SysTick</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=477" target="_blank" rel="noopener">&#9654; 7:57</a></div><p>En Core/Src/stm32f4xx_it.c incluye encoder.h y llama a Encoder_velo() dentro de SysTick_Handler.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;encoder.h&quot;
+/* USER CODE END Includes */
+
+void SysTick_Handler(void)
+{
+    /* USER CODE BEGIN SysTick_IRQn 0 */
+    Encoder_velo();
+    /* USER CODE END SysTick_IRQn 0 */
+    HAL_IncTick();
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/490.webp" target="_blank"><img src="img/490.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Usarla en main</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Inicializar y leer</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=512" target="_blank" rel="noopener">&#9654; 8:32</a></div><p>Antes del while inicializa el encoder con su resolución (4 para 4X, 2 para 2X o 1). Encoder_init arranca el timer en modo encoder con interrupción. Luego solo se leen los campos posicion y velocidad de la estructura.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char texto[100];
+
+Encoder_init(&amp;ENCODER1, 4);  // inicializo encoder 1 a 4x
+
+while (1)
+{
+    sprintf(texto, &quot;Pos=%d  vel1=%.1f\r\n\r\n&quot;, ENCODER1.posicion, ENCODER1.velocidad);
+    uartx_write_text(&amp;huart1, texto);
+    HAL_Delay(100);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Probar</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=680" target="_blank" rel="noopener">&#9654; 11:20</a></div><p>Programa y abre Hercules a 115200. Al girar la perilla cambia la posición y la velocidad vuelve a 0 cuando se detiene.</p><div class="uno"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Segundo encoder</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>TIM1 en modo encoder</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=713" target="_blank" rel="noopener">&#9654; 11:53</a></div><p>Configura TIM1 en Encoder Mode con TI1 and TI2 y habilita la interrupción de capture compare.</p><div class="uno"><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Declararlo en la librería</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=747" target="_blank" rel="noopener">&#9654; 12:27</a></div><p>En encoder.c agrega el extern de htim1 y la estructura ENCODER2. Descomenta el if del ENCODER2 en el callback y copia las tres líneas de velocidad para el ENCODER2 en Encoder_velo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim3;
+
+ENCODERS ENCODER1 = {&amp;htim3, TIM3};
+ENCODERS ENCODER2 = {&amp;htim1, TIM1};
+
+// en el callback
+if (htim-&gt;Instance == ENCODER2.TIMX)
+{
+    ENCODER2.pulsos = __HAL_TIM_GET_COUNTER(htim);
+    ENCODER2.posicion = (int16_t)ENCODER2.pulsos / ENCODER2.resolucion;
+    ENCODER2.velo = ENCODER2.posicion;
+}</code></pre></div><p class="ojo">Si aparece 'htim1 undeclared', falta descomentar o agregar la línea extern TIM_HandleTypeDef htim1; en encoder.c.</p><div class="dos"><figure class="cap"><a href="img/770.webp" target="_blank"><img src="img/770.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Inicializar y mostrar ambos</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=847" target="_blank" rel="noopener">&#9654; 14:07</a></div><p>En main inicializa el ENCODER2 con la misma línea y agrega sus campos al sprintf.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Encoder_init(&amp;ENCODER1, 4);  // inicializo encoder 1 a 4x
+Encoder_init(&amp;ENCODER2, 4);  // inicializo encoder 2 a 4x
+
+sprintf(texto, &quot;Pos1=%d  vel1=%.1f  Pos2=%d  vel2=%.1f\r\n&quot;,
+        ENCODER1.posicion, ENCODER1.velocidad,
+        ENCODER2.posicion, ENCODER2.velocidad);</code></pre></div><div class="dos"><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Resultado</h3><a class="min" href="https://youtu.be/DWjEvugn_z8?t=914" target="_blank" rel="noopener">&#9654; 15:14</a></div><p>La perilla mueve Pos1/vel1 y el eje del motor mueve Pos2/vel2, en positivo o negativo según el sentido. Es lo mismo de la clase 105, pero con mucho menos código en main.</p><div class="uno"><figure class="cap"><a href="img/925.webp" target="_blank"><img src="img/925.webp" alt="Clase 106 STM32: mis librerías para manejar varios encoders de cuadratura" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=DWjEvugn_z8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
