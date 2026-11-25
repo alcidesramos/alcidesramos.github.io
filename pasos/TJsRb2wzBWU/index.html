@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 54: Usando librerías de terceros, leyendo el sensor BMP280 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Bajar de GitHub una librería para el BMP280 (presión y temperatura por I2C), adaptarla al STM32F4 cambiando un include por main.h y usar su ejemplo con la función de UART del curso.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/TJsRb2wzBWU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 54: Usando librerías de terceros, leyendo el sensor BMP280 · Paso a paso">
+  <meta property="og:description" content="Bajar de GitHub una librería para el BMP280 (presión y temperatura por I2C), adaptarla al STM32F4 cambiando un include por main.h y usar su ejemplo con la función de UART del curso.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/TJsRb2wzBWU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/TJsRb2wzBWU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Librerías de terceros: sensor <span>BMP280</span></h1>
+    <p class="lead">No siempre hay que escribir la librería: también hay que saber usar y adaptar las de otros. Se usa la librería bmp280.c/.h de ciastkolog (BMP280_STM32 en GitHub). Casi todas las librerías de internet incluyen el HAL de un micro concreto (aquí stm32f0xx_hal.h); al cambiarlo por main.h funciona en cualquier STM32. Luego se copia el ejemplo del autor y se simplifica con uartx_write_text.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=TJsRb2wzBWU" target="_blank" rel="noopener">&#9654; Ver el video completo (14:36)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/840.webp" alt="Clase 54: Usando librerías de terceros, leyendo el sensor BMP280"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401 (cristal de 25 MHz)</li><li>Módulo BMP280 (o BME280, que además mide humedad)</li><li>Adaptador USB-serial</li><li>Librería bmp280.c / bmp280.h de github.com/ciastkolog/BMP280_STM32</li><li>Librería uart del curso</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · GitHub</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · main.c</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Conseguir la librería</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Buscar y descargar</h3><a class="min" href="https://youtu.be/TJsRb2wzBWU?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Busca «stm32 bmp280». El repositorio ciastkolog/BMP280_STM32 tiene la librería y un ejemplo de uso.</p><p>Abre bmp280.c y bmp280.h, pulsa <b>Raw</b> y guarda cada uno (clic derecho → Guardar como) en una carpeta Libreria dentro de Core del proyecto.</p><div class="dos"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Búsqueda" loading="lazy"></a><figcaption>Búsqueda</figcaption></figure><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="bmp280.c en GitHub" loading="lazy"></a><figcaption>bmp280.c en GitHub</figcaption></figure><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Ejemplo de uso del autor" loading="lazy"></a><figcaption>Ejemplo de uso del autor</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj, I2C y UART</h3><a class="min" href="https://youtu.be/TJsRb2wzBWU?t=204" target="_blank" rel="noopener">&#9654; 3:24</a></div><p>Proyecto para el STM32F401CC: HSE de 25 MHz y 84 MHz de HCLK, I2C1 por defecto y USART1 asíncrona a 9600.</p><div class="dos"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="I2C1" loading="lazy"></a><figcaption>I2C1</figcaption></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="USART1 a 9600" loading="lazy"></a><figcaption>USART1 a 9600</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Adaptar la librería al micro</h3><a class="min" href="https://youtu.be/TJsRb2wzBWU?t=272" target="_blank" rel="noopener">&#9654; 4:32</a></div><p>Agrega la carpeta Libreria al path. Aun así salen errores: el .h incluye el HAL de otra familia. Cámbialo por main.h, que ya incluye el HAL del micro con el que trabajas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// en bmp280.h
+// #include &quot;stm32f0xx_hal.h&quot;   // original (STM32F0)
+#include &quot;main.h&quot;              // sirve para F1, F4 o cualquier STM32</code></pre></div><p class="ojo">Este truco sirve para casi cualquier librería STM32 de internet: busca el include del HAL de la familia y cámbialo por main.h.</p><div class="dos"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Errores al compilar" loading="lazy"></a><figcaption>Errores al compilar</figcaption></figure><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="Include del STM32F0 en bmp280.h" loading="lazy"></a><figcaption>Include del STM32F0 en bmp280.h</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Usar el ejemplo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Includes y variables</h3><a class="min" href="https://youtu.be/TJsRb2wzBWU?t=308" target="_blank" rel="noopener">&#9654; 5:08</a></div><p>Activa también 'Use float with printf' en MCU Settings.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;bmp280.h&quot;
+#include &quot;uart.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+
+BMP280_HandleTypedef bmp280;
+float pressure, temperature, humidity;
+uint16_t size;
+uint8_t Data[256];</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Inicializar el sensor</h3><a class="min" href="https://youtu.be/TJsRb2wzBWU?t=380" target="_blank" rel="noopener">&#9654; 6:20</a></div><p>Del ejemplo del autor: parámetros por defecto, dirección I2C y el handle del I2C. Si no lo encuentra, reintenta cada 2 s. Luego indica si es BMP280 o BME280.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>bmp280_init_default_params(&amp;bmp280.params);
+bmp280.addr = BMP280_I2C_ADDRESS_0;   // 0x76 con SDO a tierra
+bmp280.i2c = &amp;hi2c1;
+
+while (!bmp280_init(&amp;bmp280, &amp;bmp280.params))
+{
+    sprintf((char *)Data, &quot;BMP280 initialization failed\n&quot;);
+    uartx_write_text(&amp;huart1, Data);
+    HAL_Delay(2000);
+}
+bool bme280p = bmp280.id == BME280_CHIP_ID;
+sprintf((char *)Data, &quot;BMP280: found %s\n&quot;, bme280p ? &quot;BME280&quot; : &quot;BMP280&quot;);
+uartx_write_text(&amp;huart1, Data);</code></pre></div><p class="ojo">El ejemplo original calcula size y usa HAL_UART_Transmit. Con la función del curso no hace falta: uartx_write_text calcula el largo sola.</p><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Código de ejemplo del autor" loading="lazy"></a><figcaption>Código de ejemplo del autor</figcaption></figure><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Sensor encontrado" loading="lazy"></a><figcaption>Sensor encontrado</figcaption></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Adaptado con uartx_write_text" loading="lazy"></a><figcaption>Adaptado con uartx_write_text</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Leer presión y temperatura</h3><a class="min" href="https://youtu.be/TJsRb2wzBWU?t=656" target="_blank" rel="noopener">&#9654; 10:56</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    HAL_Delay(100);
+    while (!bmp280_read_float(&amp;bmp280, &amp;temperature, &amp;pressure, &amp;humidity))
+    {
+        sprintf((char *)Data, &quot;Temperature/pressure reading failed\n&quot;);
+        uartx_write_text(&amp;huart1, Data);
+        HAL_Delay(2000);
+    }
+    sprintf((char *)Data, &quot;Pressure: %.2f Pa\r\nTemperature: %.2f C\r\n\r\n&quot;,
+            pressure, temperature);
+    uartx_write_text(&amp;huart1, Data);
+    HAL_Delay(500);
+}</code></pre></div><p class="ojo">El BMP280 no mide humedad, por eso se quita la parte de humidity del ejemplo. Con un BME280 puedes dejarla.</p><div class="dos"><figure class="cap"><a href="img/670.webp" target="_blank"><img src="img/670.webp" alt="Lectura del ejemplo original" loading="lazy"></a><figcaption>Lectura del ejemplo original</figcaption></figure><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Formato con saltos de línea" loading="lazy"></a><figcaption>Formato con saltos de línea</figcaption></figure><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Versión simplificada" loading="lazy"></a><figcaption>Versión simplificada</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Resultado</h3><a class="min" href="https://youtu.be/TJsRb2wzBWU?t=829" target="_blank" rel="noopener">&#9654; 13:49</a></div><p>Unos 100 000 Pa (casi una atmósfera) y 33.26 °C en el momento de la prueba.</p><div class="uno"><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Presión y temperatura en la terminal" loading="lazy"></a><figcaption>Presión y temperatura en la terminal</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=TJsRb2wzBWU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

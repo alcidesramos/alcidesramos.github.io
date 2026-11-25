@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 55: ADC Blue Pill, sin DMA y con DMA · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leer tres canales analógicos de la Blue Pill primero como en la clase 37 (ADC_Read en modo scan discontinuo) y luego con DMA circular, que deja los tres resultados en un buffer sin intervención del programa.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/iAjoO6wVtHE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 55: ADC Blue Pill, sin DMA y con DMA · Paso a paso">
+  <meta property="og:description" content="Leer tres canales analógicos de la Blue Pill primero como en la clase 37 (ADC_Read en modo scan discontinuo) y luego con DMA circular, que deja los tres resultados en un buffer sin intervención del programa.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/iAjoO6wVtHE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/iAjoO6wVtHE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>ADC en la Blue Pill: <span>sin DMA y con DMA</span></h1>
+    <p class="lead">DMA (acceso directo a memoria) permite que el hardware copie datos de un periférico a la RAM, de periférico a periférico o de memoria a memoria sin que el programa intervenga. Se arma un proyecto desde cero para el STM32F103C8 con LCD, UART y tres canales ADC (dos potenciómetros y un LM35). Primero se leen con ADC_Read como en la clase 37 y después se activa el DMA circular en media palabra (16 bits) y se lee todo con HAL_ADC_Start_DMA en un buffer. Se simula en Proteus; con la Black Pill (Cortex-M4) Proteus no lo simula y se verá en la clase siguiente.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=iAjoO6wVtHE" target="_blank" rel="noopener">&#9654; Ver el video completo (31:00)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1330.webp" alt="Clase 55: ADC Blue Pill, sin DMA y con DMA"></figure>
+    <ul class="materiales"><li>Blue Pill STM32F103C8 en Proteus</li><li>Dos potenciómetros y un sensor LM35</li><li>LCD 16x2 (o 20x4) y terminal virtual</li><li>Librerías adc, delays, uart y lcd del curso</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeMX</a><a href="#f2">2 · ADC_Read</a><a href="#f3">3 · HAL_ADC_Start_DMA</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>UART y LCD</h3><a class="min" href="https://youtu.be/iAjoO6wVtHE?t=129" target="_blank" rel="noopener">&#9654; 2:09</a></div><p>Proyecto nuevo para el STM32F103C8T6 con el reloj interno de 8 MHz (suficiente para simular). USART1 asíncrona a 9600.</p><p>Pines del LCD como salida con las etiquetas LCD_RS, LCD_E, LCD_D4 a LCD_D7 (clase del LCD).</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 55: ADC Blue Pill, sin DMA y con DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Tres canales en modo scan</h3><a class="min" href="https://youtu.be/iAjoO6wVtHE?t=304" target="_blank" rel="noopener">&#9654; 5:04</a></div><p>Activa tres entradas del ADC1 (en el video IN0, IN3 e IN4). Pon <b>Number of Conversion</b> en 3 para que se habilite <b>Scan Conversion Mode</b>. Activa el modo discontinuo con 1 conversión, como en la clase 37.</p><p>En cada Rank asigna un canal: Rank 1, 2 y 3.</p><div class="dos"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Configuración del ADC" loading="lazy"></a><figcaption>Configuración del ADC</figcaption></figure><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Rank y canal de cada conversión" loading="lazy"></a><figcaption>Rank y canal de cada conversión</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Librerías</h3><a class="min" href="https://youtu.be/iAjoO6wVtHE?t=409" target="_blank" rel="noopener">&#9654; 6:49</a></div><p>Copia las librerías adc, delays, uart y lcd en Librerias y agrégala al path. En User Constants del ADC agrega el handle label <code>adc1</code> (la librería lo usa). Activa printf con float y la generación del .hex.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;adc.h&quot;
+#include &quot;delays.h&quot;
+#include &quot;uart.h&quot;
+#include &quot;lcd.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+#include &quot;stdint.h&quot;</code></pre></div><p class="ojo">En el video aparecieron errores porque las etiquetas del LCD estaban mal escritas (LDC en vez de LCD) y un pin estaba repetido. Revisa que coincidan exactamente con la librería.</p><div class="dos"><figure class="cap"><a href="img/670.webp" target="_blank"><img src="img/670.webp" alt="Includes" loading="lazy"></a><figcaption>Includes</figcaption></figure><figure class="cap"><a href="img/1010.webp" target="_blank"><img src="img/1010.webp" alt="stdint.h" loading="lazy"></a><figcaption>stdint.h</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Probar LCD y UART</h3><a class="min" href="https://youtu.be/iAjoO6wVtHE?t=695" target="_blank" rel="noopener">&#9654; 11:35</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>delay_us_dwt_init();
+Lcd_Init();
+Lcd_Cmd(_LCD_CLEAR);
+Lcd_Cmd(_LCD_CURSOR_OFF);
+Lcd_Text(1, 4, &quot;ADC_DMA&quot;);
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);</code></pre></div><p class="ojo">Antes de programar la lógica, prueba cada periférico por separado (LCD, UART).</p><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Inicialización del LCD" loading="lazy"></a><figcaption>Inicialización del LCD</figcaption></figure><figure class="cap"><a href="img/950.webp" target="_blank"><img src="img/950.webp" alt="Texto de prueba" loading="lazy"></a><figcaption>Texto de prueba</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Sin DMA</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Leer los tres canales</h3><a class="min" href="https://youtu.be/iAjoO6wVtHE?t=1002" target="_blank" rel="noopener">&#9654; 16:42</a></div><p>Cada llamada a ADC_Read() convierte el siguiente canal de la secuencia. El ADC es de 12 bits: se divide entre 4095.0 y se multiplica por 3.3 V. El LM35 da 10 mV/°C, por eso la temperatura se multiplica además por 100.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint16_t codigo;
+float voltaje1, voltaje2, temperatura;
+char texto[50];
+
+while (1)
+{
+    codigo = ADC_Read();
+    voltaje1 = codigo * 3.3 / 4095.0;
+    codigo = ADC_Read();
+    voltaje2 = codigo * 3.3 / 4095.0;
+    codigo = ADC_Read();
+    temperatura = codigo * 3.3 * 100.0 / 4095.0;
+
+    sprintf(texto, &quot;V1=%.1f&quot;, voltaje1);  Lcd_Text(2, 1, texto);
+    sprintf(texto, &quot;V2=%.1f&quot;, voltaje2);  Lcd_Text(3, 1, texto);
+    sprintf(texto, &quot;Temp=%.2f&quot;, temperatura);  Lcd_Text(4, 1, texto);
+
+    sprintf(texto, &quot;V1=%.1f   V2=%.1f   T=%.2f\r\n\r\n&quot;, voltaje1, voltaje2, temperatura);
+    uartx_write_text(&amp;huart1, texto);
+    HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Primera lectura" loading="lazy"></a><figcaption>Primera lectura</figcaption></figure><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Conversión a voltios" loading="lazy"></a><figcaption>Conversión a voltios</figcaption></figure><figure class="cap"><a href="img/1420.webp" target="_blank"><img src="img/1420.webp" alt="LCD y UART" loading="lazy"></a><figcaption>LCD y UART</figcaption></figure><figure class="cap"><a href="img/1330.webp" target="_blank"><img src="img/1330.webp" alt="Simulación en Proteus" loading="lazy"></a><figcaption>Simulación en Proteus</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Con DMA</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Activar el DMA del ADC</h3><a class="min" href="https://youtu.be/iAjoO6wVtHE?t=1445" target="_blank" rel="noopener">&#9654; 24:05</a></div><p>En ADC1 → DMA Settings → Add: elige ADC1, dirección <b>Peripheral To Memory</b>, modo <b>Circular</b> y ancho de dato <b>Half Word</b> (16 bits) en periférico y memoria.</p><p>Circular: cuando el buffer se llena vuelve a empezar y sigue llenándolo. Normal: se detiene al llenarlo.</p><div class="dos"><figure class="cap"><a href="img/1460.webp" target="_blank"><img src="img/1460.webp" alt="DMA en modo circular" loading="lazy"></a><figcaption>DMA en modo circular</figcaption></figure><figure class="cap"><a href="img/1500.webp" target="_blank"><img src="img/1500.webp" alt="Half Word" loading="lazy"></a><figcaption>Half Word</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Leer con DMA</h3><a class="min" href="https://youtu.be/iAjoO6wVtHE?t=1550" target="_blank" rel="noopener">&#9654; 25:50</a></div><p>Declara un buffer de 16 bits. HAL_ADC_Start_DMA convierte los tres canales y los deja en adc_buf[0], [1] y [2]. El resto del programa queda igual.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint16_t adc_buf[3];
+
+// con DMA
+HAL_ADC_Start_DMA(&amp;hadc1, (uint32_t *)adc_buf, 3);   // inicia la conversión
+HAL_Delay(10);
+
+voltaje1    = adc_buf[0] * 3.3 / 4095.0;
+voltaje2    = adc_buf[1] * 3.3 / 4095.0;
+temperatura = adc_buf[2] * 3.3 * 100.0 / 4095.0;</code></pre></div><p class="ojo">La función pide un puntero uint32_t*, por eso el cast. El retardo de 10 ms reemplaza por ahora la interrupción de fin de DMA, que se verá más adelante. La gran ventaja del DMA aparece al llenar buffers de cientos de muestras de un canal, por ejemplo para graficar una señal.</p><div class="dos"><figure class="cap"><a href="img/1590.webp" target="_blank"><img src="img/1590.webp" alt="Lectura sin DMA comentada" loading="lazy"></a><figcaption>Lectura sin DMA comentada</figcaption></figure><figure class="cap"><a href="img/1660.webp" target="_blank"><img src="img/1660.webp" alt="HAL_ADC_Start_DMA" loading="lazy"></a><figcaption>HAL_ADC_Start_DMA</figcaption></figure><figure class="cap"><a href="img/1720.webp" target="_blank"><img src="img/1720.webp" alt="Error: voltaje2 con adc_buf[0]" loading="lazy"></a><figcaption>Error: voltaje2 con adc_buf[0]</figcaption></figure><figure class="cap"><a href="img/1790.webp" target="_blank"><img src="img/1790.webp" alt="Corregido con adc_buf[1] y adc_buf[2]" loading="lazy"></a><figcaption>Corregido con adc_buf[1] y adc_buf[2]</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=iAjoO6wVtHE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
