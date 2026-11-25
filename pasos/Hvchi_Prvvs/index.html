@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 30: un retardo en milisegundos propio, más preciso que HAL_Delay (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="HAL_Delay(1) dura casi 2 ms. Con un Delay_ms propio que llama a cualquiera de los retardos en microsegundos (DWT, C, ensamblador o timer) el milisegundo queda en 0.996 a 0.998 ms.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/Hvchi_Prvvs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 30: un retardo en milisegundos propio, más preciso que HAL_Delay (paso a paso) · Paso a paso">
+  <meta property="og:description" content="HAL_Delay(1) dura casi 2 ms. Con un Delay_ms propio que llama a cualquiera de los retardos en microsegundos (DWT, C, ensamblador o timer) el milisegundo queda en 0.996 a 0.998 ms.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/Hvchi_Prvvs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Hvchi_Prvvs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 30: retardo en <span>milisegundos</span> propio</h1>
+    <p class="lead">Medimos con el analizador lógico un pulso hecho con HAL_Delay(1) y sale de 1.99 ms: casi el doble. Luego creamos Delay_ms, que multiplica por 1000 y llama a un retardo en microsegundos de las clases anteriores, y lo probamos con cada uno.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Hvchi_Prvvs" target="_blank" rel="noopener">&#9654; Ver el video completo (5:04)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/180.webp" alt="Clase 30: un retardo en milisegundos propio, más preciso que HAL_Delay (paso a paso)"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401</li><li>ST-Link</li><li>Analizador lógico</li><li>Los retardos en µs de las clases 26 a 29</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · HAL_Delay</a><a href="#f2">2 · Delay_ms</a><a href="#f3">3 · Medir</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El problema de HAL_Delay</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>HAL_Delay(1) dura casi 2 ms</h3><a class="min" href="https://youtu.be/Hvchi_Prvvs?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Un pulso con <code>HAL_Delay(1)</code> mide <b>1.99 ms</b> en el analizador. Si necesitas precisión, HAL_Delay no sirve para tiempos cortos.</p><div class="uno"><figure class="cap"><a href="img/45.webp" target="_blank"><img src="img/45.webp" alt="Clase 30: un retardo en milisegundos propio, más preciso que HAL_Delay (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Delay_ms propio</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>La función</h3><a class="min" href="https://youtu.be/Hvchi_Prvvs?t=64" target="_blank" rel="noopener">&#9654; 1:04</a></div><p>Recibe milisegundos, multiplica por 1000 y llama al retardo en microsegundos que prefieras:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Delay_ms(uint32_t ms)</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    delay_us_dwt(ms * 1000);     // o delay_us_ASM, delay_us_C, delay_us_tim</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>}</code></pre></div><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Clase 30: un retardo en milisegundos propio, más preciso que HAL_Delay (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Inicializar si hace falta</h3><a class="min" href="https://youtu.be/Hvchi_Prvvs?t=96" target="_blank" rel="noopener">&#9654; 1:36</a></div><p>El de DWT y el de timer necesitan su init antes del while. El de C y el de ensamblador no.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>delay_us_dwt_init();   // si usas DWT</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>delayus_tim_init();    // si usas timer</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    salida_GPIO_Port-&gt;BSRR = salida_Pin;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    Delay_ms(1);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    salida_GPIO_Port-&gt;BSRR = salida_Pin &lt;&lt; 16;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    Delay_ms(1);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>}</code></pre></div><p class="ojo">Si olvidas el init del DWT o del timer, el retardo no funciona y no sale señal.</p><div class="dos"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 30: un retardo en milisegundos propio, más preciso que HAL_Delay (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/255.webp" target="_blank"><img src="img/255.webp" alt="Clase 30: un retardo en milisegundos propio, más preciso que HAL_Delay (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Resultados</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Todos mejoran a la HAL</h3><a class="min" href="https://youtu.be/Hvchi_Prvvs?t=135" target="_blank" rel="noopener">&#9654; 2:15</a></div><ul><li>HAL_Delay(1): 1.99 ms</li><li>Con DWT: 0.996 ms</li><li>Con ensamblador: 0.998 ms</li><li>Con C: 0.998 ms</li><li>Con timer: muy preciso, pero gasta un timer y sus 4 canales de PWM o captura</li></ul><p class="ojo">Próximo paso del curso: juntar todos los retardos en una librería que se incluye con un simple #include.</p><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase 30: un retardo en milisegundos propio, más preciso que HAL_Delay (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Hvchi_Prvvs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
