@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El retardo en microsegundos más preciso: un timer que cuenta a 1 MHz (prescaler = frecuencia en MHz − 1). Sin calibrar. Con HAL o con registros, y con nombres genéricos TIMX/TIMERX para cambiar de timer fácilmente.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/h9aaW-9-a5g/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso) · Paso a paso">
+  <meta property="og:description" content="El retardo en microsegundos más preciso: un timer que cuenta a 1 MHz (prescaler = frecuencia en MHz − 1). Sin calibrar. Con HAL o con registros, y con nombres genéricos TIMX/TIMERX para cambiar de timer fácilmente.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/h9aaW-9-a5g/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/h9aaW-9-a5g/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Retardos en microsegundos <span>con timer</span></h1>
+    <p class="lead">Un timer es un contador que avanza con el reloj dividido por un preescalador. Si lo hacemos contar a 1 MHz, cada cuenta es 1 µs: basta con ponerlo a cero y esperar a que llegue al valor pedido. Probado en la Black Pill F401 a 84 MHz con el analizador lógico.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=h9aaW-9-a5g" target="_blank" rel="noopener">&#9654; Ver el video completo (11:33)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/560.webp" alt="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso)"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401 (o cualquier STM32)</li><li>ST-Link</li><li>Analizador lógico</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeMX</a><a href="#f2">2 · TIMX</a><a href="#f3">3 · Código</a><a href="#f4">4 · Probar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configurar el timer</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Elegir un timer</h3><a class="min" href="https://youtu.be/h9aaW-9-a5g?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>En <b>Timers</b> elige uno (aquí <b>TIM1</b>) y en <b>Clock Source</b> pon <b>Internal Clock</b>. Un timer de 16 bits cuenta hasta 65535 µs, suficiente: para más tiempo ya está HAL_Delay en milisegundos. Los de 32 bits (TIM2, TIM5) cuentan hasta 4 294 967 295.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/165.webp" target="_blank"><img src="img/165.webp" alt="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Prescaler = MHz − 1</h3><a class="min" href="https://youtu.be/h9aaW-9-a5g?t=190" target="_blank" rel="noopener">&#9654; 3:10</a></div><p>Mira en Clock Configuration a qué frecuencia llega el reloj del timer (84 MHz en la F401). Pon <b>Prescaler = 84-1</b> para que cuente a 1 MHz, es decir, una cuenta por microsegundo.</p><div class="dos"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>La desventaja</h3><a class="min" href="https://youtu.be/h9aaW-9-a5g?t=222" target="_blank" rel="noopener">&#9654; 3:42</a></div><p>Gastas un timer completo: sus 4 canales podrían dar PWM para servos y motores o leer frecuencias de sensores. En micros con pocos timers eso pesa.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Nombres genéricos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>User Constants en CubeMX</h3><a class="min" href="https://youtu.be/h9aaW-9-a5g?t=387" target="_blank" rel="noopener">&#9654; 6:27</a></div><p>Para que el código no dependa del timer elegido, en <b>User Constants</b> crea la constante <b>TIMX</b> con valor <b>TIM1</b>. Con <b>Add IP Handle Label</b> crea <b>TIMERX</b> para el handle (htim1). Si mañana usas TIM2, solo cambias aquí.</p><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Las funciones</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Iniciar el timer</h3><a class="min" href="https://youtu.be/h9aaW-9-a5g?t=485" target="_blank" rel="noopener">&#9654; 8:05</a></div><p>Con HAL o con registros (poner a 1 el bit 0, CEN, de CR1):</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void delayus_tim_init()</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    // HAL_TIM_Base_Start(&amp;TIMERX);   // con HAL</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    TIMX-&gt;CR1 |= 1&lt;&lt;0;                // sin HAL: habilita el timer (CEN)</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>}</code></pre></div><p class="ojo">En el video aparece <code>1&gt;&gt;0</code>. Funciona porque vale 1, pero lo correcto es <code>1&lt;&lt;0</code>.</p><div class="uno"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>El retardo</h3><a class="min" href="https://youtu.be/h9aaW-9-a5g?t=516" target="_blank" rel="noopener">&#9654; 8:36</a></div><p>Pones el contador en cero y esperas a que llegue a los µs pedidos. Sin multiplicaciones ni calibración:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void delay_us_tim(uint32_t us)</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    // con HAL:</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    // __HAL_TIM_SET_COUNTER(&amp;TIMERX, 0);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    // while ((uint16_t)__HAL_TIM_GET_COUNTER(&amp;TIMERX) &lt; us);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    // sin HAL:</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    TIMX-&gt;CNT = 0;          // resetea el timer</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    while (TIMX-&gt;CNT &lt; us); // espera los us deseados</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>}</code></pre></div><p class="ojo">Con un timer de 32 bits cambia el cast a <code>(uint32_t)</code>.</p><div class="dos"><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Probar</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Llamarlo y medir</h3><a class="min" href="https://youtu.be/h9aaW-9-a5g?t=581" target="_blank" rel="noopener">&#9654; 9:41</a></div><p>Llama a <code>delayus_tim_init()</code> una vez después de MX_TIM1_Init(). Ya no hace falta el DWT. Pulso de 1 µs en modo atómico:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>delayus_tim_init();</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    salida_GPIO_Port-&gt;BSRR = salida_Pin;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    delay_us_tim(1);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    salida_GPIO_Port-&gt;BSRR = salida_Pin &lt;&lt; 16;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    delay_us_tim(1);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>}</code></pre></div><div class="uno"><figure class="cap"><a href="img/595.webp" target="_blank"><img src="img/595.webp" alt="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/h9aaW-9-a5g?t=615" target="_blank" rel="noopener">&#9654; 10:15</a></div><p>El analizador mide <b>0.917 µs</b> y <b>1.083 µs</b>: el más preciso de todos los métodos vistos.</p><div class="uno"><figure class="cap"><a href="img/635.webp" target="_blank"><img src="img/635.webp" alt="Retardos en microsegundos parte 4: usando un timer del STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=h9aaW-9-a5g" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
