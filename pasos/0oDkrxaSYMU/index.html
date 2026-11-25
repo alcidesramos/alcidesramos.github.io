@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 86 STM32: interrupciones externas por flanco (EXTI) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se agregan dos pulsadores con interrupción externa por flanco de bajada: uno conmuta o enciende LED4 (EXTI3, dedicada) y otro lo apaga (EXTI10, compartida 10-15), verificando cuál pin disparó la interrupción.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/0oDkrxaSYMU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 86 STM32: interrupciones externas por flanco (EXTI) · Paso a paso">
+  <meta property="og:description" content="Se agregan dos pulsadores con interrupción externa por flanco de bajada: uno conmuta o enciende LED4 (EXTI3, dedicada) y otro lo apaga (EXTI10, compartida 10-15), verificando cuál pin disparó la interrupción.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/0oDkrxaSYMU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/0oDkrxaSYMU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Interrupciones por <span>flanco (EXTI)</span> en STM32</h1>
+    <p class="lead">Continuando la clase de interrupciones por timer, se añade un pulsador en PB3 configurado como GPIO_EXTI3 con flanco de bajada y pull-up interno. En el NVIC se habilita la línea EXTI3 con prioridad 3 (menos prioritaria que el timer). En stm32f4xx_it.c, dentro de EXTI3_IRQHandler, se conmuta LED4. Luego se agrega un segundo pulsador en PA10 (EXTI10); como las líneas 10 a 15 comparten un solo vector (EXTI15_10_IRQHandler), se usa __HAL_GPIO_EXTI_GET_IT para saber qué pin generó la interrupción. Al final un botón enciende LED4 y el otro lo apaga, mientras el main y el timer siguen con sus LEDs: varias tareas en paralelo gracias a las interrupciones.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=0oDkrxaSYMU" target="_blank" rel="noopener">&#9654; Ver el video completo (7:00)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/385.webp" alt="Clase 86 STM32: interrupciones externas por flanco (EXTI)"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Proteus (BlackPill STM32F401)</li><li>2 pulsadores a GND</li><li>4 LEDs con 220 Ω</li><li>Proyecto de la clase 85 (interrupción por timer) y pinout.h</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · PB3 por flanco de bajada</a><a href="#f2">2 · EXTI15_10 y cómo saber qué pin fue</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Primer pulsador en EXTI3</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Pulsador en el circuito</h3><a class="min" href="https://youtu.be/0oDkrxaSYMU?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>Se parte del montaje de la clase anterior (LED1 en el main, LED2 y LED3 por timer) y se agrega un pulsador entre PB3 y GND. La resistencia pull-up se activa por software, así que al presionar el micro lee un 0.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 86 STM32: interrupciones externas por flanco (EXTI)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>PB3 como GPIO_EXTI3</h3><a class="min" href="https://youtu.be/0oDkrxaSYMU?t=45" target="_blank" rel="noopener">&#9654; 0:45</a></div><p>En el pinout, PB3 se configura como GPIO_EXTI3 (no como entrada normal) y se etiqueta SW1. En GPIO se elige External Interrupt Mode with Falling edge trigger detection y Pull-up.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Clase 86 STM32: interrupciones externas por flanco (EXTI)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Habilitar EXTI line3 en el NVIC</h3><a class="min" href="https://youtu.be/0oDkrxaSYMU?t=101" target="_blank" rel="noopener">&#9654; 1:41</a></div><p>En NVIC se marca EXTI line3 interrupt. Se le da prioridad 3 para que sea menos prioritaria que la del timer (prioridad 1): entre mayor el número, menor la prioridad.</p><div class="uno"><figure class="cap"><a href="img/105.webp" target="_blank"><img src="img/105.webp" alt="Clase 86 STM32: interrupciones externas por flanco (EXTI)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Código en EXTI3_IRQHandler</h3><a class="min" href="https://youtu.be/0oDkrxaSYMU?t=133" target="_blank" rel="noopener">&#9654; 2:13</a></div><p>El include de pinout.h se mueve a la sección de includes de stm32f4xx_it.c. En el manejador generado se conmuta LED4:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void EXTI3_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI3_IRQn 0 */
+  PIN_BLINK(LED4);
+  /* USER CODE END EXTI3_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(SW1_Pin);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 86 STM32: interrupciones externas por flanco (EXTI)" loading="lazy"></a></figure><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 86 STM32: interrupciones externas por flanco (EXTI)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/0oDkrxaSYMU?t=166" target="_blank" rel="noopener">&#9654; 2:46</a></div><p>Al simular, cada clic en el pulsador cambia el estado de LED4 mientras los otros LEDs siguen parpadeando a 2 s, 200 ms y 600 ms.</p><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase 86 STM32: interrupciones externas por flanco (EXTI)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Segundo pulsador en línea compartida</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>PA10 como GPIO_EXTI10</h3><a class="min" href="https://youtu.be/0oDkrxaSYMU?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>Se añade otro pulsador en PA10 (SW2), también con flanco de bajada y pull-up. En el NVIC las líneas 10 a 15 aparecen unidas en EXTI line[15:10] interrupts, a diferencia de EXTI3 que tiene vector propio.</p><div class="dos"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Clase 86 STM32: interrupciones externas por flanco (EXTI)" loading="lazy"></a></figure><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Clase 86 STM32: interrupciones externas por flanco (EXTI)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Manejador compartido EXTI15_10</h3><a class="min" href="https://youtu.be/0oDkrxaSYMU?t=267" target="_blank" rel="noopener">&#9654; 4:27</a></div><p>Como el vector lo comparten los pines 10 a 15, dentro del manejador se pregunta cuál pin generó la interrupción. SW2 apaga LED4 y SW1 lo enciende:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void EXTI15_10_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI15_10_IRQn 0 */
+  if (__HAL_GPIO_EXTI_GET_IT(SW2_Pin) != RESET)
+  {
+    PIN_OFF(LED4);
+  }
+  /* USER CODE END EXTI15_10_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(SW2_Pin);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Clase 86 STM32: interrupciones externas por flanco (EXTI)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Verificar también en la dedicada</h3><a class="min" href="https://youtu.be/0oDkrxaSYMU?t=335" target="_blank" rel="noopener">&#9654; 5:35</a></div><p>Aunque EXTI3 es dedicada, por seguridad se puede hacer la misma verificación:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void EXTI3_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI3_IRQn 0 */
+  if (__HAL_GPIO_EXTI_GET_IT(SW1_Pin) != RESET)
+  {
+    PIN_ON(LED4);
+  }
+  /* USER CODE END EXTI3_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(SW1_Pin);
+}</code></pre></div><p class="ojo">En las interrupciones por flanco compartidas (normalmente las líneas 10 a 15) siempre hay que comprobar con __HAL_GPIO_EXTI_GET_IT cuál pin la disparó.</p><div class="uno"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 86 STM32: interrupciones externas por flanco (EXTI)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Resultado: varias tareas a la vez</h3><a class="min" href="https://youtu.be/0oDkrxaSYMU?t=367" target="_blank" rel="noopener">&#9654; 6:07</a></div><p>Un pulsador enciende LED4 y el otro lo apaga al instante, mientras LED1 sigue en el main y LED2/LED3 en la interrupción del timer: cuatro procesos trabajando en paralelo sin RTOS.</p><div class="uno"><figure class="cap"><a href="img/385.webp" target="_blank"><img src="img/385.webp" alt="Clase 86 STM32: interrupciones externas por flanco (EXTI)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=0oDkrxaSYMU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
