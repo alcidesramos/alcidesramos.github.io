@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Lee uno y dos encoders con los timers en modo encoder 4X, calcula posición con signo y velocidad con el SysTick, y míralos en vivo o por serial.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/ce3ox2ddzgg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías · Paso a paso">
+  <meta property="og:description" content="Lee uno y dos encoders con los timers en modo encoder 4X, calcula posición con signo y velocidad con el SysTick, y míralos en vivo o por serial.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/ce3ox2ddzgg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/ce3ox2ddzgg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Posición y velocidad de <span>encoders de cuadratura</span></h1>
+    <p class="lead">Sin librerías, paso a paso: se configura el TIM3 en modo encoder (TI1 y TI2, 4X) con interrupción, se arranca con HAL_TIM_Encoder_Start_IT y en HAL_TIM_IC_CaptureCallback se lee el contador y se convierte a una posición con signo. La velocidad se calcula en el SysTick cada 500 ms. Se ven las variables en tiempo real con Live Expressions del depurador y luego por puerto serial. Al final se agrega un segundo encoder en el TIM1.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=ce3ox2ddzgg" target="_blank" rel="noopener">&#9654; Ver el video completo (25:34)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1510.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill) a 100 MHz</li><li>Encoder tipo perilla en PA6/PA7 (TIM3)</li><li>Motor DC con encoder en PA8/PA9 (TIM1)</li><li>Conversor USB-serial (TX en PB6, RX en PA10)</li><li>ST-Link para usar Live Expressions</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · 1X, 2X y 4X</a><a href="#f2">2 · TIM3</a><a href="#f3">3 · Callback</a><a href="#f4">4 · SysTick</a><a href="#f5">5 · Sin depurador</a><a href="#f6">6 · TIM1</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El encoder de cuadratura</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La tarjeta</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La tarjeta tiene un encoder tipo perilla en PA6 y PA7 y el encoder del motor en PA8 y PA9. El USART1 transmite por PB6 y recibe por PA10. El puente H se verá en otro video.</p><div class="dos"><figure class="cap"><a href="img/15.webp" target="_blank"><img src="img/15.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Modos de conteo</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=96" target="_blank" rel="noopener">&#9654; 1:36</a></div><p>1X cuenta solo el flanco de subida de un canal; 2X cuenta subida y bajada de un canal; 4X cuenta los cuatro flancos de los dos canales, así que da 4 pulsos por ciclo. Lo más usado es 4X; solo reduce la resolución si el motor es muy rápido.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar el primer encoder</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj a máxima velocidad</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=202" target="_blank" rel="noopener">&#9654; 3:22</a></div><p>Crea el proyecto (encoder_canal) para el STM32F411. En RCC activa el cristal externo (HSE) y en Clock Configuration usa el PLL para llegar a 100 MHz, el máximo de este micro, para responder bien a encoders rápidos.</p><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>TIM3 en modo encoder</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=235" target="_blank" rel="noopener">&#9654; 3:55</a></div><p>En Timers > TIM3 elige Combined Channels: Encoder Mode; se habilitan PA6 y PA7. En Parameter Settings pon Encoder Mode en TI1 and TI2 (4X); TI1 o TI2 solos dan 2X. En NVIC habilita la interrupción global del TIM3.</p><p>Activa también USART1 asíncrono (115200) y mueve su TX a PB6 si tu tarjeta lo usa así.</p><div class="uno"><figure class="cap"><a href="img/285.webp" target="_blank"><img src="img/285.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Leer la posición</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Variables</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=364" target="_blank" rel="noopener">&#9654; 6:04</a></div><p>encoder_pulsos guarda el contador del timer (0 a 65535 en un timer de 16 bits). Para tener posiciones negativas al girar a la izquierda se convierte a int16_t, que parte el rango a la mitad.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PV */
+#define encoder_res 4   // 4X (2 si usas 2X)
+
+uint32_t encoder_pulsos = 0;
+int16_t  encoder_pos = 0;
+/* USER CODE END PV */</code></pre></div><div class="uno"><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Arrancar el encoder con interrupción</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=434" target="_blank" rel="noopener">&#9654; 7:14</a></div><p>Antes del while arranca el timer en modo encoder con interrupción. Como son dos canales se usa TIM_CHANNEL_ALL.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_TIM_Encoder_Start_IT(&amp;htim3, TIM_CHANNEL_ALL);</code></pre></div><div class="uno"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Encontrar el callback</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=468" target="_blank" rel="noopener">&#9654; 7:48</a></div><p>En lugar de usar la interrupción propia de cada timer en stm32f4xx_it.c, es mejor usar el callback global de input capture y ver qué timer lo produjo. Está en Drivers > STM32F4xx_HAL_Driver > Src > stm32f4xx_hal_tim.c como función __weak.</p><p>Si el archivo no muestra el código por ser muy grande, ve a Window > Preferences > C/C++ > Editor > Scalability y desmarca las opciones de ese apartado.</p><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Calcular la posición</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=569" target="_blank" rel="noopener">&#9654; 9:29</a></div><p>Copia HAL_TIM_IC_CaptureCallback a main.c (en USER CODE BEGIN 0) sin la palabra __weak. Si la interrupción es del TIM3 se lee el contador, se convierte a entero con signo y se divide entre la resolución.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    //VERIFICA QUE ES DEBIDO AL TIMER3
+    if (htim-&gt;Instance == TIM3)
+    {
+        encoder_pulsos = __HAL_TIM_GET_COUNTER(&amp;htim3);
+        encoder_pos = (int16_t)encoder_pulsos / encoder_res;
+    }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Ver las variables en vivo</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=668" target="_blank" rel="noopener">&#9654; 11:08</a></div><p>Entra en depuración, pulsa Resume y en la pestaña Live Expressions agrega encoder_pulsos y encoder_pos. Al girar a la derecha la posición sube; a la izquierda encoder_pulsos salta a 65535 pero encoder_pos se vuelve negativa.</p><div class="dos"><figure class="cap"><a href="img/715.webp" target="_blank"><img src="img/715.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Calcular la velocidad</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Variables de velocidad</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=768" target="_blank" rel="noopener">&#9654; 12:48</a></div><p>Se usa la posición actual y la anterior, separadas por un tiempo exacto que cuenta el SysTick (interrupción de 1 ms).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>int16_t encoder_vel_act = 0, encoder_vel_ant = 0;
+float   encoder_velocidad = 0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Externas en stm32f4xx_it.c</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=802" target="_blank" rel="noopener">&#9654; 13:22</a></div><p>En Core/Src/stm32f4xx_it.c declara esas variables como externas y crea ahí el contador de tiempo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PV */
+extern int16_t encoder_vel_act, encoder_vel_ant;
+extern float encoder_velocidad;
+uint16_t encoder_vel_cont = 0;
+/* USER CODE END PV */</code></pre></div><div class="uno"><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Velocidad en el SysTick_Handler</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=835" target="_blank" rel="noopener">&#9654; 13:55</a></div><p>Cada 500 ms la velocidad es la posición actual menos la anterior dividida entre 0,5 s. Con 200 ms dividirías entre 0,2; cuanto menor el tiempo, más carga para el micro.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void SysTick_Handler(void)
+{
+    /* USER CODE BEGIN SysTick_IRQn 0 */
+    encoder_vel_cont++;
+    if (encoder_vel_cont &gt; 500)
+    {
+        encoder_velocidad = encoder_vel_act - encoder_vel_ant;
+        encoder_velocidad = encoder_velocidad / 0.5;  // porque fue 500 ms
+        encoder_vel_ant = encoder_vel_act;
+        encoder_vel_cont = 0;
+    }
+    /* USER CODE END SysTick_IRQn 0 */
+    HAL_IncTick();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Guardar la posición actual</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=939" target="_blank" rel="noopener">&#9654; 15:39</a></div><p>En la primera prueba la velocidad no cambiaba: faltaba copiar la posición en encoder_vel_act dentro del callback.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>encoder_pulsos = __HAL_TIM_GET_COUNTER(&amp;htim3);
+encoder_pos = (int16_t)encoder_pulsos / encoder_res;
+encoder_vel_act = encoder_pos;</code></pre></div><div class="dos"><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/950.webp" target="_blank"><img src="img/950.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.5</span><h3>Probar la velocidad</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=976" target="_blank" rel="noopener">&#9654; 16:16</a></div><p>En Live Expressions agrega encoder_velocidad. Quieto da 0; girando despacio da 2 o 4 y rápido 14 o 32. Hacia la izquierda la velocidad es negativa (-20).</p><div class="uno"><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Ver los datos por serial</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Librería uart y float en printf</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=1008" target="_blank" rel="noopener">&#9654; 16:48</a></div><p>Copia uart.c/uart.h a la carpeta Librerias e incluye stdio.h, stdint.h, stdlib.h y string.h. En Properties > C/C++ Build > Settings > MCU Settings marca Use float with printf, porque la velocidad es flotante. Crea char texto[100];.</p><div class="uno"><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Enviar posición y velocidad</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=1115" target="_blank" rel="noopener">&#9654; 18:35</a></div><p>En el while envía la posición y la velocidad cada 200 ms; un retardo muy largo puede hacer perder lecturas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    sprintf(texto, &quot;POS1=%d    VE1=%.1f\r\n\r\n&quot;, encoder_pos, encoder_velocidad);
+    uartx_write_text(&amp;huart1, texto);
+    HAL_Delay(200);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1160.webp" target="_blank"><img src="img/1160.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/1230.webp" target="_blank"><img src="img/1230.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f6"><div class="contenedor"><span class="etiqueta">Fase 6</span><h2>Segundo encoder</h2><article class="paso"><div class="paso-cab"><span class="num">6.1</span><h3>TIM1 en modo encoder</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=1253" target="_blank" rel="noopener">&#9654; 20:53</a></div><p>Configura TIM1 en Encoder Mode con TI1 and TI2. Este timer tiene varias interrupciones: habilita la de capture compare (TIM1 capture compare interrupt).</p><div class="uno"><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.2</span><h3>Variables y callback del encoder 2</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=1324" target="_blank" rel="noopener">&#9654; 22:04</a></div><p>Duplica las variables con el prefijo encoder2_ y agrega un if para el TIM1 en el callback. Arráncalo igual que el primero.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint32_t encoder2_pulsos = 0;
+int16_t  encoder2_pos = 0;
+int16_t  encoder2_vel_act = 0, encoder2_vel_ant = 0;
+float    encoder2_velocidad = 0;
+
+// en HAL_TIM_IC_CaptureCallback
+if (htim-&gt;Instance == TIM1)
+{
+    encoder2_pulsos = __HAL_TIM_GET_COUNTER(&amp;htim1);
+    encoder2_pos = (int16_t)encoder2_pulsos / encoder_res;
+    encoder2_vel_act = encoder2_pos;
+}
+
+// antes del while
+HAL_TIM_Encoder_Start_IT(&amp;htim1, TIM_CHANNEL_ALL);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1340.webp" target="_blank"><img src="img/1340.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.3</span><h3>Velocidad del encoder 2</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=1430" target="_blank" rel="noopener">&#9654; 23:50</a></div><p>En stm32f4xx_it.c agrega las externas del encoder 2 y en el SysTick repite las tres líneas del cálculo con sus variables (el contador de tiempo es el mismo).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern int16_t encoder2_vel_act, encoder2_vel_ant;
+extern float encoder2_velocidad;
+
+// dentro del if (encoder_vel_cont &gt; 500)
+encoder2_velocidad = encoder2_vel_act - encoder2_vel_ant;
+encoder2_velocidad = encoder2_velocidad / 0.5;
+encoder2_vel_ant = encoder2_vel_act;</code></pre></div><div class="dos"><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/1460.webp" target="_blank"><img src="img/1460.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.4</span><h3>Resultado</h3><a class="min" href="https://youtu.be/ce3ox2ddzgg?t=1497" target="_blank" rel="noopener">&#9654; 24:57</a></div><p>Por el serial salen POS1/VE1 y POS2/VE2: la perilla y el eje del motor se leen al mismo tiempo por interrupciones, con velocidad positiva o negativa según el sentido. En el siguiente video todo esto se agrupa en una librería con estructuras.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;POS1=%d  VE1=%.1f  POS2=%d  VE2=%.1f\r\n&quot;,
+        encoder_pos, encoder_velocidad, encoder2_pos, encoder2_velocidad);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1510.webp" target="_blank"><img src="img/1510.webp" alt="Clase 105 STM32: posición y velocidad de varios encoders de cuadratura sin librerías" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=ce3ox2ddzgg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
