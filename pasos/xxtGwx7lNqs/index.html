@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Complemento de la clase 91: en lugar del celular, un VI de LabVIEW se conecta como cliente TCP al DT-06 (192.168.4.1:200), lee las tramas !A00=…$ y !A01=…$ y las muestra en un termómetro y un LED, casi en tiempo real.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/xxtGwx7lNqs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP) · Paso a paso">
+  <meta property="og:description" content="Complemento de la clase 91: en lugar del celular, un VI de LabVIEW se conecta como cliente TCP al DT-06 (192.168.4.1:200), lee las tramas !A00=…$ y !A01=…$ y las muestra en un termómetro y un LED, casi en tiempo real.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/xxtGwx7lNqs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/xxtGwx7lNqs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Monitoreo WiFi con <span>DT-06 y LabVIEW</span> por TCP</h1>
+    <p class="lead">Se usa el mismo programa del STM32 de la clase anterior (DS18B20 y pulsador enviando el protocolo de Virtuino), pero enviando más rápido (200 ms). El PC se conecta a la red WiFi del DT-06 y en LabVIEW se arma un ciclo while con TCP Open Connection (IP del módulo y puerto 200), TCP Read en modo Buffered y TCP Close Connection. De la cadena recibida se extrae el valor entre !A00= y $ con Match Pattern, se convierte con Fract/Exp String To Number y se muestra en un termómetro. El pulsador (!A01=) se compara con 1 para encender un LED. Es mucho más rápido que Virtuino.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=xxtGwx7lNqs" target="_blank" rel="noopener">&#9654; Ver el video completo (10:11)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/570.webp" alt="Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP)"></figure>
+    <ul class="materiales"><li>LabVIEW</li><li>Módulo WiFi DT-06 (en modo AP, servidor en el puerto 200)</li><li>Proyecto STM32 de la clase 91 (DS18B20 + pulsador)</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Open, Read y Close</a><a href="#f2">2 · Match Pattern, conversión y LED</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Conexión TCP en LabVIEW</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Abrir la conexión</h3><a class="min" href="https://youtu.be/xxtGwx7lNqs?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>En el diagrama de bloques se crea un ciclo while con botón Stop. Desde Data Communication → Protocols → TCP se pone TCP Open Connection con controles para la dirección y el puerto, y timeout −1 (espera indefinida). El PC debe estar conectado a la red WiFi del DT-06; la IP del módulo es 192.168.4.1 y el puerto el que se configuró en el servidor (200).</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Leer y cerrar</h3><a class="min" href="https://youtu.be/xxtGwx7lNqs?t=138" target="_blank" rel="noopener">&#9654; 2:18</a></div><p>Dentro del ciclo va TCP Read con timeout −1, modo Buffered y un número de bytes mayor que una trama (para que siempre haya dos o tres tramas completas en el buffer). Al salir del ciclo se cierra con TCP Close Connection. Un retardo de unos 300 ms basta, porque el PC es mucho más rápido que Virtuino.</p><div class="uno"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Ver los datos crudos</h3><a class="min" href="https://youtu.be/xxtGwx7lNqs?t=240" target="_blank" rel="noopener">&#9654; 4:00</a></div><p>En el STM32 se baja el retardo de envío a 200 ms. Al correr el VI, el indicador data out muestra las tramas que llegan, por ejemplo !A01=1$!A00=28.0$.</p><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Extraer y mostrar los valores</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Termómetro con la temperatura</h3><a class="min" href="https://youtu.be/xxtGwx7lNqs?t=315" target="_blank" rel="noopener">&#9654; 5:15</a></div><p>Se agrega un termómetro (0 a 100) con display digital y un LED en el panel frontal. Con un Match Pattern se busca !A00= y con un segundo Match Pattern sobre el after string se busca el fin de la trama; lo que queda en before substring es el valor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Match Pattern 1:  regular expression = !A00=
+Match Pattern 2:  regular expression = \$     (el $ escapado con \)</code></pre></div><p class="ojo">El $ es un carácter especial en las expresiones de Match Pattern; hay que escribirlo como \$. También verifique que el identificador sea A00 (analógico) y no V00.</p><div class="dos"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP)" loading="lazy"></a></figure><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP)" loading="lazy"></a></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Convertir a número</h3><a class="min" href="https://youtu.be/xxtGwx7lNqs?t=440" target="_blank" rel="noopener">&#9654; 7:20</a></div><p>La cadena se convierte con String/Number Conversion → Fract/Exp String To Number y se cablea al termómetro. Con clic derecho se pone use system decimal point en False para que tome el punto como separador decimal sin importar la configuración regional.</p><div class="dos"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP)" loading="lazy"></a></figure><figure class="cap"><a href="img/490.webp" target="_blank"><img src="img/490.webp" alt="Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Pulsador al LED</h3><a class="min" href="https://youtu.be/xxtGwx7lNqs?t=515" target="_blank" rel="noopener">&#9654; 8:35</a></div><p>Se repite el mismo bloque buscando !A01=. El resultado es 1 o 0, así que se compara con 1 y el booleano enciende o apaga el LED.</p><div class="uno"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Resultado</h3><a class="min" href="https://youtu.be/xxtGwx7lNqs?t=566" target="_blank" rel="noopener">&#9654; 9:26</a></div><p>Al cambiar la temperatura del DS18B20 en Proteus el termómetro se actualiza casi de inmediato, y el LED sigue al pulsador. El retardo que se nota es de la simulación de Proteus, no de la comunicación.</p><div class="uno"><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Clase 92 STM32: monitoreo por WiFi con DT-06 y LabVIEW (cliente TCP)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=xxtGwx7lNqs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
