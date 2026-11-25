@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Antes de poner un PID se mide cuánto tarda el proceso de control con TIM9 (40 µs) y se crea una interrupción exacta de 20 ms con TIM3 donde se leen frecuencia y potenciómetro y se aplica el PWM.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/Chyq1VGmcv8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo · Paso a paso">
+  <meta property="og:description" content="Antes de poner un PID se mide cuánto tarda el proceso de control con TIM9 (40 µs) y se crea una interrupción exacta de 20 ms con TIM3 donde se leen frecuencia y potenciómetro y se aplica el PWM.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/Chyq1VGmcv8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Chyq1VGmcv8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 115: <span>Tiempo de muestreo del control</span></h1>
+    <p class="lead">Segundo capítulo de la serie del motor DC. Para un control en lazo cerrado el tiempo de muestreo debe ser constante y mayor que lo que tarda el proceso (leer frecuencia, leer set point, calcular el PID y aplicar el PWM). Con el TIM9 contando microsegundos se mide que todo tarda unos 40 µs. Luego se configura el TIM3 con preescalador 840-1 y periodo 2000 para obtener una interrupción cada 20 ms, y el proceso se mueve a la librería timer.c, declarando como extern las variables compartidas con el main.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Chyq1VGmcv8" target="_blank" rel="noopener">&#9654; Ver el video completo (16:14)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/660.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo"></figure>
+    <ul class="materiales"><li>Montaje del motor DC de la clase 114</li><li>Blackpill STM32F401</li><li>Librerías del canal: timer.c, PID, Frecuencia, PWMB, adc_x y MAP</li><li>Hoja de Excel de cálculo de timers</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · TIM9 como cronómetro</a><a href="#f2">2 · TIM3 cada 20 ms</a><a href="#f3">3 · Librería timer.c</a><a href="#f4">4 · Muestreo exacto de 20 ms</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Medir el tiempo del proceso</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Incluir la librería PID</h3><a class="min" href="https://youtu.be/Chyq1VGmcv8?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>Se agrega la librería PID solo para medir el tiempo total: leer frecuencia, leer el set point, calcular el PID y sacar el PWM. El PID se explica en un próximo capítulo.</p><p>Para motores DC se usan tiempos de muestreo de 10 a 80 ms; el proceso debe tardar mucho menos que eso.</p><div class="uno"><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>TIM9 a 1 µs</h3><a class="min" href="https://youtu.be/Chyq1VGmcv8?t=166" target="_blank" rel="noopener">&#9654; 2:46</a></div><p>Se activa un timer libre, el TIM9, con reloj interno y prescaler 84-1 para que cuente microsegundos.</p><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Medir con el contador</h3><a class="min" href="https://youtu.be/Chyq1VGmcv8?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>Se arranca el timer, se pone el contador en cero, se ejecuta el proceso y se lee el valor del contador.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_TIM_Base_Start(&amp;htim9);
+TIM9-&gt;CNT=0;
+
+// proceso a medir: leer, calcular PID y aplicar PWM
+
+uint32_t tiempo=TIM9-&gt;CNT;
+sprintf(texto,&quot;TIM=%lu\r\n&quot;,tiempo);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><div class="uno"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Resultado: 40 µs</h3><a class="min" href="https://youtu.be/Chyq1VGmcv8?t=303" target="_blank" rel="noopener">&#9654; 5:03</a></div><p>El proceso tarda unos 40 µs. Se podría muestrear desde 2-3 ms, pero muestrear muy rápido carga el micro con interrupciones.</p><p>Se recomienda 10 ms o más, salvo procesos muy críticos. Aquí se usan 20 ms. El código de medición se deja comentado.</p><div class="uno"><figure class="cap"><a href="img/305.webp" target="_blank"><img src="img/305.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Timer de muestreo</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Calcular el TIM3</h3><a class="min" href="https://youtu.be/Chyq1VGmcv8?t=337" target="_blank" rel="noopener">&#9654; 5:37</a></div><p>Con preescalador 84-1 cada cuenta es 1 µs y el contador de 16 bits solo llega a 65 ms.</p><p>Si el preescalador es 840-1 (cristal x10) cada cuenta vale 10 µs: periodo 2000 = 20 ms, 5000 = 50 ms, 10000 = 100 ms. Así hay un rango más amplio sin pasar de 65535.</p><div class="dos"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar TIM3 con interrupción</h3><a class="min" href="https://youtu.be/Chyq1VGmcv8?t=414" target="_blank" rel="noopener">&#9654; 6:54</a></div><p>TIM3 con reloj interno, Prescaler 840-1 y Counter Period 2000.</p><p>En NVIC Settings se habilita TIM3 global interrupt.</p><div class="dos"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El proceso en la interrupción</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Código del callback</h3><a class="min" href="https://youtu.be/Chyq1VGmcv8?t=513" target="_blank" rel="noopener">&#9654; 8:33</a></div><p>timer.c no tiene .h: el callback se llama solo. Se indica el timer (TIM3) y se pega el proceso que estaba en el while.</p><p>Se calcula la frecuencia, se lee el potenciómetro, se mapea al rango del motor y se aplica al PWM (por ahora sin PID). El LED de la tarjeta se conmuta en cada interrupción para poder medir el muestreo con un osciloscopio.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define TIM_INT TIM3
+
+#include &quot;main.h&quot;
+#include &quot;Frecuencia.h&quot;
+#include &quot;PWMB.h&quot;
+#include &quot;adc_x.h&quot;
+#include &quot;MAP.h&quot;
+
+extern uint16_t codigo;
+extern ADC_HandleTypeDef hadc1;
+extern float frecuencia1;
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  if (htim-&gt;Instance == TIM_INT)
+  {
+    HAL_GPIO_TogglePin(Led_GPIO_Port, Led_Pin);
+    if (FREC1.frec_leida==0) frecuencia1=0;
+    else
+      frecuencia1=FREC1.frec_muestreo/FREC1.frec_leida;
+    FREC1.frec_leida=0;   // en cero para otra lectura
+    codigo=ADC_Read(&amp;hadc1);
+    codigo=map(codigo,0,4095,1300,4200);
+    PWM_valor(&amp;PWM1, codigo);
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Variables externas</h3><a class="min" href="https://youtu.be/Chyq1VGmcv8?t=717" target="_blank" rel="noopener">&#9654; 11:57</a></div><p>Todo lo que el callback usa del main se declara extern en timer.c (codigo, frecuencia1, hadc1) y se incluyen las librerías que usa (Frecuencia, PWMB, adc_x, MAP).</p><p>Si no, aparecen errores de variables no declaradas.</p><div class="dos"><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Arrancar y probar</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Iniciar el TIM3</h3><a class="min" href="https://youtu.be/Chyq1VGmcv8?t=880" target="_blank" rel="noopener">&#9654; 14:40</a></div><p>Hay que arrancar el timer en el main, después de iniciar el PWM y la frecuencia. Sin esto la interrupción no se ejecuta y el motor no responde.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PWM_init(&amp;PWM1);
+Frec_init(&amp;FREC1);
+HAL_TIM_Base_Start_IT(&amp;htim3);</code></pre></div><div class="uno"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/Chyq1VGmcv8?t=931" target="_blank" rel="noopener">&#9654; 15:31</a></div><p>El motor responde igual que en lazo abierto, pero ahora la lectura y la salida se hacen cada 20 ms exactos. En el while solo queda imprimir los datos, aunque tenga retardos grandes.</p><p>El siguiente paso es graficar la curva del motor para identificarlo y sintonizar el PID.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  sprintf(texto,&quot;DN=%u   Frec=%.1f\r\n\r\n&quot;,codigo,frecuencia1);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(300);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Clase 115: Control de motor DC, capítulo 2: tiempo de muestreo" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Chyq1VGmcv8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
