@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 42: Órdenes serial compuestas con LabVIEW (parte 3) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Hacer en LabVIEW el mismo panel de la clase 41: botones e interruptores que envían órdenes como LED2=ON* o M1IZQ* por el puerto serial a Proteus, usando una estructura de eventos.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/I0jY57uoJws/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 42: Órdenes serial compuestas con LabVIEW (parte 3) · Paso a paso">
+  <meta property="og:description" content="Hacer en LabVIEW el mismo panel de la clase 41: botones e interruptores que envían órdenes como LED2=ON* o M1IZQ* por el puerto serial a Proteus, usando una estructura de eventos.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/I0jY57uoJws/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/I0jY57uoJws/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Órdenes compuestas desde <span>LabVIEW</span></h1>
+    <p class="lead">LabVIEW transmite y el STM32 (simulado en Proteus) recibe; la comunicación es simplex. Los dos programas se unen con un par de puertos virtuales (COM1 para Proteus, COM2 para LabVIEW). En el panel frontal se ponen interruptores para los LEDs y botones para el motor. En el diagrama de bloques se configura VISA, y dentro de un While Loop una Event Structure envía una orden solo cuando cambia un control. El programa del micro es el de la clase 40.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=I0jY57uoJws" target="_blank" rel="noopener">&#9654; Ver el video completo (12:39)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/735.webp" alt="Clase 42: Órdenes serial compuestas con LabVIEW (parte 3)"></figure>
+    <ul class="materiales"><li>LabVIEW con el módulo VISA</li><li>Par de puertos serie virtuales (COM1 y COM2)</li><li>Proteus con COMPIM, STM32, L293D, motor y LEDs</li><li>Programa de órdenes compuestas de la clase 40</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Controles</a><a href="#f2">2 · VISA y eventos</a><a href="#f3">3 · LED3 y motor</a><a href="#f4">4 · Resultado</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Panel frontal</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Puertos virtuales</h3><a class="min" href="https://youtu.be/I0jY57uoJws?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>Crea un par de puertos virtuales conectados entre sí (se mostró en un video anterior). El COMPIM de Proteus queda en COM1 y LabVIEW usará COM2.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Interruptores y botones</h3><a class="min" href="https://youtu.be/I0jY57uoJws?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>En el panel frontal agrega dos interruptores (LED2 y LED3) y, desde la paleta Silver, tres botones: Izquierda, Derecha y Stop. Agrega también un botón de salir para el ciclo.</p><div class="dos"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Controles LED2, LED3, Izquierda y Derecha" loading="lazy"></a><figcaption>Controles LED2, LED3, Izquierda y Derecha</figcaption></figure><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Panel con Stop y el botón de salir" loading="lazy"></a><figcaption>Panel con Stop y el botón de salir</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Diagrama de bloques</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Configurar el puerto serial</h3><a class="min" href="https://youtu.be/I0jY57uoJws?t=174" target="_blank" rel="noopener">&#9654; 2:54</a></div><p>Desde Instrument I/O → Serial coloca <b>VISA Configure Serial Port</b>. En la entrada de recurso crea un control (el puerto) y deja 9600 baudios como constante.</p><p>Pon en falso la entrada <i>Enable Termination Char</i>: no queremos que un carácter de fin de línea corte la lectura, el terminador lo manejamos nosotros con '*'.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Crear el control del recurso VISA" loading="lazy"></a><figcaption>Crear el control del recurso VISA</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>While Loop con Event Structure</h3><a class="min" href="https://youtu.be/I0jY57uoJws?t=274" target="_blank" rel="noopener">&#9654; 4:34</a></div><p>Encierra todo en un While Loop detenido por el botón salir. Dentro pon una <b>Event Structure</b>: solo se transmite cuando hay un cambio, no en cada vuelta del ciclo.</p><p>Con <i>Add Event Case</i> crea el evento <b>LED2: Value Change</b>.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Añadir casos de evento" loading="lazy"></a><figcaption>Añadir casos de evento</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Armar la trama del LED</h3><a class="min" href="https://youtu.be/I0jY57uoJws?t=307" target="_blank" rel="noopener">&#9654; 5:07</a></div><p>Dentro del evento, un <b>Select</b> elige la cadena según el valor nuevo del interruptor y la envía con <b>VISA Write</b>.</p><ul><li>Verdadero: <code>LED2=ON*</code></li><li>Falso: <code>LED2=OFF*</code></li></ul><div class="dos"><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="Comparación del valor nuevo" loading="lazy"></a><figcaption>Comparación del valor nuevo</figcaption></figure><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="Select con las dos tramas hacia VISA Write" loading="lazy"></a><figcaption>Select con las dos tramas hacia VISA Write</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Cerrar el puerto y manejar errores</h3><a class="min" href="https://youtu.be/I0jY57uoJws?t=373" target="_blank" rel="noopener">&#9654; 6:13</a></div><p>Al salir del ciclo conecta <b>VISA Close</b> y un <b>Simple Error Handler</b> (Dialog & User Interface).</p><p>En Tools → Options → Environment deja activada la opción de cerrar automáticamente las sesiones VISA para que el puerto no se quede bloqueado. Se hace una sola vez.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Duplicar eventos</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>LED3</h3><a class="min" href="https://youtu.be/I0jY57uoJws?t=440" target="_blank" rel="noopener">&#9654; 7:20</a></div><p>Clic derecho en la Event Structure → <i>Duplicate Event Case</i>, elige LED3 y cambia las cadenas a <code>LED3=ON*</code> / <code>LED3=OFF*</code>.</p><div class="dos"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Prueba de LED2 con Proteus" loading="lazy"></a><figcaption>Prueba de LED2 con Proteus</figcaption></figure><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Duplicar el evento para LED3" loading="lazy"></a><figcaption>Duplicar el evento para LED3</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Botones del motor</h3><a class="min" href="https://youtu.be/I0jY57uoJws?t=475" target="_blank" rel="noopener">&#9654; 7:55</a></div><p>Duplica el evento para Izquierda, Derecha y Stop. Aquí solo se envía la orden cuando el botón se presiona; al soltar no se manda nada (cadena vacía en el caso falso).</p><ul><li>Izquierda: <code>M1IZQ*</code></li><li>Derecha: <code>M1DER*</code></li><li>Stop: <code>M1STOP*</code></li></ul><p class="ojo">Usa en los botones una acción mecánica tipo pulsador (Switch/Latch When Pressed o When Released) para que vuelvan solos. En el video el motor no respondía porque la cadena tenía un cero de más: la trama debe ser idéntica a la que compara el micro.</p><div class="uno"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Evento Izquierda con la trama M1IZQ*" loading="lazy"></a><figcaption>Evento Izquierda con la trama M1IZQ*</figcaption></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Probar</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Correr LabVIEW y Proteus</h3><a class="min" href="https://youtu.be/I0jY57uoJws?t=723" target="_blank" rel="noopener">&#9654; 12:03</a></div><p>Ejecuta el VI y la simulación. La terminal virtual RX muestra las tramas que llegan y el micro enciende los LEDs y mueve el motor a la izquierda, a la derecha o lo detiene.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>LED2=ON*LED2=OFF*LED3=OFF*M1DER*M1IZQ*M1STOP*</code></pre></div><p class="ojo">Es comunicación en un solo sentido. En las siguientes clases el micro transmite y LabVIEW recibe; luego se hará full duplex.</p><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Circuito en Proteus" loading="lazy"></a><figcaption>Circuito en Proteus</figcaption></figure><figure class="cap"><a href="img/735.webp" target="_blank"><img src="img/735.webp" alt="Panel de LabVIEW y tramas recibidas" loading="lazy"></a><figcaption>Panel de LabVIEW y tramas recibidas</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=I0jY57uoJws" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 43: Transmisión serial en el micro, recepción en LabVIEW · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El STM32 envía voltaje, temperatura y el estado de un pulsador con tramas como temp=27.16/ y LabVIEW las separa con Match Pattern, las convierte a número y las muestra en un termómetro, un medidor y un LED.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/SLje9-u3y-8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 43: Transmisión serial en el micro, recepción en LabVIEW · Paso a paso">
+  <meta property="og:description" content="El STM32 envía voltaje, temperatura y el estado de un pulsador con tramas como temp=27.16/ y LabVIEW las separa con Match Pattern, las convierte a número y las muestra en un termómetro, un medidor y un LED.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/SLje9-u3y-8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/SLje9-u3y-8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Del STM32 a <span>LabVIEW</span>: recibir datos seriales</h1>
+    <p class="lead">Ahora el sentido es el contrario: el micro transmite y LabVIEW recibe. Se parte del programa ADC de la clase 37, que imprime voltaje y temperatura con printf. A cada dato se le agrega un '/' al final para que LabVIEW pueda capturar lo que hay entre el '=' y el '/'. En LabVIEW se lee el puerto con VISA (Bytes at Port + Read), se recorta cada valor con dos Match Pattern, se convierte con Fract/Exp String To Number y se filtran las tramas incompletas comparando su largo. Al final se agrega un pulsador en PB10 que enciende un LED en el panel.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=SLje9-u3y-8" target="_blank" rel="noopener">&#9654; Ver el video completo (20:04)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1185.webp" alt="Clase 43: Transmisión serial en el micro, recepción en LabVIEW"></figure>
+    <ul class="materiales"><li>Programa ADC de la clase 37 (voltaje y LM35)</li><li>Proteus con COMPIM en COM1 y terminal virtual</li><li>LabVIEW con VISA en COM2</li><li>Par de puertos virtuales COM1–COM2</li><li>Pulsador en PB10</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Tramas con &#x27;/&#x27;</a><a href="#f2">2 · VISA</a><a href="#f3">3 · Match Pattern</a><a href="#f4">4 · Pulsador → LED</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Programa del micro</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Corrección del ADC de la clase 37</h3><a class="min" href="https://youtu.be/SLje9-u3y-8?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>En la configuración del ADC: <i>Number of Discontinuous Conversions</i> va en 1, y en la conversión regular (<i>Number of Conversion</i>) van los 2 canales que se leen.</p><div class="dos"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Modo discontinuo con 1 conversión" loading="lazy"></a><figcaption>Modo discontinuo con 1 conversión</figcaption></figure><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Número de conversiones regulares" loading="lazy"></a><figcaption>Número de conversiones regulares</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Agregar el separador '/'</h3><a class="min" href="https://youtu.be/SLje9-u3y-8?t=99" target="_blank" rel="noopener">&#9654; 1:39</a></div><p>Deja solo las impresiones de voltaje y temperatura, baja el retardo a 100 ms y termina cada dato con '/'. LabVIEW capturará lo que esté entre <code>=</code> y <code>/</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>printf(&quot;volt=%.1f/\r\n&quot;, voltaje);
+printf(&quot;temp=%.2f/\r\n&quot;, temperatura);
+HAL_Delay(100);</code></pre></div><p class="ojo">El texto antes del '=' debe ser idéntico en el micro y en LabVIEW (mayúsculas incluidas). En el video falló por una T mayúscula y una 'p' de más. El \r\n no hace falta para LabVIEW; solo sirve para ver las líneas en la terminal.</p><div class="dos"><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Impresión de la temperatura" loading="lazy"></a><figcaption>Impresión de la temperatura</figcaption></figure><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Impresión del voltaje" loading="lazy"></a><figcaption>Impresión del voltaje</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Leer en LabVIEW</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Panel frontal</h3><a class="min" href="https://youtu.be/SLje9-u3y-8?t=165" target="_blank" rel="noopener">&#9654; 2:45</a></div><p>Agrega un termómetro (Thermometer) para la temperatura y un medidor (Meter) de 0 a 5 V para el voltaje.</p><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Termómetro en el panel" loading="lazy"></a><figcaption>Termómetro en el panel</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar y leer el puerto</h3><a class="min" href="https://youtu.be/SLje9-u3y-8?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>VISA Configure Serial Port con control de recurso y 9600 baudios, sin carácter de terminación. Dentro de un While Loop: <b>Bytes at Port</b> → <b>VISA Read</b>, y una espera de unos 400 ms (3 o 4 veces el periodo de envío del micro).</p><p>Fuera del ciclo, VISA Close y Simple Error Handler. LabVIEW usa COM2 y Proteus COM1.</p><div class="dos"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Configuración VISA" loading="lazy"></a><figcaption>Configuración VISA</figcaption></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Bytes at Port y Read con espera de 400 ms" loading="lazy"></a><figcaption>Bytes at Port y Read con espera de 400 ms</figcaption></figure><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Primeras tramas leídas en el read buffer" loading="lazy"></a><figcaption>Primeras tramas leídas en el read buffer</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Extraer los valores</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Recortar entre '=' y '/'</h3><a class="min" href="https://youtu.be/SLje9-u3y-8?t=465" target="_blank" rel="noopener">&#9654; 7:45</a></div><p>Con String → <b>Match Pattern</b> busca <code>temp=</code> y toma la salida <i>after substring</i>. Pásala a un segundo Match Pattern que busque <code>/</code> y toma la salida <i>before substring</i>: ese es el valor como texto.</p><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Primer Match Pattern con temp=" loading="lazy"></a><figcaption>Primer Match Pattern con temp=</figcaption></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Segundo Match Pattern con &#x27;/&#x27;" loading="lazy"></a><figcaption>Segundo Match Pattern con '/'</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Convertir a número</h3><a class="min" href="https://youtu.be/SLje9-u3y-8?t=631" target="_blank" rel="noopener">&#9654; 10:31</a></div><p>Usa <b>Fract/Exp String To Number</b> y conéctalo al termómetro. En su entrada <i>use system decimal point</i> pon una constante en falso: así el punto decimal funciona aunque Windows use coma.</p><p>Con clic derecho → Visible Items → Digital Display se ve el número junto al indicador.</p><div class="uno"><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Fract/Exp String To Number" loading="lazy"></a><figcaption>Fract/Exp String To Number</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Repetir para el voltaje</h3><a class="min" href="https://youtu.be/SLje9-u3y-8?t=726" target="_blank" rel="noopener">&#9654; 12:06</a></div><p>Copia el bloque, cambia la cadena a <code>volt=</code> y conéctalo al medidor de voltaje.</p><div class="dos"><figure class="cap"><a href="img/780.webp" target="_blank"><img src="img/780.webp" alt="Dos cadenas: temp= y volt=" loading="lazy"></a><figcaption>Dos cadenas: temp= y volt=</figcaption></figure><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Temperatura y voltaje en LabVIEW" loading="lazy"></a><figcaption>Temperatura y voltaje en LabVIEW</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Evitar saltos con el largo de la trama</h3><a class="min" href="https://youtu.be/SLje9-u3y-8?t=855" target="_blank" rel="noopener">&#9654; 14:15</a></div><p>Calcula <b>String Length</b> de lo leído y compáralo con un mínimo (unos 25 caracteres). Mete las conversiones dentro de un <b>Case</b> que solo se ejecute si la trama está completa. Así desaparecen los saltos a cero.</p><div class="uno"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Case que solo convierte tramas completas" loading="lazy"></a><figcaption>Case que solo convierte tramas completas</figcaption></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Variable digital</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Pulsador en PB10</h3><a class="min" href="https://youtu.be/SLje9-u3y-8?t=930" target="_blank" rel="noopener">&#9654; 15:30</a></div><p>Conecta un pulsador de PB10 a tierra. En CubeMX ponle la etiqueta <code>sw</code> y configúralo como entrada con <b>pull-up</b>.</p></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Enviar el estado</h3><a class="min" href="https://youtu.be/SLje9-u3y-8?t=996" target="_blank" rel="noopener">&#9654; 16:36</a></div><p>Lee el pin y envía <code>led1=on/</code> cuando está presionado (0) o <code>led1=off/</code> si no.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (HAL_GPIO_ReadPin(sw_GPIO_Port, sw_Pin) == 0)
+    uartx_write_text(&amp;huart1, &quot;led1=on/&quot;);
+else
+    uartx_write_text(&amp;huart1, &quot;led1=off/&quot;);</code></pre></div><p class="ojo">uartx_write_text es la función de la librería UART del curso; con printf("led1=on/") funciona igual.</p><div class="dos"><figure class="cap"><a href="img/1050.webp" target="_blank"><img src="img/1050.webp" alt="Lectura del pulsador en el código" loading="lazy"></a><figcaption>Lectura del pulsador en el código</figcaption></figure><figure class="cap"><a href="img/1090.webp" target="_blank"><img src="img/1090.webp" alt="Tramas led1 en la terminal" loading="lazy"></a><figcaption>Tramas led1 en la terminal</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>LED en LabVIEW</h3><a class="min" href="https://youtu.be/SLje9-u3y-8?t=1096" target="_blank" rel="noopener">&#9654; 18:16</a></div><p>Copia el bloque de Match Pattern con la cadena <code>led1=</code>. Compara el resultado con <code>on</code> usando <b>Equal?</b> y conéctalo a un LED del panel.</p><p class="ojo">En la siguiente clase se hace lo mismo pero recibiendo en el celular por Bluetooth.</p><div class="dos"><figure class="cap"><a href="img/1150.webp" target="_blank"><img src="img/1150.webp" alt="LED encendido al presionar" loading="lazy"></a><figcaption>LED encendido al presionar</figcaption></figure><figure class="cap"><a href="img/1185.webp" target="_blank"><img src="img/1185.webp" alt="Monitoreo completo: temperatura, voltaje y LED" loading="lazy"></a><figcaption>Monitoreo completo: temperatura, voltaje y LED</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=SLje9-u3y-8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
