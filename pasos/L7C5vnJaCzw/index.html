@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sensor LIDAR ToF VL53L0X con STM32 y mis librerías · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leemos la distancia de un sensor de tiempo de vuelo VL53L0X por I2C usando la API de ST envuelta en una librería sencilla, y la enviamos en mm y cm por la UART.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/L7C5vnJaCzw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías · Paso a paso">
+  <meta property="og:description" content="Leemos la distancia de un sensor de tiempo de vuelo VL53L0X por I2C usando la API de ST envuelta en una librería sencilla, y la enviamos en mm y cm por la UART.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/L7C5vnJaCzw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/L7C5vnJaCzw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Sensor LIDAR <span>VL53L0X</span> con STM32</h1>
+    <p class="lead">Los sensores ToF (tiempo de vuelo) disparan un láser y miden cuánto tarda en volver. ST no publica los registros del VL53L0X: solo entrega una API (STSW-IMG005). Aquí se usa esa API con una librería propia (lidarvl53) que la hace fácil de usar: lidar_init, lidar_lee_mm y lidar_lee_cm. Se configuran I2C1, USART1 y un pin XSHUT, se agregan los include paths de la API y se ve la distancia en Hercules.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=L7C5vnJaCzw" target="_blank" rel="noopener">&#9654; Ver el video completo (15:38)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/890.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401CCU6</li><li>Sensor VL53L0X (módulo morado o el de filtro; hay de 0.5, 2 y 4 m)</li><li>Programador ST-Link</li><li>Conversor USB a serial para USART1</li><li>API VL53L0X de ST (STSW-IMG005) y librería lidarvl53</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · VL53L0X</a><a href="#f2">2 · CubeMX</a><a href="#f3">3 · Código</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El sensor</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>API de ST</h3><a class="min" href="https://youtu.be/L7C5vnJaCzw?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La API de ST (VL53L0X API, STSW-IMG005) es la única forma documentada de usarlo: el datasheet no muestra registros. Al ser del fabricante es confiable y está optimizada.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pines</h3><a class="min" href="https://youtu.be/L7C5vnJaCzw?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>VIN de 3.3 a 5 V (tiene regulador), GND, SCL y SDA. GPIO1 es una interrupción que aquí no se usa. XSHUT habilita el sensor: con un solo sensor no hace falta, con varios se usa para elegir cuál leer.</p><p class="ojo">Se le puede cambiar la dirección I2C, pero se pierde al quitar la energía. Para varios sensores es mejor usar XSHUT o un multiplexor I2C (hasta 8 sensores por un canal).</p><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj, UART e I2C</h3><a class="min" href="https://youtu.be/L7C5vnJaCzw?t=196" target="_blank" rel="noopener">&#9654; 3:16</a></div><p>Proyecto nuevo para el STM32F401: HSE con cristal y PLL a 84 MHz. USART1 asíncrono a 115200. I2C1 en modo I2C a 100 kHz (la librería está hecha para I2C1).</p><div class="dos"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Pin XSHUT</h3><a class="min" href="https://youtu.be/L7C5vnJaCzw?t=430" target="_blank" rel="noopener">&#9654; 7:10</a></div><p>PB12 como GPIO_Output con la etiqueta lidar1. Si hubiera más sensores serían lidar2, lidar3, etc.</p><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Librerías e include paths</h3><a class="min" href="https://youtu.be/L7C5vnJaCzw?t=329" target="_blank" rel="noopener">&#9654; 5:29</a></div><p>Se crea la carpeta Librerias en Core y se copian la carpeta VL53L0X (la API), la librería lidarvl53 y la de UART. Hay que agregar al include path la carpeta Librerias y también las carpetas inc de core y de platform de la API.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;uart.h&quot;
+#include &quot;lidarvl53.h&quot;
+#include &quot;stdio.h&quot;</code></pre></div><p class="ojo">Si salen muchos errores al compilar (aquí salieron 19) casi siempre falta un include path: el de core/inc o el de platform/inc.</p><div class="dos"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Código</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Distancia máxima y direcciones</h3><a class="min" href="https://youtu.be/L7C5vnJaCzw?t=605" target="_blank" rel="noopener">&#9654; 10:05</a></div><p>En lidarvl53.h están las direcciones de hasta 8 sensores (0x52 es la de fábrica) y lidar_max_mm. Es lo único que hay que modificar: 500 para el de 50 cm, 2000 para el de 2 m y 4000 para el de 4 m.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define lidar_max_mm 2000
+
+#define dir_s1 0x52   // direccion del 1er sensor
+#define dir_s2 0x53   // direccion del 2do sensor
+// ... hasta dir_s8 0x59</code></pre></div><div class="uno"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Variables e inicio</h3><a class="min" href="https://youtu.be/L7C5vnJaCzw?t=539" target="_blank" rel="noopener">&#9654; 8:59</a></div><p>Una variable entera para los milímetros, una float para los centímetros con decimales y la cadena para la UART. Habilitar el sensor con XSHUT es opcional con un solo sensor; con varios, se hace antes de leer cada uno.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PV */
+uint16_t milimetros;
+float distancia;
+char texto[100];
+
+/* USER CODE BEGIN 2 */
+// opcional: habilitar el sensor por XSHUT
+HAL_GPIO_WritePin(lidar1_GPIO_Port, lidar1_Pin, 0);
+HAL_Delay(20);
+HAL_GPIO_WritePin(lidar1_GPIO_Port, lidar1_Pin, 1);
+HAL_Delay(20);
+
+uartx_write_text(&amp;huart1, &quot;iniciando\r\n&quot;);
+lidar_init(dir_s1);</code></pre></div><div class="dos"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/545.webp" target="_blank"><img src="img/545.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Leer en el while</h3><a class="min" href="https://youtu.be/L7C5vnJaCzw?t=677" target="_blank" rel="noopener">&#9654; 11:17</a></div><p>Se puede leer en mm o en cm (aquí ambos). Si la lectura es negativa no hay sensor conectado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  milimetros = lidar_lee_mm(dir_s1);
+  distancia  = lidar_lee_cm(dir_s1);
+
+  if (distancia &lt; 0) uartx_write_text(&amp;huart1, &quot;SENSOR NO CONECTADO\r\n&quot;);
+  else
+  {
+    sprintf(texto, &quot;Dis_mil=%u   Dis_cm=%.1f\r\n\r\n&quot;, milimetros, distancia);
+    uartx_write_text(&amp;huart1, texto);
+  }
+  HAL_Delay(500);
+}</code></pre></div><p class="ojo">En el video la etiqueta dice Dis_mts, pero lidar_lee_cm devuelve centímetros (por eso sale 197.0 y no 1.97). Aquí se corrigió la etiqueta a Dis_cm.</p><div class="dos"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>printf con float</h3><a class="min" href="https://youtu.be/L7C5vnJaCzw?t=847" target="_blank" rel="noopener">&#9654; 14:07</a></div><p>Si la columna con decimales sale vacía, falta habilitar float en printf: clic derecho en el proyecto, Properties, C/C++ Build, Settings, MCU Settings, Use float with printf.</p><div class="uno"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Grabar y medir</h3><a class="min" href="https://youtu.be/L7C5vnJaCzw?t=746" target="_blank" rel="noopener">&#9654; 12:26</a></div><p>Se graba con el ST-Link (Debug, se escanea el programador) y se abre Hercules a 115200. Sin nada al frente marca 2000 mm (el máximo). Al poner un objeto marca la distancia: 114 mm, 250 mm, 80 mm... La cámara del celular alcanza a ver el láser cuando dispara.</p><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/890.webp" target="_blank"><img src="img/890.webp" alt="Sensor LIDAR ToF VL53L0X con STM32 y mis librerías" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=L7C5vnJaCzw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

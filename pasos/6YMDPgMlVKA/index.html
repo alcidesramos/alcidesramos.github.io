@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Repaso completo desde cero, esta vez con la Black Pill real y un ST-Link V2 (clon u original): CubeMX 6.4 con cristal a 84 MHz, modelo en Simulink y Build, Deploy &amp; Start para grabar la tarjeta.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/6YMDPgMlVKA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link · Paso a paso">
+  <meta property="og:description" content="Repaso completo desde cero, esta vez con la Black Pill real y un ST-Link V2 (clon u original): CubeMX 6.4 con cristal a 84 MHz, modelo en Simulink y Build, Deploy &amp; Start para grabar la tarjeta.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/6YMDPgMlVKA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/6YMDPgMlVKA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>STM32 desde MATLAB: <span>programar la Black Pill</span></h1>
+    <p class="lead">Se repite todo el proceso de la parte 2, pero grabando la tarjeta física con el programador ST-Link V2 (sirve el clon). En CubeMX se usa el cristal externo y el PLL a la velocidad máxima, TIM10 como base de tiempo, sin generar main y con librerías LL. En Simulink se guarda primero el modelo, se arma Pulse Generator más Digital Port Write en PC13 y en Target hardware resources se enlaza el .ioc con la acción Build, load and run. Cambiando el periodo del pulso y volviendo a desplegar se ve cómo cambia el parpadeo del LED.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=6YMDPgMlVKA" target="_blank" rel="noopener">&#9654; Ver el video completo (9:12)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/525.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401CCU6</li><li>ST-Link V2 (clon u original) conectado por SWD</li><li>MATLAB y Simulink con el paquete de soporte STM32 (parte 1)</li><li>STM32CubeMX 6.4.0 (la versión que pide MATLAB)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeMX</a><a href="#f2">2 · Simulink</a><a href="#f3">3 · Grabar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto en CubeMX 6.4</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La tarjeta</h3><a class="min" href="https://youtu.be/6YMDPgMlVKA?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La Black Pill ya tiene un programa que hace parpadear el LED cada segundo. Con MATLAB lo vamos a cambiar para que se note que la tarjeta quedó programada desde Simulink. El ST-Link V2 se conecta por SWD.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pin, cristal y reloj</h3><a class="min" href="https://youtu.be/6YMDPgMlVKA?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>Se abre el CubeMX antiguo (6.4) y se elige el STM32F401CC. PC13 como GPIO_Output. Como ahora es la tarjeta real, en RCC el HSE va en Crystal/Ceramic Resonator y en Clock Configuration se lleva el PLL a la velocidad máxima, útil cuando el micro ejecute algoritmos pesados como lógica difusa.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Base de tiempo: TIM10</h3><a class="min" href="https://youtu.be/6YMDPgMlVKA?t=102" target="_blank" rel="noopener">&#9654; 1:42</a></div><p>MATLAB usa el SysTick, así que en SYS el Timebase Source se cambia a otro timer que no se vaya a usar, por ejemplo TIM10.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Project Manager</h3><a class="min" href="https://youtu.be/6YMDPgMlVKA?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>Nombre MATLAB2, guardado en la carpeta de trabajo (CubeMX crea dentro la carpeta MATLAB2) y Toolchain STM32CubeIDE.</p><ul><li>Do not generate the main() marcado.</li><li>Generate Under Root desmarcado.</li><li>Advanced Settings: GPIO y RCC en LL en lugar de HAL.</li><li>Advanced Settings: quitar Visibility (Static).</li><li>No hace falta generar código: basta con guardar el proyecto (File, Save Project).</li></ul><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Modelo en Simulink</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Carpeta de trabajo y modelo</h3><a class="min" href="https://youtu.be/6YMDPgMlVKA?t=169" target="_blank" rel="noopener">&#9654; 2:49</a></div><p>En MATLAB, con Browse, la carpeta actual debe ser la del proyecto (MATLAB2). Luego se crea un modelo en blanco y se guarda de una vez dentro de esa carpeta (aquí STM32SIMULINK).</p><div class="uno"><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Bloques</h3><a class="min" href="https://youtu.be/6YMDPgMlVKA?t=236" target="_blank" rel="noopener">&#9654; 3:56</a></div><p>En el Library Browser, STM32F4xx Based Boards (no las Discovery ni las Nucleo, porque la Black Pill no es una tarjeta de ST). Se agrega Digital Port Write en el puerto C, pin 13, y un Pulse Generator conectado a su entrada.</p><p>Lo interesante es que se combinan los periféricos del micro con cualquier bloque de MATLAB: hoy un pulso, más adelante un controlador PID.</p><div class="dos"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Pulso más rápido</h3><a class="min" href="https://youtu.be/6YMDPgMlVKA?t=302" target="_blank" rel="noopener">&#9654; 5:02</a></div><p>Para notar el cambio frente al programa que ya tenía la tarjeta, el Pulse Generator se configura con amplitud 1, periodo de 0.3 s y ancho de pulso del 50 %.</p><div class="uno"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Configurar y grabar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Model Settings</h3><a class="min" href="https://youtu.be/6YMDPgMlVKA?t=336" target="_blank" rel="noopener">&#9654; 5:36</a></div><p>En Modeling, Model Settings:</p><ul><li>Solver: Fixed-step, que consume menos recursos.</li><li>Hardware Implementation: Hardware board = STM32F4xx Based.</li><li>Operating system/scheduler: Baremetal (más eficiente) o FreeRTOS.</li><li>Target hardware resources, Build options: Browse para elegir el .ioc del proyecto. Build action = Build, load and run; Connectivity mode = st-link; Connection port = SWD.</li></ul><div class="dos"><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure><figure class="cap"><a href="img/385.webp" target="_blank"><img src="img/385.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Build, Deploy & Start</h3><a class="min" href="https://youtu.be/6YMDPgMlVKA?t=404" target="_blank" rel="noopener">&#9654; 6:44</a></div><p>En la pestaña Hardware se usa Build, Deploy & Start (para Proteus solo se compilaba). MATLAB carga el .ioc, genera el código, compila y graba la tarjeta. La primera vez tarda más.</p><p class="ojo">Mientras MATLAB compila, la tarjeta sigue con el programa viejo. Solo cambia cuando termina la descarga: el LED se apaga un momento y arranca con el nuevo parpadeo.</p><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Cambiar el periodo</h3><a class="min" href="https://youtu.be/6YMDPgMlVKA?t=475" target="_blank" rel="noopener">&#9654; 7:55</a></div><p>Con el LED parpadeando rápido, se cambia el periodo del Pulse Generator a 1 s y se vuelve a dar Build, Deploy & Start. La segunda vez es más rápido y el LED pasa a parpadear cada segundo.</p><p>Así se puede usar todo lo de MATLAB (controladores, lógica difusa) junto con los periféricos del micro: ADC, puertos digitales, UART, timers e interrupciones.</p><div class="dos"><figure class="cap"><a href="img/495.webp" target="_blank"><img src="img/495.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure><figure class="cap"><a href="img/525.webp" target="_blank"><img src="img/525.webp" alt="Programar STM32 desde MATLAB, parte 3: Black Pill con ST-Link" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=6YMDPgMlVKA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
