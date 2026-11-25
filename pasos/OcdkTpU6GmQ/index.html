@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 79 STM32: detección de color con el sensor TCS3200 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Medimos la frecuencia del TCS3200 con Input Capture por interrupción, filtramos rojo, verde y azul con S2/S3 y encendemos un LED RGB del color detectado.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/OcdkTpU6GmQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 79 STM32: detección de color con el sensor TCS3200 · Paso a paso">
+  <meta property="og:description" content="Medimos la frecuencia del TCS3200 con Input Capture por interrupción, filtramos rojo, verde y azul con S2/S3 y encendemos un LED RGB del color detectado.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/OcdkTpU6GmQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/OcdkTpU6GmQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Detección de color con el <span>TCS3200</span></h1>
+    <p class="lead">El TCS3200 entrega una señal cuadrada cuya frecuencia depende de la luz que recibe en el filtro elegido. Con una BlackPill STM32F411 montada en protoboard (Proteus no simula este sensor) medimos esa frecuencia con el modo Input Capture del TIM1 por interrupción, usando una librería que se configura con una estructura y funciona en cualquier timer y canal. Calibramos cada color mirando las frecuencias por el puerto serial y al final un LED RGB se enciende del color de la tarjeta que ponemos frente al sensor.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=OcdkTpU6GmQ" target="_blank" rel="noopener">&#9654; Ver el video completo (40:18)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1950.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200"></figure>
+    <ul class="materiales"><li>BlackPill STM32F411</li><li>Sensor de color TCS3200</li><li>LED RGB (ánodo común)</li><li>Analizador lógico (opcional)</li><li>Librerías TCS3200_COLOR, uart y pinout.h</li><li>Hoja de Excel para calcular el timer</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Escala de frecuencia y filtros</a><a href="#f2">2 · Reloj, UART, pines y Input Capture</a><a href="#f3">3 · Configuración e interrupción</a><a href="#f4">4 · Frecuencia de cada color</a><a href="#f5">5 · Detectar rojo, verde y azul</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El sensor</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Pines S0–S3</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=75" target="_blank" rel="noopener">&#9654; 1:15</a></div><p>S0 y S1 eligen la escala de la frecuencia de salida; S2 y S3 eligen el filtro de color. Dejamos S0 y S1 en alto (100 %) directamente, sin usar pines del micro. S2 y S3 sí van al micro.</p><ul><li>Rojo: S2 = L, S3 = L.</li><li>Azul: S2 = L, S3 = H.</li><li>Sin filtro: S2 = H, S3 = L.</li><li>Verde: S2 = H, S3 = H.</li></ul><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Rango de frecuencias</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>Con escala al 100 % la salida llega a unos 500–600 kHz; al 20 %, 100–120 kHz; al 2 %, 10–12 kHz. El color se debe leer siempre a la misma distancia, porque la distancia cambia la reflexión.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj, UART y pines</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=310" target="_blank" rel="noopener">&#9654; 5:10</a></div><p>Activamos el cristal externo (HSE con PLL) a 100 MHz; la librería se adapta a cualquier velocidad.</p><p>USART1 asíncrono a 115200 baudios para ver las frecuencias.</p><p>Salidas con etiqueta S2 y S3 para el filtro, y ROJO, VERDE y AZUL para el LED RGB.</p><div class="dos"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Calcular el prescaler</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=520" target="_blank" rel="noopener">&#9654; 8:40</a></div><p>Con la hoja de Excel elegimos el prescaler. Con 100 MHz y prescaler 100 el contador de 16 bits (hasta 65.535) permite medir desde unos 15 Hz hasta 1 MHz, suficiente para los 600 kHz del sensor.</p><div class="uno"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>TIM1 en Input Capture</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=640" target="_blank" rel="noopener">&#9654; 10:40</a></div><p>TIM1 con Internal Clock y Channel1 en Input Capture direct mode (PA8). Prescaler 100-1, periodo 65535 y polaridad Rising Edge.</p><p>En NVIC Settings activamos TIM1 capture compare interrupt.</p><p class="ojo">El contador da la vuelta en 65.535. Si la segunda captura es menor que la primera, hay que sumarle el máximo antes de restar; la librería ya lo hace.</p><div class="dos"><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure><figure class="cap"><a href="img/975.webp" target="_blank"><img src="img/975.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería TCS3200</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Agregar las librerías</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=850" target="_blank" rel="noopener">&#9654; 14:10</a></div><p>En Core/Librerias copiamos TCS3200_COLOR.c/.h, uart y pinout.h, agregamos la carpeta a los Include paths e incluimos todo en main.c.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+#include &quot;TCS3200_COLOR.h&quot;
+#include &quot;pinout.h&quot;
+
+#include &quot;stdint.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;stdlib.h&quot;
+#include &quot;string.h&quot;</code></pre></div><div class="dos"><figure class="cap"><a href="img/780.webp" target="_blank"><img src="img/780.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure><figure class="cap"><a href="img/850.webp" target="_blank"><img src="img/850.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configurar timer y canal</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=900" target="_blank" rel="noopener">&#9654; 15:00</a></div><p>En TCS3200_COLOR.c se indica el timer usado y se llena la estructura con el timer, el registro CCR, el canal y la bandera. Para otro canal, cambia los tres números (CCR2, CHANNEL_2, FLAG_CC2…).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// timer a usar
+extern TIM_HandleTypeDef htim1;
+
+// configurar timer input capture
+COLORS TCS3200_SEN = {&amp;htim1, &amp;(TIM1-&gt;CCR1),
+                      TIM_CHANNEL_1, TIM_FLAG_CC1};</code></pre></div><div class="uno"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Cómo mide la frecuencia</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=1050" target="_blank" rel="noopener">&#9654; 17:30</a></div><p>En cada flanco de subida la interrupción guarda el valor del contador. Con dos capturas calcula la diferencia y con el reloj y el prescaler obtiene la frecuencia, que queda en la variable global frecuencia.</p><div class="uno"><figure class="cap"><a href="img/1050.webp" target="_blank"><img src="img/1050.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Llamar la interrupción</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=1170" target="_blank" rel="noopener">&#9654; 19:30</a></div><p>En stm32f4xx_it.c incluimos la librería y llamamos TCS3200_Interrupt() dentro de TIM1_CC_IRQHandler.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN TIM1_CC_IRQn 0 */
+#include &quot;TCS3200_COLOR.h&quot;
+TCS3200_Interrupt();
+/* USER CODE END TIM1_CC_IRQn 0 */
+HAL_TIM_IRQHandler(&amp;htim1);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1170.webp" target="_blank"><img src="img/1170.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Leer y calibrar</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Programa principal</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=1600" target="_blank" rel="noopener">&#9654; 26:40</a></div><p>Declaramos float frecuencia y char texto[50]. Iniciamos el sensor y le damos 200 ms para arrancar. En el while se elige el filtro, se espera 1 ms para que se mida la frecuencia, se envía por serial y se vuelve a cero (si no llegan más interrupciones no debe quedar el valor viejo).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float frecuencia;
+char texto[50];
+
+/* USER CODE BEGIN 2 */
+TCS3200_Init();
+HAL_Delay(200);
+
+while (1)
+{
+  PIN_OFF(S2);      // filtro rojo
+  PIN_OFF(S3);
+  HAL_Delay(1);     // tiempo para capturar la frecuencia
+  sprintf(texto, &quot;FrecRojo=%.1f\r\n&quot;, frecuencia);
+  uartx_write_text(&amp;huart1, texto);
+  frecuencia = 0;
+  HAL_Delay(500);
+}</code></pre></div><p class="ojo">Para que sprintf imprima flotantes hay que activar «Use float with printf» en Properties > C/C++ Build > Settings > MCU Settings.</p><div class="dos"><figure class="cap"><a href="img/1600.webp" target="_blank"><img src="img/1600.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure><figure class="cap"><a href="img/1640.webp" target="_blank"><img src="img/1640.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Ver la frecuencia</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=1900" target="_blank" rel="noopener">&#9654; 31:40</a></div><p>En el monitor serial vemos la frecuencia del rojo (unos 5 kHz sin tarjeta). Con la tarjeta roja sube a unos 34 kHz; el analizador lógico confirma la medida.</p><div class="dos"><figure class="cap"><a href="img/1900.webp" target="_blank"><img src="img/1900.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure><figure class="cap"><a href="img/1950.webp" target="_blank"><img src="img/1950.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Umbrales de cada color</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=2360" target="_blank" rel="noopener">&#9654; 39:20</a></div><p>Con las medidas en nuestras condiciones de luz y distancia fijamos el mínimo de cada color en TCS3200_COLOR.h.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define rojo_min   30000
+#define verde_min  12800
+#define azul_min   30000</code></pre></div><p class="ojo">Estos valores dependen de la luz, la distancia y el sensor. Mide los tuyos antes de usarlos.</p><div class="uno"><figure class="cap"><a href="img/2360.webp" target="_blank"><img src="img/2360.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>LED RGB por color</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Función RGB</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=2010" target="_blank" rel="noopener">&#9654; 33:30</a></div><p>El LED RGB enciende con 0, por eso se niega cada valor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void RGB(uint8_t rojo, uint8_t verde, uint8_t azul)
+{
+  PIN_PUT(ROJO, !rojo);
+  PIN_PUT(VERDE, !verde);
+  PIN_PUT(AZUL, !azul);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/2010.webp" target="_blank"><img src="img/2010.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Los tres filtros</h3><a class="min" href="https://youtu.be/OcdkTpU6GmQ?t=2170" target="_blank" rel="noopener">&#9654; 36:10</a></div><p>Se apaga el LED y se prueba cada filtro. El que supere su umbral enciende su color.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>RGB(0, 0, 0);
+
+// filtra rojo
+PIN_OFF(S2); PIN_OFF(S3);
+HAL_Delay(1);
+if (frecuencia &gt; rojo_min) RGB(1, 0, 0);
+frecuencia = 0;
+
+// filtra verde
+PIN_ON(S2); PIN_ON(S3);
+HAL_Delay(1);
+if (frecuencia &gt; verde_min) RGB(0, 1, 0);
+frecuencia = 0;
+
+// filtra azul
+PIN_OFF(S2); PIN_ON(S3);
+HAL_Delay(1);
+if (frecuencia &gt; azul_min) RGB(0, 0, 1);
+frecuencia = 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/2170.webp" target="_blank"><img src="img/2170.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure><figure class="cap"><a href="img/2090.webp" target="_blank"><img src="img/2090.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure><figure class="cap"><a href="img/2280.webp" target="_blank"><img src="img/2280.webp" alt="Clase 79 STM32: detección de color con el sensor TCS3200" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=OcdkTpU6GmQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
