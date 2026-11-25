@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Certificaciones y usos de algunos microcontroladores del mercado · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Video corto de opinión: más allá de RAM, velocidad o pines, al elegir un microcontrolador para un producto hay que mirar sus certificaciones (automotriz, industrial, militar) y cómo proteger el código.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/CIMaAOUekc4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Certificaciones y usos de algunos microcontroladores del mercado · Paso a paso">
+  <meta property="og:description" content="Video corto de opinión: más allá de RAM, velocidad o pines, al elegir un microcontrolador para un producto hay que mirar sus certificaciones (automotriz, industrial, militar) y cómo proteger el código.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/CIMaAOUekc4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/CIMaAOUekc4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Certificaciones de <span>microcontroladores</span>: PIC, Arduino, ESP32 y STM32</h1>
+    <p class="lead">En lugar del típico "versus" entre plataformas, se comparan las certificaciones. Los PIC de Microchip y los STM32 tienen variantes calificadas AEC-Q100 (automotriz), ISO 26262 y estándares industriales como IEC 61508, con soporte técnico y un rango amplio de encapsulados y precios. Arduino como placa de desarrollo no tiene certificaciones: es para prototipos y aprendizaje (las "certificaciones" que aparecen son cursos). El ESP32 tiene certificaciones de comunicaciones y ciberseguridad (WiFi, Bluetooth, CLS) pero no automotrices ni industriales robustas. La idea es elegir según la aplicación y el cliente, conocer los riesgos y saber proteger el micro para que no clonen el diseño.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=CIMaAOUekc4" target="_blank" rel="noopener">&#9654; Ver el video completo (6:34)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/210.webp" alt="Certificaciones y usos de algunos microcontroladores del mercado"></figure>
+    <ul class="materiales"><li>Video teórico: no requiere hardware</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Elegir según la aplicación</a><a href="#f2">2 · Comunicaciones frente a robustez</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Por qué importan las certificaciones</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Más allá del versus</h3><a class="min" href="https://youtu.be/CIMaAOUekc4?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Cada plataforma sirve según lo que se vaya a desarrollar y para quién. Para un proyecto personal o comercial sencillo se puede usar cualquier micro; para la industria, automoción, aeroespacial o militar el micro debe estar certificado, y si se vende una idea hay que saber proteger el código para que no la clonen.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Certificaciones y usos de algunos microcontroladores del mercado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>PIC de Microchip</h3><a class="min" href="https://youtu.be/CIMaAOUekc4?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>Muchos PIC están calificados AEC-Q100 y algunos cumplen ISO 26262 (seguridad funcional), además de estándares industriales. Tienen soporte técnico y documentación completa.</p><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Certificaciones y usos de algunos microcontroladores del mercado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Arduino</h3><a class="min" href="https://youtu.be/CIMaAOUekc4?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><p>La placa Arduino no tiene certificación automotriz ni industrial directa: es de uso experimental, para prototipos. Lo que aparece como certificaciones son cursos.</p><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Certificaciones y usos de algunos microcontroladores del mercado" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>ESP32 y STM32</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>ESP32</h3><a class="min" href="https://youtu.be/CIMaAOUekc4?t=164" target="_blank" rel="noopener">&#9654; 2:44</a></div><p>Es un buen micro, pero sus certificaciones son sobre todo de comunicaciones y ciberseguridad (WiFi, Bluetooth, CLS-Ready para el ESP32-C3). No tiene aún certificación automotriz ni industrial robusta, algo importante porque el ruido puede alterar datos de sensores o el propio código.</p><div class="dos"><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="Certificaciones y usos de algunos microcontroladores del mercado" loading="lazy"></a></figure><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Certificaciones y usos de algunos microcontroladores del mercado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>STM32</h3><a class="min" href="https://youtu.be/CIMaAOUekc4?t=197" target="_blank" rel="noopener">&#9654; 3:17</a></div><p>Tiene variantes automotrices e industriales (IEC 61508, UL/IEC 60730, EMC/EMI, rangos extendidos de temperatura), con PDF de especificaciones y un portafolio amplio de micros: desde pocos pines y menos de un dólar hasta modelos de alto rendimiento.</p><p class="ojo">En sistemas embebidos para desarrollar productos hay que saber qué soporte tiene el micro, su precio, dónde conseguirlo y cómo proteger el firmware, no solo copiar y pegar código.</p><div class="uno"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Certificaciones y usos de algunos microcontroladores del mercado" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=CIMaAOUekc4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
