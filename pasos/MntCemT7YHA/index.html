@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 50: Medición de distancia con ultrasonido, sensor HC-SR04 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Medir distancia con uno o varios HC-SR04 sin interrupciones: pulso de 10 µs en TRIG, medir el ancho del ECHO con el contador DWT con tiempo máximo, y dividir los µs entre 58 para obtener centímetros.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/MntCemT7YHA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 50: Medición de distancia con ultrasonido, sensor HC-SR04 · Paso a paso">
+  <meta property="og:description" content="Medir distancia con uno o varios HC-SR04 sin interrupciones: pulso de 10 µs en TRIG, medir el ancho del ECHO con el contador DWT con tiempo máximo, y dividir los µs entre 58 para obtener centímetros.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/MntCemT7YHA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/MntCemT7YHA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Distancia con el <span>HC-SR04</span></h1>
+    <p class="lead">El HC-SR04 recibe un pulso de 10 µs en TRIG y responde con un pulso en ECHO cuyo ancho es proporcional a la distancia: µs / 58 = cm (µs / 148 = pulgadas). La función SFR04_READ mide ese ancho con el contador de ciclos DWT, con un límite de tiempo (60 ms) para no bloquear el programa si el sensor falla. Varios sensores comparten el TRIG y cada uno tiene su pin de ECHO; se leen uno tras otro.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=MntCemT7YHA" target="_blank" rel="noopener">&#9654; Ver el video completo (10:46)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/620.webp" alt="Clase 50: Medición de distancia con ultrasonido, sensor HC-SR04"></figure>
+    <ul class="materiales"><li>STM32F401 (o Blue Pill)</li><li>Uno o más sensores HC-SR04</li><li>Librerías SFR04, delays (DWT) y uart del curso</li><li>Proteus con terminal virtual</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Hoja de datos</a><a href="#f2">2 · Pines</a><a href="#f3">3 · SFR04_READ</a><a href="#f4">4 · Uno y dos sensores</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El sensor</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Cómo mide</h3><a class="min" href="https://youtu.be/MntCemT7YHA?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se da un pulso de 10 µs en TRIG. El módulo envía 8 ciclos de ultrasonido a 40 kHz y pone ECHO en alto el tiempo que tarda el eco en volver.</p><p>Distancia en cm = ancho del pulso en µs / 58. En pulgadas, / 148. Se recomienda un ciclo de medición de más de 60 ms.</p><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Pines Vcc, Trig, Echo y GND" loading="lazy"></a><figcaption>Pines Vcc, Trig, Echo y GND</figcaption></figure><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Fórmula y diagrama de tiempos" loading="lazy"></a><figcaption>Fórmula y diagrama de tiempos</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pines en CubeMX</h3><a class="min" href="https://youtu.be/MntCemT7YHA?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>USART1 a 9600 baudios y estos pines:</p><ul><li><code>TR</code> (PB0): salida, disparo común a todos los sensores</li><li><code>ECO1</code> (PB1), <code>ECO2</code> (PB2)...: entradas, uno por sensor</li></ul><div class="dos"><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="TR, ECO1 y ECO2 en CubeMX" loading="lazy"></a><figcaption>TR, ECO1 y ECO2 en CubeMX</figcaption></figure><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Pines en Proteus" loading="lazy"></a><figcaption>Pines en Proteus</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Includes y variables</h3><a class="min" href="https://youtu.be/MntCemT7YHA?t=133" target="_blank" rel="noopener">&#9654; 2:13</a></div><p>Copia las librerías, agrégalas al path y activa printf con float y la generación del .hex.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;SFR04.h&quot;
+#include &quot;uart.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+
+float distancia1, distancia2;
+char texto[50];</code></pre></div><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Include de SFR04.h" loading="lazy"></a><figcaption>Include de SFR04.h</figcaption></figure><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Variables" loading="lazy"></a><figcaption>Variables</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>La variable pasos</h3><a class="min" href="https://youtu.be/MntCemT7YHA?t=306" target="_blank" rel="noopener">&#9654; 5:06</a></div><p>delay_us_dwt_init() activa el contador de ciclos DWT y calcula <code>pasos</code>: cuántos ciclos de reloj hay en 1 µs. La librería del sensor la usa para convertir el tiempo límite a ciclos y el conteo a µs.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void delay_us_dwt_init(void)
+{
+    CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT-&gt;CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+    pasos = (HAL_RCC_GetHCLKFreq() / 1000000);   // ciclos por µs
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="delay_us_dwt_init en delays.c" loading="lazy"></a><figcaption>delay_us_dwt_init en delays.c</figcaption></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Cálculo de pasos" loading="lazy"></a><figcaption>Cálculo de pasos</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Medir el pulso sin bloquear</h3><a class="min" href="https://youtu.be/MntCemT7YHA?t=337" target="_blank" rel="noopener">&#9654; 5:37</a></div><p>Se dispara el sensor, se espera a que ECHO suba y luego se cuenta mientras está en alto. En cada espera, si el contador pasa del límite se devuelve 0: así un sensor dañado o desconectado no detiene el programa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern uint32_t pasos;
+
+float SFR04_READ(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, const uint32_t tiempo)
+{
+    uint32_t ciclos;
+    float valor = 0;
+    float eco;
+
+    delay_us_dwt_init();
+    ciclos = pasos * tiempo * 1000;   // tiempo límite en ms pasado a ciclos
+
+    // pulso de disparo
+    HAL_GPIO_WritePin(TR_GPIO_Port, TR_Pin, 1);
+    delay_us_dwt(10);
+    HAL_GPIO_WritePin(TR_GPIO_Port, TR_Pin, 0);
+
+    DWT-&gt;CYCCNT = 0;   // espera a que ECHO suba
+    while (HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) == 0)
+        if (DWT-&gt;CYCCNT &gt;= ciclos) return (0);
+
+    DWT-&gt;CYCCNT = 0;   // cuenta mientras ECHO está en alto
+    while (HAL_GPIO_ReadPin(GPIOx, GPIO_Pin) == 1)
+        if (DWT-&gt;CYCCNT &gt;= ciclos) return (0);
+
+    eco = DWT-&gt;CYCCNT;
+    valor = eco / (float)pasos;   // ciclos a µs
+    valor = valor / 58.0;         // µs a cm (148.0 para pulgadas)
+    return valor;
+}</code></pre></div><p class="ojo">Si prefieres distinguir el error de una distancia real, devuelve -1 en vez de 0 cuando se acaba el tiempo.</p><div class="dos"><figure class="cap"><a href="img/350.webp" target="_blank"><img src="img/350.webp" alt="Variables y cálculo de ciclos" loading="lazy"></a><figcaption>Variables y cálculo de ciclos</figcaption></figure><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="Pulso de 10 µs" loading="lazy"></a><figcaption>Pulso de 10 µs</figcaption></figure><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Espera con límite de tiempo" loading="lazy"></a><figcaption>Espera con límite de tiempo</figcaption></figure><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Conversión a centímetros" loading="lazy"></a><figcaption>Conversión a centímetros</figcaption></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Un sensor</h3><a class="min" href="https://youtu.be/MntCemT7YHA?t=212" target="_blank" rel="noopener">&#9654; 3:32</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>delay_us_dwt_init();
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+
+while (1)
+{
+    distancia1 = SFR04_READ(ECO1_GPIO_Port, ECO1_Pin, 60);   // máximo 60 ms
+    sprintf(texto, &quot;Distancia1=%.2f\r\n&quot;, distancia1);
+    uartx_write_text(&amp;huart1, texto);
+    HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Mensaje de inicio" loading="lazy"></a><figcaption>Mensaje de inicio</figcaption></figure><figure class="cap"><a href="img/545.webp" target="_blank"><img src="img/545.webp" alt="Lectura del sensor 1" loading="lazy"></a><figcaption>Lectura del sensor 1</figcaption></figure><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Sensor en 46 cm y la terminal" loading="lazy"></a><figcaption>Sensor en 46 cm y la terminal</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Dos o más sensores</h3><a class="min" href="https://youtu.be/MntCemT7YHA?t=590" target="_blank" rel="noopener">&#9654; 9:50</a></div><p>Copia las líneas cambiando distancia1 por distancia2 y ECO1 por ECO2. Los sensores se leen uno después del otro; como cada lectura es corta parece tiempo real.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>distancia2 = SFR04_READ(ECO2_GPIO_Port, ECO2_Pin, 60);
+sprintf(texto, &quot;Distancia2=%.2f\r\n&quot;, distancia2);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><p class="ojo">Para leer varios sensores al mismo tiempo de verdad hay que usar interrupciones o captura de entrada, que se ven más adelante.</p><div class="uno"><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Dos sensores: 43 cm y 11 cm" loading="lazy"></a><figcaption>Dos sensores: 43 cm y 11 cm</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=MntCemT7YHA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

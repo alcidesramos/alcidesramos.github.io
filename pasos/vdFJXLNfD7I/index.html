@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 49: Librería para el módulo de celda de carga HX711 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leer una celda de carga con el HX711 (ADC de 24 bits), promediar, tarar con un botón y calibrar con un peso conocido para mostrar gramos en un LCD.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/vdFJXLNfD7I/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 49: Librería para el módulo de celda de carga HX711 · Paso a paso">
+  <meta property="og:description" content="Leer una celda de carga con el HX711 (ADC de 24 bits), promediar, tarar con un botón y calibrar con un peso conocido para mostrar gramos en un LCD.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/vdFJXLNfD7I/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/vdFJXLNfD7I/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Balanza con celda de carga y <span>HX711</span></h1>
+    <p class="lead">El HX711 amplifica la señal de la celda de carga y la convierte con un ADC de 24 bits. El micro da 24 pulsos de reloj para leer el dato y 1, 2 o 3 pulsos extra para elegir canal y ganancia (A con 128, B con 32, A con 64). La librería trae lectura, promedio y tara. En main se calcula el peso como (lectura - offset) × factor, donde el offset es el cero de la balanza y el factor sale de un peso conocido. Dos botones permiten tarar y calibrar.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=vdFJXLNfD7I" target="_blank" rel="noopener">&#9654; Ver el video completo (20:44)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1180.webp" alt="Clase 49: Librería para el módulo de celda de carga HX711"></figure>
+    <ul class="materiales"><li>STM32F401 (o Blue Pill)</li><li>Módulo HX711 y celda de carga (en Proteus, LOADCELL)</li><li>LCD 16x2 (o 20x4)</li><li>Dos pulsadores: TARAR y CALIBRAR</li><li>LED indicador</li><li>Librerías HX711, puertos, delays y lcd del curso</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Conexión y pulsos</a><a href="#f2">2 · Pines</a><a href="#f3">3 · HX711.c</a><a href="#f4">4 · Tarar y calibrar</a><a href="#f5">5 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El HX711</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Conectar la celda</h3><a class="min" href="https://youtu.be/vdFJXLNfD7I?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Rojo a E+, negro a E-, y los cables de señal (verde y blanco) a A-/A+ o a B-/B+. El canal A permite ganancia 128 o 64; el canal B tiene ganancia fija de 32.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Celda de carga y módulo HX711" loading="lazy"></a><figcaption>Celda de carga y módulo HX711</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pulsos y ganancia</h3><a class="min" href="https://youtu.be/vdFJXLNfD7I?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>Se dan 24 pulsos en PD_SCK para leer el dato por DOUT. Los pulsos extra eligen la ganancia de la próxima conversión:</p><ul><li>25 pulsos: canal A, ganancia 128</li><li>26 pulsos: canal B, ganancia 32</li><li>27 pulsos: canal A, ganancia 64</li></ul><p class="ojo">El pulso en alto debe durar entre 0.2 y 50 µs. Si SCK queda en alto más de 60 µs el HX711 se apaga.</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Tiempos y selección de ganancia en la hoja de datos" loading="lazy"></a><figcaption>Tiempos y selección de ganancia en la hoja de datos</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Circuito en Proteus</h3><a class="min" href="https://youtu.be/vdFJXLNfD7I?t=69" target="_blank" rel="noopener">&#9654; 1:09</a></div><p>El HX711 trabaja a 5 V: en Proteus agrega un terminal POWER con +5 V. El micro trabaja a 3.3 V.</p><p>Se agregan dos pulsadores: TARAR (pone la balanza en cero) y CALIBRAR (con un peso conocido, aquí 1000 g).</p><div class="dos"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="HX711 con pines DAT y CK" loading="lazy"></a><figcaption>HX711 con pines DAT y CK</figcaption></figure><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Circuito completo con LCD y pulsadores" loading="lazy"></a><figcaption>Circuito completo con LCD y pulsadores</figcaption></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pines con nombre</h3><a class="min" href="https://youtu.be/vdFJXLNfD7I?t=135" target="_blank" rel="noopener">&#9654; 2:15</a></div><p>Usa estas etiquetas exactas (o defínelas en HX711.h):</p><ul><li><code>HX711_CK</code>: salida (PA10)</li><li><code>HX711_DAT</code>: entrada (PA11)</li><li><code>sw_tarar</code> (PB2) y <code>sw_cal</code> (PB3): entradas con pull-up interno</li><li><code>led</code>: salida</li><li>Los pines del LCD, como en la clase del LCD</li></ul><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Pines en CubeMX" loading="lazy"></a><figcaption>Pines en CubeMX</figcaption></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería HX711</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Inicialización y pulso</h3><a class="min" href="https://youtu.be/vdFJXLNfD7I?t=332" target="_blank" rel="noopener">&#9654; 5:32</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;HX711.h&quot;
+extern signed long offset;   // guarda el offset
+
+void HX711_init(void)
+{
+    HAL_GPIO_WritePin(HX711_CK_GPIO_Port, HX711_CK_Pin, 0);   // reloj en cero
+    HAL_Delay(500);
+}
+
+uint8_t HX_711_pulso(void)
+{
+    uint8_t lei;
+    HAL_GPIO_WritePin(HX711_CK_GPIO_Port, HX711_CK_Pin, 1);   // sube el reloj
+    Delay_us(2);
+    lei = HAL_GPIO_ReadPin(HX711_DAT_GPIO_Port, HX711_DAT_Pin);
+    HAL_GPIO_WritePin(HX711_CK_GPIO_Port, HX711_CK_Pin, 0);   // baja el reloj
+    Delay_us(2);
+    return lei;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Includes en main.c" loading="lazy"></a><figcaption>Includes en main.c</figcaption></figure><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="HX711_init y HX_711_pulso" loading="lazy"></a><figcaption>HX711_init y HX_711_pulso</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Lectura de 24 bits</h3><a class="min" href="https://youtu.be/vdFJXLNfD7I?t=385" target="_blank" rel="noopener">&#9654; 6:25</a></div><p>Primero espera (máximo 10 ms con waitforlow) a que el sensor esté listo, para no bloquear el programa si se desconecta. Luego da 24 pulsos armando el dato, y después los pulsos extra según la ganancia. Al final extiende el signo del dato de 24 bits.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>int32_t HX711_lectura(uint8_t ganancia)
+{
+    int16_t hx711_cont;
+    int32_t hx711_dato = 0;
+
+    // si el sensor está ocupado espera 10 ms y no bloquea el código
+    waitforlow(HX711_DAT_GPIO_Port, HX711_DAT_Pin, 10);
+
+    // los primeros 24 pulsos
+    for (hx711_cont = 23; hx711_cont &gt;= 0; hx711_cont--)
+    {
+        if (HX_711_pulso() == 1)
+            hx711_dato = hx711_dato + (1L &lt;&lt; hx711_cont);
+    }
+    Delay_us(100);
+
+    if (ganancia == 128) HX_711_pulso();
+    else if (ganancia == 32) { HX_711_pulso(); Delay_us(100); HX_711_pulso(); }
+    else if (ganancia == 64) { HX_711_pulso(); Delay_us(100); HX_711_pulso();
+                               Delay_us(100); HX_711_pulso(); }
+
+    // verifica si es negativo
+    if ((hx711_dato &amp; 0x800000) != 0)
+    {
+        hx711_dato = hx711_dato | 0xff000000;   // lo convierte a 32 bits con signo
+        return (-hx711_dato);   // quita el - si quieres el valor negativo
+    }
+    else return (hx711_dato);
+}</code></pre></div><p class="ojo">El dato llega en complemento a 2 de 24 bits. Esta versión devuelve el valor absoluto; si quitas el signo '-' del return obtienes la lectura negativa real.</p><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="waitforlow antes de leer" loading="lazy"></a><figcaption>waitforlow antes de leer</figcaption></figure><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Armado de los 24 bits" loading="lazy"></a><figcaption>Armado de los 24 bits</figcaption></figure><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Pulsos de ganancia" loading="lazy"></a><figcaption>Pulsos de ganancia</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Promedio y tara</h3><a class="min" href="https://youtu.be/vdFJXLNfD7I?t=466" target="_blank" rel="noopener">&#9654; 7:46</a></div><p>HX711_promedio lee varias veces con la ganancia pedida y saca el promedio (100 ms entre lecturas; puedes bajarlo si necesitas rapidez). HX_tarar guarda ese promedio como offset: el nuevo cero.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>int32_t HX711_promedio(uint8_t veces, uint8_t ganancia)
+{
+    int32_t prom = 0;
+    uint8_t cont;
+    for (cont = 0; cont &lt; veces; cont++)
+    {
+        prom = prom + HX711_lectura(ganancia);
+        Delay_ms(100);
+    }
+    return (prom / cont);
+}
+
+void HX_tarar(uint8_t veces, uint8_t ganancia)
+{
+    offset = HX711_promedio(veces, ganancia);
+}</code></pre></div><p class="ojo">En el video, al bajar el retardo del promedio a 20 ms la lectura falló en la simulación; volvió a 100 ms y funcionó.</p><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="HX711_promedio y HX_tarar" loading="lazy"></a><figcaption>HX711_promedio y HX_tarar</figcaption></figure><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Retardo entre muestras" loading="lazy"></a><figcaption>Retardo entre muestras</figcaption></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Variables de calibración</h3><a class="min" href="https://youtu.be/vdFJXLNfD7I?t=760" target="_blank" rel="noopener">&#9654; 12:40</a></div><p>offset_manual es la lectura con la balanza vacía y calibra la lectura con el peso de prueba menos el offset. Así factor = gramos por cuenta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const float offset_manual = 83877.0;                 // lectura en vacío
+const float calibra = 419387 - offset_manual;        // lectura con peso de prueba - offset
+const float prueba = 1000.0;                          // peso de prueba en gramos
+float factor = prueba / calibra;                      // factor multiplicativo
+int32_t offset = offset_manual;
+float peso, cal;
+char texto[20];</code></pre></div><div class="uno"><figure class="cap"><a href="img/770.webp" target="_blank"><img src="img/770.webp" alt="Variables de calibración" loading="lazy"></a><figcaption>Variables de calibración</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Inicio</h3><a class="min" href="https://youtu.be/vdFJXLNfD7I?t=565" target="_blank" rel="noopener">&#9654; 9:25</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HX711_init();
+Lcd_Init();
+Lcd_Cmd(LCD_CLEAR);
+Lcd_Cmd(LCD_CURSOR_OFF);
+Lcd_Text(2, 1, &quot;PESO=&quot;);
+Lcd_Text(1, 1, &quot;Offset=&quot;);
+sprintf(texto, &quot;%.1f&quot;, (float)offset);
+Lcd_Text(1, 8, texto);</code></pre></div><p class="ojo">Activa 'Use float with printf' en MCU Settings y genera el .hex para Proteus.</p><div class="dos"><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Inicialización" loading="lazy"></a><figcaption>Inicialización</figcaption></figure><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Activar printf con float en el proyecto" loading="lazy"></a><figcaption>Activar printf con float en el proyecto</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Medir, tarar y calibrar</h3><a class="min" href="https://youtu.be/vdFJXLNfD7I?t=631" target="_blank" rel="noopener">&#9654; 10:31</a></div><p>En cada vuelta se lee el promedio, se resta el offset y se multiplica por el factor. El LED titila; se apaga un momento mientras se tara o calibra.</p><p>Para calibrar se toman más muestras (50) porque se hace una sola vez.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    peso = HX711_promedio(10, 128) - offset;
+    peso = peso * factor;
+    if (peso &lt;= 0) peso = 0;          // sin valores negativos
+    sprintf(texto, &quot;%.1f&quot;, peso);
+    Lcd_Text(2, 7, &quot;       &quot;);
+    Lcd_Text(2, 7, texto);
+
+    HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+    HAL_Delay(100);
+
+    if (HAL_GPIO_ReadPin(sw_tarar_GPIO_Port, sw_tarar_Pin) == 0)
+    {
+        HAL_GPIO_WritePin(led_GPIO_Port, led_Pin, 0);
+        HX_tarar(10, 128);            // 10 datos, ganancia 128
+        sprintf(texto, &quot;%.1f&quot;, (float)offset);
+        Lcd_Text(1, 8, &quot;     &quot;);
+        Lcd_Text(1, 8, texto);
+    }
+
+    if (HAL_GPIO_ReadPin(sw_cal_GPIO_Port, sw_cal_Pin) == 0)
+    {
+        HAL_GPIO_WritePin(led_GPIO_Port, led_Pin, 0);
+        cal = HX711_promedio(50, 128) - offset;
+        factor = prueba / cal;
+    }
+}</code></pre></div><p class="ojo">En el video los pulsadores aparecen como sw_tarar==0 y sw_cal==0; aquí se leen con HAL_GPIO_ReadPin. Los valores de calibración quedan en RAM: para no perderlos habría que guardarlos en EEPROM o en la flash del micro.</p><div class="dos"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Lectura del peso y tara" loading="lazy"></a><figcaption>Lectura del peso y tara</figcaption></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Tarar en el bucle" loading="lazy"></a><figcaption>Tarar en el bucle</figcaption></figure><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Calibración con el botón" loading="lazy"></a><figcaption>Calibración con el botón</figcaption></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Resultado</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Cero y peso conocido</h3><a class="min" href="https://youtu.be/vdFJXLNfD7I?t=929" target="_blank" rel="noopener">&#9654; 15:29</a></div><p>Pulsa TARAR con la balanza vacía para fijar el cero. Pon el peso conocido, pulsa CALIBRAR y espera a que el LED vuelva a titilar: la pantalla debe mostrar 1000 g.</p><p>El orden es: primero tarar, luego calibrar.</p><div class="dos"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Offset en la pantalla" loading="lazy"></a><figcaption>Offset en la pantalla</figcaption></figure><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Midiendo 112.2 g" loading="lazy"></a><figcaption>Midiendo 112.2 g</figcaption></figure><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Nuevo offset tras tarar y peso medido" loading="lazy"></a><figcaption>Nuevo offset tras tarar y peso medido</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=vdFJXLNfD7I" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
