@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Librería Frecuencia actualizada con estructuras FRECS: se leen tres frecuencias en PA8, PA11 y PA0 (TIM1 CH1, TIM1 CH4 y TIM2 CH1) por interrupción de captura, con muy poca configuración.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/Q_8Y-9CoQ28/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras) · Paso a paso">
+  <meta property="og:description" content="Librería Frecuencia actualizada con estructuras FRECS: se leen tres frecuencias en PA8, PA11 y PA0 (TIM1 CH1, TIM1 CH4 y TIM2 CH1) por interrupción de captura, con muy poca configuración.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/Q_8Y-9CoQ28/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Q_8Y-9CoQ28/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Medición de frecuencia con <span>Input Capture</span> y estructuras</h1>
+    <p class="lead">Se retoma la medición de frecuencia por Input Capture (clase 67) pero con una librería reescrita usando estructuras, al estilo de la librería PWM. Cada canal se describe con una variable FRECS {htim, &CCR, canal, bandera}. Los timers se llevan a pasos de 1 µs (PSC = MHz del reloj − 1) y se habilita la interrupción de captura/comparación. En cada interrupción la función Frec_Analiza guarda el contador en dos flancos de subida consecutivos y calcula la diferencia (teniendo en cuenta el desborde). En el main se divide la frecuencia de muestreo entre esa diferencia para obtener Hz y se envía por el puerto serial. Se termina midiendo tres señales a la vez, cada una llamada desde la interrupción de su propio timer.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Q_8Y-9CoQ28" target="_blank" rel="noopener">&#9654; Ver el video completo (32:51)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1420.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Proteus (STM32F401 con generadores de 60 Hz a 2 kHz y selectores)</li><li>Librerías Frecuencia.c/.h y uart del canal</li><li>Hoja de cálculo STM32_TIMER frecuencia.xlsx (rango de medida)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Canales Input Capture, timers a 1 µs y serial</a><a href="#f2">2 · Estructura FRECS y cómo calcula</a><a href="#f3">3 · Main e interrupción de TIM1</a><a href="#f4">4 · Segundo canal y otro timer</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configuración en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Elegir canales de captura</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=97" target="_blank" rel="noopener">&#9654; 1:37</a></div><p>Se crea el proyecto Frecuencia_canal. En TIM1 se activa Input Capture direct mode en el canal 1 (PA8) y en el canal 4 (PA11); en TIM2 el canal 1 (PA0). Puede ser cualquier timer y cualquier canal; aquí se eligen según el circuito de Proteus.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Puerto serial para monitorear</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=166" target="_blank" rel="noopener">&#9654; 2:46</a></div><p>USART1 en modo Asynchronous (TX en PA9, RX en PA10). Solo se usa TX para enviar las lecturas.</p><div class="uno"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Llevar los timers a microsegundos</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=337" target="_blank" rel="noopener">&#9654; 5:37</a></div><p>Con reloj de 16 MHz: Prescaler = 16-1 para que cada cuenta sea 1 µs, y Counter Period al máximo (65535 en TIM1). Así se mide desde unos 15 Hz hasta cientos de kHz. TIM2 es de 32 bits (ARR hasta 4 294 967 295), por lo que mide frecuencias mucho más bajas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Prescaler (PSC)      = 16-1      // MHz del reloj - 1 -&gt; paso de 1 us
+Counter Period (ARR) = 65535     // TIM1 (16 bits)
+Counter Period (ARR) = 4294967295 // TIM2 (32 bits)</code></pre></div><div class="dos"><figure class="cap"><a href="img/350.webp" target="_blank"><img src="img/350.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Librerías y opciones del proyecto</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>Se crea Core/Librerias con Frecuencia.c/.h y uart.c/.h, se agrega la carpeta a los include paths y en el main se incluyen junto con stdio.h, stdlib.h, stdint.h y string.h. En las propiedades se habilita la salida .hex y printf con float.</p><p>En NVIC Settings de TIM1 se marca TIM1 capture compare interrupt. Desde System Core → NVIC se puede ajustar su prioridad frente a otras interrupciones.</p><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La librería Frecuencia</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Estructura FRECS</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=614" target="_blank" rel="noopener">&#9654; 10:14</a></div><p>Cada entrada de frecuencia guarda su timer, el registro de captura, el canal, la bandera, la frecuencia de muestreo, el valor leído y variables auxiliares:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>typedef struct {
+    TIM_HandleTypeDef *htim;
+    volatile uint32_t *ccr;
+    uint32_t channel;
+    uint32_t frec_flag;
+    uint32_t frec_muestreo;
+    float    frec_leida;
+    uint32_t frec1_1, frec1_2;
+    uint8_t  cap_f1, cap_f2;
+} FRECS;</code></pre></div><div class="uno"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Declarar los canales en Frecuencia.c</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=679" target="_blank" rel="noopener">&#9654; 11:19</a></div><p>Solo hay que incluir los timers y declarar cada canal (FREC1, FREC2… hasta 20) con su timer, CCR, canal y bandera:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim2;
+
+FRECS FREC1 = {&amp;htim1, &amp;(TIM1-&gt;CCR1), TIM_CHANNEL_1, TIM_FLAG_CC1};
+FRECS FREC2 = {&amp;htim1, &amp;(TIM1-&gt;CCR4), TIM_CHANNEL_4, TIM_FLAG_CC4};
+FRECS FREC3 = {&amp;htim2, &amp;(TIM2-&gt;CCR1), TIM_CHANNEL_1, TIM_FLAG_CC1};</code></pre></div><div class="dos"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure><figure class="cap"><a href="img/1730.webp" target="_blank"><img src="img/1730.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Init y análisis en la interrupción</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=713" target="_blank" rel="noopener">&#9654; 11:53</a></div><p>Frec_init calcula la frecuencia de muestreo (reloj / (PSC+1)) y arranca la captura con interrupción. Frec_Analiza revisa la bandera del canal: en el primer flanco guarda el contador y en el segundo calcula la diferencia; si el timer se desbordó, corrige con el ARR.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Frec_init(FRECS *frec)
+{
+    frec-&gt;frec_leida = 0;
+    frec-&gt;frec_muestreo = SystemCoreClock / ((frec-&gt;htim-&gt;Instance-&gt;PSC) + 1);
+    HAL_TIM_IC_Start_IT(frec-&gt;htim, frec-&gt;channel);
+}
+
+void Frec_Analiza(FRECS *frec)
+{
+    if (__HAL_TIM_GET_FLAG(frec-&gt;htim, frec-&gt;frec_flag) == 1)
+    {
+        if (frec-&gt;cap_f1 == 0) {
+            frec-&gt;cap_f1 = 1;
+            frec-&gt;frec1_1 = *frec-&gt;ccr;      // primer flanco
+        }
+        else if (frec-&gt;cap_f1 == 1) {
+            frec-&gt;cap_f1 = 0;
+            frec-&gt;frec1_2 = *frec-&gt;ccr;      // segundo flanco
+            if (frec-&gt;frec1_2 &gt; frec-&gt;frec1_1)
+                frec-&gt;frec_leida = frec-&gt;frec1_2 - frec-&gt;frec1_1;
+            else
+                frec-&gt;frec_leida = (frec-&gt;htim-&gt;Instance-&gt;ARR - frec-&gt;frec1_1) + frec-&gt;frec1_2;
+        }
+    }
+}</code></pre></div><p class="ojo">A diferencia de la recepción serial, aquí no se usa una bandera para procesar en el main: la captura se hace siempre en tiempo real dentro de la interrupción.</p><div class="uno"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Leer una frecuencia</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Inicializar y calcular en el main</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=942" target="_blank" rel="noopener">&#9654; 15:42</a></div><p>Se inicializa el canal y en el while se calcula la frecuencia; si no hubo capturas se reporta 0, y frec_leida se limpia para refrescar:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float frecuencia1;
+char texto[100];
+
+Frec_init(&amp;FREC1);
+
+while (1)
+{
+    if (FREC1.frec_leida == 0) frecuencia1 = 0;
+    else frecuencia1 = FREC1.frec_muestreo / FREC1.frec_leida;
+    FREC1.frec_leida = 0;   // en cero para otra lectura
+
+    sprintf(texto, &quot;FREC1=%.1f\r\n&quot;, frecuencia1);
+    uartx_write_text(&amp;huart1, texto);
+    HAL_Delay(100);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Llamar desde TIM1_CC_IRQHandler</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=1119" target="_blank" rel="noopener">&#9654; 18:39</a></div><p>En stm32f4xx_it.c se incluye Frecuencia.h y en la interrupción de captura de TIM1 se analiza el canal:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;Frecuencia.h&quot;
+
+void TIM1_CC_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_CC_IRQn 0 */
+  Frec_Analiza(&amp;FREC1);
+  /* USER CODE END TIM1_CC_IRQn 0 */
+  HAL_TIM_IRQHandler(&amp;htim1);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1260.webp" target="_blank"><img src="img/1260.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba en Proteus</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=1393" target="_blank" rel="noopener">&#9654; 23:13</a></div><p>Al mover el selector la terminal muestra 2 kHz, 1 kHz, 700 Hz, 300 Hz, 60 Hz y 0 en DC.</p><p class="ojo">Si la simulación se queda en cero o se bloquea, baje el retardo del main (aquí a 100 ms) porque Proteus se carga mucho con señales de kHz, y refresque el componente con el engranaje.</p><div class="uno"><figure class="cap"><a href="img/1420.webp" target="_blank"><img src="img/1420.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Varias frecuencias</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Segundo canal en TIM1</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=1462" target="_blank" rel="noopener">&#9654; 24:22</a></div><p>Se declara FREC2 (TIM1 canal 4), se inicializa con Frec_init(&FREC2), se copia el bloque de cálculo cambiando 1 por 2 y en TIM1_CC_IRQHandler se agrega Frec_Analiza(&FREC2).</p><div class="dos"><figure class="cap"><a href="img/1470.webp" target="_blank"><img src="img/1470.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure><figure class="cap"><a href="img/1520.webp" target="_blank"><img src="img/1520.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure><figure class="cap"><a href="img/1600.webp" target="_blank"><img src="img/1600.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Tercer canal en TIM2</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=1618" target="_blank" rel="noopener">&#9654; 26:58</a></div><p>TIM2 no tiene una interrupción dedicada a captura: solo TIM2 global interrupt, que se dispara por desborde o por captura, así que la librería comprueba la bandera del canal. Se habilita, se declara FREC3 y se repite el proceso en el main.</p><div class="dos"><figure class="cap"><a href="img/1650.webp" target="_blank"><img src="img/1650.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure><figure class="cap"><a href="img/1780.webp" target="_blank"><img src="img/1780.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Cada timer llama a sus canales</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=1787" target="_blank" rel="noopener">&#9654; 29:47</a></div><p>Es más eficiente llamar en la interrupción de cada timer solo a los canales de ese timer, en lugar de una función que revise todos:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void TIM1_CC_IRQHandler(void)
+{
+  Frec_Analiza(&amp;FREC1);
+  Frec_Analiza(&amp;FREC2);
+  HAL_TIM_IRQHandler(&amp;htim1);
+}
+
+void TIM2_IRQHandler(void)
+{
+  Frec_Analiza(&amp;FREC3);
+  HAL_TIM_IRQHandler(&amp;htim2);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1850.webp" target="_blank"><img src="img/1850.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Resultado</h3><a class="min" href="https://youtu.be/Q_8Y-9CoQ28?t=1886" target="_blank" rel="noopener">&#9654; 31:26</a></div><p>Se leen tres frecuencias en timers y canales diferentes al mismo tiempo y cada una cambia en la terminal según su selector.</p><div class="uno"><figure class="cap"><a href="img/1930.webp" target="_blank"><img src="img/1930.webp" alt="Clase 88 STM32: medir frecuencia con Input Capture e interrupciones (librería con estructuras)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Q_8Y-9CoQ28" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
