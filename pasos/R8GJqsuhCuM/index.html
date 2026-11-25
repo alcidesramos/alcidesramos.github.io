@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 125 STM32: TFT ILI9488, dashboard con variables animadas · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Librería DASHBOARD para la TFT ILI9488: LEDs, barras de progreso horizontales y verticales, y un gauge en arco con degradado que cambian con variables.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/R8GJqsuhCuM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas · Paso a paso">
+  <meta property="og:description" content="Librería DASHBOARD para la TFT ILI9488: LEDs, barras de progreso horizontales y verticales, y un gauge en arco con degradado que cambian con variables.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/R8GJqsuhCuM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/R8GJqsuhCuM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 125: TFT ILI9488 <span>dashboard animado</span></h1>
+    <p class="lead">Sobre el mismo proyecto de la pantalla TFT ILI9488 (texto, figuras e imágenes) agregamos interactividad visual con una librería propia llamada DASHBOARD, hecha a puro código. Así se gasta mucha menos memoria que con TouchGFX u otros editores gráficos y sirve en micros pequeños. La librería trae dos tipos de LED, barra horizontal, dos variantes de barra vertical (tipo termómetro) y un gauge en arco con degradado verde, amarillo y rojo. Cada elemento se define como una estructura en DASHBOARD.c, se declara extern en DASHBOARD.h y en el while se actualiza su campo value y se redibuja.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=R8GJqsuhCuM" target="_blank" rel="noopener">&#9654; Ver el video completo (19:45)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1175.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas"></figure>
+    <ul class="materiales"><li>Pantalla TFT ILI9488 3.5" SPI (480x320)</li><li>Blackpill STM32F411</li><li>Proyecto de las clases 123 y 124 (librerías ili9488, fonts, imagenes)</li><li>Librería DASHBOARD.c / DASHBOARD.h</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Estructuras y extern</a><a href="#f2">2 · Dos estilos de LED</a><a href="#f3">3 · Termómetro vertical y barra horizontal</a><a href="#f4">4 · Medidor con degradado</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Agregar la librería DASHBOARD</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Incluir DASHBOARD.h</h3><a class="min" href="https://youtu.be/R8GJqsuhCuM?t=75" target="_blank" rel="noopener">&#9654; 1:15</a></div><p>Se copian DASHBOARD.c y DASHBOARD.h a la carpeta de librerías y se incluye junto a las demás en el main.</p><p>Las pruebas de figuras e imágenes de las clases anteriores se dejan comentadas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;ili9488.h&quot;
+#include &quot;fonts.h&quot;
+#include &quot;imagenes.h&quot;
+#include &quot;DASHBOARD.h&quot;
+/* USER CODE END Includes */</code></pre></div><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Qué trae la librería</h3><a class="min" href="https://youtu.be/R8GJqsuhCuM?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>En DASHBOARD.h están las estructuras de cada instrumento: Gauge_ARZ (centro, radio, grosor, ángulo inicial y final, valor, colores), Led y Barra.</p><p>Por cada elemento que se cree en DASHBOARD.c hay que poner su extern en DASHBOARD.h para poder usarlo desde el main.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// DASHBOARD.h : un extern por cada elemento que se crea en DASHBOARD.c
+extern Led led1;
+extern Led led2;
+extern Barra barrah1;     // barra horizontal
+extern Barra barrav1;     // barra vertical
+extern Gauge_ARZ gauge1;  // gauge en arco</code></pre></div><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>LEDs</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Definir los LEDs</h3><a class="min" href="https://youtu.be/R8GJqsuhCuM?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>Cada LED tiene posición x, y, color apagado, color encendido y radio. Para un segundo LED se copia la estructura, se cambia el nombre y los valores.</p><p>Cuidado con las coordenadas: en el video el LED2 no aparecía porque se escribió y = 1000, fuera de la pantalla.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// DASHBOARD.c : define los led a usar
+Led led1 =
+{
+  .x = 50,
+  .y = 250,
+  .color_off = COLOR_GREY,
+  .color_on  = COLOR_RED,
+  .r = 20,
+};
+
+Led led2 =
+{
+  .x = 50,
+  .y = 100,
+  .color_off = COLOR_WHITE,
+  .color_on  = COLOR_GREEN,
+  .r = 30,
+};</code></pre></div><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Encender y apagar en el while</h3><a class="min" href="https://youtu.be/R8GJqsuhCuM?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>Se pone un color de fondo una sola vez antes del while. Dentro se cambia el campo estado (1 encendido, 0 apagado) y se dibuja.</p><p>led_draw dibuja el LED plano y led_draw1 lo dibuja con un punto de brillo. Dentro de esa función se puede cambiar la división del radio para hacer el brillo más grande o más pequeño.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>fillScreen(COLOR_BEIGE);
+
+while (1)
+{
+  led1.estado = 1;
+  led2.estado = 0;
+  led_draw(&amp;led1);    // LED tipo 1
+  led_draw1(&amp;led2);   // LED tipo 2 (con brillo)
+  HAL_Delay(200);
+
+  led1.estado = 0;
+  led2.estado = 1;
+  led_draw(&amp;led1);
+  led_draw1(&amp;led2);
+  HAL_Delay(200);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Barras de progreso</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Variable a mostrar</h3><a class="min" href="https://youtu.be/R8GJqsuhCuM?t=450" target="_blank" rel="noopener">&#9654; 7:30</a></div><p>Se crea una variable flotante temp que simula una temperatura: arranca en 10.5, sube 2.2 en cada vuelta y vuelve a 0 al pasar de 50. En un proyecto real aquí iría la lectura de un sensor.</p><div class="uno"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configurar las barras</h3><a class="min" href="https://youtu.be/R8GJqsuhCuM?t=560" target="_blank" rel="noopener">&#9654; 9:20</a></div><p>Barra vertical: posición, ancho 30, alto 120, rango 0 a 50, colores de fondo, relleno y marco, si muestra o no el valor (showValue), color del texto, fuente y número de rayitas.</p><p>La barra horizontal usa la misma estructura: aquí empieza en la esquina (0,0), mide 200 de ancho y va de 0 a 100 con relleno azul.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// barras de progreso verticales
+Barra barrav1 =
+{
+  .x = 150,
+  .y = 150,
+  .w = 30,
+  .h = 120,
+  .vmin = 0,
+  .vmax = 50,
+  .value = 0,
+  .colorFondo = COLOR_LIGHTGRAY,
+  .colorFill  = COLOR_RED,
+  .colorMarco = COLOR_BLACK,
+  .showValue  = 1,              // 1 = escribe el valor, 0 = solo la barra
+  .textColor  = COLOR_BLACK,
+  .text_fondo = COLOR_WHITE,
+  .font = font1,
+  .numTicks = 5,                // # de rayitas
+};
+
+// barras de progreso horizontales
+Barra barrah1 =
+{
+  .x = 0,
+  .y = 0,
+  .w = 200,
+  .h = 20,
+  .vmin = 0,
+  .vmax = 100,
+  .value = 0,
+  .colorFondo = COLOR_LIGHTGRAY,
+  .colorFill  = COLOR_BLUE,
+  .colorMarco = COLOR_BLACK,
+  .showValue  = 1,
+  .textColor  = COLOR_BLACK,
+  .text_fondo = COLOR_WHITE,
+  .font = font1,
+  .numTicks = 5,
+};</code></pre></div><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Dibujar las barras</h3><a class="min" href="https://youtu.be/R8GJqsuhCuM?t=790" target="_blank" rel="noopener">&#9654; 13:10</a></div><p>En el while se copia la variable al campo value de cada barra y se llama la función de dibujo.</p><p>Hay dos funciones para la vertical: barrav_draw escribe el valor debajo de la barra y barrav_draw1 lo escribe a la derecha.</p><div class="dos"><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure><figure class="cap"><a href="img/655.webp" target="_blank"><img src="img/655.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Ancho del texto del valor</h3><a class="min" href="https://youtu.be/R8GJqsuhCuM?t=830" target="_blank" rel="noopener">&#9654; 13:50</a></div><p>Dentro de la función de dibujo de la barra, el valor se escribe con un formato tipo "%5.1f". El 5 es el número de caracteres que ocupa el texto (por ejemplo 100.1).</p><p>Si vas a mostrar valores negativos o de miles, aumenta ese número para que el texto anterior se borre bien. Aplica a la barra horizontal y a la vertical.</p><div class="uno"><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Gauge en arco</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Configurar el gauge</h3><a class="min" href="https://youtu.be/R8GJqsuhCuM?t=900" target="_blank" rel="noopener">&#9654; 15:00</a></div><p>Se define centro, radio 80, ancho del arco 12, rango 0 a 100, ángulo inicial -225 y final 45, y resolución angular de 5.</p><p>El arco cambia de color en degradado: verde al inicio, amarillo en el centro y rojo al final.</p><p>Cambiando el ángulo inicial (por ejemplo a -270) el arco se abre más o se cierra completamente.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// gauge a usar
+Gauge_ARZ gauge1 = {
+  .x = 300,          // centro
+  .y = 120,
+  .r = 80,           // radio
+  .w = 12,           // ancho del arco
+  .vmin = 0,         // valor minimo
+  .vmax = 100,       // valor maximo
+  .value = 0,        // valor inicial variable
+  .Ang_ini = -225,   // angulo inicial
+  .Ang_fin = 45,     // angulo final
+  .Res_ang = 5,      // pasos
+  .fondo = COLOR_WHITE,      // fondo del arco
+  // degradado
+  .colorIni = COLOR_GREEN,   // color inicio
+  .colorMed = COLOR_YELLOW,  // color centro
+  .colorFin = COLOR_RED,     // color final
+  // del texto
+  .showValue = 1,            // muestra el valor
+  .textColor = COLOR_WHITE,  // color del texto
+  .font = font2,             // font a usar
+};</code></pre></div><p class="ojo">El gauge trabaja solo con enteros: el valor se escribe con %d. Si quieres decimales, cambia el formato dentro de la función a algo como %.3f.</p><div class="dos"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Animar todo en el while</h3><a class="min" href="https://youtu.be/R8GJqsuhCuM?t=1000" target="_blank" rel="noopener">&#9654; 16:40</a></div><p>Se crea otra variable velo que sube de 8 en 8 y vuelve a 0 al pasar de 100. Se asigna a gauge1.value y se dibuja con gauge_draw_arc.</p><p>Así quedan funcionando al mismo tiempo los LEDs, las dos barras y el gauge.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PV */
+float temp = 10.5;
+float velo = 0;
+/* USER CODE END PV */
+
+/* ... dentro del main ... */
+fillScreen(COLOR_BEIGE);
+
+while (1)
+{
+  barrav1.value = temp;
+  barrah1.value = temp;
+  barrav_draw(&amp;barrav1);      // valor abajo (barrav_draw1: valor a la derecha)
+  barrah_draw(&amp;barrah1);
+
+  gauge1.value = velo;        // el gauge trabaja con enteros
+  gauge_draw_arc(&amp;gauge1);
+
+  temp += 2.2;
+  if (temp &gt; 50) temp = 0;
+
+  velo += 8;
+  if (velo &gt; 100) velo = 0;
+
+  led1.estado = 1; led2.estado = 0;
+  led_draw(&amp;led1); led_draw1(&amp;led2);
+  HAL_Delay(200);
+  led1.estado = 0; led2.estado = 1;
+  led_draw(&amp;led1); led_draw1(&amp;led2);
+  HAL_Delay(200);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure><figure class="cap"><a href="img/1050.webp" target="_blank"><img src="img/1050.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/R8GJqsuhCuM?t=1100" target="_blank" rel="noopener">&#9654; 18:20</a></div><p>En la pantalla el gauge avanza en verde, pasa por naranja y llega a rojo antes de reiniciarse, mientras la barra vertical simula el termómetro.</p><p>Si un elemento sale encima de otro, ajusta sus coordenadas x, y en DASHBOARD.c.</p><div class="dos"><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure><figure class="cap"><a href="img/1175.webp" target="_blank"><img src="img/1175.webp" alt="Clase 125 STM32: TFT ILI9488, dashboard con variables animadas" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=R8GJqsuhCuM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
