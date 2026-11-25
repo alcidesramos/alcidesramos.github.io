@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 35: asociar printf a un puerto serial UART en STM32 (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Redefiniendo __io_putchar en un archivo printf_out.h, printf escribe directamente por la UART que elijas. Ya no hace falta sprintf más una función de envío.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/kgEUfcMg8yI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 35: asociar printf a un puerto serial UART en STM32 (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Redefiniendo __io_putchar en un archivo printf_out.h, printf escribe directamente por la UART que elijas. Ya no hace falta sprintf más una función de envío.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/kgEUfcMg8yI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/kgEUfcMg8yI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 35: <span>printf</span> por el puerto serial</h1>
+    <p class="lead">Antes armábamos el texto con sprintf y luego lo mandábamos con uartx_write_text. printf de C llama internamente a __io_putchar por cada carácter; si esa función transmite por la UART, printf imprime por el puerto serie con todo su formato.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=kgEUfcMg8yI" target="_blank" rel="noopener">&#9654; Ver el video completo (6:44)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/175.webp" alt="Clase 35: asociar printf a un puerto serial UART en STM32 (paso a paso)"></figure>
+    <ul class="materiales"><li>Proyecto de la clase 33 (UART en Proteus)</li><li>Un archivo printf_out.h en Core/Librerias</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Archivo</a><a href="#f2">2 · printf</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Crear printf_out.h</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Nueva cabecera</h3><a class="min" href="https://youtu.be/kgEUfcMg8yI?t=36" target="_blank" rel="noopener">&#9654; 0:36</a></div><p>En la carpeta Librerias crea <b>printf_out.h</b> (New → Header File). Basta con el .h porque solo redefine una función que la librería de C ya declara.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Clase 35: asociar printf a un puerto serial UART en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El código</h3><a class="min" href="https://youtu.be/kgEUfcMg8yI?t=140" target="_blank" rel="noopener">&#9654; 2:20</a></div><p>Cambia <b>huart1</b> por el puerto que uses (huart2, huart6…):</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;string.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;stdio.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;main.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define uartx huart1   // colocar el puerto serial a usar</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern UART_HandleTypeDef uartx;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code></code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>int __io_putchar(int ch)</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    //ITM_SendChar(ch);   // si se quiere usar por debugger</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    HAL_UART_Transmit(&amp;uartx, (uint8_t *)&amp;ch, 1, 0xFFFF);   // printf al puerto</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    return ch;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>}</code></pre></div><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 35: asociar printf a un puerto serial UART en STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="Clase 35: asociar printf a un puerto serial UART en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Incluirlo en main.c</h3><a class="min" href="https://youtu.be/kgEUfcMg8yI?t=105" target="_blank" rel="noopener">&#9654; 1:45</a></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;printf_out.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 35: asociar printf a un puerto serial UART en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Usar printf</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Imprimir directo</h3><a class="min" href="https://youtu.be/kgEUfcMg8yI?t=208" target="_blank" rel="noopener">&#9654; 3:28</a></div><p>Ya no hace falta indicar el puerto ni pasar por un arreglo:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>printf(&quot;HOLA\r\n&quot;);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>printf(&quot;CNT1=%-u  CNT1=%3d  CNTf=%4.2f\r\n&quot;, cont8, cont8s, contf);</code></pre></div><p class="ojo">Para el LCD sigues usando sprintf + Lcd_Text. Para flotantes recuerda habilitar <b>-u _printf_float</b> (clase 32).</p><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 35: asociar printf a un puerto serial UART en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/kgEUfcMg8yI?t=312" target="_blank" rel="noopener">&#9654; 5:12</a></div><p>En Proteus el Virtual Terminal muestra lo mismo que antes, ahora con printf.</p><div class="uno"><figure class="cap"><a href="img/355.webp" target="_blank"><img src="img/355.webp" alt="Clase 35: asociar printf a un puerto serial UART en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=kgEUfcMg8yI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

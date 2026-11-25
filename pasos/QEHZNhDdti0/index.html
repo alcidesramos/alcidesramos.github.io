@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con la tarjeta física: enviar datos al PC con un cable USB-UART (TX de PA9 al RX del cable) y, mejor aún, sin cable extra, haciendo que la Black Pill cree su propio puerto COM virtual con USB Device CDC.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/QEHZNhDdti0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Con la tarjeta física: enviar datos al PC con un cable USB-UART (TX de PA9 al RX del cable) y, mejor aún, sin cable extra, haciendo que la Black Pill cree su propio puerto COM virtual con USB Device CDC.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/QEHZNhDdti0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/QEHZNhDdti0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 34: serial por <span>USB-UART y USB CDC</span></h1>
+    <p class="lead">Primero conectamos un cable USB-serie a USART1 y leemos los datos en una terminal. Luego configuramos el USB de la Black Pill como dispositivo CDC (Virtual Port Com): Windows crea un puerto COM nuevo y con una pequeña librería mandamos el mismo texto por USB.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=QEHZNhDdti0" target="_blank" rel="noopener">&#9654; Ver el video completo (11:58)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/680.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401 con cristal externo</li><li>Cable USB-UART (CH340, CP2102, FTDI, PL2303…) con su driver</li><li>Terminal serie (Hercules u otra)</li><li>Librería usb_cdc.c/.h</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Cable</a><a href="#f2">2 · USB CDC</a><a href="#f3">3 · Código</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Con un cable USB-UART</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Conexión</h3><a class="min" href="https://youtu.be/QEHZNhDdti0?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Une la <b>tierra</b> del cable con la de la tarjeta y el <b>TX del micro (PA9)</b> con el <b>RX del cable</b>. El TX del cable solo hace falta si vas a recibir. No alimentes el micro desde el cable: usa el USB de la tarjeta.</p><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Driver y puerto COM</h3><a class="min" href="https://youtu.be/QEHZNhDdti0?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>Cada cable usa un chip (CH340, CP2102, FTDI, PL2303…) y necesita su driver. Al conectarlo, Windows crea un puerto (aquí COM4); míralo en el <b>Administrador de dispositivos → Puertos (COM y LPT)</b>.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Leer los datos</h3><a class="min" href="https://youtu.be/QEHZNhDdti0?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>Programa el mismo código de la clase 33 y abre COM4 a 9600 en una terminal. También puedes verlo en Proteus con COMPIM + Virtual Terminal, sin micro simulado.</p><p class="ojo">Un puerto COM físico solo lo puede abrir un programa a la vez.</p><div class="dos"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>USB directo (CDC)</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Habilitar USB_OTG_FS</h3><a class="min" href="https://youtu.be/QEHZNhDdti0?t=295" target="_blank" rel="noopener">&#9654; 4:55</a></div><p>En <b>Connectivity → USB_OTG_FS</b> pon modo <b>Device_Only</b>.</p><div class="uno"><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Middleware USB_DEVICE</h3><a class="min" href="https://youtu.be/QEHZNhDdti0?t=362" target="_blank" rel="noopener">&#9654; 6:02</a></div><p>En <b>Middleware → USB_DEVICE</b> elige <b>Communication Device Class (Virtual Port Com)</b>. Otras opciones: audio, DFU, HID (mouse, teclado) o almacenamiento masivo.</p><div class="uno"><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Reloj con cristal externo</h3><a class="min" href="https://youtu.be/QEHZNhDdti0?t=394" target="_blank" rel="noopener">&#9654; 6:34</a></div><p>El USB necesita un reloj preciso: con el oscilador interno el Clock Configuration sale en rojo. Cambia a <b>HSE</b> (cristal externo) y vuelve a poner 84 MHz; acepta que resuelva el reloj automáticamente.</p><div class="uno"><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Aparece un COM nuevo</h3><a class="min" href="https://youtu.be/QEHZNhDdti0?t=427" target="_blank" rel="noopener">&#9654; 7:07</a></div><p>Al programar y conectar el USB de la tarjeta, Windows crea otro puerto (aquí <b>COM16</b>, USB Serial Port) creado por el propio micro.</p><div class="uno"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Enviar por USB</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Incluir la librería</h3><a class="min" href="https://youtu.be/QEHZNhDdti0?t=461" target="_blank" rel="noopener">&#9654; 7:41</a></div><p>Copia usb_cdc.c/.h en Core/Librerias e inclúyela junto a usb_device.h:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;usb_device.h&quot;</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;usb_cdc.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/490.webp" target="_blank"><img src="img/490.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Escribir por los dos puertos</h3><a class="min" href="https://youtu.be/QEHZNhDdti0?t=528" target="_blank" rel="noopener">&#9654; 8:48</a></div><p>Puedes mandar lo mismo por el cable (UART) y por USB:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;CNT1=%-u  CNT1=%3d  CNTf=%4.2f\r\n&quot;, cont8, cont8s, contf);</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, texto);   // por el cable, COM4</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>usb_uart_write(texto);              // por USB, COM16</code></pre></div><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>usb_uart_write(&quot;HOLA\r\n&quot;);</code></pre></div><p class="ojo">Usa el nombre de función que trae tu versión de usb_cdc.h.</p><div class="dos"><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)" loading="lazy"></a></figure><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Clase 34: comunicación serial con un PC por cable USB-UART o por USB directo (USB CDC) en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Los baudios no importan</h3><a class="min" href="https://youtu.be/QEHZNhDdti0?t=596" target="_blank" rel="noopener">&#9654; 9:56</a></div><p>Por USB CDC funciona aunque en la terminal pongas 9600 o 38400: no hay baudios reales. Aun así conviene que el puerto en el Administrador de dispositivos coincida con lo que usa tu programa receptor.</p><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="COM16 por USB" loading="lazy"></a><figcaption>COM16 por USB</figcaption></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Propiedades del puerto" loading="lazy"></a><figcaption>Propiedades del puerto</figcaption></figure><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Los dos puertos a la vez" loading="lazy"></a><figcaption>Los dos puertos a la vez</figcaption></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=QEHZNhDdti0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
