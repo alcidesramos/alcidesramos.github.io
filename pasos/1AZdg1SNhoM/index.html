@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 100 STM32: crea tus propias fuentes para pantallas OLED · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Genera cualquier tipo de letra con GLCD Font Creator y adáptalo a la librería OLED SSD1306 del STM32.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/1AZdg1SNhoM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 100 STM32: crea tus propias fuentes para pantallas OLED · Paso a paso">
+  <meta property="og:description" content="Genera cualquier tipo de letra con GLCD Font Creator y adáptalo a la librería OLED SSD1306 del STM32.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/1AZdg1SNhoM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/1AZdg1SNhoM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Crea tus propias <span>fuentes</span> para OLED</h1>
+    <p class="lead">Partiendo de la librería OLED SSD1306 de una clase anterior, se usa el programa gratuito GLCD Font Creator de MikroElektronika para importar cualquier fuente instalada en el PC, exportarla como arreglo en C (formato mikroC) y adaptarla a la librería: cambiar el tipo, añadir el ancho y el número de bytes por columna al inicio del arreglo. Se prueban fuentes de 10x11 y 25x22 en Proteus y se corrigen letras editándolas en el propio programa.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=1AZdg1SNhoM" target="_blank" rel="noopener">&#9654; Ver el video completo (13:40)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/610.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED"></figure>
+    <ul class="materiales"><li>STM32F103C8T6 (Blue Pill) o simulación en Proteus</li><li>Pantalla OLED SSD1306 128x64 I2C</li><li>STM32CubeIDE con la librería SSD1306 y fonts.h de la clase de OLED</li><li>MikroElektronika GLCD Font Creator (gratuito)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Importar una fuente del PC</a><a href="#f2">2 · fonts.h</a><a href="#f3">3 · Más fuentes</a><a href="#f4">4 · Proteus</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Crear la fuente en GLCD Font Creator</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Abrir GLCD Font Creator</h3><a class="min" href="https://youtu.be/1AZdg1SNhoM?t=70" target="_blank" rel="noopener">&#9654; 1:10</a></div><p>El programa es gratuito y fue hecho por MikroElektronika para sus compiladores; aquí se adapta su salida para usarla con cualquier compilador, en este caso STM32CubeIDE.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Importar una fuente existente</h3><a class="min" href="https://youtu.be/1AZdg1SNhoM?t=85" target="_blank" rel="noopener">&#9654; 1:25</a></div><p>Ve a File > New Font > Import An Existing System Font. Elige la fuente, el estilo (normal, negrita, cursiva…) y el tamaño. Con 8 puntos sale el tamaño más pequeño que cabe bien en la pantalla.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Esperar a que genere los caracteres</h3><a class="min" href="https://youtu.be/1AZdg1SNhoM?t=120" target="_blank" rel="noopener">&#9654; 2:00</a></div><p>El programa procesa un rato y genera los caracteres del 32 al 127. Si la fuente se ve fea en ese tamaño, crea otra (en el video se cambia a una fuente más negrita de 10x11).</p><div class="dos"><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure><figure class="cap"><a href="img/165.webp" target="_blank"><img src="img/165.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Exportar a código C</h3><a class="min" href="https://youtu.be/1AZdg1SNhoM?t=165" target="_blank" rel="noopener">&#9654; 2:45</a></div><p>Pulsa Export for GLCD y elige la pestaña mikroC (no mikroBasic). Fíjate en el tamaño que aparece en el comentario, por ejemplo FontSize : 10 x 11: el primer número es el ancho en columnas y el segundo la altura en píxeles. Copia el código con Copy Code To Clipboard.</p><p class="ojo">Asegúrate de estar en la pestaña mikroC; si copias la de mikroBasic el formato no sirve.</p><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Adaptar la fuente a la librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pegar en fonts.h</h3><a class="min" href="https://youtu.be/1AZdg1SNhoM?t=206" target="_blank" rel="noopener">&#9654; 3:26</a></div><p>En el proyecto, abre Core/Librerias/fonts.h y pega el arreglo al final. Borra los comentarios del encabezado que no necesitas.</p><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Cambiar el tipo y añadir ancho y bytes</h3><a class="min" href="https://youtu.be/1AZdg1SNhoM?t=225" target="_blank" rel="noopener">&#9654; 3:45</a></div><p>Cambia unsigned short por unsigned char, ponle un nombre (font3, font4…) y al inicio del arreglo agrega dos valores: el ancho y el número de bytes por columna, que es la altura dividida entre 8 y redondeada hacia arriba.</p><p>Para 10x11: ancho 10 y 11/8 = 1,4 → 2 bytes.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const unsigned char font3[] = {10,2,
+    0x06, 0x00, 0x00, 0x00, 0x00, /* ...datos exportados... */
+};</code></pre></div><p class="ojo">No olvides la coma después del 2; sin ella el compilador da el error "expected '}' before...".</p><div class="dos"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Usar la nueva fuente</h3><a class="min" href="https://youtu.be/1AZdg1SNhoM?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>Pasa la dirección de la fuente como último parámetro de OLED_print_text. Cada texto puede usar una fuente distinta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>OLED_print_text(0,0,&quot;SUSCRIBETE&quot;,&amp;font3);
+OLED_print_text(0,2,&quot;    AL&quot;,&amp;font1);
+OLED_print_text(0,4,&quot;CANAL&quot;,&amp;font2);</code></pre></div><div class="uno"><figure class="cap"><a href="img/335.webp" target="_blank"><img src="img/335.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Fuente grande de 25x22</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Crear una fuente más grande</h3><a class="min" href="https://youtu.be/1AZdg1SNhoM?t=360" target="_blank" rel="noopener">&#9654; 6:00</a></div><p>Repite el proceso con una fuente más grande, por ejemplo Cooper Black de 18 puntos. Puedes elegir cursiva, negrita, subrayado o tachado. Las fuentes nuevas lucen mejor en tamaños grandes.</p><div class="uno"><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Ajustar el arreglo</h3><a class="min" href="https://youtu.be/1AZdg1SNhoM?t=452" target="_blank" rel="noopener">&#9654; 7:32</a></div><p>Exporta a mikroC, pega en fonts.h como font4 y calcula la cabecera: el tamaño es 25 x 22, así que el ancho es 25 y 22/8 = 2,75 → 3 bytes.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//GLCD FontName : Cooper_Black25x22
+const unsigned char font4[] = {25,3,
+    0x0D, 0x00, 0x00, /* ...datos exportados... */
+};</code></pre></div><p class="ojo">El segundo valor es la altura entre 8 (redondeado hacia arriba), no el ancho. Si pones un valor incorrecto el texto sale desordenado en la pantalla.</p><div class="dos"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Corregir letras y probar</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Probar en Proteus</h3><a class="min" href="https://youtu.be/1AZdg1SNhoM?t=550" target="_blank" rel="noopener">&#9654; 9:10</a></div><p>Compila y corre la simulación. Al escribir DIOS con font4 se nota que la I queda muy separada de la O porque la letra está pegada a la izquierda de su celda.</p><div class="uno"><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Mover la letra dentro de su celda</h3><a class="min" href="https://youtu.be/1AZdg1SNhoM?t=420" target="_blank" rel="noopener">&#9654; 7:00</a></div><p>En GLCD Font Creator selecciona la letra y usa Shift/Move para moverla a la derecha o al centro. Guarda el proyecto (si no lo guardas no se aplica), vuelve a exportar a mikroC y reemplaza el arreglo en fonts.h aplicando de nuevo el cambio de tipo y la cabecera {25,3,.</p><div class="dos"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure><figure class="cap"><a href="img/565.webp" target="_blank"><img src="img/565.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/1AZdg1SNhoM?t=787" target="_blank" rel="noopener">&#9654; 13:07</a></div><p>Ahora la palabra DIOS queda con la I centrada. Con este método puedes crear y ajustar cualquier tipo de letra para tus proyectos con OLED.</p><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 100 STM32: crea tus propias fuentes para pantallas OLED" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=1AZdg1SNhoM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
