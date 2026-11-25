@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 101 STM32: imágenes y figuras en pantalla OLED · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Convierte imágenes a mapas de bits, dibújalas en la OLED SSD1306 y traza rectángulos y círculos con la librería actualizada.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/Z5W8TQkbXdw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 101 STM32: imágenes y figuras en pantalla OLED · Paso a paso">
+  <meta property="og:description" content="Convierte imágenes a mapas de bits, dibújalas en la OLED SSD1306 y traza rectángulos y círculos con la librería actualizada.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/Z5W8TQkbXdw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Z5W8TQkbXdw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Imágenes y <span>figuras</span> en OLED</h1>
+    <p class="lead">Se actualiza la librería OLED SSD1306: ahora el texto se puede imprimir normal o invertido y hay funciones para dibujar mapas de bits, rectángulos y círculos. Se convierte una imagen a 128x64 con un conversor web, se ajusta una imagen pequeña de 64x64 con IrfanView, se pega el arreglo en imagenes.h y se dibuja con OLED_DrawBitmap, controlando si se borra o no el buffer para combinar varios dibujos.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Z5W8TQkbXdw" target="_blank" rel="noopener">&#9654; Ver el video completo (12:32)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/335.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED"></figure>
+    <ul class="materiales"><li>STM32F103C8T6 (Blue Pill) o simulación en Proteus</li><li>Pantalla OLED SSD1306 128x64 I2C</li><li>STM32CubeIDE con la librería SSD1306 actualizada (imagenes.h, fonts.h)</li><li>Conversor de imágenes a mapa de bits 128x64 (web) y editor OLED Bitmap de ArduinoBlocks</li><li>IrfanView (gratuito) para reducir y pasar a blanco y negro</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Texto e imagen</a><a href="#f2">2 · 128x64</a><a href="#f3">3 · IrfanView</a><a href="#f4">4 · Buffer</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Librería actualizada</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Texto normal o invertido</h3><a class="min" href="https://youtu.be/Z5W8TQkbXdw?t=4" target="_blank" rel="noopener">&#9654; 0:04</a></div><p>La librería de la clase anterior sigue funcionando; ahora existe OLED_print_text_inv para que el texto salga invertido (fondo blanco, letras negras) y OLED_print_text para el texto normal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>OLED_print_text_inv(0,0,&quot;SUSCRIBETE&quot;,&amp;font1);
+OLED_print_text(0,2,&quot;    AL&quot;,&amp;font1);
+OLED_print_text(0,4,&quot;CANAL&quot;,&amp;font4);</code></pre></div><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Parámetros de OLED_DrawBitmap</h3><a class="min" href="https://youtu.be/Z5W8TQkbXdw?t=36" target="_blank" rel="noopener">&#9654; 0:36</a></div><p>La función recibe la posición inicial, el tamaño del dibujo, el nombre del arreglo, si va normal (NOR) o invertido (INV) y si borra el buffer (SI) o no (NO) antes de dibujar. Borrar el buffer limpia toda la pantalla; no borrarlo permite poner varios dibujos a la vez.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// x, y, ancho, alto, imagen, NOR/INV, borrar buffer SI/NO
+OLED_DrawBitmap(0, 0, 128, 64, DOBBY, INV, SI);</code></pre></div><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Imagen de pantalla completa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Convertir la imagen a 128x64</h3><a class="min" href="https://youtu.be/Z5W8TQkbXdw?t=70" target="_blank" rel="noopener">&#9654; 1:10</a></div><p>En la carpeta resource del proyecto están el enlace del conversor y el editor de mapas de bits. En el conversor web carga la imagen (no tiene que ser blanco y negro, pero si lo es pierde menos píxeles), ajústala a toda la pantalla y descarga la imagen final.</p><div class="dos"><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Generar los datos</h3><a class="min" href="https://youtu.be/Z5W8TQkbXdw?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>En el editor OLED - Bitmap Data de ArduinoBlocks deja el tamaño en 128x64, carga la imagen descargada y pulsa Copy data. No hace falta invertirla aquí: la librería lo hace.</p><div class="uno"><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Crear el arreglo en imagenes.h</h3><a class="min" href="https://youtu.be/Z5W8TQkbXdw?t=135" target="_blank" rel="noopener">&#9654; 2:15</a></div><p>En Core/Librerias/imagenes.h declara un arreglo constante, abre llaves y pega los datos. Si el editor no cierra la llave, ciérrala y pon punto y coma. Borra los dos primeros valores (el tamaño 128,64) porque el tamaño se pasa en la función.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const unsigned char miperro[]=
+{
+    0x0,0x0,0x0,0x0, /* ...datos copiados... */
+};</code></pre></div><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Dibujar la imagen</h3><a class="min" href="https://youtu.be/Z5W8TQkbXdw?t=168" target="_blank" rel="noopener">&#9654; 2:48</a></div><p>En main.c llama a la función con el nombre del arreglo. Con NOR sale fondo negro y puntos blancos; NOR o nor funcionan igual, mayúsculas o minúsculas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>OLED_DrawBitmap(0, 0, 128, 64, miperro, NOR, SI);</code></pre></div><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Imagen pequeña de 64x64</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Reducir con IrfanView</h3><a class="min" href="https://youtu.be/Z5W8TQkbXdw?t=233" target="_blank" rel="noopener">&#9654; 3:53</a></div><p>Para una imagen que ocupe solo una parte de la pantalla, el conversor web no sirve (pierde mucha resolución). En IrfanView abre la imagen, usa Decrease Color Depth a 2 colores (blanco y negro) y luego Resize con el tamaño deseado, por ejemplo 64 x 64. Guárdala como JPG.</p><p class="ojo">Desactiva Preserve aspect ratio: si queda activo, al poner el ancho se calcula el alto solo y puede salirse de las dimensiones de la pantalla.</p><div class="uno"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Generar datos de 64x64</h3><a class="min" href="https://youtu.be/Z5W8TQkbXdw?t=320" target="_blank" rel="noopener">&#9654; 5:20</a></div><p>Recarga el editor de ArduinoBlocks (a veces no carga sin recargar), ajusta el tamaño a 64x64 con las flechas del teclado, carga la imagen y copia los datos.</p><div class="uno"><figure class="cap"><a href="img/335.webp" target="_blank"><img src="img/335.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Crear el arreglo y dibujarlo</h3><a class="min" href="https://youtu.be/Z5W8TQkbXdw?t=360" target="_blank" rel="noopener">&#9654; 6:00</a></div><p>Crea el nuevo arreglo en imagenes.h igual que antes (borra los valores 64,64 del inicio) y dibújalo con tamaño 64 x 64. Revisa que el nombre en main.c sea exactamente el del arreglo: en el video el error era escribir perillo en vez de perrillo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const unsigned char perrillo[]=
+{
+    0x0,0x0,0x0, /* ...datos... */
+};
+
+OLED_DrawBitmap(0, 0, 64, 64, perrillo, NOR, SI);</code></pre></div><div class="dos"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Varios dibujos y figuras</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Dos imágenes a la vez</h3><a class="min" href="https://youtu.be/Z5W8TQkbXdw?t=471" target="_blank" rel="noopener">&#9654; 7:51</a></div><p>Para poner otra imagen en la mitad derecha (x = 64), solo la primera llamada borra el buffer; las siguientes deben llevar NO, o cada dibujo borrará el anterior.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>OLED_DrawBitmap(0, 0, 64, 64, perrillo, NOR, SI);
+OLED_DrawBitmap(64, 0, 64, 64, perrillo, NOR, NO);</code></pre></div><div class="uno"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Rectángulos y círculos</h3><a class="min" href="https://youtu.be/Z5W8TQkbXdw?t=504" target="_blank" rel="noopener">&#9654; 8:24</a></div><p>La librería trae funciones para rectángulos (esquinas SQUARE o ROUND), círculos y triángulos, rellenos (FILL) o sin rellenar (NOFILL), normales o invertidos. Los dibujos se hacen sobre lo que ya hay, así que limpia la pantalla antes si quieres empezar en blanco.</p><p>Si ya tienes imágenes en pantalla, no la limpies: dibuja las figuras encima. En el video quedan los dos perritos con un rectángulo redondeado relleno sobre ellos. Esta librería reemplaza la del video 99; la del video 100 (fuentes) sigue igual pero ahora admite texto invertido.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>OLED_clear_screen();
+OLED_Draw_Rectangle(50, 40, 60, 60, NOFILL, NOR, ROUND);
+OLED_Draw_Circle(64, 20, 5, NOFILL, NOR);</code></pre></div><p class="ojo">Si la pantalla va invertida, en lugar de limpiarla hay que ponerla toda encendida primero y luego dibujar en modo invertido.</p><div class="dos"><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 101 STM32: imágenes y figuras en pantalla OLED" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Z5W8TQkbXdw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
