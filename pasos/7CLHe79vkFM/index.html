@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 25: Entradas parte 1, pines tolerantes a 5 V en STM32 (paso a paso) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Los STM32 trabajan a 3.3 V, pero muchos pines aceptan señales de 5 V. Cómo saber cuáles: en el pinout y, mejor, en el datasheet (FT = tolerante; TC o sin marca = no tolerante).">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/7CLHe79vkFM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 25: Entradas parte 1, pines tolerantes a 5 V en STM32 (paso a paso) · Paso a paso">
+  <meta property="og:description" content="Los STM32 trabajan a 3.3 V, pero muchos pines aceptan señales de 5 V. Cómo saber cuáles: en el pinout y, mejor, en el datasheet (FT = tolerante; TC o sin marca = no tolerante).">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/7CLHe79vkFM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/7CLHe79vkFM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 25: Entradas y pines <span>tolerantes a 5 V</span></h1>
+    <p class="lead">Antes de conectar sensores o señales de 5 V a una entrada hay que saber si el pin las soporta. Si conectas 5 V a un pin que no es tolerante puedes dañar el pin o el micro. Lo revisamos en la Blue Pill (STM32F103), la Black Pill F401 y la F411.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=7CLHe79vkFM" target="_blank" rel="noopener">&#9654; Ver el video completo (3:32)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/185.webp" alt="Clase 25: Entradas parte 1, pines tolerantes a 5 V en STM32 (paso a paso)"></figure>
+    <ul class="materiales"><li>Pinout de tu placa</li><li>Datasheet del micro (STM32F103x8, STM32F401, STM32F411)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pinout</a><a href="#f2">2 · Datasheet</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>En el pinout</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Blue Pill (STM32F103)</h3><a class="min" href="https://youtu.be/7CLHe79vkFM?t=35" target="_blank" rel="noopener">&#9654; 0:35</a></div><p>En el diagrama de pines, los tolerantes a 5 V aparecen en negrita. Por ejemplo <b>PB5 no es tolerante</b> a 5 V.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Clase 25: Entradas parte 1, pines tolerantes a 5 V en STM32 (paso a paso)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Black Pill (F401 y F411)</h3><a class="min" href="https://youtu.be/7CLHe79vkFM?t=69" target="_blank" rel="noopener">&#9654; 1:09</a></div><p>En la F401 todos los pines de E/S son tolerantes a 5 V. En la F411 hay dos que no: el pin 10 (<b>PA0</b>) y el pin 41 (<b>PB5</b>). No es que sea peor: esos pines tienen funciones avanzadas (ADC u otro periférico) y por eso trabajan solo a 3.3 V.</p><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Clase 25: Entradas parte 1, pines tolerantes a 5 V en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>En el datasheet</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Buscar la columna I/O Level</h3><a class="min" href="https://youtu.be/7CLHe79vkFM?t=101" target="_blank" rel="noopener">&#9654; 1:41</a></div><p>Lo más seguro es el datasheet, en la tabla "Pin definitions". Busca el pin (Ctrl+F) y mira la columna de nivel de E/S:</p><ul><li><b>FT</b>: Five-volt Tolerant, acepta 5 V.</li><li><b>TC</b>, una raya o nada: <b>no</b> es tolerante, máximo 3.3 V.</li></ul><div class="dos"><figure class="cap"><a href="img/145.webp" target="_blank"><img src="img/145.webp" alt="STM32F103: PB5 sin FT" loading="lazy"></a><figcaption>STM32F103: PB5 sin FT</figcaption></figure><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="STM32F401: FT en casi todos" loading="lazy"></a><figcaption>STM32F401: FT en casi todos</figcaption></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>El caso de la F411</h3><a class="min" href="https://youtu.be/7CLHe79vkFM?t=169" target="_blank" rel="noopener">&#9654; 2:49</a></div><p>En el datasheet del STM32F411, PB5 aparece como <b>TC</b>: no tolerante.</p><p class="ojo">Regla: si el sensor trabaja a 5 V, conéctalo a un pin FT. Si trabaja a 3.3 V, cualquier pin sirve.</p><div class="uno"><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="Clase 25: Entradas parte 1, pines tolerantes a 5 V en STM32 (paso a paso)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=7CLHe79vkFM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
