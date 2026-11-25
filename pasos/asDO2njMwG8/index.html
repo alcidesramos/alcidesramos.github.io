@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 77 STM32: nueva librería de servos para cualquier timer y canal · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Actualizamos la librería de servos con estructuras: cada servo se define con su timer y canal, y se mueve por ángulo, milisegundos o microsegundos.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/asDO2njMwG8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 77 STM32: nueva librería de servos para cualquier timer y canal · Paso a paso">
+  <meta property="og:description" content="Actualizamos la librería de servos con estructuras: cada servo se define con su timer y canal, y se mueve por ángulo, milisegundos o microsegundos.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/asDO2njMwG8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/asDO2njMwG8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Librería de <span>servos</span> para cualquier timer y canal</h1>
+    <p class="lead">Igual que con la librería de PWM, ahora cada servo es una estructura con su timer, su registro CCR y su canal. Configuramos el timer para contar en microsegundos (prescaler igual a los MHz del reloj) y un periodo de 20.000 µs (50 Hz). Luego movemos los servos con SERVO_ANG, SERVO_MILI o SERVO_MICRO, y al final agregamos un tercer servo en otro timer para comprobar que la librería funciona con cualquier timer y canal.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=asDO2njMwG8" target="_blank" rel="noopener">&#9654; Ver el video completo (20:37)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1190.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Proteus (BlackPill STM32F401, servomotores y osciloscopio)</li><li>Hoja de Excel para calcular el PWM</li><li>Librería servos.c / servos.h</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proteus y TIM3 a 50 Hz</a><a href="#f2">2 · Límites, timers y estructuras</a><a href="#f3">3 · Ángulo, milisegundos y microsegundos</a><a href="#f4">4 · SERVO3 en TIM4</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Circuito y timer</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito en Proteus</h3><a class="min" href="https://youtu.be/asDO2njMwG8?t=240" target="_blank" rel="noopener">&#9654; 4:00</a></div><p>BlackPill con alimentación en 3.3 V (VDDA unido a VCC en Configure Power Rails). Los servos van en PA6 (ser1) y PB1 (ser2), con un osciloscopio para ver las señales.</p><p>Los servos se alimentan con 5 V para tener más torque, no con los 3.3 V del micro.</p><p class="ojo">Los servos de Proteus van de 1 ms a 2 ms. En la vida real muchos necesitan de 0,5 ms a 2,4 ms para recorrer todo el rango.</p><div class="dos"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Configurar TIM3</h3><a class="min" href="https://youtu.be/asDO2njMwG8?t=420" target="_blank" rel="noopener">&#9654; 7:00</a></div><p>En TIM3 activamos Internal Clock y PWM Generation en CH1 y CH4 (PA6 y PB1).</p><p>Prescaler: los MHz del reloj menos 1. Con 16 MHz (Proteus) es 16-1; a 84 MHz sería 84-1. Así el timer cuenta en microsegundos.</p><p>Counter Period 20000 (20 ms = 50 Hz), auto-reload preload activado. Pulso inicial: 1000 en CH1 (1 ms, −90°) y 2000 en CH4 (2 ms, 90°).</p><div class="dos"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Librería servos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Límites en servos.h</h3><a class="min" href="https://youtu.be/asDO2njMwG8?t=520" target="_blank" rel="noopener">&#9654; 8:40</a></div><p>Copiamos servos.c y servos.h en Core/Librerias y agregamos la carpeta a los Include paths. En servos.h se ajusta el rango de pulso del servo y el rango de ángulo que queremos usar (−90 a 90, o 0 a 180 como en Arduino).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// límites en ms de los servos
+#define ser_lim_inf_ms  1.0
+#define ser_lim_sup_ms  2.0
+
+// movimiento deseado del servo
+#define ser_inf  -90.0
+#define ser_sup   90.0</code></pre></div><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar servos.c</h3><a class="min" href="https://youtu.be/asDO2njMwG8?t=680" target="_blank" rel="noopener">&#9654; 11:20</a></div><p>Declaramos como extern los timers usados y definimos cada servo con su timer, su registro CCR y su canal. Hay variables SERVO1 a SERVO20 disponibles.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// incluir los timer usados
+extern TIM_HandleTypeDef htim3;
+
+// configurar servos usados
+SERVOS SERVO1 = {&amp;htim3, &amp;(TIM3-&gt;CCR1), TIM_CHANNEL_1};
+SERVOS SERVO2 = {&amp;htim3, &amp;(TIM3-&gt;CCR4), TIM_CHANNEL_4};</code></pre></div><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Iniciar los servos</h3><a class="min" href="https://youtu.be/asDO2njMwG8?t=710" target="_blank" rel="noopener">&#9654; 11:50</a></div><p>Incluimos la librería en main.c e iniciamos cada servo antes del while. En el osciloscopio aparecen los pulsos de 1 ms y 2 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;servos.h&quot;
+
+/* USER CODE BEGIN 2 */
+SERVO_init(&amp;SERVO1);
+SERVO_init(&amp;SERVO2);
+/* USER CODE END 2 */</code></pre></div><div class="dos"><figure class="cap"><a href="img/710.webp" target="_blank"><img src="img/710.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Mover los servos</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Por ángulo, ms o µs</h3><a class="min" href="https://youtu.be/asDO2njMwG8?t=960" target="_blank" rel="noopener">&#9654; 16:00</a></div><p>SERVO_ANG recibe el ángulo dentro del rango definido. SERVO_MILI recibe el pulso en milisegundos y SERVO_MICRO en microsegundos (1,5 ms o 1500 µs es 0°).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  SERVO_ANG(&amp;SERVO1, 30);    // saca en ángulo
+  SERVO_ANG(&amp;SERVO2, -30);
+  HAL_Delay(500);
+
+  SERVO_ANG(&amp;SERVO1, -90);
+  SERVO_ANG(&amp;SERVO2, 80);
+  HAL_Delay(800);
+
+  SERVO_MILI(&amp;SERVO1, 1.5);  // en milisegundos
+  SERVO_MICRO(&amp;SERVO2, 1500);// en microsegundos
+  HAL_Delay(800);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/890.webp" target="_blank"><img src="img/890.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Servo en otro timer</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Agregar TIM4</h3><a class="min" href="https://youtu.be/asDO2njMwG8?t=1030" target="_blank" rel="noopener">&#9654; 17:10</a></div><p>Activamos TIM4 con Internal Clock y CH1 en PWM (PB6), con prescaler 16-1, periodo 20000 y pulso inicial 1500 (0°).</p><p>En servos.c agregamos el extern de htim4 y la línea de SERVO3, y en main iniciamos SERVO_init(&SERVO3).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim4;
+
+SERVOS SERVO1 = {&amp;htim3, &amp;(TIM3-&gt;CCR1), TIM_CHANNEL_1};
+SERVOS SERVO2 = {&amp;htim3, &amp;(TIM3-&gt;CCR4), TIM_CHANNEL_4};
+SERVOS SERVO3 = {&amp;htim4, &amp;(TIM4-&gt;CCR1), TIM_CHANNEL_1};</code></pre></div><div class="dos"><figure class="cap"><a href="img/1030.webp" target="_blank"><img src="img/1030.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure><figure class="cap"><a href="img/1130.webp" target="_blank"><img src="img/1130.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Tres servos funcionando</h3><a class="min" href="https://youtu.be/asDO2njMwG8?t=1190" target="_blank" rel="noopener">&#9654; 19:50</a></div><p>El tercer servo pasa de −40° a 40° mientras los otros siguen su secuencia. La librería de servos y la de PWM se pueden combinar: en el mismo timer si ambos trabajan a 50 Hz, o en timers distintos.</p><div class="uno"><figure class="cap"><a href="img/1190.webp" target="_blank"><img src="img/1190.webp" alt="Clase 77 STM32: nueva librería de servos para cualquier timer y canal" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=asDO2njMwG8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
