@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Desde STM32CubeIDE 2.0 la configuración del micro (.ioc) ya no se hace dentro del IDE: se usa STM32CubeMX por separado. Cómo trabajar ahora y novedades útiles de CubeMX.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/RnYqbtIociU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX · Paso a paso">
+  <meta property="og:description" content="Desde STM32CubeIDE 2.0 la configuración del micro (.ioc) ya no se hace dentro del IDE: se usa STM32CubeMX por separado. Cómo trabajar ahora y novedades útiles de CubeMX.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/RnYqbtIociU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/RnYqbtIociU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>CubeIDE 2.0: <span>CubeMX vuelve a ser aparte</span></h1>
+    <p class="lead">En la última versión STMicroelectronics separó otra vez STM32CubeMX de STM32CubeIDE, como era hace años. El IDE ya no abre el .ioc por dentro: la configuración de pines, relojes y periféricos se hace en CubeMX, que genera el código y lo pasa al IDE. En el video se muestra cómo abrir un proyecto existente, cómo crear uno nuevo con este flujo y algunas novedades de CubeMX: instalar los paquetes de los micros que más usas, el comparador de proyectos y el Cross Selector, que sugiere un STM32 equivalente a un micro de otro fabricante. También se resumen las razones que da ST en su foro.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=RnYqbtIociU" target="_blank" rel="noopener">&#9654; Ver el video completo (10:31)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/150.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX"></figure>
+    <ul class="materiales"><li>STM32CubeIDE 2.0 o superior</li><li>STM32CubeMX (instalación aparte)</li><li>Cualquier tarjeta STM32 (en el video, Blackpill STM32F401CCU6)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · IDE y CubeMX separados</a><a href="#f2">2 · Paquetes, comparador y Cross Selector</a><a href="#f3">3 · El flujo de ahora en adelante</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Qué cambió</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Abrir un proyecto existente</h3><a class="min" href="https://youtu.be/RnYqbtIociU?t=80" target="_blank" rel="noopener">&#9654; 1:20</a></div><p>En CubeIDE se usa File > Import (o Open Projects from File System) y se busca la carpeta del proyecto. Se cargan el main.c y el resto de archivos como siempre.</p><p>Lo nuevo: si das doble clic al archivo .ioc, ya no se abre dentro del IDE, sino que se lanza STM32CubeMX aparte.</p><div class="dos"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX" loading="lazy"></a></figure><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Generar código desde CubeMX</h3><a class="min" href="https://youtu.be/RnYqbtIociU?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>En CubeMX haces la configuración y presionas GENERATE CODE. Al terminar aparece el aviso con la ruta del proyecto y los botones Open Folder y Open Project.</p><p>Con Open Project, CubeIDE (que titila en la barra de tareas) recibe el proyecto con los cambios de hardware para seguir con el software.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Novedades útiles de CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Instalar los paquetes de tus micros</h3><a class="min" href="https://youtu.be/RnYqbtIociU?t=215" target="_blank" rel="noopener">&#9654; 3:35</a></div><p>La primera vez que abras CubeMX ve a Help > Manage embedded software packages y marca las familias que más usas (por ejemplo STM32F4 para las Blackpill, STM32F1 para la Bluepill). Install.</p><p>Así no se descargan sobre la marcha cada vez que empiezas un proyecto.</p><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Comparar proyectos</h3><a class="min" href="https://youtu.be/RnYqbtIociU?t=250" target="_blank" rel="noopener">&#9654; 4:10</a></div><p>En la pestaña Tools aparece Compare Projects, que muestra en qué difieren las configuraciones de dos proyectos.</p><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Cross Selector: buscar un STM32 equivalente</h3><a class="min" href="https://youtu.be/RnYqbtIociU?t=290" target="_blank" rel="noopener">&#9654; 4:50</a></div><p>Al crear un proyecto, la pestaña Cross Selector permite escribir un micro de otro fabricante (Microchip, Texas, Renesas, Infineon...).</p><p>Por ejemplo, para un PIC18F4550 en DIP40 sugiere candidatos como el STM32G0B1 con 79 % de coincidencia y compara parámetro por parámetro: 8 bit contra 32 bit, ADC de 10 contra 12 bits, número de timers, comparadores, RAM, flash y rango de voltaje.</p><p>Muy útil para migrar proyectos viejos a STM32.</p><div class="dos"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX" loading="lazy"></a></figure><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Por qué lo separaron</h3><a class="min" href="https://youtu.be/RnYqbtIociU?t=420" target="_blank" rel="noopener">&#9654; 7:00</a></div><p>Según un empleado de ST en el foro oficial: cualquier versión de CubeIDE puede trabajar con cualquier versión de CubeMX, hay más flexibilidad (proyectos Makefile o CMake para otros IDE como VS Code), arranque más rápido y más estabilidad, y CubeIDE ya no pide iniciar sesión.</p><p>También ayuda con los micros nuevos con IA y redes neuronales, que necesitan herramientas de configuración más pesadas.</p><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Crear un proyecto nuevo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Empezar en CubeMX</h3><a class="min" href="https://youtu.be/RnYqbtIociU?t=515" target="_blank" rel="noopener">&#9654; 8:35</a></div><p>Se abre CubeMX y se elige Start My project from MCU (ACCESS TO MCU SELECTOR). Se busca el micro, en el video STM32F401CCU6, y se marca como favorito para encontrarlo rápido.</p><div class="uno"><figure class="cap"><a href="img/515.webp" target="_blank"><img src="img/515.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configurar, nombrar y generar</h3><a class="min" href="https://youtu.be/RnYqbtIociU?t=540" target="_blank" rel="noopener">&#9654; 9:00</a></div><p>Se configura el reloj, los pines y los periféricos como siempre.</p><p>Antes de generar es obligatorio ir a Project Manager, ponerle nombre y ubicación al proyecto y elegir STM32CubeIDE como Toolchain/IDE. Luego GENERATE CODE.</p><div class="uno"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Abrirlo en CubeIDE</h3><a class="min" href="https://youtu.be/RnYqbtIociU?t=560" target="_blank" rel="noopener">&#9654; 9:20</a></div><p>Con Open Project el proyecto se importa al workspace de CubeIDE. Se abre Core/Src/main.c y se empieza a programar.</p><p>Para cambiar algo de hardware no le des doble clic al .ioc (abre otra ventana de CubeMX): vuelve a la ventana de CubeMX que ya tienes abierta, haz el cambio y genera código de nuevo.</p><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX" loading="lazy"></a></figure><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="STM32CubeIDE 2.0 se separa otra vez de STM32CubeMX" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=RnYqbtIociU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
