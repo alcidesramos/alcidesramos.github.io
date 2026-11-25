@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El pluviómetro SEN0575 de DFRobot solo tiene librería para Arduino y no tiene datasheet. Traducimos su librería C++ a C para STM32 con HAL, paso a paso, y leemos la lluvia acumulada por I2C.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/KwBnyPYx2G4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575 · Paso a paso">
+  <meta property="og:description" content="El pluviómetro SEN0575 de DFRobot solo tiene librería para Arduino y no tiene datasheet. Traducimos su librería C++ a C para STM32 con HAL, paso a paso, y leemos la lluvia acumulada por I2C.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/KwBnyPYx2G4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/KwBnyPYx2G4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>De Arduino a STM32: <span>pluviómetro SEN0575</span></h1>
+    <p class="lead">El SEN0575 es un pluviómetro de balancín (tipping bucket) con un reed switch y un micro propio que se lee por I2C o UART. DFRobot solo da la librería para Arduino y ChatGPT inventa datos (direcciones I2C falsas). La solución es leer el código de Arduino y traducirlo: copiar los #define, sacar la dirección I2C del código, reemplazar readRegister/writeRegister de Wire por funciones HAL con dos #define, y pasar cada método de la clase a una función en C. Al final se lee la lluvia acumulada en mm y el número de basculaciones.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=KwBnyPYx2G4" target="_blank" rel="noopener">&#9654; Ver el video completo (34:21)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1990.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401 (o cualquier STM32 con I2C)</li><li>Pluviómetro DFRobot Gravity SEN0575 (I2C y UART)</li><li>Conversor USB serial y ST-Link</li><li>Librería de Arduino DFRobot_RainfallSensor (para leerla y traducirla)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Sensor</a><a href="#f2">2 · Proyecto</a><a href="#f3">3 · Traducir</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El sensor y el problema</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Cómo mide</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La lluvia cae en un balancín con dos recipientes. Cuando uno se llena, el balancín bascula y un imán activa un reed switch. Un micro dentro del sensor cuenta las basculaciones y calcula la lluvia acumulada.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Sin datasheet ni librería para STM32</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=96" target="_blank" rel="noopener">&#9654; 1:36</a></div><p>La wiki de DFRobot solo trae código para Arduino y Python. El documento que se consigue en otra tienda es solo el esquemático. ChatGPT tampoco ayuda: inventa la dirección I2C o dice que no tiene I2C. Toca leer la librería de Arduino y traducirla.</p><div class="dos"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure><figure class="cap"><a href="img/165.webp" target="_blank"><img src="img/165.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto y librería nueva</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>CubeMX</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=363" target="_blank" rel="noopener">&#9654; 6:03</a></div><p>Proyecto para el STM32F401. I2C1 (o el que quieras; la librería queda configurable) y USART1 asíncrono a 9600. Librería uart en la carpeta Librerias.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Crear SN0575.c y SN0575.h</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=462" target="_blank" rel="noopener">&#9654; 7:42</a></div><p>En vez de copiar los archivos de Arduino, se crea una librería nueva y se va traduciendo. El .h incluye main.h y stdbool.h; el .c incluye el .h; main.c incluye SN0575.h.</p><p>La librería de Arduino es una clase, pero aquí no hace falta: para otro sensor se usa otro puerto I2C.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Copiar los defines y las variables</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=561" target="_blank" rel="noopener">&#9654; 9:21</a></div><p>Los #define de registros del .h de Arduino se copian tal cual. Las variables privadas de la clase (pid, vid) pasan al .c, inicializadas en cero como hace begin().</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// SN0575.h
+#include &quot;main.h&quot;
+#include &lt;stdbool.h&gt;
+
+#define I2C_REG_PID                  0x00
+#define I2C_REG_VID                  0x02
+#define I2C_REG_VERSION              0x0A
+#define I2C_REG_TIME_RAINFALL        0x0C
+#define I2C_REG_CUMULATIVE_RAINFALL  0x10
+#define I2C_REG_RAW_DATA             0x14
+#define I2C_REG_SYS_TIME             0x18
+#define I2C_REG_RAIN_HOUR            0x26
+#define I2C_REG_BASE_RAINFALL        0x28
+
+// SN0575.c
+#include &quot;SN0575.h&quot;
+uint32_t vid = 0;
+uint32_t pid = 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Puerto y dirección I2C</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=633" target="_blank" rel="noopener">&#9654; 10:33</a></div><p>En el .h se define qué I2C usar y la dirección del sensor. La dirección no está en internet: se saca del código de Arduino. El constructor UART usa 0xC0 (dirección Modbus), pero el de I2C usa 0x1D.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern I2C_HandleTypeDef hi2c1;
+#define RainfallSensor_I2C   hi2c1          // para I2C2: hi2c2
+#define RainfallSensor_ADDR  (0x1D &lt;&lt; 1)    // la HAL usa la dirección de 7 bits corrida</code></pre></div><p class="ojo">La HAL espera la dirección de 7 bits corrida un bit a la izquierda. Si tu librería I2C ya hace el corrimiento, deja 0x1D.</p><div class="uno"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Traducir las funciones</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>readRegister y writeRegister con HAL</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=864" target="_blank" rel="noopener">&#9654; 14:24</a></div><p>En Arduino, readRegister hace beginTransmission, write, endTransmission, requestFrom y un ciclo de read. Con la HAL todo eso es una sola llamada a HAL_I2C_Mem_Read. Con dos #define, el código copiado de Arduino llama a las funciones nuevas sin cambiar nombres.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// SN0575.c
+#define readRegister  I2C_Readm_n
+#define writeRegister I2C_Writem_n
+
+uint8_t I2C_Writem_n(uint8_t dir, uint8_t *buff, uint8_t n)
+{
+  HAL_I2C_Mem_Write(&amp;RainfallSensor_I2C, RainfallSensor_ADDR, dir,
+                    I2C_MEMADD_SIZE_8BIT, buff, n, 100);
+  return n;
+}
+
+uint8_t I2C_Readm_n(uint8_t dir, uint8_t *buff, uint8_t n)
+{
+  HAL_I2C_Mem_Read(&amp;RainfallSensor_I2C, RainfallSensor_ADDR, dir,
+                   I2C_MEMADD_SIZE_8BIT, buff, n, 100);
+  return n;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>De método de clase a función</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=799" target="_blank" rel="noopener">&#9654; 13:19</a></div><p>Se copia cada método y se ajusta: DFRobot_RainfallSensor:: pasa a RainfallSensor_, se quitan (void) y los if de modo I2C/UART (se deja solo la parte I2C), y (void*)buff pasa a un puntero normal. Con Buscar y reemplazar (Ctrl+F) se hace en todo el archivo a la vez.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>bool RainfallSensor_getPidVid()
+{
+  bool ret = false;
+  uint8_t buff[4] = {0};
+  readRegister(I2C_REG_PID, buff, 4);
+  pid = buff[0] | ((uint16_t)buff[1] &lt;&lt; 8) | ((uint32_t)(buff[3] &amp; 0xC0) &lt;&lt; 10);
+  vid = buff[2] | (uint16_t)((buff[3] &amp; 0x3F) &lt;&lt; 8);
+  if ((vid == 0x3343) &amp;&amp; (pid == 0x100C0))
+  {
+    ret = true;   // el sensor está conectado y responde
+  }
+  return ret;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure><figure class="cap"><a href="img/1090.webp" target="_blank"><img src="img/1090.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Probar la conexión</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=1106" target="_blank" rel="noopener">&#9654; 18:26</a></div><p>Si getPidVid devuelve 1, el sensor está y la traducción de readRegister funciona.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+if (RainfallSensor_getPidVid() == 1)
+  uartx_write_text(&amp;huart1, &quot;SENSOR OK\r\n&quot;);
+else
+  uartx_write_text(&amp;huart1, &quot;SENSOR bad\r\n&quot;);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1110.webp" target="_blank"><img src="img/1110.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure><figure class="cap"><a href="img/1190.webp" target="_blank"><img src="img/1190.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Lluvia acumulada</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=1209" target="_blank" rel="noopener">&#9654; 20:09</a></div><p>getRainfall lee 4 bytes del registro de lluvia acumulada y los convierte a mm. En las propiedades del proyecto hay que habilitar float en printf.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float RainfallSensor_getRainfall()
+{
+  uint32_t rainfall = 0;
+  uint8_t buff[4] = {0};
+  readRegister(I2C_REG_CUMULATIVE_RAINFALL, buff, 4);
+  rainfall = buff[0] | ((uint32_t)buff[1] &lt;&lt; 8)
+           | ((uint32_t)buff[2] &lt;&lt; 16) | ((uint32_t)buff[3] &lt;&lt; 24);
+  return rainfall / 10000.0;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1250.webp" target="_blank"><img src="img/1250.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure><figure class="cap"><a href="img/1330.webp" target="_blank"><img src="img/1330.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>El resto de funciones</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=1480" target="_blank" rel="noopener">&#9654; 24:40</a></div><p>Se copian de una vez getRainfall por horas, getRawData, setRainAccumulatedValue y getSensorWorkingTime, y se corrigen los errores. En C no hay sobrecarga: si dos funciones se llaman igual con parámetros distintos, hay que cambiarles el nombre (por ejemplo RainfallSensor_getRainfall_h para la de horas). ChatGPT sí sirve para la parte mecánica: generar las cabeceras del .h a partir del .c.</p><div class="dos"><figure class="cap"><a href="img/1530.webp" target="_blank"><img src="img/1530.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure><figure class="cap"><a href="img/1640.webp" target="_blank"><img src="img/1640.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure><figure class="cap"><a href="img/1830.webp" target="_blank"><img src="img/1830.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Programa final</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>main.c</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=1826" target="_blank" rel="noopener">&#9654; 30:26</a></div><p>Al inicio se carga el valor por basculación con setRainAccumulatedValue(0.2794): es el valor de fábrica que usa el sensor para calcular los mm, no un reinicio a cero. En el while se lee la lluvia y el dato crudo (número de basculaciones).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+RainfallSensor_setRainAccumulatedValue(0.2794);   // mm por basculación (de fábrica)
+
+while (1)
+{
+  if (RainfallSensor_getPidVid() == 1) uartx_write_text(&amp;huart1, &quot;SENSOR OK\r\n&quot;);
+  float lluvia = RainfallSensor_getRainfall();
+  sprintf(texto, &quot;Lluvia=%.1f\r\n&quot;, lluvia);
+  uartx_write_text(&amp;huart1, texto);
+
+  uint16_t llu = RainfallSensor_getRawData();       // número de basculaciones
+  sprintf(texto, &quot;veces=%u\r\n&quot;, llu);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(1000);
+}</code></pre></div><p class="ojo">El sensor guarda la lluvia acumulada aunque reinicies el STM32. Si quieres empezar de cero, quítale la alimentación al sensor.</p><div class="uno"><figure class="cap"><a href="img/1960.webp" target="_blank"><img src="img/1960.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Prueba</h3><a class="min" href="https://youtu.be/KwBnyPYx2G4?t=1414" target="_blank" rel="noopener">&#9654; 23:34</a></div><p>Moviendo el balancín a mano, la lluvia acumulada sube con cada basculación y el dato crudo cuenta 7, 8, 9 veces. También se pueden leer la lluvia de la última hora y el tiempo de funcionamiento del sensor.</p><div class="dos"><figure class="cap"><a href="img/1450.webp" target="_blank"><img src="img/1450.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure><figure class="cap"><a href="img/1990.webp" target="_blank"><img src="img/1990.webp" alt="Pasar una librería de Arduino a STM32: pluviómetro DFRobot SEN0575" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=KwBnyPYx2G4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
