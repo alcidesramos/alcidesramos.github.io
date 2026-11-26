@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cambiar entre pantallas de TouchGFX con el botón de la tarjeta (sin touch), usando interacciones de hardware button, una función virtual por N ticks y un antirrebote con uwTick.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/fBA59MDcl4U/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico · Paso a paso">
+  <meta property="og:description" content="Cambiar entre pantallas de TouchGFX con el botón de la tarjeta (sin touch), usando interacciones de hardware button, una función virtual por N ticks y un antirrebote con uwTick.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/fBA59MDcl4U/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/fBA59MDcl4U/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 132: TouchGFX <span>cambio de pantalla por hardware</span></h1>
+    <p class="lead">Respuesta a una pregunta: si la pantalla no es táctil, ¿cómo se cambia de pantalla? Sobre el proyecto de la clase 131, se usa el botón de la Blackpill en PA0. En TouchGFX Designer se agregan en cada pantalla dos interacciones: una de botón de hardware que cambia de pantalla y otra que cada tick llama una función virtual. Esa función se declara y se escribe en los archivos de la carpeta gui (no en gui_generated, que se borra), lee el botón con antirrebote no bloqueante y llama handleKeyEvent. El touch sigue funcionando igual.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=fBA59MDcl4U" target="_blank" rel="noopener">&#9654; Ver el video completo (13:21)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/760.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico"></figure>
+    <ul class="materiales"><li>Proyecto TouchGFX de la clase 131</li><li>Blackpill STM32F411 (botón KEY en PA0)</li><li>Pantalla TFT ILI9341 SPI</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Botón y main.c</a><a href="#f2">2 · Hardware button y N ticks</a><a href="#f3">3 · gui, no gui_generated</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Hardware y variables</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Botón como entrada con pull-up</h3><a class="min" href="https://youtu.be/fBA59MDcl4U?t=50" target="_blank" rel="noopener">&#9654; 0:50</a></div><p>Se abre el .ioc en CubeMX. PA0 (el botón KEY de la Blackpill, conectado a tierra) se configura como GPIO_Input con Pull-up y la etiqueta SW. Sin presionar lee 1; presionado lee 0.</p><div class="uno"><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Variables en el main</h3><a class="min" href="https://youtu.be/fBA59MDcl4U?t=120" target="_blank" rel="noopener">&#9654; 2:00</a></div><p>suiche guarda en qué pantalla estamos y tft_count sirve para el antirrebote entre cambios de pantalla.</p><p>Antes del while, tft_count toma el valor de uwTick (milisegundos desde que arrancó el micro).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PV */
+uint8_t  suiche = 1;      // pantalla actual (1, 2, ...)
+uint32_t tft_count;       // tiempo para el antirrebote
+/* USER CODE END PV */
+
+/* USER CODE BEGIN 2 */
+tft_count = uwTick;       // milisegundos transcurridos al arrancar
+/* USER CODE END 2 */</code></pre></div><div class="uno"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Interacciones en TouchGFX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Botón de hardware que cambia de pantalla</h3><a class="min" href="https://youtu.be/fBA59MDcl4U?t=155" target="_blank" rel="noopener">&#9654; 2:35</a></div><p>Doble clic en ApplicationTemplate.touchgfx.part abre TouchGFX Designer.</p><p>En Screen1 > Interactions se agrega una con Trigger "Hardware button is clicked", botón 2, Action Change screen a Screen2.</p><p>En Screen2 se hace lo mismo con el botón 1 hacia Screen1.</p><div class="dos"><figure class="cap"><a href="img/155.webp" target="_blank"><img src="img/155.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Llamar una función cada tick</h3><a class="min" href="https://youtu.be/fBA59MDcl4U?t=215" target="_blank" rel="noopener">&#9654; 3:35</a></div><p>Otra interacción por pantalla: Trigger "on every N tick" con Ticks between triggers = 1 (puedes poner 10 o 50 para cargar menos el micro), Action "Call new virtual function" con el nombre CAMBIAPANTALLA.</p><p>En las dos pantallas se puede usar el mismo nombre, porque cada pantalla es un objeto distinto.</p><p>Consejo: escribe los nombres de función en mayúsculas para no tener problemas más adelante al copiar y pegar.</p><div class="dos"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Código de cada pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Dónde va el código</h3><a class="min" href="https://youtu.be/fBA59MDcl4U?t=370" target="_blank" rel="noopener">&#9654; 6:10</a></div><p>TouchGFX genera en TouchGFX/generated/gui_generated las funciones virtuales, pero esa carpeta se regenera cada vez. El código propio va en TouchGFX/gui: los .hpp en gui/include y los .cpp en gui/src.</p><p>Se copia la declaración virtual void CAMBIAPANTALLA(); del ViewBase generado a Screen1View.hpp y Screen2View.hpp.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// gui/include/gui/screen1_screen/Screen1View.hpp  (y lo mismo en Screen2View.hpp)
+class Screen1View : public Screen1ViewBase
+{
+public:
+    Screen1View();
+    virtual ~Screen1View() {}
+    virtual void setupScreen();
+    virtual void tearDownScreen();
+    virtual void CAMBIAPANTALLA();     // copiada de gui_generated
+protected:
+};</code></pre></div><div class="dos"><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Lo que generó TouchGFX</h3><a class="min" href="https://youtu.be/fBA59MDcl4U?t=520" target="_blank" rel="noopener">&#9654; 8:40</a></div><p>En Screen2ViewBase.cpp se ve handleKeyEvent: si llega la tecla 1 hace gotoScreen1. Y handleTickEvent llama a CAMBIAPANTALLA en cada tick. Por eso basta con llamar handleKeyEvent con el número de la pantalla destino.</p><div class="uno"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Función de Screen1</h3><a class="min" href="https://youtu.be/fBA59MDcl4U?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>En Screen1View.cpp se declaran las variables del main como extern y se incluye main.h para usar HAL y los nombres de pines.</p><p>Si el botón está presionado y pasaron más de 500 ms desde el último cambio (no bloquea, solo compara tiempos), se pasa suiche a 2, se reinicia el contador y se llama handleKeyEvent. Con 200 ms o más ya se evita el rebote.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// gui/src/screen1_screen/Screen1View.cpp
+extern uint8_t  suiche;
+extern uint32_t tft_count;
+#include &quot;main.h&quot;
+
+void Screen1View::CAMBIAPANTALLA()
+{
+    if (HAL_GPIO_ReadPin(SW_GPIO_Port, SW_Pin) == 0)   // boton presionado (pull-up)
+    {
+        if (uwTick - tft_count &gt; 500)                    // antirrebote no bloqueante
+        {
+            switch (suiche) {
+                case 1:
+                    suiche = 2;
+                    tft_count = uwTick;
+                    handleKeyEvent(suiche);              // boton de hardware 2 -&gt; Screen2
+                    break;
+            }
+        }
+    }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Función de Screen2</h3><a class="min" href="https://youtu.be/fBA59MDcl4U?t=720" target="_blank" rel="noopener">&#9654; 12:00</a></div><p>Es el mismo código, pero si suiche vale 2 lo pasa a 1 y vuelve a la pantalla 1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// gui/src/screen2_screen/Screen2View.cpp
+extern uint8_t  suiche;
+extern uint32_t tft_count;
+#include &quot;main.h&quot;
+
+void Screen2View::CAMBIAPANTALLA()
+{
+    if (HAL_GPIO_ReadPin(SW_GPIO_Port, SW_Pin) == 0)
+    {
+        if (uwTick - tft_count &gt; 500)
+        {
+            switch (suiche) {
+                case 2:
+                    suiche = 1;
+                    tft_count = uwTick;
+                    handleKeyEvent(suiche);              // boton de hardware 1 -&gt; Screen1
+                    break;
+            }
+        }
+    }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Resultado</h3><a class="min" href="https://youtu.be/fBA59MDcl4U?t=760" target="_blank" rel="noopener">&#9654; 12:40</a></div><p>Se programa la tarjeta. La pantalla cambia tanto con los botones táctiles como con el botón físico. Así una pantalla sin touch puede tener varias pantallas.</p><div class="uno"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase 132 STM32: TouchGFX, cambiar de pantalla con un botón físico" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=fBA59MDcl4U" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
