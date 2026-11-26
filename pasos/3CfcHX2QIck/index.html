@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Librería DASHBOARD en la ILI9341: LEDs, barras, gauge y una función nueva de gráfica en tiempo real, probada con una onda seno y con el voltaje de un potenciómetro por ADC.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/3CfcHX2QIck/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341 · Paso a paso">
+  <meta property="og:description" content="Librería DASHBOARD en la ILI9341: LEDs, barras, gauge y una función nueva de gráfica en tiempo real, probada con una onda seno y con el voltaje de un potenciómetro por ADC.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/3CfcHX2QIck/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/3CfcHX2QIck/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 130: TFT ILI9341 <span>dashboard y gráficas</span></h1>
+    <p class="lead">Última parte de la serie de la TFT ILI9341: después de texto e imágenes, se agrega la librería DASHBOARD para mostrar variables de forma visual (todavía sin touch). Trae gauge en arco, dos tipos de LED, barras horizontal y vertical, y algo nuevo: gráficas que se desplazan en tiempo real. Se prueba primero con una onda seno guardada en un arreglo y luego con un canal ADC leyendo un potenciómetro de 0 a 3.3 V. Hacerlo a código ahorra mucha memoria frente a TouchGFX o SquareLine/LVGL.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=3CfcHX2QIck" target="_blank" rel="noopener">&#9654; Ver el video completo (19:04)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1110.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341"></figure>
+    <ul class="materiales"><li>Blackpill STM32F411CEU</li><li>Pantalla TFT ILI9341 2.8" SPI</li><li>Potenciómetro de 10 kΩ en PA0</li><li>Proyecto de las clases 128 y 129</li><li>Librería DASHBOARD.c/.h y librería ADC del canal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Librería y objetos</a><a href="#f2">2 · LEDs, barras y gauge</a><a href="#f3">3 · Onda seno y voltaje</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Agregar DASHBOARD</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Incluir la librería</h3><a class="min" href="https://youtu.be/3CfcHX2QIck?t=40" target="_blank" rel="noopener">&#9654; 0:40</a></div><p>Se copia DASHBOARD.c/.h a Librerias y se incluye en el main. Dentro de DASHBOARD.c se incluye el driver de la pantalla que tengas (aquí ili9341.h); hay versiones para las otras TFT del canal.</p><p>Como la librería usa sprintf con decimales, se habilita en Properties > C/C++ Build > Settings > MCU Settings la opción de float en printf.</p><div class="dos"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Declarar los objetos</h3><a class="min" href="https://youtu.be/3CfcHX2QIck?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>En DASHBOARD.h se pone un extern por cada objeto que se use. Los nombres los eliges tú; si necesitas más LEDs, barras o gauges, copias y agregas otro (led3, gauge2...).</p><p>data_seno es solo una onda de prueba para la gráfica; se puede borrar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// DASHBOARD.h : si se quieren usar en el main, declare los objetos
+extern Gauge_ARZ gauge1;
+extern Led led1;
+extern Led led2;
+extern Barra barrah1;
+extern Barra barrav1;
+extern Grafica grafica1;
+extern Grafica grafica2;
+
+extern float data_seno[];   // onda seno de prueba (se puede borrar)</code></pre></div><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Configurar cada objeto</h3><a class="min" href="https://youtu.be/3CfcHX2QIck?t=230" target="_blank" rel="noopener">&#9654; 3:50</a></div><p>En DASHBOARD.c se define cada objeto con su estructura: el gauge (centro, radio, ancho, rango, ángulos de -225 a 45, degradado verde, amarillo y rojo, fondo y texto), los LEDs (posición, colores y radio), las barras (posición, tamaño, rango, colores, marco y número de rayitas) y las gráficas.</p><div class="dos"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Dashboard animado</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Actualizar y dibujar</h3><a class="min" href="https://youtu.be/3CfcHX2QIck?t=410" target="_blank" rel="noopener">&#9654; 6:50</a></div><p>Se crean variables que simulan datos: temp sube de 2.2 en 2.2 y velo de 8 en 8. En el while se copia cada variable al campo value del objeto y se llama su función de dibujo. Los LEDs cambian de estado y se redibujan.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PV */
+float temp = 10.5;
+float velo = 0;
+float voltaje = 0;
+/* USER CODE END PV */
+
+while (1)
+{
+  barrav1.value = temp;
+  barrah1.value = temp;
+  barrav_draw(&amp;barrav1);
+  barrah_draw(&amp;barrah1);
+
+  gauge1.value = velo;
+  gauge_draw_arc(&amp;gauge1);
+
+  temp += 2.2;
+  if (temp &gt; 50) temp = 0;
+  velo += 8;
+  if (velo &gt; 100) velo = 0;
+
+  led1.estado = 1; led2.estado = 0;
+  led_draw(&amp;led1); led_draw1(&amp;led2);
+  HAL_Delay(200);
+  led1.estado = 0; led2.estado = 1;
+  led_draw(&amp;led1); led_draw1(&amp;led2);
+  HAL_Delay(200);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure><figure class="cap"><a href="img/445.webp" target="_blank"><img src="img/445.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Mejorar el contraste</h3><a class="min" href="https://youtu.be/3CfcHX2QIck?t=500" target="_blank" rel="noopener">&#9654; 8:20</a></div><p>Si un texto no se ve, revisa en DASHBOARD.c los colores de texto y de fondo de ese objeto. En el video el valor del gauge salía blanco sobre blanco y se cambió el color del texto.</p><div class="uno"><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Gráficas en tiempo real</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Estructura de la gráfica</h3><a class="min" href="https://youtu.be/3CfcHX2QIck?t=680" target="_blank" rel="noopener">&#9654; 11:20</a></div><p>Cada gráfica tiene posición, ancho (número de datos que muestra), alto, rango de valores, colores de fondo, marco, cuadrícula y línea, y número de divisiones en Y.</p><p>Se crean dos: grafica1 de 0 a 100 para la onda seno y grafica2 de 0 a 3.3 para el voltaje.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Grafica grafica1 =
+{
+  .x = 0,  .y = 20,
+  .w = 200, .h = 150,      // w es numero de datos a graficar
+  .vmin = 0, .vmax = 100,
+  .colorFondo = COLOR_BLACK,
+  .colorMarco = COLOR_WHITE,
+  .colorGrid  = COLOR_DARKGRAY,   // lineas divisorias
+  .colorLinea = COLOR_GREEN,      // linea de la grafica
+  .numTicksY  = 4                 // divisiones en el eje Y
+};
+
+Grafica grafica2 =
+{
+  .x = 0,  .y = 20,
+  .w = 200, .h = 150,
+  .vmin = 0, .vmax = 3.3,         // voltios
+  .colorFondo = COLOR_BLACK,
+  .colorMarco = COLOR_WHITE,
+  .colorGrid  = COLOR_DARKGRAY,
+  .colorLinea = COLOR_GREEN,
+  .numTicksY  = 2
+};</code></pre></div><div class="dos"><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Graficar una onda seno</h3><a class="min" href="https://youtu.be/3CfcHX2QIck?t=760" target="_blank" rel="noopener">&#9654; 12:40</a></div><p>Antes del while se inicializa la gráfica, se dibuja el rango (los valores del eje a la derecha) y el título, que puede ir arriba o abajo y a la izquierda, centro o derecha.</p><p>En el while, grafica_add_point agrega un punto y la gráfica se desplaza. Para probar se deja un segundo while(1) antes del dashboard: el micro se queda en el primero que encuentre.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+grafica_init(&amp;grafica1);
+grafica_draw_rango(&amp;grafica1);   // valores a la derecha (comentar para quitarlos)
+grafica_draw_titulo(&amp;grafica1, &quot;ONDA SENO&quot;, COLOR_YELLOW, font1, titulo_arriba, titulo_centro);
+uint16_t i = 0;
+/* USER CODE END 2 */
+
+while (1)
+{
+  grafica_add_point(&amp;grafica1, data_seno[i]);   // agrega un punto
+  i++;
+  if (i &gt;= 200) i = 0;
+  HAL_Delay(100);   // velocidad de muestreo
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Canal ADC para el potenciómetro</h3><a class="min" href="https://youtu.be/3CfcHX2QIck?t=910" target="_blank" rel="noopener">&#9654; 15:10</a></div><p>En CubeMX se activa ADC1 canal 0 (PA0): modo independiente, 12 bits, un canal y un sampling time más largo que 3 ciclos para tener menos ruido. Se genera el código y, con CubeIDE ya abierto, el proyecto se actualiza.</p><div class="uno"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Graficar el voltaje</h3><a class="min" href="https://youtu.be/3CfcHX2QIck?t=990" target="_blank" rel="noopener">&#9654; 16:30</a></div><p>Se inicializa grafica2 en lugar de grafica1 y en el while se convierte la lectura del ADC a voltios y se agrega a la gráfica.</p><p>Al mover el potenciómetro la línea sube hasta 3.3 V y baja. Con numTicksY = 2 solo aparece la división del medio (1.6 V).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>grafica_init(&amp;grafica2);
+grafica_draw_rango(&amp;grafica2);
+grafica_draw_titulo(&amp;grafica2, &quot;VOLTAJE&quot;, COLOR_YELLOW, font1, titulo_arriba, titulo_centro);
+
+while (1)
+{
+  voltaje = ADC_Read(&amp;hadc1) * 3.3 / 4095.0;   // 12 bits -&gt; voltios
+  grafica_add_point(&amp;grafica2, voltaje);
+  HAL_Delay(100);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure><figure class="cap"><a href="img/1040.webp" target="_blank"><img src="img/1040.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure><figure class="cap"><a href="img/1110.webp" target="_blank"><img src="img/1110.webp" alt="Clase 130 STM32: Gráficos y dashboard en la TFT ILI9341" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=3CfcHX2QIck" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
