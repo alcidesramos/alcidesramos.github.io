@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cómo instalar mis librerías de STM32 en Proteus · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Copiar los archivos .LIB del repositorio Proteus_Librerias_2025 a la carpeta Library de Proteus 9 para tener las tarjetas STM32 (esquemático, PCB y 3D).">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/1A9M0EsvamQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Cómo instalar mis librerías de STM32 en Proteus · Paso a paso">
+  <meta property="og:description" content="Copiar los archivos .LIB del repositorio Proteus_Librerias_2025 a la carpeta Library de Proteus 9 para tener las tarjetas STM32 (esquemático, PCB y 3D).">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/1A9M0EsvamQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/1A9M0EsvamQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Librerías STM32 <span>en Proteus</span></h1>
+    <p class="lead">Video corto de cómo instalar las librerías propias del canal en Proteus: incluyen los núcleos STM32 y tarjetas mini como la STM32G4 y la STM32H767 para diseño esquemático, PCB y vista 3D (no simulación), además de librerías de Arduino. Se descargan del repositorio Proteus_Librerias_2025 (enlace en la descripción del video) y se copian a la carpeta Library que usa Proteus.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=1A9M0EsvamQ" target="_blank" rel="noopener">&#9654; Ver el video completo (1:26)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/52.webp" alt="Cómo instalar mis librerías de STM32 en Proteus"></figure>
+    <ul class="materiales"><li>Proteus 9 Professional (en el video 9.1 SP2)</li><li>Archivos ARZ.LIB, ARZ_PCB.LIB, ArduinoTEP.LIB y GenuinoTEP.LIB del repositorio Proteus_Librerias_2025</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Copiar los .LIB</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Instalar las librerías</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Descargar los archivos</h3><a class="min" href="https://youtu.be/1A9M0EsvamQ?t=28" target="_blank" rel="noopener">&#9654; 0:28</a></div><p>Del repositorio Proteus_Librerias_2025 (enlace en la descripción del video) se descargan los archivos .LIB.</p><p>ARZ.LIB tiene los símbolos de las tarjetas STM32 y ARZ_PCB.LIB sus encapsulados para PCB. ArduinoTEP.LIB y GenuinoTEP.LIB son de Arduino. Si solo quieres las de STM32, copia las dos ARZ.</p><p>La carpeta MCAD trae los modelos 3D.</p><div class="uno"><figure class="cap"><a href="img/52.webp" target="_blank"><img src="img/52.webp" alt="Cómo instalar mis librerías de STM32 en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Ubicar la carpeta Library de Proteus</h3><a class="min" href="https://youtu.be/1A9M0EsvamQ?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>En Proteus, menú System > System Settings, aparece la lista de carpetas de librerías. Con Add Directory o desde el explorador se llega a Proteus 9 Professional > Library.</p><div class="dos"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Cómo instalar mis librerías de STM32 en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/68.webp" target="_blank"><img src="img/68.webp" alt="Cómo instalar mis librerías de STM32 en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Pegar y reemplazar</h3><a class="min" href="https://youtu.be/1A9M0EsvamQ?t=76" target="_blank" rel="noopener">&#9654; 1:16</a></div><p>Se pegan los archivos .LIB en esa carpeta. Si Windows avisa que ya existen archivos con el mismo nombre (de una versión anterior), elige Reemplazar los archivos en el destino.</p><p>Se cierra y se vuelve a abrir Proteus. Los cambios en las carpetas de librerías solo se aplican al reiniciar el programa.</p><div class="dos"><figure class="cap"><a href="img/76.webp" target="_blank"><img src="img/76.webp" alt="Cómo instalar mis librerías de STM32 en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/82.webp" target="_blank"><img src="img/82.webp" alt="Cómo instalar mis librerías de STM32 en Proteus" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=1A9M0EsvamQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
