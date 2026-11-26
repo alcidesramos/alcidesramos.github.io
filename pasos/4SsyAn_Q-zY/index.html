@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Nuevas librerías GPS: tramas NMEA RMC y GGA por USART2 con DMA e IDLE, latitud, longitud, velocidad, rumbo, hora y altitud, y una alarma con LED cuando el GPS entra en un radio de 200 m.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/4SsyAn_Q-zY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS · Paso a paso">
+  <meta property="og:description" content="Nuevas librerías GPS: tramas NMEA RMC y GGA por USART2 con DMA e IDLE, latitud, longitud, velocidad, rumbo, hora y altitud, y una alarma con LED cuando el GPS entra en un radio de 200 m.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/4SsyAn_Q-zY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/4SsyAn_Q-zY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 148: <span>librerías GPS</span> actualizadas y alarma por ubicación</h1>
+    <p class="lead">Actualizo las librerías de GPS de la clase 7, ahora más optimizadas. Con las tramas NMEA <b>RMC</b> y <b>GGA</b> se obtiene casi todo: hora, fecha, latitud, longitud, velocidad, rumbo, altitud y calidad de la señal. El proyecto usa un STM32F401 en Proteus: USART1 para enviar datos, USART2 para el GPS con DMA de recepción, y un LED en PA4 como alarma. Con mi emulador de GPS y un puerto virtual se envían las tramas a Proteus, y el LED se enciende cuando la posición está a menos de 200 m del punto de control (el Castillo de San Felipe en Cartagena).</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=4SsyAn_Q-zY" target="_blank" rel="noopener">&#9654; Ver el video completo (31:44)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1690.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS"></figure>
+    <ul class="materiales"><li>STM32F401 (simulado en Proteus) o el micro que quiera</li><li>Librerías gps.c/gps.h, UARTRX.c/UARTRX.h, UART_INT_DMA_IDLE.c y uart.c/uart.h</li><li>Emulador de GPS (enlace en el video)</li><li>Virtual Serial Port con un par COM1–COM2</li><li>Proteus con COMPIM, dos terminales virtuales y un LED</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · RMC y GGA</a><a href="#f2">2 · USART1, USART2 con DMA y LED</a><a href="#f3">3 · COMPIM y terminales</a><a href="#f4">4 · Copiar e incluir</a><a href="#f5">5 · UARTRX y la interrupción</a><a href="#f6">6 · Código del while</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Tramas NMEA</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué trae cada trama</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>Con <b>RMC</b> se obtienen hora, fecha, latitud, longitud, velocidad y rumbo. <b>GGA</b> agrega la altitud, el número de satélites y el <b>indicador de calidad</b>: 0 no es válido (ignorar), 1 hay señal GPS, 2 es diferencial y más preciso.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Puertos seriales</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=160" target="_blank" rel="noopener">&#9654; 2:40</a></div><p>Micro <b>STM32F401</b>. <b>USART1</b> asíncrono a 9600 para enviar datos y <b>USART2</b> a 9600 para el GPS. A baja velocidad para no saturar Proteus.</p><div class="dos"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>DMA de recepción del GPS</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=220" target="_blank" rel="noopener">&#9654; 3:40</a></div><p>En USART2, pestaña <b>DMA Settings</b>, se agrega el DMA de <b>RX</b> y en <b>NVIC</b> se habilita la interrupción global del USART2. Se agrega <b>PA4</b> como salida con etiqueta <b>LED</b> (la alarma). Proyecto <b>GPS_CANAL1</b> con CMake para VS Code.</p><p class="ojo">Si también quiere recibir por el puerto de datos con DMA, haga el mismo procedimiento en USART1.</p><div class="uno"><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Circuito en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Componentes</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=340" target="_blank" rel="noopener">&#9654; 5:40</a></div><p>Blackpill, LED amarillo con resistencia de 220 Ω en PA4 y un <b>COMPIM</b> que hace de GPS externo. El COMPIM se configura en COM1 a 9600 y el emulador de GPS envía por COM2 a 9600 (par creado con Virtual Serial Port).</p><div class="dos"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Terminales virtuales</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=640" target="_blank" rel="noopener">&#9654; 10:40</a></div><p>Una terminal <b>MICRO</b> en TX1 para ver lo que envía el micro y otra <b>GPS</b> en RX2 para ver las tramas que llegan. En Proteus el COMPIM es directo (RX con RX), no cruzado como un GPS real.</p><p class="ojo">Arranque primero la simulación de Proteus y luego el emulador. Si lo hace al revés, Windows acumula tramas en el buffer y Proteus se bloquea. Guarde el proyecto de Proteus a menudo.</p><div class="uno"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Librerías en VS Code</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Copiar las librerías</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=720" target="_blank" rel="noopener">&#9654; 12:00</a></div><p>En una carpeta <b>LIBRERIAS</b> del proyecto se copian gps.c/gps.h, UARTRX.c/UARTRX.h, UART_INT_DMA_IDLE.c y uart.c/uart.h. Con el botón CMake ARZ se agregan al CMakeLists y se pasa la FPU a software para simular.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+#include &quot;stdlib.h&quot;
+#include &quot;math.h&quot;
+
+#include &quot;uart.h&quot;
+#include &quot;gps.h&quot;
+#include &quot;UARTRX.h&quot;</code></pre></div><div class="dos"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Probar el puerto serial</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=1015" target="_blank" rel="noopener">&#9654; 16:55</a></div><p>Antes de seguir, se envía un texto por USART1 para comprobar que todo compila y llega a la terminal MICRO.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1015.webp" target="_blank"><img src="img/1015.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Configurar la recepción del GPS</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Declarar los puertos de recepción</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=1110" target="_blank" rel="noopener">&#9654; 18:30</a></div><p>En <b>UARTRX.c</b> se declara una variable por cada puerto que recibe. Para el GPS se usa <b>GPS_UARTRX</b> asociada a huart2/USART2 con un buffer grande, de unos 1000 bytes.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>UARTRXS UARTRX1    = {&amp;huart1, USART1, 100};
+UARTRXS GPS_UARTRX = {&amp;huart2, USART2, 1000};</code></pre></div><div class="dos"><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure><figure class="cap"><a href="img/1110.webp" target="_blank"><img src="img/1110.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure><figure class="cap"><a href="img/1150.webp" target="_blank"><img src="img/1150.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Interrupción de recepción</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=1240" target="_blank" rel="noopener">&#9654; 20:40</a></div><p>En <b>UART_INT_DMA_IDLE.c</b> se incluye <b>gps.h</b> y en el callback de recepción se llama el procesamiento del GPS, igual que en el de errores. Las instrucciones exactas están comentadas en gps.h.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;main.h&quot;
+#include &quot;UARTRX.h&quot;
+#include &quot;gps.h&quot;
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+  uartRX_INTERRUPT(huart, Size);
+  // + la llamada del GPS indicada en gps.h
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+  uartRX_Errores(huart);
+  // + el manejo de errores del GPS indicado en gps.h
+}</code></pre></div><p class="ojo">El nombre exacto de las funciones del GPS para la interrupción no se lee bien en el video; cópielo del ejemplo que trae gps.h.</p><div class="dos"><figure class="cap"><a href="img/1210.webp" target="_blank"><img src="img/1210.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure><figure class="cap"><a href="img/1240.webp" target="_blank"><img src="img/1240.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Zona horaria y punto de control</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=1450" target="_blank" rel="noopener">&#9654; 24:10</a></div><p>En <b>gps.h</b> se ajusta la hora UTC de su país (Colombia es -5), el punto de control y el radio de la alarma en metros.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define hor_utc    -5          // hora de Colombia UTC -5
+#define latitud1   10.42258    // Castillo de San Felipe
+#define longitud1  -75.53930
+#define presicion  200         // radio de operación en metros</code></pre></div><div class="uno"><figure class="cap"><a href="img/1450.webp" target="_blank"><img src="img/1450.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f6"><div class="contenedor"><span class="etiqueta">Fase 6</span><h2>Leer el GPS y la alarma</h2><article class="paso"><div class="paso-cab"><span class="num">6.1</span><h3>Iniciar la recepción</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=1300" target="_blank" rel="noopener">&#9654; 21:40</a></div><p>Antes del while se inicia la recepción por DMA con interrupción IDLE del puerto del GPS.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+uartRX_it_idle_dma_init(&amp;GPS_UARTRX);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.2</span><h3>Procesar las tramas</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=1360" target="_blank" rel="noopener">&#9654; 22:40</a></div><p>En el while, cuando llega una trama se leen RMC y GGA, se reinicia el DMA y se envían los datos por USART1. La variable <b>texto</b> se declara como arreglo de char.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char texto[100];
+
+while (1)
+{
+  if (GPS_UARTRX.flag_rx == 1)   // hay trama de GPS
+  {
+    GPS_RMC();
+    GPS_GGA();
+    uartRX_DMA_Re_init(&amp;GPS_UARTRX);   // recepción para otra trama
+
+    sprintf(texto, &quot;LAT=%.5f  LON=%.5f\r\n&quot;, latitud, longitud);
+    uartx_write_text(&amp;huart1, texto);
+    sprintf(texto, &quot;vel=%.2f\r\n&quot;, gps_vel_kph);
+    uartx_write_text(&amp;huart1, texto);
+    sprintf(texto, &quot;Rumbo=%.2f\r\n&quot;, gps_rumbo);
+    uartx_write_text(&amp;huart1, texto);
+
+    if (estaDentroDelRadio(latitud1, longitud1, latitud, longitud))
+    {
+      sprintf(texto, &quot;Dentro del radio de operación\r\n&quot;);
+      uartx_write_text(&amp;huart1, texto);
+      HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+    }
+    else
+    {
+      sprintf(texto, &quot;Fuera del radio de operación\r\n&quot;);
+      uartx_write_text(&amp;huart1, texto);
+      HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+    }
+  }
+}</code></pre></div><p class="ojo">Además hay variables para fecha (dia, mes, año), hora, minutos, segundos, altitud y satélites; revise sus nombres en gps.h.</p><div class="dos"><figure class="cap"><a href="img/1360.webp" target="_blank"><img src="img/1360.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure><figure class="cap"><a href="img/1420.webp" target="_blank"><img src="img/1420.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.3</span><h3>Probar con el emulador</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=1690" target="_blank" rel="noopener">&#9654; 28:10</a></div><p>Con Proteus corriendo se abre el puerto en el emulador. La terminal GPS muestra las tramas y la terminal MICRO los datos decodificados; al cambiar rumbo y velocidad en el emulador cambian en la terminal. Al buscar el Castillo de San Felipe el LED se enciende y al alejarse más de 200 m se apaga.</p><div class="uno"><figure class="cap"><a href="img/1690.webp" target="_blank"><img src="img/1690.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.4</span><h3>Ordenar el código</h3><a class="min" href="https://youtu.be/4SsyAn_Q-zY?t=1780" target="_blank" rel="noopener">&#9654; 29:40</a></div><p>Para no saturar el while, todo el bloque se pasa a una función <b>procesa_GPS()</b> y en el while solo se llama esa función. El proyecto queda subido a GitHub.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void procesa_GPS(void);
+
+while (1)
+{
+  procesa_GPS();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1780.webp" target="_blank"><img src="img/1780.webp" alt="Curso STM32 clase 148: actualización de mis librerías para leer datos desde un GPS" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=4SsyAn_Q-zY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
