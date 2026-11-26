@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="PWM con el TIM2 para el enable del L298, librería PWM y una trama &quot;V1=valor/*&quot; enviada desde un slider en el celular para cambiar la velocidad.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/EA7kstm_Ny4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth · Paso a paso">
+  <meta property="og:description" content="PWM con el TIM2 para el enable del L298, librería PWM y una trama &quot;V1=valor/*&quot; enviada desde un slider en el celular para cambiar la velocidad.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/EA7kstm_Ny4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/EA7kstm_Ny4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Clase en vivo: <span>giro y velocidad de un motor DC por Bluetooth</span></h1>
+    <p class="lead">Continuamos el proyecto del puente H: ahora el enable del L298 recibe una señal PWM para controlar la velocidad. Configuramos el TIM2 con reloj interno, prescaler y periodo para 100 Hz, activamos PWM en los canales 1 y 2 (PA0 y PA1), agregamos la librería PWM.c/PWM.h y la adaptamos al TIM2. Verificamos las señales en el osciloscopio de Proteus y, con una app Bluetooth en el celular, enviamos la trama "V1=valor/*" desde un slider. El micro la separa con strtok, la convierte con atoi y cambia el ciclo útil.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=EA7kstm_Ny4" target="_blank" rel="noopener">&#9654; Ver el video completo (78:02)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/4420.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth"></figure>
+    <ul class="materiales"><li>STM32CubeIDE y Proteus</li><li>Puente H L298 con motores DC (proyecto de la clase anterior)</li><li>Librerías PWM.c/PWM.h y uart.c/uart.h</li><li>Módulo Bluetooth (o puerto Bluetooth del PC) y app de terminal con botones y slider</li><li>Hoja de cálculo para prescaler y periodo (opcional)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · TIM2: prescaler, periodo y canales</a><a href="#f2">2 · Adaptar PWM.h al TIM2 e incluirla</a><a href="#f3">3 · Osciloscopio y conexión al enable</a><a href="#f4">4 · Slider, trama V1= y strtok</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configurar el timer en PWM</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Dónde va el PWM</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>En el L298 los pines ENA/ENB, que antes estaban fijos en 1, ahora recibirán la señal PWM para controlar la velocidad.</p><p>Para motores usa una frecuencia de 50 Hz hacia arriba. Muy baja y el motor se ve prender y apagar; muy alta y el puente H puede no alcanzar y el motor puede chillar.</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Elegir el timer</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>El STM32F401 tiene varios timers y cada uno maneja hasta cuatro canales. Usamos el TIM2, que está libre y es de 32 bits.</p><p>En Clock Source selecciona Internal Clock.</p><p class="ojo">Si eliges el TIM1, uno de sus canales choca con la USART1 y CubeIDE mueve el pin. Por eso usamos el TIM2.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Calcular prescaler y periodo</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=500" target="_blank" rel="noopener">&#9654; 8:20</a></div><p>Primero dividimos el reloj para que el timer cuente en microsegundos: Prescaler = frecuencia del micro en MHz − 1 (16 − 1 en Proteus, 84 − 1 en la tarjeta a 84 MHz).</p><p>Luego el periodo es el número de microsegundos de un ciclo: para 100 Hz son 10 000 µs, así que Counter Period = 10000.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Prescaler (PSC)      = 16 - 1    // 16 MHz -&gt; 1 MHz (1 us por cuenta)
+Counter Period (ARR) = 10000     // 10 000 us = 100 Hz</code></pre></div><p class="ojo">En Proteus usa 16 MHz y una frecuencia baja (50–100 Hz) para que la simulación no se vuelva lenta.</p><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Escribir los valores</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=700" target="_blank" rel="noopener">&#9654; 11:40</a></div><p>En Parameter Settings escribe 16-1 en Prescaler y 10000 en Counter Period.</p><p>El ciclo útil irá de 0 a 10 000, mucha más resolución que los 0–255 de Arduino.</p><div class="uno"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Activar los canales PWM</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=990" target="_blank" rel="noopener">&#9654; 16:30</a></div><p>En Channel1 y Channel2 elige PWM Generation CH1 y PWM Generation CH2.</p><p>Quedan en PA0 (TIM2_CH1) y PA1 (TIM2_CH2): uno para cada enable.</p><div class="dos"><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure><figure class="cap"><a href="img/1030.webp" target="_blank"><img src="img/1030.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Librería PWM</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Configurar PWM.h</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=1250" target="_blank" rel="noopener">&#9654; 20:50</a></div><p>Copia PWM.c y PWM.h a la carpeta de librerías.</p><p>En PWM.h cambia todo lo del timer 1 por timer 2: el handle htim2, la instancia TIM2 y los registros CCR1/CCR2 del TIM2.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define PWMT2     htim2
+#define PWMTIM2   TIM2
+
+#define PWM1_CH   TIM_CHANNEL_1
+#define PWM1      TIM2-&gt;CCR1
+
+#define PWM2_CH   TIM_CHANNEL_2
+#define PWM2      TIM2-&gt;CCR2</code></pre></div><p class="ojo">Cada PWM son dos líneas: el canal y el registro CCR del mismo canal. Si solo usas un PWM, deja las otras comentadas.</p><div class="dos"><figure class="cap"><a href="img/1250.webp" target="_blank"><img src="img/1250.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Incluir las librerías</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=1620" target="_blank" rel="noopener">&#9654; 27:00</a></div><p>En main.c agrega los include en USER CODE BEGIN Includes.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;PWM.h&quot;
+#include &quot;uart.h&quot;
+/* USER CODE END Includes */</code></pre></div><div class="uno"><figure class="cap"><a href="img/1620.webp" target="_blank"><img src="img/1620.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Funciones de la librería</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=1840" target="_blank" rel="noopener">&#9654; 30:40</a></div><p>PWM_init arranca el PWM del canal.</p><p>pwm_valor recibe un porcentaje de 0 a 100 y lo escala al ARR del timer, sin importar qué timer sea.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void PWM_init(TIM_HandleTypeDef *PWM, uint16_t canal)
+{
+  HAL_TIM_PWM_Start(PWM, canal);
+}
+
+void pwm_valor(uint32_t *canal, float valor)
+{
+  *canal = valor * (float)PWMTIM2-&gt;ARR / 100.0;  // escala de 0 a 100 %
+}</code></pre></div><p class="ojo">En el video la primera versión usaba PWMTIM1->ARR y daba error. Usa el nombre del timer que definiste en PWM.h.</p><div class="dos"><figure class="cap"><a href="img/1750.webp" target="_blank"><img src="img/1750.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure><figure class="cap"><a href="img/1840.webp" target="_blank"><img src="img/1840.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Iniciar y probar en main</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=2200" target="_blank" rel="noopener">&#9654; 36:40</a></div><p>Después de los MX_..._Init, arranca los dos canales y da un valor inicial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+PWM_init(&amp;PWMT2, PWM1_CH);
+PWM_init(&amp;PWMT2, PWM2_CH);
+pwm_valor(&amp;PWM1, 50);   // 50 %
+pwm_valor(&amp;PWM2, 10);   // 10 %
+/* USER CODE END 2 */</code></pre></div><div class="dos"><figure class="cap"><a href="img/2050.webp" target="_blank"><img src="img/2050.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure><figure class="cap"><a href="img/2200.webp" target="_blank"><img src="img/2200.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Ver las señales en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Osciloscopio</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=2790" target="_blank" rel="noopener">&#9654; 46:30</a></div><p>Pon terminales EN1 y EN2 en PA0 y PA1 y llévalos a un osciloscopio. Con 16 MHz en el micro verás un pulso ancho (50 %) y uno estrecho (10 %).</p><div class="uno"><figure class="cap"><a href="img/2790.webp" target="_blank"><img src="img/2790.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Conectar al L298</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=2850" target="_blank" rel="noopener">&#9654; 47:30</a></div><p>Quita el 1 fijo del enable y conecta EN1 a ENA del puente H.</p><p class="ojo">En la clase el motor no respondía porque el cable del enable no estaba conectado. Usa clic derecho → Highlight para revisar la conexión.</p><div class="uno"><figure class="cap"><a href="img/2850.webp" target="_blank"><img src="img/2850.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Velocidad desde el celular</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Slider en la app Bluetooth</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=3100" target="_blank" rel="noopener">&#9654; 51:40</a></div><p>En la app de terminal Bluetooth agrega botones para derecha, izquierda y stop, y un slider de 0 a 100.</p><p>Configura el slider para que envíe "V1=" antes del valor y "/*" después. El usuario mueve de 0 a 100; el micro se encarga de escalar.</p><p class="ojo">Las letras deben coincidir exactamente, mayúsculas incluidas, con lo que busca el micro.</p><div class="dos"><figure class="cap"><a href="img/3100.webp" target="_blank"><img src="img/3100.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure><figure class="cap"><a href="img/3220.webp" target="_blank"><img src="img/3220.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=3880" target="_blank" rel="noopener">&#9654; 64:40</a></div><p>Declara un buffer para lo que se captura y una variable para el valor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char trama_rx[50];
+char texto[50];
+uint8_t valor;</code></pre></div><div class="uno"><figure class="cap"><a href="img/3880.webp" target="_blank"><img src="img/3880.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Separar el valor con strtok</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=3550" target="_blank" rel="noopener">&#9654; 59:10</a></div><p>strtok(trama_rx, "=") corta la trama en el '='; strtok(0, "/") toma lo que sigue hasta el '/'.</p><p>atoi convierte el texto a entero (atof si mandas decimales) y pwm_valor cambia el ciclo útil.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void procesa(void)
+{
+  if (strstr(trama_rx, &quot;DERECHA&quot;)) m1derecha();
+  else if (strstr(trama_rx, &quot;IZQUIERDA&quot;)) m1izquierda();
+  else if (strstr(trama_rx, &quot;STOP&quot;)) stop();
+  else if (strstr(trama_rx, &quot;V1=&quot;))
+  {
+    strcpy(texto, strtok(trama_rx, &quot;=&quot;));  // inicia la captura
+    strcpy(texto, strtok(0, &quot;/&quot;));         // captura el dato
+    valor = atoi(texto);
+    pwm_valor(&amp;PWM1, valor);
+  }
+}</code></pre></div><p class="ojo">Necesitas #include <string.h> y <stdlib.h>. Las órdenes de giro deben ser las mismas que envían tus botones.</p><div class="dos"><figure class="cap"><a href="img/3550.webp" target="_blank"><img src="img/3550.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure><figure class="cap"><a href="img/3700.webp" target="_blank"><img src="img/3700.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Prueba con Bluetooth</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=4170" target="_blank" rel="noopener">&#9654; 69:30</a></div><p>En Proteus pon el COMPIM en el COM del módulo Bluetooth (en la clase, COM17).</p><p>Con un Virtual Terminal ves llegar las tramas, por ejemplo DERECHA*IZQUIERDA*V1=94/*.</p><div class="uno"><figure class="cap"><a href="img/4170.webp" target="_blank"><img src="img/4170.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.5</span><h3>Resultado y tarea</h3><a class="min" href="https://youtu.be/EA7kstm_Ny4?t=4420" target="_blank" rel="noopener">&#9654; 73:40</a></div><p>Al mover el slider el ancho de pulso cambia en el osciloscopio y el motor acelera o frena.</p><p>Tarea: giro y velocidad de dos motores DC, y agregar un servomotor.</p><div class="dos"><figure class="cap"><a href="img/4420.webp" target="_blank"><img src="img/4420.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure><figure class="cap"><a href="img/4520.webp" target="_blank"><img src="img/4520.webp" alt="Clase en vivo STM32: control de giro y velocidad de un motor DC por Bluetooth" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=EA7kstm_Ny4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
