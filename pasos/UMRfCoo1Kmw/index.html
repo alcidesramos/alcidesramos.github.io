@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32: actualizar el firmware del ST-Link V2 clon · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Si el ST-Link clon no conecta, no está dañado: hay que actualizarle el firmware desde STM32CubeProgrammer.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/UMRfCoo1Kmw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="STM32: actualizar el firmware del ST-Link V2 clon · Paso a paso">
+  <meta property="og:description" content="Si el ST-Link clon no conecta, no está dañado: hay que actualizarle el firmware desde STM32CubeProgrammer.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/UMRfCoo1Kmw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/UMRfCoo1Kmw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Actualizar el firmware del <span>ST-Link V2 clon</span></h1>
+    <p class="lead">Muchos ST-Link V2 clon recién comprados no conectan con la tarjeta y parecen dañados. En este video corto conectamos los cuatro pines (3.3 V, SWDIO, SWCLK y GND), vemos el error en STM32CubeProgrammer y lo solucionamos con Firmware upgrade. Después el programador lee el micro y carga un programa sin problema.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=UMRfCoo1Kmw" target="_blank" rel="noopener">&#9654; Ver el video completo (3:32)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/155.webp" alt="STM32: actualizar el firmware del ST-Link V2 clon"></figure>
+    <ul class="materiales"><li>ST-Link V2 clon</li><li>Tarjeta Black Pill</li><li>STM32CubeProgrammer</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · El programador no conecta</a><a href="#f2">2 · Firmware upgrade</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El problema</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Conexión de 4 pines</h3><a class="min" href="https://youtu.be/UMRfCoo1Kmw?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>De los pines del ST-Link solo se usan cuatro: 3.3 V, SWDIO (datos), SWCLK (reloj) y GND. Deben coincidir con los del conector SWD de la tarjeta.</p><p>El clon alimenta la tarjeta por sí solo, sin cable USB.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="STM32: actualizar el firmware del ST-Link V2 clon" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Error al conectar</h3><a class="min" href="https://youtu.be/UMRfCoo1Kmw?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>En CubeProgrammer, con ST-LINK y Shared en Enabled, al dar Connect aparece Error: No STM32 target found. Parece que el programador no sirve.</p><div class="dos"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="STM32: actualizar el firmware del ST-Link V2 clon" loading="lazy"></a></figure><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="STM32: actualizar el firmware del ST-Link V2 clon" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Actualizar el firmware</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Abrir STLinkUpgrade</h3><a class="min" href="https://youtu.be/UMRfCoo1Kmw?t=140" target="_blank" rel="noopener">&#9654; 2:20</a></div><p>Haz clic en Firmware upgrade (abajo a la derecha de la configuración del ST-Link).</p><p>Si no lo detecta, desconecta el ST-Link del USB, vuelve a conectarlo y pulsa Open in update mode.</p><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="STM32: actualizar el firmware del ST-Link V2 clon" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Upgrade</h3><a class="min" href="https://youtu.be/UMRfCoo1Kmw?t=155" target="_blank" rel="noopener">&#9654; 2:35</a></div><p>Aparece la versión actual y la nueva. Pulsa Upgrade y espera a que termine con éxito.</p><div class="uno"><figure class="cap"><a href="img/155.webp" target="_blank"><img src="img/155.webp" alt="STM32: actualizar el firmware del ST-Link V2 clon" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Conectar de nuevo</h3><a class="min" href="https://youtu.be/UMRfCoo1Kmw?t=165" target="_blank" rel="noopener">&#9654; 2:45</a></div><p>Cierra la ventana de actualización y pulsa Connect: ahora sí lee el micro.</p><div class="uno"><figure class="cap"><a href="img/165.webp" target="_blank"><img src="img/165.webp" alt="STM32: actualizar el firmware del ST-Link V2 clon" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Cargar un programa</h3><a class="min" href="https://youtu.be/UMRfCoo1Kmw?t=195" target="_blank" rel="noopener">&#9654; 3:15</a></div><p>Open file → el .hex → Download. Al terminar, el LED de la tarjeta empieza a titilar.</p><p>El aviso de conexión perdida al final es normal después de cargar.</p><p class="ojo">Si el micro estaba protegido, la lectura sale vacía o con error hasta que quites la protección.</p><div class="dos"><figure class="cap"><a href="img/195.webp" target="_blank"><img src="img/195.webp" alt="STM32: actualizar el firmware del ST-Link V2 clon" loading="lazy"></a></figure><figure class="cap"><a href="img/205.webp" target="_blank"><img src="img/205.webp" alt="STM32: actualizar el firmware del ST-Link V2 clon" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=UMRfCoo1Kmw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
