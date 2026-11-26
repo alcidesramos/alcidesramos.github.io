@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Comandos AT del ESP8266, el módulo como punto de acceso (CWSAP/CIPAP), servidor TCP y una app WiFi en el celular que envía las mismas órdenes que antes iban por Bluetooth.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/1sbJyvI1dqE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular · Paso a paso">
+  <meta property="og:description" content="Comandos AT del ESP8266, el módulo como punto de acceso (CWSAP/CIPAP), servidor TCP y una app WiFi en el celular que envía las mismas órdenes que antes iban por Bluetooth.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/1sbJyvI1dqE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/1sbJyvI1dqE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Clase en vivo: <span>ESP8266, el carrito por WiFi</span></h1>
+    <p class="lead">Pasamos del Bluetooth al WiFi con un ESP8266 conectado por serial. Primero vemos la idea de IP y puerto con Hercules en modo TCP, luego probamos el módulo con comandos AT (AT, AT+CIOBAUD) y lo dejamos a 9600. En el STM32 una librería esp8266.c configura el módulo como punto de acceso con su propia red, abre un servidor TCP y recibe las órdenes por la interrupción serial de la clase anterior (ahora deshabilitándola mientras se procesa). Desde el celular, con WiFi TCP/UDP Controller, el carrito de Proteus se mueve con botones.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=1sbJyvI1dqE" target="_blank" rel="noopener">&#9654; Ver el video completo (49:10)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2130.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular"></figure>
+    <ul class="materiales"><li>Módulo ESP8266 (ESP-01) y adaptador USB-serial</li><li>STM32CubeIDE y Proteus con el proyecto del carrito</li><li>Hercules</li><li>App de celular WiFi TCP/UDP Controller o TCP Tools</li><li>Fuente de 3.3 V para el módulo</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Hercules por serial</a><a href="#f2">2 · Deshabilitar mientras se procesa</a><a href="#f3">3 · Librería esp8266.c</a><a href="#f4">4 · App WiFi TCP/UDP Controller</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Probar el ESP8266 con comandos AT</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Conectar el módulo al PC</h3><a class="min" href="https://youtu.be/1sbJyvI1dqE?t=880" target="_blank" rel="noopener">&#9654; 14:40</a></div><p>Con un adaptador USB-serial el módulo aparece como un puerto COM (en la clase, COM18). Ábrelo en la pestaña Serial de Hercules.</p><p>Por defecto estos módulos vienen a 115200 baudios.</p><div class="dos"><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Comandos AT y cambio de velocidad</h3><a class="min" href="https://youtu.be/1sbJyvI1dqE?t=990" target="_blank" rel="noopener">&#9654; 16:30</a></div><p>Envía AT seguido de <cr><lf> (en C sería \r\n). Si responde OK, hay comunicación.</p><p>Con AT+CIOBAUD=9600 cambias la velocidad. Después debes reabrir el puerto a la nueva velocidad, si no verás caracteres basura.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>AT&lt;cr&gt;&lt;lf&gt;
+AT+CIOBAUD=9600&lt;cr&gt;&lt;lf&gt;</code></pre></div><p class="ojo">Para la simulación en Proteus conviene 9600. En un montaje real puedes dejar 115200. Hay un comando para restaurar de fábrica, y entonces vuelve a 115200.</p><div class="uno"><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Recepción por interrupción mejorada</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Librería de interrupción aparte</h3><a class="min" href="https://youtu.be/1sbJyvI1dqE?t=1230" target="_blank" rel="noopener">&#9654; 20:30</a></div><p>La callback de recepción ahora está en su propio archivo UART_INT.c. Solo hay .c porque esa función la llama el micro, no tu código.</p><div class="uno"><figure class="cap"><a href="img/1230.webp" target="_blank"><img src="img/1230.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Deshabilitar al recibir el '*'</h3><a class="min" href="https://youtu.be/1sbJyvI1dqE?t=1320" target="_blank" rel="noopener">&#9654; 22:00</a></div><p>Cuando llega el final de trama se levanta la bandera, se deshabilita la interrupción de la USART1 y se sale de la callback.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (dato_leido == &#x27;*&#x27;)
+{
+  contador_rx = 0;
+  flag_rx = 1;
+  NVIC_DisableIRQ(USART1_IRQn);   // deshabilita la interrupción
+  return;
+}
+HAL_UART_Receive_IT(&amp;huart1, dato_rx, 1);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1320.webp" target="_blank"><img src="img/1320.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Procesar y volver a habilitar</h3><a class="min" href="https://youtu.be/1sbJyvI1dqE?t=1440" target="_blank" rel="noopener">&#9654; 24:00</a></div><p>En el while: procesa, limpia la trama con memset, borra banderas pendientes y vuelve a habilitar la interrupción.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (flag_rx == 1)
+{
+  procesarx();
+  flag_rx = 0;
+  contador_rx = 0;
+  memset(trama_rx, 0, 100);                 // limpia la trama
+  __HAL_UART_CLEAR_OREFLAG(&amp;huart1);
+  NVIC_ClearPendingIRQ(USART1_IRQn);
+  NVIC_EnableIRQ(USART1_IRQn);              // habilita otra vez
+  HAL_UART_Receive_IT(&amp;huart1, dato_rx, 1);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El ESP8266 como punto de acceso</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Inicio y modo router</h3><a class="min" href="https://youtu.be/1sbJyvI1dqE?t=1500" target="_blank" rel="noopener">&#9654; 25:00</a></div><p>ATE0 quita el eco para que el módulo no repita cada comando.</p><p>AT+CWMODE=2 lo pone a funcionar como router (crea su propia red, sin internet).</p><div class="uno"><figure class="cap"><a href="img/1500.webp" target="_blank"><img src="img/1500.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Servidor y modo de trabajo</h3><a class="min" href="https://youtu.be/1sbJyvI1dqE?t=1560" target="_blank" rel="noopener">&#9654; 26:00</a></div><p>Antes de cambiar de modo se cierra el servidor (CIPSERVER=0), se elige conexión única (CIPMUX=0) y modo normal (CIPMODE=0).</p><div class="uno"><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Nombre, clave e IP de la red</h3><a class="min" href="https://youtu.be/1sbJyvI1dqE?t=1690" target="_blank" rel="noopener">&#9654; 28:10</a></div><p>AT+CWSAP define el nombre de la red, la clave, el canal (5) y el tipo de seguridad (3 = WPA2_PSK).</p><p>Para meter comillas dentro de una cadena en C se escribe \".</p><p>AT+CIPAP fija la IP del módulo; la última cifra alta (253 o 254) es la habitual para el gateway.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void esp8266_router_init(void)
+{
+  uartx_write_text(&amp;huart1, &quot;ATE0\r\n&quot;);          // sin eco
+  Delay_ms(1000);
+  uartx_write_text(&amp;huart1, &quot;AT+CWMODE=2\r\n&quot;);   // modo router
+  Delay_ms(200);
+  uartx_write_text(&amp;huart1, &quot;AT+CIPSERVER=0\r\n&quot;);
+  Delay_ms(200);
+  uartx_write_text(&amp;huart1, &quot;AT+CIPMUX=0\r\n&quot;);
+  Delay_ms(200);
+  uartx_write_text(&amp;huart1, &quot;AT+CIPMODE=0\r\n&quot;);
+  Delay_ms(200);
+  uartx_write_text(&amp;huart1, &quot;AT+CWSAP=\&quot;YUCA\&quot;,\&quot;QUESO\&quot;,5,3\r\n&quot;);
+  Delay_ms(600);
+  uartx_write_text(&amp;huart1, &quot;AT+CIPAP=\&quot;192.168.1.254\&quot;\r\n&quot;);
+  // ... luego se abre el servidor TCP en el puerto 200
+}</code></pre></div><p class="ojo">Los comandos que abren el servidor (CIPMUX=1 y CIPSERVER=1,200) no se ven completos en el video. Revísalos en la hoja de comandos AT del ESP8266.</p><div class="dos"><figure class="cap"><a href="img/1600.webp" target="_blank"><img src="img/1600.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure><figure class="cap"><a href="img/1690.webp" target="_blank"><img src="img/1690.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Controlar desde el celular</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Configurar la app</h3><a class="min" href="https://youtu.be/1sbJyvI1dqE?t=1890" target="_blank" rel="noopener">&#9654; 31:30</a></div><p>Conecta el celular a la red del módulo (YUCA) y en WiFi TCP/UDP Controller pon la IP del módulo, el puerto 200 y TCP.</p><div class="uno"><figure class="cap"><a href="img/1890.webp" target="_blank"><img src="img/1890.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Botones y comandos</h3><a class="min" href="https://youtu.be/1sbJyvI1dqE?t=1960" target="_blank" rel="noopener">&#9654; 32:40</a></div><p>Deja visibles solo los botones que uses, ponles nombre y asigna el comando de cada uno, por ejemplo ADEL* y ATRA*.</p><div class="dos"><figure class="cap"><a href="img/1960.webp" target="_blank"><img src="img/1960.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure><figure class="cap"><a href="img/2030.webp" target="_blank"><img src="img/2030.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Mover el carrito</h3><a class="min" href="https://youtu.be/1sbJyvI1dqE?t=2130" target="_blank" rel="noopener">&#9654; 35:30</a></div><p>Con Proteus corriendo, cada botón envía su orden por WiFi y el carrito se mueve igual que con Bluetooth.</p><div class="dos"><figure class="cap"><a href="img/2110.webp" target="_blank"><img src="img/2110.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure><figure class="cap"><a href="img/2130.webp" target="_blank"><img src="img/2130.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure><figure class="cap"><a href="img/2240.webp" target="_blank"><img src="img/2240.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Otras apps</h3><a class="min" href="https://youtu.be/1sbJyvI1dqE?t=2330" target="_blank" rel="noopener">&#9654; 38:50</a></div><p>Cualquier cliente TCP sirve, por ejemplo TCP Tools: pones IP, puerto y envías el texto.</p><p>Ventaja frente a Bluetooth: varias personas pueden conectarse, aunque el ESP-01 admite pocas conexiones y se puede saturar.</p><p class="ojo">El ESP8266 trabaja a 3.3 V y pide picos de corriente. Si se reinicia, aliméntalo con un regulador de 3.3 V aparte.</p><div class="uno"><figure class="cap"><a href="img/2330.webp" target="_blank"><img src="img/2330.webp" alt="Clase en vivo: ESP8266, control del carrito de Proteus por WiFi desde el celular" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=1sbJyvI1dqE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
