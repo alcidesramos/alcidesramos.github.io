@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase en vivo STM32: introducción a las interrupciones (timer y externa) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Interrupción por timer cada 200 ms, contadores para tiempos más largos, variables extern y una interrupción externa por flanco para un pulsador, sin bloquear el control del carrito.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/IlyL2hfwV9M/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase en vivo STM32: introducción a las interrupciones (timer y externa) · Paso a paso">
+  <meta property="og:description" content="Interrupción por timer cada 200 ms, contadores para tiempos más largos, variables extern y una interrupción externa por flanco para un pulsador, sin bloquear el control del carrito.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/IlyL2hfwV9M/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/IlyL2hfwV9M/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Clase en vivo: <span>introducción a las interrupciones</span></h1>
+    <p class="lead">Partimos del carrito de Proteus manejado desde LabVIEW. Como la lectura serial es bloqueante, un LED puesto en el while solo cambia cuando llega una orden. Para resolverlo usamos interrupciones: configuramos el TIM3 para interrumpir cada 200 ms y hacer titilar un LED, usamos un contador para un segundo LED cada segundo, compartimos variables con extern y, por último, leemos un pulsador con una interrupción externa (EXTI) por flanco de subida. Todo funciona a la vez mientras el carrito sigue respondiendo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=IlyL2hfwV9M" target="_blank" rel="noopener">&#9654; Ver el video completo (37:36)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2150.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)"></figure>
+    <ul class="materiales"><li>STM32CubeIDE y Proteus</li><li>Proyecto del carrito con LabVIEW (clases anteriores)</li><li>Hoja de cálculo para prescaler y periodo del timer</li><li>LEDs y un pulsador en Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Por qué hacen falta interrupciones</a><a href="#f2">2 · TIM3 cada 200 ms</a><a href="#f3">3 · Contador y variables extern</a><a href="#f4">4 · Pulsador con EXTI</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El problema: código bloqueante</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El carrito desde LabVIEW</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=40" target="_blank" rel="noopener">&#9654; 0:40</a></div><p>El programa lee órdenes por serial y mueve el carrito, el servo y la velocidad.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Un LED que no titila</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=180" target="_blank" rel="noopener">&#9654; 3:00</a></div><p>Si pones HAL_GPIO_TogglePin en el while, el LED solo cambia cuando llega una orden, porque uartx_read_text espera el dato (es bloqueante).</p><p>Una interrupción hace que el micro deje un momento lo que está haciendo, atienda otra tarea muy rápido y regrese. Así parece multitarea.</p><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Interrupción por timer</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Activar el TIM3</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>En Timers selecciona TIM3 y Clock Source en Internal Clock. No hace falta configurar canales.</p><div class="uno"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Calcular prescaler y periodo</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=530" target="_blank" rel="noopener">&#9654; 8:50</a></div><p>Con 16 MHz y 200 ms, busca un prescaler que deje el periodo por debajo de 65 535 (timer de 16 bits).</p><p>En la clase: prescaler 300 → periodo 10 667.</p><div class="uno"><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Escribir los valores</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=690" target="_blank" rel="noopener">&#9654; 11:30</a></div><p>Prescaler 300-1, Counter Period 10667 y auto-reload preload en Enable para que el conteo se repita.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Prescaler (PSC)          = 300 - 1
+Counter Period (ARR)     = 10667
+auto-reload preload      = Enable</code></pre></div><p class="ojo">El periodo no puede pasar de 65 535 en un timer de 16 bits. Solo TIM2 y TIM5 son de 32 bits.</p><div class="dos"><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Habilitar la interrupción y su prioridad</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=800" target="_blank" rel="noopener">&#9654; 13:20</a></div><p>En NVIC Settings del TIM3 marca TIM3 global interrupt.</p><p>En System Core → NVIC eliges la prioridad: 0 es la más alta y 15 la más baja. En la clase se puso 3.</p><p>Priority Group permite repartir los 4 bits entre prioridad y subprioridad; con 4 bits para prioridad no hay subprioridad.</p><div class="dos"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Arrancar el timer</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=1000" target="_blank" rel="noopener">&#9654; 16:40</a></div><p>El timer necesita un empujón: se arranca una sola vez, antes del while.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+HAL_TIM_Base_Start_IT(&amp;htim3);
+/* USER CODE END 2 */</code></pre></div><div class="uno"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Código en el manejador</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=1110" target="_blank" rel="noopener">&#9654; 18:30</a></div><p>Abre Core/Src/stm32f4xx_it.c y busca TIM3_IRQHandler (en el Outline).</p><p>Escribe allí lo que debe hacer cada 200 ms. Una interrupción debe ser corta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void TIM3_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+  HAL_GPIO_TogglePin(led1_GPIO_Port, led1_Pin);
+  /* USER CODE END TIM3_IRQn 0 */
+  HAL_TIM_IRQHandler(&amp;htim3);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure><figure class="cap"><a href="img/1110.webp" target="_blank"><img src="img/1110.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.7</span><h3>Probar</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=1150" target="_blank" rel="noopener">&#9654; 19:10</a></div><p>El LED titila solo y el carrito sigue respondiendo a LabVIEW.</p><div class="uno"><figure class="cap"><a href="img/1150.webp" target="_blank"><img src="img/1150.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Más tiempos con un solo timer</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Un segundo LED cada segundo</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=1370" target="_blank" rel="noopener">&#9654; 22:50</a></div><p>No hace falta otro timer: cuenta las interrupciones. 5 × 200 ms = 1 s.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char contador = 0;   // arriba, en stm32f4xx_it.c
+
+// dentro de TIM3_IRQHandler
+contador++;
+if (contador &gt;= 5)
+{
+  contador = 0;
+  HAL_GPIO_TogglePin(led2_GPIO_Port, led2_Pin);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1370.webp" target="_blank"><img src="img/1370.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure><figure class="cap"><a href="img/1780.webp" target="_blank"><img src="img/1780.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=1420" target="_blank" rel="noopener">&#9654; 23:40</a></div><p>Ahora hay tres procesos a la vez: LED cada 200 ms, LED cada segundo y el carrito.</p><div class="uno"><figure class="cap"><a href="img/1420.webp" target="_blank"><img src="img/1420.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Usar la variable en main.c</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=1600" target="_blank" rel="noopener">&#9654; 26:40</a></div><p>Para usar en main.c una variable declarada en otro archivo, decláralo con extern y el mismo tipo, sin valor inicial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern char contador;</code></pre></div><p class="ojo">El tipo debe ser igual al de la declaración original; si no, el compilador da error.</p><div class="uno"><figure class="cap"><a href="img/1600.webp" target="_blank"><img src="img/1600.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Interrupción externa por flanco</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Por qué no leer el pulsador con el timer</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=1780" target="_blank" rel="noopener">&#9654; 29:40</a></div><p>Leer el pulsador dentro del timer funciona, pero cada 200 ms se pierden pulsaciones rápidas, y bajar el tiempo carga al micro. Es mejor una interrupción por flanco.</p><div class="uno"><figure class="cap"><a href="img/1780.webp" target="_blank"><img src="img/1780.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Configurar el pin como EXTI</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=1930" target="_blank" rel="noopener">&#9654; 32:10</a></div><p>En el pin del pulsador (PB15) elige GPIO_EXTI15 y conserva la etiqueta sw.</p><p>En GPIO elige External Interrupt Mode with Rising edge trigger detection y Pull-up.</p><div class="dos"><figure class="cap"><a href="img/1930.webp" target="_blank"><img src="img/1930.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure><figure class="cap"><a href="img/2030.webp" target="_blank"><img src="img/2030.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Habilitar en el NVIC</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=1980" target="_blank" rel="noopener">&#9654; 33:00</a></div><p>En NVIC marca EXTI line[15:10] interrupts y dale prioridad. Esta interrupción no necesita arrancarse en el código.</p><div class="uno"><figure class="cap"><a href="img/1980.webp" target="_blank"><img src="img/1980.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Código en EXTI15_10_IRQHandler</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=2130" target="_blank" rel="noopener">&#9654; 35:30</a></div><p>En stm32f4xx_it.c aparece EXTI15_10_IRQHandler. Allí cambia el LED cada vez que llega un flanco.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void EXTI15_10_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI15_10_IRQn 0 */
+  HAL_GPIO_TogglePin(led3_GPIO_Port, led3_Pin);
+  /* USER CODE END EXTI15_10_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(sw_Pin);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2090.webp" target="_blank"><img src="img/2090.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure><figure class="cap"><a href="img/2130.webp" target="_blank"><img src="img/2130.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.5</span><h3>Prueba final</h3><a class="min" href="https://youtu.be/IlyL2hfwV9M?t=2150" target="_blank" rel="noopener">&#9654; 35:50</a></div><p>Cada vez que presionas el pulsador, el LED responde enseguida, mientras los otros LEDs titilan y el carrito sigue funcionando.</p><p>En la próxima clase la recepción serial también será por interrupción.</p><div class="uno"><figure class="cap"><a href="img/2150.webp" target="_blank"><img src="img/2150.webp" alt="Clase en vivo STM32: introducción a las interrupciones (timer y externa)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=IlyL2hfwV9M" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
