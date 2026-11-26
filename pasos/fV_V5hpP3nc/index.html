@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Configurar el PWM de dos motores DC con el TIM1, crear procedimientos de dirección, recibir órdenes por el puerto serial con uartx_read_text, interpretarlas con strstr y capturar un valor de velocidad con strtok y atoi.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/fV_V5hpP3nc/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM · Paso a paso">
+  <meta property="og:description" content="Configurar el PWM de dos motores DC con el TIM1, crear procedimientos de dirección, recibir órdenes por el puerto serial con uartx_read_text, interpretarlas con strstr y capturar un valor de velocidad con strtok y atoi.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/fV_V5hpP3nc/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/fV_V5hpP3nc/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Recepción <span>UART</span>: robot con órdenes seriales</h1>
+    <p class="lead">Se controla un robot de dos motores DC (simulado con el Turtle de Proteus) con órdenes que llegan por el puerto serial. Primero se configura el TIM1 como PWM a 50 Hz en dos canales (prescaler 16-1 y periodo 20000) y cuatro pines de dirección. Se crean procedimientos para cada motor y para el robot (adelante, atrás, derecha, izquierda, stop). Luego se lee el puerto serial de forma bloqueante con uartx_read_text hasta el carácter '*', se buscan las órdenes con strstr y, para órdenes con valor como vel=60/*, se captura el número con strtok, se convierte con atoi y se aplica al PWM. Las órdenes se envían desde Hercules con puertos COM virtuales.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=fV_V5hpP3nc" target="_blank" rel="noopener">&#9654; Ver el video completo (86:23)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/4990.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM"></figure>
+    <ul class="materiales"><li>Tarjeta Black Pill STM32F401</li><li>Puente H y 2 motores DC (en simulación, el modelo TURTLE de Proteus)</li><li>STM32CubeIDE y Proteus 8</li><li>Librerías uart.c/.h y PWM.c/.h</li><li>Puertos COM virtuales y Hercules (o Bluetooth en el robot real)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · USART1, pines de dirección y TIM1 en PWM.</a><a href="#f2">2 · Motor por motor y luego el robot.</a><a href="#f3">3 · strstr para órdenes y lectura bloqueante.</a><a href="#f4">4 · Capturar la velocidad con strtok y atoi.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configurar el micro</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto, librerías y USART1</h3><a class="min" href="https://youtu.be/fV_V5hpP3nc?t=406" target="_blank" rel="noopener">&#9654; 6:46</a></div><p>Crea un proyecto nuevo (sin espacios en el nombre), la carpeta <b>LIBRERIA</b> dentro de Core y pega uart.c/.h y PWM.c/.h. Agrégala al include path.</p><p>En <b>Connectivity → USART1</b> modo Asynchronous a <b>9600</b> baudios.</p><div class="dos"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pines de dirección</h3><a class="min" href="https://youtu.be/fV_V5hpP3nc?t=645" target="_blank" rel="noopener">&#9654; 10:45</a></div><p>Crea 4 salidas para la dirección: <b>M11 y M12</b> (motor 1) y <b>M21 y M22</b> (motor 2). En la clase quedaron en PA0 a PA3.</p><p>La mayoría de puentes H usan dos pines por motor para el giro. Algunos usan uno solo: 1 gira a un lado y 0 al otro.</p><div class="uno"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>El timer como PWM a 50 Hz</h3><a class="min" href="https://youtu.be/fV_V5hpP3nc?t=748" target="_blank" rel="noopener">&#9654; 12:28</a></div><p>El PWM en estos micros sale de un <b>timer</b> (un contador). En <b>Timers → TIM1</b> pon <b>Clock Source: Internal Clock</b>.</p><p><b>Prescaler</b>: para contar en microsegundos divide el reloj entre su frecuencia en MHz menos 1. Con 16 MHz: <code>16-1</code>.</p><p><b>Counter Period</b>: el periodo en microsegundos. 50 Hz = 20 ms = <code>20000</code>. Para 10 Hz serían 100000 (en un timer de 16 bits el máximo es 65535).</p><p>En <b>Channel1</b> y <b>Channel2</b> elige <b>PWM Generation CH1/CH2</b>. Quedan en <b>PA8 y PA9</b>.</p><p class="ojo">Al activar el TIM1 en PA9, CubeMX movió el USART1 a otros pines (PB6 TX y PB7 RX). Revisa siempre dónde quedaron tus pines después de un cambio.</p><div class="dos"><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1230.webp" target="_blank"><img src="img/1230.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1500.webp" target="_blank"><img src="img/1500.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Definiciones de la librería PWM</h3><a class="min" href="https://youtu.be/fV_V5hpP3nc?t=1263" target="_blank" rel="noopener">&#9654; 21:03</a></div><p>En <b>PWM.h</b> descomenta y ajusta las definiciones: a qué timer y canal está cada PWM y su registro de comparación.</p><p>Si el PWM está en el canal 1 usa <code>CCR1</code>; si está en el canal 2, <code>CCR2</code>. El número debe coincidir.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define PWMT1     htim1
+#define PWMTIM1   TIM1
+
+#define PWM1_CH   TIM_CHANNEL_1
+#define PWM1      TIM1-&gt;CCR1
+
+#define PWM2_CH   TIM_CHANNEL_2
+#define PWM2      TIM1-&gt;CCR2</code></pre></div><div class="dos"><figure class="cap"><a href="img/1310.webp" target="_blank"><img src="img/1310.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Procedimientos de movimiento</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Un motor a la derecha, a la izquierda o quieto</h3><a class="min" href="https://youtu.be/fV_V5hpP3nc?t=1606" target="_blank" rel="noopener">&#9654; 26:46</a></div><p>En <code>USER CODE BEGIN 0</code> crea los procedimientos de cada motor: derecha pone un pin en 0 y el otro en 1, izquierda al revés, stop los deja iguales.</p><p>Copia los tres para el motor 2 cambiando M11/M12 por M21/M22.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void m1derecha(void)
+{
+  HAL_GPIO_WritePin(M11_GPIO_Port, M11_Pin, 0);
+  HAL_GPIO_WritePin(M12_GPIO_Port, M12_Pin, 1);
+}
+void m1izquierda(void)
+{
+  HAL_GPIO_WritePin(M11_GPIO_Port, M11_Pin, 1);
+  HAL_GPIO_WritePin(M12_GPIO_Port, M12_Pin, 0);
+}
+void m1stop(void)
+{
+  HAL_GPIO_WritePin(M11_GPIO_Port, M11_Pin, 0);
+  HAL_GPIO_WritePin(M12_GPIO_Port, M12_Pin, 0);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1680.webp" target="_blank"><img src="img/1680.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1800.webp" target="_blank"><img src="img/1800.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Movimientos del robot</h3><a class="min" href="https://youtu.be/fV_V5hpP3nc?t=1792" target="_blank" rel="noopener">&#9654; 29:52</a></div><p>Combina los motores: adelante (los dos a un lado), atrás, derecha e izquierda (cada motor a un lado distinto) y stop.</p><p>El sentido real depende de cómo estén conectados los motores: prueba y corrige.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void adelante(void)  { m1derecha();   m2derecha();   }
+void atras(void)     { m1izquierda(); m2izquierda(); }
+void derecha(void)   { m1izquierda(); m2derecha();   }
+void izquierda(void) { m1derecha();   m2izquierda(); }
+void stop(void)      { m1stop();      m2stop();      }</code></pre></div><p class="ojo">En la clase el robot no iba hacia adelante: el motor 2 tenía los pines invertidos. Se arregló intercambiando 0 y 1 en m2derecha y m2izquierda.</p><div class="dos"><figure class="cap"><a href="img/1950.webp" target="_blank"><img src="img/1950.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/3010.webp" target="_blank"><img src="img/3010.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Arrancar el PWM</h3><a class="min" href="https://youtu.be/fV_V5hpP3nc?t=2048" target="_blank" rel="noopener">&#9654; 34:08</a></div><p>En <code>USER CODE BEGIN 2</code> inicia los dos canales y dales una velocidad (0 a 100 %).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PWM_init(&amp;htim1, PWM1_CH);   // canal 1 del TIM1
+PWM_init(&amp;htim1, PWM2_CH);   // canal 2 del TIM1
+pwm_valor(&amp;PWM1, 100);
+pwm_valor(&amp;PWM2, 100);</code></pre></div><div class="uno"><figure class="cap"><a href="img/2200.webp" target="_blank"><img src="img/2200.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Probar en Proteus</h3><a class="min" href="https://youtu.be/fV_V5hpP3nc?t=2300" target="_blank" rel="noopener">&#9654; 38:20</a></div><p>Usa el modelo <b>TURTLE</b> (robot de dos ruedas). Une sus entradas M11, M12, PW1 y M21, M22, PW2 a los pines del micro con terminales del mismo nombre.</p><p>Micro a 16 MHz con el .hex. Al correr se abre la ventana del robot moviéndose.</p><p class="ojo">Si el robot no se mueve, revisa que los canales estén en PWM Generation (no en Output Compare) y vuelve a compilar.</p><div class="dos"><figure class="cap"><a href="img/2350.webp" target="_blank"><img src="img/2350.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/2930.webp" target="_blank"><img src="img/2930.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Recibir órdenes</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Procesar las órdenes</h3><a class="min" href="https://youtu.be/fV_V5hpP3nc?t=3147" target="_blank" rel="noopener">&#9654; 52:27</a></div><p>Crea un vector para la trama: <code>char trama_RX[50];</code></p><p>Crea el procedimiento <b>PROCE_RX</b>. Con <code>strstr(trama, "texto")</code> se pregunta si la trama contiene una orden.</p><p>Las órdenes son excluyentes, por eso se usa <b>else if</b>.</p><p>Para los giros conviene girar un rato y parar; si no, el robot gira demasiado rápido para controlarlo a mano.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char trama_RX[50];
+
+void PROCE_RX(void)
+{
+  if (strstr(trama_RX, &quot;adel&quot;)) adelante();
+  else if (strstr(trama_RX, &quot;atras&quot;)) atras();
+  else if (strstr(trama_RX, &quot;stop&quot;)) stop();
+  else if (strstr(trama_RX, &quot;der&quot;))
+  {
+    derecha();
+    HAL_Delay(300);   // depende de tu robot
+    stop();
+  }
+  else if (strstr(trama_RX, &quot;izq&quot;))
+  {
+    izquierda();
+    HAL_Delay(300);
+    stop();
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/3330.webp" target="_blank"><img src="img/3330.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/3560.webp" target="_blank"><img src="img/3560.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/3660.webp" target="_blank"><img src="img/3660.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Leer el puerto serial</h3><a class="min" href="https://youtu.be/fV_V5hpP3nc?t=3807" target="_blank" rel="noopener">&#9654; 63:27</a></div><p>En el while, <code>uartx_read_text</code> espera hasta recibir el carácter final (<code>'*'</code>) o llenar el tamaño de la trama, y luego se llama a PROCE_RX.</p><p>Esta lectura es <b>bloqueante</b>: el micro se queda esperando. Sirve si solo controla el robot; si además lee sensores, más adelante se hace con interrupciones.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  uartx_read_text(&amp;huart1, trama_RX, &#x27;*&#x27;, 50);
+  PROCE_RX();
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/3900.webp" target="_blank"><img src="img/3900.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/4000.webp" target="_blank"><img src="img/4000.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Enviar órdenes desde Hercules</h3><a class="min" href="https://youtu.be/fV_V5hpP3nc?t=4056" target="_blank" rel="noopener">&#9654; 67:36</a></div><p>En Proteus pon un <b>COMPIM</b> (puerto COM1, 9600) y une su RXD al pin RX del micro (en la simulación no es cruzado). Puedes poner un Virtual Terminal en el mismo cable para ver lo que llega.</p><p>Crea el par de puertos virtuales COM1–COM2 y abre Hercules en <b>COM2</b> a 9600.</p><p>Envía <code>adel*</code>, <code>atras*</code>, <code>der*</code>: el robot obedece.</p><p class="ojo">Para la entrega el robot se maneja desde el celular por Bluetooth: la lógica del micro es la misma.</p><div class="dos"><figure class="cap"><a href="img/4180.webp" target="_blank"><img src="img/4180.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/4330.webp" target="_blank"><img src="img/4330.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/4390.webp" target="_blank"><img src="img/4390.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Órdenes con valor</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Capturar el número</h3><a class="min" href="https://youtu.be/fV_V5hpP3nc?t=4515" target="_blank" rel="noopener">&#9654; 75:15</a></div><p>Para cambiar la velocidad se envía, por ejemplo, <code>vel=60/*</code>.</p><p>Crea <code>char texto[50];</code> y una variable para el valor.</p><p><code>strtok(trama, "=")</code> corta la trama en el <b>=</b>. Luego <code>strtok(0, "/")</code> sigue sobre lo mismo y devuelve lo que hay hasta el <b>/</b>: el número como texto.</p><p><code>atoi</code> convierte el texto a entero (<code>atof</code> a flotante). Ese valor va al PWM de los dos motores.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char texto[50];
+int valor;
+
+// dentro de PROCE_RX
+else if (strstr(trama_RX, &quot;vel=&quot;))
+{
+  strcpy(texto, strtok(trama_RX, &quot;=&quot;));  // corta en &#x27;=&#x27;
+  strcpy(texto, strtok(0, &quot;/&quot;));         // captura el dato
+  valor = atoi(texto);
+  pwm_valor(&amp;PWM1, valor);
+  pwm_valor(&amp;PWM2, valor);
+}</code></pre></div><p class="ojo">En la clase, con atof y una variable float la velocidad no cambió; con int y atoi sí funcionó. Incluye string.h y stdlib.h para strstr, strtok y atoi.</p><div class="dos"><figure class="cap"><a href="img/4680.webp" target="_blank"><img src="img/4680.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/4810.webp" target="_blank"><img src="img/4810.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/4900.webp" target="_blank"><img src="img/4900.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/4990.webp" target="_blank"><img src="img/4990.webp" alt="Clase 9 2023: recepción UART, mover un robot con órdenes seriales y PWM" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=fV_V5hpP3nc" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
