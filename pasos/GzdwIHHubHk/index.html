@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 133 STM32: TouchGFX, leer variables y switch virtual · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="En TouchGFX: un toggle button que prende el LED de la tarjeta, una barra tipo batería con el valor de un ADC y un texto con wildcard que muestra el número entero o con decimales.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/GzdwIHHubHk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 133 STM32: TouchGFX, leer variables y switch virtual · Paso a paso">
+  <meta property="og:description" content="En TouchGFX: un toggle button que prende el LED de la tarjeta, una barra tipo batería con el valor de un ADC y un texto con wildcard que muestra el número entero o con decimales.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/GzdwIHHubHk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/GzdwIHHubHk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 133: TouchGFX <span>variables y switch virtual</span></h1>
+    <p class="lead">Seguimos con el proyecto TouchGFX de la ILI9341 táctil. Se agrega un Toggle Button que enciende y apaga el LED de la Blackpill mediante una función virtual. Luego se lee un potenciómetro por ADC en el main y, con una interacción por ticks, se muestra en un Line Progress con estilo de batería y en un Text Area con wildcard, primero como entero y luego como flotante en voltios. Puntos clave: el código propio va en la carpeta gui, no en gui_generated; después de cambiar un widget siempre se llama invalidate(); y la fuente del texto debe incluir los caracteres del wildcard.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=GzdwIHHubHk" target="_blank" rel="noopener">&#9654; Ver el video completo (26:30)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1550.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual"></figure>
+    <ul class="materiales"><li>Proyecto TouchGFX de las clases 131 y 132</li><li>Blackpill STM32F411 (LED en PC13)</li><li>Pantalla TFT ILI9341 SPI táctil</li><li>Potenciómetro en el canal ADC1_IN1</li><li>Librería ADC del canal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Toggle Button</a><a href="#f2">2 · Variable en el main</a><a href="#f3">3 · Line Progress</a><a href="#f4">4 · Text Area y wildcard</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Switch virtual para el LED</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Agregar el Toggle Button</h3><a class="min" href="https://youtu.be/GzdwIHHubHk?t=45" target="_blank" rel="noopener">&#9654; 0:45</a></div><p>En TouchGFX Designer se agrega un Toggle Button (en Preset se elige el estilo ON/OFF).</p><p>En Interactions: Trigger "Button is clicked", botón toggleButton1, Action "Call new virtual function" con el nombre LED_. Generate Code.</p><div class="dos"><figure class="cap"><a href="img/45.webp" target="_blank"><img src="img/45.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Declarar la función</h3><a class="min" href="https://youtu.be/GzdwIHHubHk?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><p>Como en la clase anterior: en TouchGFX/generated/gui_generated/include se busca la función virtual creada en Screen1ViewBase.hpp y se copia a gui/include/gui/screen1_screen/Screen1View.hpp.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// gui/include/gui/screen1_screen/Screen1View.hpp
+class Screen1View : public Screen1ViewBase
+{
+public:
+    Screen1View();
+    virtual ~Screen1View() {}
+    virtual void setupScreen();
+    virtual void tearDownScreen();
+    virtual void CAMBIAPANTALLA();
+    virtual void LED_();          // nueva: boton toggle
+    virtual void VOLTAJE();       // nueva: cada N ticks
+protected:
+};</code></pre></div><div class="dos"><figure class="cap"><a href="img/130.webp" target="_blank"><img src="img/130.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Prender y apagar el LED</h3><a class="min" href="https://youtu.be/GzdwIHHubHk?t=280" target="_blank" rel="noopener">&#9654; 4:40</a></div><p>En gui/src/screen1_screen/Screen1View.cpp se escribe la función. getState() devuelve el estado del toggle. Si le pones nombre al widget en TouchGFX, se usa ese nombre en lugar de toggleButton1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// gui/src/screen1_screen/Screen1View.cpp
+void Screen1View::LED_()
+{
+    // el LED de la Blackpill enciende con 0 (logica invertida)
+    if (toggleButton1.getState() == 1) HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+    else HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Leer el ADC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Librería ADC y variable</h3><a class="min" href="https://youtu.be/GzdwIHHubHk?t=450" target="_blank" rel="noopener">&#9654; 7:30</a></div><p>Se pega la librería ADC del canal en LIBRERIAS y se incluye en el main. Se habilita float en printf en Properties > C/C++ Build > Settings > MCU Settings.</p><p>Se crea la variable voltaje y en el while se lee el ADC de 12 bits y se escala de 0 a 100 %.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;adc.h&quot;          // libreria ADC del canal
+/* USER CODE END Includes */
+
+/* USER CODE BEGIN PV */
+float voltaje;
+/* USER CODE END PV */
+
+while (1)
+{
+    voltaje = ADC_Read(&amp;hadc1) * 100.0 / 4095.0;   // 0 a 100 %
+    MX_TouchGFX_Process();
+}</code></pre></div><p class="ojo">El nombre del archivo de la librería ADC puede variar en tu versión; lo importante es la función que lee el canal (ADC_Read en este caso).</p><div class="uno"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Barra tipo batería</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Agregar el Line Progress</h3><a class="min" href="https://youtu.be/GzdwIHHubHk?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>Se agrega un Line Progress y en Preset > stylized se elige batteries (también hay termómetros). Rango 0 a 100. Se le pone de nombre VOLTIOS.</p><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Interacción por ticks</h3><a class="min" href="https://youtu.be/GzdwIHHubHk?t=660" target="_blank" rel="noopener">&#9654; 11:00</a></div><p>Otra interacción: Trigger "on every N tick" y Action "Call new virtual function" llamada VOLTAJE (se recomienda escribir los nombres en mayúsculas). Se declara en Screen1View.hpp igual que LED_.</p><div class="dos"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure><figure class="cap"><a href="img/780.webp" target="_blank"><img src="img/780.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Darle el valor y actualizar</h3><a class="min" href="https://youtu.be/GzdwIHHubHk?t=840" target="_blank" rel="noopener">&#9654; 14:00</a></div><p>En Screen1View.cpp se declara extern float voltaje; y en VOLTAJE() se le da el valor a la barra con setValue.</p><p>Siempre que cambies un widget, termina con invalidate(); si no, la pantalla no se actualiza.</p><div class="dos"><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure><figure class="cap"><a href="img/905.webp" target="_blank"><img src="img/905.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Texto con el valor</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Text Area con wildcard</h3><a class="min" href="https://youtu.be/GzdwIHHubHk?t=960" target="_blank" rel="noopener">&#9654; 16:00</a></div><p>Se agrega un Text Area con nombre VOLT_TEXT. En Translation se borra el texto y se deja solo <value>, y se activa Wildcard 1 con valor inicial 0 y Buffer size 10 (el espacio para escribir el número).</p><p>Se desmarca Auto-size para ajustar el tamaño a mano.</p><div class="dos"><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Crear la tipografía</h3><a class="min" href="https://youtu.be/GzdwIHHubHk?t=1040" target="_blank" rel="noopener">&#9654; 17:20</a></div><p>En Texts > Typographies se crea una tipografía (Large, Verdana 40 px). En Wildcard Characters se escriben los caracteres que usará: 0123456789.,% . TouchGFX solo genera esos caracteres, así ahorra memoria.</p><p>Se asigna esa tipografía al Text Area y se genera código.</p><div class="dos"><figure class="cap"><a href="img/1040.webp" target="_blank"><img src="img/1040.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure><figure class="cap"><a href="img/1140.webp" target="_blank"><img src="img/1140.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Escribir el valor</h3><a class="min" href="https://youtu.be/GzdwIHHubHk?t=1230" target="_blank" rel="noopener">&#9654; 20:30</a></div><p>Para enteros se usa Unicode::snprintf con %d; para decimales Unicode::snprintfFloat con %.1f. Aquí el valor se pasa de 0-100 a voltios (0 a 3.3).</p><p>VOLT_TEXTBuffer y VOLT_TEXT_SIZE los genera TouchGFX con el nombre del widget en mayúsculas; por eso conviene nombrar todo en mayúsculas y así copiar y pegar sin errores. Si no aparecen, compila primero.</p><p>En el video el número no cambiaba hasta agregar VOLT_TEXT.invalidate().</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern float voltaje;
+#include &quot;main.h&quot;
+
+void Screen1View::VOLTAJE()
+{
+    VOLTIOS.setValue(voltaje);       // barra tipo bateria (0 a 100)
+    VOLTIOS.invalidate();
+
+    // muestra enteros
+    // Unicode::snprintf(VOLT_TEXTBuffer, VOLT_TEXT_SIZE, &quot;%d&quot;, (int)voltaje);
+
+    // muestra flotantes (en voltios)
+    float valor = voltaje * 3.3 / 100;
+    Unicode::snprintfFloat(VOLT_TEXTBuffer, VOLT_TEXT_SIZE, &quot;%.1f&quot;, valor);
+    VOLT_TEXT.invalidate();          // sin invalidate no se actualiza la pantalla
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1370.webp" target="_blank"><img src="img/1370.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure><figure class="cap"><a href="img/1470.webp" target="_blank"><img src="img/1470.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Resultado</h3><a class="min" href="https://youtu.be/GzdwIHHubHk?t=1510" target="_blank" rel="noopener">&#9654; 25:10</a></div><p>Al mover el potenciómetro la batería y el número cambian; el toggle sigue prendiendo el LED. Si agregas % en el formato, aparece el porcentaje.</p><p>También existe Text Progress, que muestra el valor solo como entero.</p><div class="dos"><figure class="cap"><a href="img/1510.webp" target="_blank"><img src="img/1510.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure><figure class="cap"><a href="img/1550.webp" target="_blank"><img src="img/1550.webp" alt="Clase 133 STM32: TouchGFX, leer variables y switch virtual" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=GzdwIHHubHk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
