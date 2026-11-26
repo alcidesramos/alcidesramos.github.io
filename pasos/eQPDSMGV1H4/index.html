@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Configurar STM32 en Visual Studio Code de forma visual con un script de Python · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Botón en la barra de VS Code (extensión VsCode Action Buttons) que abre un script de Python para agregar librerías, float, .hex/.bin, optimización de Release y FPU por hardware o software sin escribir comandos.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/eQPDSMGV1H4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Configurar STM32 en Visual Studio Code de forma visual con un script de Python · Paso a paso">
+  <meta property="og:description" content="Botón en la barra de VS Code (extensión VsCode Action Buttons) que abre un script de Python para agregar librerías, float, .hex/.bin, optimización de Release y FPU por hardware o software sin escribir comandos.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/eQPDSMGV1H4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/eQPDSMGV1H4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>STM32 en VS Code <span>de forma visual</span>: un botón y un script de Python</h1>
+    <p class="lead">Cuarta parte de la serie y la forma definitiva de trabajar. Creamos el proyecto VSC_DEFINITIVO con LED y USART1 a 115200, lo abrimos en VS Code y probamos el blink. Luego instalamos la extensión VsCode Action Buttons y en el settings.json del usuario agregamos un botón que ejecuta un script de Python. Ese script detecta el proyecto y, con casillas, agrega al CMakeLists.txt las librerías, el soporte de float, la generación de .hex y .bin y la optimización de Release, y cambia la FPU entre hardware y software. Después solo hay que pegar las librerías en una carpeta Librerias y compilar.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=eQPDSMGV1H4" target="_blank" rel="noopener">&#9654; Ver el video completo (21:15)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1205.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401/F411 con mini ST-Link</li><li>VS Code con la extensión STM32CubeIDE</li><li>Extensión VsCode Action Buttons</li><li>Python instalado</li><li>Script cmakelist_Python.py (recursos del video)</li><li>Librerías uart.c/uart.h</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeMX y blink.</a><a href="#f2">2 · Extensión y settings.json.</a><a href="#f3">3 · Casillas en lugar de comandos.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto base</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Crear el proyecto desde VS Code</h3><a class="min" href="https://youtu.be/eQPDSMGV1H4?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>Desde la pestaña de STM32 en VS Code abrimos CubeMX. Un pin como salida <b>LED</b>, <b>USART1</b> asíncrono a 115200 (es para el micro real) y el proyecto <b>VSC_DEFINITIVO</b> con toolchain <b>CMake</b>.</p><p class="ojo">En el video el LED quedó primero en PC14 por error y se movió arrastrándolo con Ctrl a PC13; luego se regenera el código y no hace falta reabrir la carpeta.</p><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Abrir, confiar y configurar CMake</h3><a class="min" href="https://youtu.be/eQPDSMGV1H4?t=101" target="_blank" rel="noopener">&#9654; 1:41</a></div><p>Abrimos la carpeta con <b>Abrir con Code</b>, damos <b>Trust</b> si sale Restricted Mode y respondemos <b>Yes</b> a configurar CMake. Si no salió, en las opciones de CMake está <b>Clean Rebuild</b>.</p><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Blink y depuración</h3><a class="min" href="https://youtu.be/eQPDSMGV1H4?t=205" target="_blank" rel="noopener">&#9654; 3:25</a></div><p>Con el autocompletado escribimos el blink, compilamos y con <b>Run and Debug</b> (ST-Link) programamos la tarjeta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+HAL_Delay(500);</code></pre></div><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El botón de configuración</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Instalar VsCode Action Buttons</h3><a class="min" href="https://youtu.be/eQPDSMGV1H4?t=412" target="_blank" rel="noopener">&#9654; 6:52</a></div><p>En extensiones buscamos e instalamos <b>VsCode Action Buttons</b> (Seun LanLege). Permite poner botones en la barra de estado que ejecutan comandos.</p><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Agregar el botón en settings.json</h3><a class="min" href="https://youtu.be/eQPDSMGV1H4?t=412" target="_blank" rel="noopener">&#9654; 6:52</a></div><p>Con F1 (o Ctrl+Shift+P) abrimos <b>Preferences: Open User Settings (JSON)</b>. Antes de la última llave ponemos una coma y pegamos el bloque <b>actionButtons</b>: nombre del botón, color y el comando que ejecuta el script con <b>pythonw</b>.</p><p>La ruta del script se obtiene con clic derecho &gt; <b>Copiar como ruta de acceso</b>; en JSON cada \\ se escribe doble (una IA te la puede convertir).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>&quot;actionButtons&quot;: {
+    &quot;defaultColor&quot;: &quot;white&quot;,
+    &quot;loadNpmCommands&quot;: false,
+    &quot;commands&quot;: [
+        {
+            &quot;name&quot;: &quot;⚙ CMake ARZ&quot;,
+            &quot;color&quot;: &quot;yellow&quot;,
+            &quot;command&quot;: &quot;pythonw \&quot;D:\\ruta\\a\\cmakelist_Python.py\&quot;&quot;
+        }
+    ]
+}</code></pre></div><p class="ojo">Cambia la ruta por la de tu archivo cmakelist_Python.py. Guarda con Ctrl+S, cierra VS Code y vuelve a abrirlo (o usa Refresh Buttons) para ver el botón.</p><div class="dos"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure><figure class="cap"><a href="img/490.webp" target="_blank"><img src="img/490.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Usar el script</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Opciones del generador</h3><a class="min" href="https://youtu.be/eQPDSMGV1H4?t=620" target="_blank" rel="noopener">&#9654; 10:20</a></div><p>Al pulsar el botón se abre el <b>Generador CMake</b>, que detecta la carpeta del proyecto. Opciones para CMakeLists.txt:</p><p><b>Incluir ruta de librerías automáticas</b> (addlib).</p><p><b>Usar librerías float para sprintf y math.h</b> (-lm).</p><p><b>Generar archivos de salida .HEX y .BIN</b>.</p><p><b>Optimización de Release</b>: -O2 recomendado, -O3 máximo rendimiento, -Os menor tamaño.</p><p>En <b>gcc-arm-none-eabi.cmake</b>: <b>modo FPU</b> hardware (micro real) o software (Proteus).</p><p class="ojo">Si una opción ya estaba agregada, el script lo indica y no la duplica.</p><div class="dos"><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure><figure class="cap"><a href="img/725.webp" target="_blank"><img src="img/725.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Agregar librerías y compilar</h3><a class="min" href="https://youtu.be/eQPDSMGV1H4?t=721" target="_blank" rel="noopener">&#9654; 12:01</a></div><p>En <b>Core</b> creamos la carpeta <b>Librerias</b> (mayúsculas o minúsculas) y pegamos uart.c y uart.h. Al compilar ya las detecta, sin tocar el CMakeLists.txt, y genera .elf, .hex y .bin.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+
+while (1)
+{
+  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  HAL_Delay(500);
+  uartx_write_text(&amp;huart1, &quot;suscribete al canal\r\n&quot;);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Flotantes y Proteus</h3><a class="min" href="https://youtu.be/eQPDSMGV1H4?t=1057" target="_blank" rel="noopener">&#9654; 17:37</a></div><p>Con una variable float y sprintf, Proteus se quedaba en cero. Abriendo el botón y eligiendo <b>FPU: Software</b>, compila y la simulación cuenta bien. Para el micro real se vuelve a <b>Hardware</b>, que es más rápido.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+char buffer[50];
+float cont = 0.1;
+
+cont += 0.2;
+sprintf(buffer, &quot;contador=%.2f\r\n&quot;, cont);
+uartx_write_text(&amp;huart1, buffer);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1160.webp" target="_blank"><img src="img/1160.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure><figure class="cap"><a href="img/1205.webp" target="_blank"><img src="img/1205.webp" alt="Configurar STM32 en Visual Studio Code de forma visual con un script de Python" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=eQPDSMGV1H4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
