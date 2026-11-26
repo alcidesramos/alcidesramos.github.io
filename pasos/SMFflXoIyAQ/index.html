@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32: solucionando el error -G Ninja exited with code: 1 en VS Code · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Si mueve la carpeta de un proyecto CMake a otra carpeta, la compilación falla con &#x27;Ninja exited with code: 1&#x27;. Se arregla con CMake: Delete Cache and Reconfigure.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/SMFflXoIyAQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="STM32: solucionando el error -G Ninja exited with code: 1 en VS Code · Paso a paso">
+  <meta property="og:description" content="Si mueve la carpeta de un proyecto CMake a otra carpeta, la compilación falla con &#x27;Ninja exited with code: 1&#x27;. Se arregla con CMake: Delete Cache and Reconfigure.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/SMFflXoIyAQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/SMFflXoIyAQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Solución al error <span>Ninja exited with code: 1</span></h1>
+    <p class="lead">Video corto para un error muy común: al copiar la carpeta de un proyecto y meterla dentro de otra, el proyecto deja de compilar. No aparecen errores en el código, pero la salida termina en <b>-G Ninja exited with code: 1</b>. La causa es la caché de CMake, que guarda la ruta vieja. Se soluciona borrando la caché y reconfigurando.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=SMFflXoIyAQ" target="_blank" rel="noopener">&#9654; Ver el video completo (2:04)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/55.webp" alt="STM32: solucionando el error -G Ninja exited with code: 1 en VS Code"></figure>
+    <ul class="materiales"><li>VS Code con la extensión STM32CubeIDE</li><li>Proyecto STM32 con CMake</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto movido</a><a href="#f2">2 · Delete Cache and Reconfigure</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El error</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Mover el proyecto de carpeta</h3><a class="min" href="https://youtu.be/SMFflXoIyAQ?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>El problema aparece cuando la carpeta del proyecto se copia o se mueve dentro de otras carpetas y luego se abre con VS Code.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="STM32: solucionando el error -G Ninja exited with code: 1 en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Compila sin errores pero falla</h3><a class="min" href="https://youtu.be/SMFflXoIyAQ?t=40" target="_blank" rel="noopener">&#9654; 0:40</a></div><p>Al compilar no hay errores en el código, pero la salida termina con <b>-G Ninja exited with code: 1</b> y no se genera el .elf. La caché de CMake quedó con la ruta anterior.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="STM32: solucionando el error -G Ninja exited with code: 1 en VS Code" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La solución</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Borrar la caché de CMake</h3><a class="min" href="https://youtu.be/SMFflXoIyAQ?t=55" target="_blank" rel="noopener">&#9654; 0:55</a></div><p>Con el proyecto abierto presione <b>F1</b> o <b>Ctrl+Shift+P</b>, escriba <b>CMake: delete</b> y elija <b>CMake: Delete Cache and Reconfigure</b>. Espere a que termine de configurar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>CMake: Delete Cache and Reconfigure</code></pre></div><div class="dos"><figure class="cap"><a href="img/55.webp" target="_blank"><img src="img/55.webp" alt="STM32: solucionando el error -G Ninja exited with code: 1 en VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/65.webp" target="_blank"><img src="img/65.webp" alt="STM32: solucionando el error -G Ninja exited with code: 1 en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Compilar de nuevo</h3><a class="min" href="https://youtu.be/SMFflXoIyAQ?t=80" target="_blank" rel="noopener">&#9654; 1:20</a></div><p>Al compilar otra vez desaparece el error de Ninja y se genera el .elf del proyecto.</p><p class="ojo">Después de usarla una vez, la opción aparece de primera en la paleta de comandos.</p><div class="dos"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="STM32: solucionando el error -G Ninja exited with code: 1 en VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/95.webp" target="_blank"><img src="img/95.webp" alt="STM32: solucionando el error -G Ninja exited with code: 1 en VS Code" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=SMFflXoIyAQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
