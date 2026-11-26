@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase en vivo: LCD en STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Conexión de una LCD 16x2 a 4 bits, simulación en Proteus, crear una librería de retardos, incluir la librería LCD y escribir texto, caracteres y caracteres propios; al final, la versión por I2C.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/sss21HtgBIo/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase en vivo: LCD en STM32 · Paso a paso">
+  <meta property="og:description" content="Conexión de una LCD 16x2 a 4 bits, simulación en Proteus, crear una librería de retardos, incluir la librería LCD y escribir texto, caracteres y caracteres propios; al final, la versión por I2C.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/sss21HtgBIo/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/sss21HtgBIo/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Clase en vivo: <span>pantalla LCD</span> con STM32</h1>
+    <p class="lead">Clase en vivo sobre la pantalla LCD de caracteres. Vemos qué hace cada pin, cómo se conecta en modo de 4 bits con contraste y luz de fondo, y cómo montarla en Proteus con etiquetas y un bus. En STM32CubeIDE creamos nuestra propia librería de retardos (delays.c/delays.h), agregamos la carpeta de librerías al include path, incluimos la librería LCD y usamos sus funciones para inicializar, limpiar, escribir texto, un carácter, texto en la posición del cursor y caracteres personalizados. Al final se muestra el módulo I2C (PCF8574) para manejarla con solo dos cables.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=sss21HtgBIo" target="_blank" rel="noopener">&#9654; Ver el video completo (87:28)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/4720.webp" alt="Clase en vivo: LCD en STM32"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>STM32F401 (simulado en Proteus)</li><li>LCD 16x2 (LM016L en Proteus)</li><li>Potenciómetro de 10 kΩ para el contraste</li><li>Resistencia de 220–330 Ω para la luz de fondo</li><li>Librerías delays.c/delays.h y lcd.c/lcd.h</li><li>Opcional: módulo I2C PCF8574</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Conexión a 4 bits</a><a href="#f2">2 · LM016L y etiquetas</a><a href="#f3">3 · Pines con nombre</a><a href="#f4">4 · delays.c y delays.h</a><a href="#f5">5 · Funciones</a><a href="#f6">6 · Lcd_chr_propio</a><a href="#f7">7 · Módulo PCF8574</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La LCD y sus pines</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Pines de la LCD</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=181" target="_blank" rel="noopener">&#9654; 3:01</a></div><p>VSS a tierra y VDD a <b>5 V</b> (la mayoría de LCD trabajan a 5 V). VEE es el contraste. <b>RS</b>, <b>RW</b> y <b>E</b> son de control y D0–D7 son datos. Las de 16 pines traen además LEDA y LEDK para la luz de fondo.</p><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Circuito básico</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=355" target="_blank" rel="noopener">&#9654; 5:55</a></div><p><b>RS</b> y <b>E</b> van a pines del micro, <b>RW</b> a tierra (solo escribimos). Se trabaja en modo de <b>4 bits</b> con <b>D4–D7</b>. El contraste va a la pata central de un potenciómetro de 10 kΩ entre 5 V y tierra, y la luz de fondo lleva una resistencia de 220–330 Ω.</p><p class="ojo">Truco: si ya conoce el contraste, puede poner solo una resistencia fija de VEE a tierra. En Proteus no hacen falta potenciómetro ni luz de fondo.</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Montar en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Buscar la LCD</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=783" target="_blank" rel="noopener">&#9654; 13:03</a></div><p>En Pick Devices se busca <b>LCD</b>: hay de 16x2, 20x4, 40x2… Tomamos la <b>LM016L</b> de 16x2.</p><div class="uno"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Etiquetas y bus</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=869" target="_blank" rel="noopener">&#9654; 14:29</a></div><p>Se conectan RS, EN y D4–D7 con etiquetas; un bus ayuda a ordenar los cables. Copie el nombre exacto de la etiqueta para que las mayúsculas coincidan.</p><div class="uno"><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Verificar las uniones</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=1115" target="_blank" rel="noopener">&#9654; 18:35</a></div><p>Clic derecho sobre un pin → <b>Highlight Net on current Sheet</b> resalta todo lo que está unido a esa red.</p><div class="uno"><figure class="cap"><a href="img/1190.webp" target="_blank"><img src="img/1190.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Configurar el micro</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Pines de salida</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=1466" target="_blank" rel="noopener">&#9654; 24:26</a></div><p>En CubeMX se configuran como <b>GPIO_Output</b> los pines de la LCD y se les da el nombre <b>RS</b>, <b>EN</b>, <b>D4</b>, <b>D5</b>, <b>D6</b> y <b>D7</b>. La librería los toma por esos nombres.</p><div class="dos"><figure class="cap"><a href="img/1580.webp" target="_blank"><img src="img/1580.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1640.webp" target="_blank"><img src="img/1640.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Crear una librería</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>El archivo .c</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=1885" target="_blank" rel="noopener">&#9654; 31:25</a></div><p>Dentro de Core se crea la carpeta <b>Librerias</b> y en ella <b>delays.c</b> con el código del retardo en microsegundos que ya habíamos hecho (con el contador DWT).</p><div class="uno"><figure class="cap"><a href="img/1960.webp" target="_blank"><img src="img/1960.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>El archivo .h</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=2055" target="_blank" rel="noopener">&#9654; 34:15</a></div><p>En <b>delays.h</b> van los prototipos de las funciones y el include de main.h. El .c y el main deben incluir el .h.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#ifndef LIBRERIAS_DELAYS_H_
+#define LIBRERIAS_DELAYS_H_
+
+#include &quot;main.h&quot;
+
+void delay_us_init();
+void delay_us_dwt(uint32_t reta);
+
+#endif /* LIBRERIAS_DELAYS_H_ */</code></pre></div><div class="uno"><figure class="cap"><a href="img/2120.webp" target="_blank"><img src="img/2120.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Agregar la carpeta al include path</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=2252" target="_blank" rel="noopener">&#9654; 37:32</a></div><p>Clic derecho al proyecto → <b>Properties → C/C++ Build → Settings → MCU GCC Compiler → Include paths</b>, botón agregar, <b>Workspace</b>, se elige la carpeta Librerias y Apply and Close.</p><div class="uno"><figure class="cap"><a href="img/2300.webp" target="_blank"><img src="img/2300.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Usar la librería</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=2359" target="_blank" rel="noopener">&#9654; 39:19</a></div><p>Se incluye delays.h en el main y se inicializa con <b>delay_us_init()</b>. Compila sin errores: el código ya no está en el main sino en la librería.</p><div class="uno"><figure class="cap"><a href="img/2380.webp" target="_blank"><img src="img/2380.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>La librería LCD</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Pegar la librería</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=2491" target="_blank" rel="noopener">&#9654; 41:31</a></div><p>Las librerías de terceros solo se copian y se pegan en la carpeta Librerias (lcd.c y lcd.h). lcd.h debe incluir delays.h porque la LCD necesita retardos.</p><div class="dos"><figure class="cap"><a href="img/2600.webp" target="_blank"><img src="img/2600.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/3010.webp" target="_blank"><img src="img/3010.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Inicializar y escribir</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=3006" target="_blank" rel="noopener">&#9654; 50:06</a></div><p>Primero se inicializa el retardo y la LCD, se limpia la pantalla y se quita el cursor (opcional). Luego se escribe texto en la fila y columna que se quiera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>delay_us_init();
+Lcd_Init();
+Lcd_Cmd(_LCD_CLEAR);
+Lcd_Cmd(_LCD_CURSOR_OFF);
+
+Lcd_Text(2, 2, &quot;ESTUDIEN PELAOS&quot;);
+Lcd_Text(4, 6, &quot;OJO&quot;);</code></pre></div><div class="dos"><figure class="cap"><a href="img/3200.webp" target="_blank"><img src="img/3200.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/3300.webp" target="_blank"><img src="img/3300.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Un carácter y texto en el cursor</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=3885" target="_blank" rel="noopener">&#9654; 64:45</a></div><p><b>Lcd_Chr</b> escribe un solo carácter (comillas simples). <b>Lcd_Text_Cp</b> escribe donde quedó el cursor, sin coordenadas; útil para poner unidades al lado de un valor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Chr(1, 10, &#x27;5&#x27;);
+Lcd_Text_Cp(&quot;Volt&quot;);</code></pre></div><div class="dos"><figure class="cap"><a href="img/3930.webp" target="_blank"><img src="img/3930.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/4100.webp" target="_blank"><img src="img/4100.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f6"><div class="contenedor"><span class="etiqueta">Fase 6</span><h2>Caracteres propios</h2><article class="paso"><div class="paso-cab"><span class="num">6.1</span><h3>Diseñar el carácter</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=4265" target="_blank" rel="noopener">&#9654; 71:05</a></div><p>Con un generador de caracteres para HD44780 se dibuja el símbolo y se copia el arreglo como variable global: <b>especial1</b>, <b>especial2</b>… hasta ocho.</p><div class="uno"><figure class="cap"><a href="img/4320.webp" target="_blank"><img src="img/4320.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.2</span><h3>Mostrarlo</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=4495" target="_blank" rel="noopener">&#9654; 74:55</a></div><p><b>Lcd_chr_propio(fila, columna, posición, &vector)</b>: la posición de memoria (1 a 8) debe coincidir con el número del arreglo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_chr_propio(1, 1, 1, &amp;especial1);
+Lcd_chr_propio(1, 3, 2, &amp;especial2);</code></pre></div><div class="dos"><figure class="cap"><a href="img/4520.webp" target="_blank"><img src="img/4520.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/4720.webp" target="_blank"><img src="img/4720.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f7"><div class="contenedor"><span class="etiqueta">Fase 7</span><h2>LCD por I2C</h2><article class="paso"><div class="paso-cab"><span class="num">7.1</span><h3>El módulo expansor</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=4973" target="_blank" rel="noopener">&#9654; 82:53</a></div><p>Un módulo expansor de puertos maneja la LCD con solo dos cables (SDA y SCL). Tiene hasta ocho direcciones según sus pines A0–A2.</p><div class="uno"><figure class="cap"><a href="img/4990.webp" target="_blank"><img src="img/4990.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">7.2</span><h3>Habilitar I2C</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=5099" target="_blank" rel="noopener">&#9654; 84:59</a></div><p>En CubeMX se habilita un I2C en <b>Connectivity</b> (I2C1). En la librería las funciones son iguales pero con el prefijo I2C_.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>I2C_LCD_init();
+I2C_LCD_Cmd(_LCD_CLEAR);
+I2C_LCD_Cmd(_LCD_CURSOR_OFF);
+I2C_LCD_Text(3, 1, &quot;Hola mundo&quot;);
+I2C_LCD_Text(4, 5, &quot;Todo Bien!&quot;);
+I2C_Lcd_chr_propio(1, 9, 1, &amp;especial1);</code></pre></div><div class="dos"><figure class="cap"><a href="img/5120.webp" target="_blank"><img src="img/5120.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/5210.webp" target="_blank"><img src="img/5210.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">7.3</span><h3>Probar</h3><a class="min" href="https://youtu.be/sss21HtgBIo?t=5234" target="_blank" rel="noopener">&#9654; 87:14</a></div><p>Se compila y se simula: la LCD por I2C muestra los textos y el carácter propio.</p><div class="uno"><figure class="cap"><a href="img/5240.webp" target="_blank"><img src="img/5240.webp" alt="Clase en vivo: LCD en STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=sss21HtgBIo" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
