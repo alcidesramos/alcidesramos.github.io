@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Agrego a la barra de VS Code los botones PROG y FUSE (scripts de Python que usan STM32_Programmer_CLI) para programar, proteger y desproteger el micro, cambio entre Debug y Release y activo los breadcrumbs.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/K91sqI4wDtQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs · Paso a paso">
+  <meta property="og:description" content="Agrego a la barra de VS Code los botones PROG y FUSE (scripts de Python que usan STM32_Programmer_CLI) para programar, proteger y desproteger el micro, cambio entre Debug y Release y activo los breadcrumbs.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/K91sqI4wDtQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/K91sqI4wDtQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Botones para <span>programar y proteger</span> el STM32 desde VS Code</h1>
+    <p class="lead">Partiendo del botón CMake ARZ que configuramos con la extensión VsCode Action Buttons, agrego dos botones más: <b>PROG</b>, que programa el .elf más reciente con STM32_Programmer_CLI, y <b>FUSE</b>, que abre una ventana para elegir la protección de lectura RDP (AA, BB o CC). Todo queda en la carpeta C:\EMBEBIDOS. Como en otro PC el script no encontraba el programador, uso Copilot con un prompt para que repare prog.py y fuse.py con la ruta del CLI. Después muestro cómo pasar de Debug a Release (el .elf de Release pesa mucho menos) y cómo activar la navegación con breadcrumbs.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=K91sqI4wDtQ" target="_blank" rel="noopener">&#9654; Ver el video completo (17:41)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/735.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs"></figure>
+    <ul class="materiales"><li>VS Code con VsCode Action Buttons y la extensión STM32CubeIDE</li><li>Python instalado</li><li>STM32CubeProgrammer (trae STM32_Programmer_CLI.exe)</li><li>Carpeta EMBEBIDOS con cmakelist_Python.py, prog.py, fuse.py y prompt (recursos del video)</li><li>Placa STM32 con ST-Link</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CMake, PROG y FUSE</a><a href="#f2">2 · prog.py y el CLI</a><a href="#f3">3 · fuse.py y RDP</a><a href="#f4">4 · Últimos ajustes</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Los botones en settings.json</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Recordar el botón CMake ARZ</h3><a class="min" href="https://youtu.be/K91sqI4wDtQ?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>Con <b>F1 → Preferences: Open User Settings (JSON)</b> se abre settings.json. Al final, antes de la última llave, se pone una coma y se pega el bloque <b>actionButtons</b>. Las rutas en JSON llevan doble barra invertida.</p><p class="ojo">Si copia la carpeta EMBEBIDOS en C:\ las rutas le quedan iguales a las del video; si no, cámbielas por la suya.</p><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Agregar PROG y FUSE</h3><a class="min" href="https://youtu.be/K91sqI4wDtQ?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>Se copia el bloque del botón entre llaves, coma y se pega dos veces. Se renombran <b>PROG</b> y <b>FUSE</b>, se cambian los íconos (emojis) y los colores, y cada uno apunta a su script. PROG no tiene ventana, así que usa <b>python</b> (sin w); FUSE sí tiene ventana y usa <b>pythonw</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>&quot;actionButtons&quot;: {
+  &quot;defaultColor&quot;: &quot;white&quot;,
+  &quot;loadNpmCommands&quot;: false,
+  &quot;commands&quot;: [
+    {
+      &quot;name&quot;: &quot;🛠 CMake ARZ&quot;,
+      &quot;color&quot;: &quot;yellow&quot;,
+      &quot;command&quot;: &quot;pythonw \&quot;C:\\EMBEBIDOS\\cmakelist_Python.py\&quot;&quot;
+    },
+    {
+      &quot;name&quot;: &quot;💾 PROG&quot;,
+      &quot;color&quot;: &quot;white&quot;,
+      &quot;command&quot;: &quot;python \&quot;C:\\EMBEBIDOS\\prog.py\&quot;&quot;
+    },
+    {
+      &quot;name&quot;: &quot;⚡ FUSE&quot;,
+      &quot;color&quot;: &quot;yellow&quot;,
+      &quot;command&quot;: &quot;pythonw \&quot;C:\\EMBEBIDOS\\fuse.py\&quot;&quot;
+    }
+  ]
+}</code></pre></div><p class="ojo">Los íconos son emojis copiados del archivo de botones; puede usar los que quiera. Guarde con Ctrl+S y reinicie VS Code para ver los tres botones abajo.</p><div class="dos"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programar desde VS Code</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Primer intento</h3><a class="min" href="https://youtu.be/K91sqI4wDtQ?t=340" target="_blank" rel="noopener">&#9654; 5:40</a></div><p>Hay que <b>compilar primero</b> y luego pulsar PROG. En este PC salió: <i>No se encontró herramienta de programación. Instala openocd, STM32_Programmer_CLI o st-flash</i>.</p><div class="uno"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Ubicar STM32_Programmer_CLI</h3><a class="min" href="https://youtu.be/K91sqI4wDtQ?t=400" target="_blank" rel="noopener">&#9654; 6:40</a></div><p>Desde el acceso de STM32CubeProgrammer se abre la ubicación del archivo: en la carpeta <b>bin</b> está <b>STM32_Programmer_CLI.exe</b>. Copiamos esa ruta.</p><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Reparar prog.py con Copilot</h3><a class="min" href="https://youtu.be/K91sqI4wDtQ?t=450" target="_blank" rel="noopener">&#9654; 7:30</a></div><p>Abrimos prog.py en VS Code y en el chat pegamos el prompt con la ruta. Copilot ajusta la detección de la herramienta (usa la ruta o una variable de entorno) y lo prueba.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>tengo mi STM32_Programmer_CLI
+en la direccion  C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin
+repera mi archivo prog.py para que funcione el boton de prog que tengo en mi barra inferior de vsc</code></pre></div><p class="ojo">El prompt también viene en la carpeta EMBEBIDOS\prompt. Ajuste la ruta a donde quedó instalado su CubeProgrammer.</p><div class="dos"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Probar el botón</h3><a class="min" href="https://youtu.be/K91sqI4wDtQ?t=580" target="_blank" rel="noopener">&#9654; 9:40</a></div><p>Compilamos, pulsamos PROG y la terminal muestra <i>Download verified successfully</i> y <i>Programación completada correctamente</i>. Con un toggle y un delay el LED ya parpadea.</p><div class="uno"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Proteger el micro</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Reparar fuse.py</h3><a class="min" href="https://youtu.be/K91sqI4wDtQ?t=650" target="_blank" rel="noopener">&#9654; 10:50</a></div><p>Se abre fuse.py y se le pide a Copilot <i>haz lo mismo con fuse.py</i>. El script define los niveles de protección RDP.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>RDP_MAP = {
+    &quot;AA&quot;: &quot;0xAA&quot;,  # Level 0
+    &quot;BB&quot;: &quot;0xBB&quot;,  # Level 1
+    &quot;CC&quot;: &quot;0xCC&quot;,  # Level 2 (irreversible)
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Ventana de protección</h3><a class="min" href="https://youtu.be/K91sqI4wDtQ?t=680" target="_blank" rel="noopener">&#9654; 11:20</a></div><p>El botón FUSE abre la ventana <b>Protección RDP</b>: <b>AA</b> sin protección, <b>BB</b> nivel 1 (protegido) y <b>CC</b> nivel 2 (permanente). Con BB, al intentar programar sale error de memoria; con AA se quita la protección (tarda más porque borra la flash) y se vuelve a programar.</p><div class="dos"><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Nivel CC: cuidado</h3><a class="min" href="https://youtu.be/K91sqI4wDtQ?t=735" target="_blank" rel="noopener">&#9654; 12:15</a></div><p>Al elegir CC el botón se pone rojo y pide confirmación, porque el nivel 2 es <b>permanente</b>: el micro ya no se puede volver a programar.</p><p class="ojo">No use CC en pruebas. Solo para el producto final, y sabiendo que es irreversible.</p><div class="uno"><figure class="cap"><a href="img/735.webp" target="_blank"><img src="img/735.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Debug, Release y breadcrumbs</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Cambiar a Release</h3><a class="min" href="https://youtu.be/K91sqI4wDtQ?t=840" target="_blank" rel="noopener">&#9654; 14:00</a></div><p>Con <b>Ctrl+K Ctrl+S</b> se abren los atajos y se busca el comando de seleccionar configuración (debug/release) para asignarle una tecla. En Release el .elf de la prueba pasó de unos 650 KB a 19 KB. PROG programa el .elf más reciente, sea Debug o Release.</p><p class="ojo">El atajo exacto que asigné no se ve claro en el video; asigne la combinación que prefiera.</p><div class="uno"><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Activar breadcrumbs</h3><a class="min" href="https://youtu.be/K91sqI4wDtQ?t=960" target="_blank" rel="noopener">&#9654; 16:00</a></div><p>En <b>File → Preferences → Settings</b> se busca <b>bread</b> y se habilitan <b>Breadcrumbs: Enabled</b> y sus opciones. Arriba del editor aparece la ruta main.c → función, para navegar el código igual que con el Outline.</p><div class="dos"><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure><figure class="cap"><a href="img/1030.webp" target="_blank"><img src="img/1030.webp" alt="STM32: configurar botones para programar y proteger desde Visual Studio Code, uso de breadcrumbs" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=K91sqI4wDtQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
