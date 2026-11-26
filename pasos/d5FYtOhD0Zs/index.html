@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Configurar salidas push-pull u open drain, conectar pulsadores con resistencias pull-up y pull-down (externas o internas), leerlos con HAL_GPIO_ReadPin y #define, y cambiar un LED con if, else y antirrebote.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/d5FYtOhD0Zs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote · Paso a paso">
+  <meta property="og:description" content="Configurar salidas push-pull u open drain, conectar pulsadores con resistencias pull-up y pull-down (externas o internas), leerlos con HAL_GPIO_ReadPin y #define, y cambiar un LED con if, else y antirrebote.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/d5FYtOhD0Zs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/d5FYtOhD0Zs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Entradas, <span>pull-up/pull-down</span>, if y rebote</h1>
+    <p class="lead">Clase del semestre 2024-I sobre entradas digitales. Se revisan las opciones de las salidas (nivel inicial, push-pull y open drain) y se conectan dos pulsadores en Proteus, uno a tierra con pull-up y otro a positivo con pull-down. Se lee cada entrada con HAL_GPIO_ReadPin, se acorta con #define y se corrige la lógica invertida con la negación. Luego se usan las resistencias internas del STM32 y, con el condicional if, se cambia el estado del LED en cada pulsación, eliminando el rebote con un retardo y usando else.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=d5FYtOhD0Zs" target="_blank" rel="noopener">&#9654; Ver el video completo (76:48)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/3060.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Proteus 8 Professional con la librería BLACKPILL_ARZ</li><li>Dos pulsadores, dos LED</li><li>Resistencias de 1 kΩ y 220–330 Ω</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Estado inicial, push-pull y open drain.</a><a href="#f2">2 · Dos pulsadores y sus resistencias.</a><a href="#f3">3 · HAL_GPIO_ReadPin y #define.</a><a href="#f4">4 · Cambiar el estado del LED con cada pulsación.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Opciones de las salidas</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Dos salidas con etiqueta</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=273" target="_blank" rel="noopener">&#9654; 4:33</a></div><p>Crea un proyecto para el STM32F401 y configura <b>PA1</b> y <b>PA2</b> como <b>GPIO_Output</b> con las etiquetas <b>LED1</b> y <b>LED2</b>.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Ventana de configuración GPIO</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=318" target="_blank" rel="noopener">&#9654; 5:18</a></div><p>En <b>System Core → GPIO</b> aparecen todos los pines usados. Al seleccionar uno puedes elegir el <b>GPIO output level</b>: si arranca en alto o en bajo sin escribir código.</p><div class="dos"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Push-pull u open drain</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=352" target="_blank" rel="noopener">&#9654; 5:52</a></div><p><b>Output Push Pull</b>: el micro saca tanto el 0 como el 1 (3.3 V). Es lo normal.</p><p><b>Output Open Drain</b>: el micro solo saca el 0. Con una resistencia externa a 5 o 12 V, el 1 lo pone esa fuente: sirve para dar niveles lógicos mayores a un PLC o a un MOSFET sin conversor de nivel.</p><p class="ojo">Open drain es para señales lógicas, no para alimentar cargas de potencia.</p><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Entradas con pull-up y pull-down</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Dos entradas</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=654" target="_blank" rel="noopener">&#9654; 10:54</a></div><p>Configura <b>PB0</b> y <b>PB1</b> como <b>GPIO_Input</b> con las etiquetas <b>SW1</b> y <b>SW2</b>.</p><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Pulsadores en Proteus</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=913" target="_blank" rel="noopener">&#9654; 15:13</a></div><p>Coloca dos <b>BUTTON</b>: uno de PB0 a <b>tierra</b> y otro de PB1 a <b>positivo</b>.</p><p>Un pulsador solo garantiza un estado: el de tierra da 0 al cerrar, pero abierto la entrada queda flotante (no se sabe si es 0 o 1).</p><div class="dos"><figure class="cap"><a href="img/950.webp" target="_blank"><img src="img/950.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Resistencia pull-up</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=1083" target="_blank" rel="noopener">&#9654; 18:03</a></div><p>Si el pulsador va a tierra, pon una resistencia al <b>positivo</b>: <b>pull-up</b>. Cerrado lee 0, abierto lee 1. Valores de 1 kΩ a 47 kΩ.</p><div class="dos"><figure class="cap"><a href="img/1150.webp" target="_blank"><img src="img/1150.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure><figure class="cap"><a href="img/1250.webp" target="_blank"><img src="img/1250.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Resistencia pull-down</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=1188" target="_blank" rel="noopener">&#9654; 19:48</a></div><p>Si el pulsador va a positivo, pon una resistencia a <b>tierra</b>: <b>pull-down</b>. Cerrado lee 1, abierto lee 0. Recomendado entre 330 Ω y 1 kΩ.</p><p class="ojo">Algunos libros usan pull-down de 10 kΩ: funciona en el aula, pero en un equipo real deja una tierra débil que deja entrar ruido.</p><div class="uno"><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Leer una entrada</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>El LED copia la entrada</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=1630" target="_blank" rel="noopener">&#9654; 27:10</a></div><p>Agrega dos LED con resistencia de 220–330 Ω a PA1 y PA2.</p><p>En el while escribe en el LED lo que lees del pulsador con <code>HAL_GPIO_ReadPin</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin,
+                  HAL_GPIO_ReadPin(SW1_GPIO_Port, SW1_Pin));</code></pre></div><div class="dos"><figure class="cap"><a href="img/1880.webp" target="_blank"><img src="img/1880.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure><figure class="cap"><a href="img/2970.webp" target="_blank"><img src="img/2970.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Nombres cortos con #define</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=2132" target="_blank" rel="noopener">&#9654; 35:32</a></div><p>Esa línea es larga. Define un nombre corto para cada lectura arriba del main (por ejemplo en <b>USER CODE BEGIN PD</b>).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define SW1 HAL_GPIO_ReadPin(SW1_GPIO_Port, SW1_Pin)
+#define SW2 HAL_GPIO_ReadPin(SW2_GPIO_Port, SW2_Pin)
+
+/* en el while */
+HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, SW1);
+HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, SW2);</code></pre></div><p class="ojo">En el #define no va signo igual ni punto y coma.</p><div class="dos"><figure class="cap"><a href="img/2200.webp" target="_blank"><img src="img/2200.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure><figure class="cap"><a href="img/2320.webp" target="_blank"><img src="img/2320.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Invertir la lógica</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=2492" target="_blank" rel="noopener">&#9654; 41:32</a></div><p>Al simular, un LED arranca encendido y el otro apagado: uno de los pulsadores está con pull-up (lee 1 en reposo).</p><p>Para que ambos arranquen apagados, niega la lectura del que tiene pull-up con <code>!</code> (negación de un solo bit).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, !SW1);</code></pre></div><div class="uno"><figure class="cap"><a href="img/2580.webp" target="_blank"><img src="img/2580.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Pull-up y pull-down internos</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=2687" target="_blank" rel="noopener">&#9654; 44:47</a></div><p>El STM32 trae resistencias internas: quita las externas y en <b>GPIO → GPIO Pull-up/Pull-down</b> elige <b>Pull-up</b> para el pulsador a tierra y <b>Pull-down</b> para el que va a positivo.</p><p>Útil para ahorrar espacio en el PCB. Arduino solo tiene pull-up interna; el STM32 tiene ambas.</p><div class="dos"><figure class="cap"><a href="img/2780.webp" target="_blank"><img src="img/2780.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure><figure class="cap"><a href="img/2810.webp" target="_blank"><img src="img/2810.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>El condicional if y el antirrebote</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Sintaxis del if</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=2929" target="_blank" rel="noopener">&#9654; 48:49</a></div><p><code>if (condición) acción;</code> Si hay una sola acción las llaves son opcionales; con varias son obligatorias.</p><p>Comparadores: <code>==</code> igual, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code> y <code>!=</code> diferente.</p><p class="ojo">Un solo = asigna; para comparar se usa ==. Es uno de los errores más comunes.</p><div class="uno"><figure class="cap"><a href="img/3200.webp" target="_blank"><img src="img/3200.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Toggle al presionar</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=3138" target="_blank" rel="noopener">&#9654; 52:18</a></div><p>Ahora el LED no copia el pulsador: cada vez que presionas cambia de estado con <code>HAL_GPIO_TogglePin</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (SW1 == 1)
+  HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);</code></pre></div><div class="uno"><figure class="cap"><a href="img/3470.webp" target="_blank"><img src="img/3470.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Rebote y antirrebote</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=3318" target="_blank" rel="noopener">&#9654; 55:18</a></div><p>Al simularlo a veces cambia y a veces no: las láminas del pulsador vibran y cierran muchas veces en pocos milisegundos (<b>rebote</b>).</p><p>Por software se elimina con un retardo de 150 ms o más después de detectar la pulsación (en clase 500 ms para verlo mejor). Ahora son dos acciones, así que van llaves.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (SW1 == 1)
+{
+  HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+  HAL_Delay(500);   // antirrebote
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/3560.webp" target="_blank"><img src="img/3560.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure><figure class="cap"><a href="img/3060.webp" target="_blank"><img src="img/3060.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>if con else</h3><a class="min" href="https://youtu.be/d5FYtOhD0Zs?t=4121" target="_blank" rel="noopener">&#9654; 68:41</a></div><p>Con <code>else</code> el segundo bloque solo se ejecuta cuando la condición es falsa: si presionas, cambia LED1; si no, LED2 sigue parpadeando.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (SW1 == 1)
+{
+  HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+  HAL_Delay(500);
+}
+else
+{
+  HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+  HAL_Delay(100);
+}</code></pre></div><p class="ojo">Tareas: combinar los dos pulsadores (cuatro casos, cada uno con un mensaje en el display) y leer un puerto completo de entradas.</p><div class="dos"><figure class="cap"><a href="img/4140.webp" target="_blank"><img src="img/4140.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure><figure class="cap"><a href="img/4200.webp" target="_blank"><img src="img/4200.webp" alt="2024-I Clase 5: entradas pull-up, pull-down, condicional if y rebote" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=d5FYtOhD0Zs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
