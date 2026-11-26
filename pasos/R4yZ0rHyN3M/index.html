@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 3 2023: display de 7 segmentos con STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo funciona un display de 7 segmentos (ánodo y cátodo común), cómo probarlo en Proteus con Logic State y cómo manejarlo desde la Black Pill con HAL y luego escribiendo el puerto completo con ODR.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/R4yZ0rHyN3M/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 3 2023: display de 7 segmentos con STM32 · Paso a paso">
+  <meta property="og:description" content="Cómo funciona un display de 7 segmentos (ánodo y cátodo común), cómo probarlo en Proteus con Logic State y cómo manejarlo desde la Black Pill con HAL y luego escribiendo el puerto completo con ODR.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/R4yZ0rHyN3M/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/R4yZ0rHyN3M/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Display de <span>7 segmentos</span> con STM32</h1>
+    <p class="lead">Se explica qué hay dentro de un display de 7 segmentos (8 LEDs llamados a hasta g y el punto), la diferencia entre cátodo común (enciende con 1) y ánodo común (enciende con 0) y cómo identificar los pines con el multímetro en escala de diodo. Luego se arma el display en Proteus con interruptores Logic State para formar números a mano. Después se configura PA0 a PA6 como salidas con etiquetas DPA a DPG en STM32CubeIDE, se escribe el número 5 segmento por segmento con HAL_GPIO_WritePin y, al final, se escribe todo de una vez en el registro ODR del puerto A con un número binario.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=R4yZ0rHyN3M" target="_blank" rel="noopener">&#9654; Ver el video completo (52:54)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2550.webp" alt="Clase 3 2023: display de 7 segmentos con STM32"></figure>
+    <ul class="materiales"><li>Tarjeta Black Pill STM32F401</li><li>Display de 7 segmentos de cátodo común</li><li>Resistencias de 180 a 330 Ω</li><li>STM32CubeIDE y Proteus 8</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Segmentos, cátodo común y ánodo común.</a><a href="#f2">2 · Display de cátodo común y Logic State.</a><a href="#f3">3 · PA0 a PA6 como salidas y el número 5.</a><a href="#f4">4 · Registro ODR y tabla de números.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Teoría del display</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué tiene adentro</h3><a class="min" href="https://youtu.be/R4yZ0rHyN3M?t=72" target="_blank" rel="noopener">&#9654; 1:12</a></div><p>Un display de 7 segmentos son 7 LEDs (más el punto, DP) organizados como un 8. Los segmentos se nombran <b>a</b> (arriba) y siguen en sentido horario <b>b, c, d, e, f</b>; <b>g</b> es el del medio.</p><p>Para formar un número se encienden solo los segmentos necesarios. Por ejemplo, el 1 usa <b>b</b> y <b>c</b>.</p><p><b>Cátodo común</b>: todos los negativos unidos a tierra; cada segmento enciende con un <b>1</b>.</p><p><b>Ánodo común</b>: todos los positivos unidos a VCC; cada segmento enciende con un <b>0</b>.</p><div class="uno"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Identificar los pines y poner resistencias</h3><a class="min" href="https://youtu.be/R4yZ0rHyN3M?t=246" target="_blank" rel="noopener">&#9654; 4:06</a></div><p>Con el multímetro en escala de <b>diodo</b> recorre los pines: el pin que enciende con todos los demás es el común. Si quedó en la punta negra es cátodo común; si quedó en la roja, ánodo común.</p><p>Dejando fijo el común, toca los otros pines para saber qué segmento es cada uno. No confíes solo en las imágenes de internet: muchos displays chinos tienen otro orden.</p><p>Lo correcto es una resistencia de 330 Ω por cada segmento. En protoboard puedes poner una sola resistencia de 180 a 330 Ω entre el común y tierra; la desventaja es que los números con muchos segmentos (el 8) se ven un poco más opacos.</p><p class="ojo">En Proteus la resistencia única del común se pone de unos 30 Ω para que simule bien. En la vida real no bajes de 180 Ω o puedes dañar el micro.</p><div class="uno"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Probar el display en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Escoger el display</h3><a class="min" href="https://youtu.be/R4yZ0rHyN3M?t=522" target="_blank" rel="noopener">&#9654; 8:42</a></div><p>En Pick Devices busca <b>display</b> y filtra por <b>Optoelectronics → 7-Segment Displays</b>.</p><p>No uses los de 4 pines (BCD): solo existen en simulación. Usa uno de 7 pines, por ejemplo <b>7SEG-COM-CAT-GRN</b> (cátodo común, verde).</p><p>En Proteus, si el pin común apunta hacia arriba es ánodo común; si apunta hacia abajo es cátodo común. Conecta el común a tierra.</p><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Simular los 1 y 0 con Logic State</h3><a class="min" href="https://youtu.be/R4yZ0rHyN3M?t=718" target="_blank" rel="noopener">&#9654; 11:58</a></div><p>Busca el componente <b>LOGICSTATE</b> y pon 7, uno por segmento, del a al g.</p><p>Al correr la simulación, haz clic en cada uno para cambiarlo entre 0 y 1 y forma el número que quieras (también letras como A, b, C).</p><div class="uno"><figure class="cap"><a href="img/1050.webp" target="_blank"><img src="img/1050.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa con HAL</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Configurar los pines</h3><a class="min" href="https://youtu.be/R4yZ0rHyN3M?t=1337" target="_blank" rel="noopener">&#9654; 22:17</a></div><p>Crea un proyecto nuevo para el STM32F401CCUx y configura <b>PA0 a PA6</b> como <b>GPIO_Output</b>.</p><p>Ponles etiqueta con clic derecho → <b>Enter User Label</b>: <b>DPA, DPB, DPC, DPD, DPE, DPF, DPG</b> (si quieres, PA7 como DP).</p><p>Úsalos en orden en el mismo puerto: más adelante se escribe el puerto completo de una vez y el orden importa.</p><p class="ojo">Antes de compilar deja abierto solo este proyecto en el explorador.</p><div class="dos"><figure class="cap"><a href="img/1460.webp" target="_blank"><img src="img/1460.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1520.webp" target="_blank"><img src="img/1520.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Escribir el número 5 segmento por segmento</h3><a class="min" href="https://youtu.be/R4yZ0rHyN3M?t=1692" target="_blank" rel="noopener">&#9654; 28:12</a></div><p>En el <code>while(1)</code> escribe una línea por segmento. Como todos están en el puerto A, todos usan <code>DPA_GPIO_Port</code>; solo cambia el pin.</p><p>Para el 5 se encienden a, c, d, f y g.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  HAL_GPIO_WritePin(DPA_GPIO_Port, DPA_Pin, 1); // segmento a
+  HAL_GPIO_WritePin(DPA_GPIO_Port, DPB_Pin, 0); // b
+  HAL_GPIO_WritePin(DPA_GPIO_Port, DPC_Pin, 1); // c
+  HAL_GPIO_WritePin(DPA_GPIO_Port, DPD_Pin, 1); // d
+  HAL_GPIO_WritePin(DPA_GPIO_Port, DPE_Pin, 0); // e
+  HAL_GPIO_WritePin(DPA_GPIO_Port, DPF_Pin, 1); // f
+  HAL_GPIO_WritePin(DPA_GPIO_Port, DPG_Pin, 1); // g
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1760.webp" target="_blank"><img src="img/1760.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1830.webp" target="_blank"><img src="img/1830.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/2700.webp" target="_blank"><img src="img/2700.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Circuito en Proteus con etiquetas</h3><a class="min" href="https://youtu.be/R4yZ0rHyN3M?t=1981" target="_blank" rel="noopener">&#9654; 33:01</a></div><p>Coloca la Black Pill, el display y una sola resistencia de 30 Ω (MINRES30R) del común a tierra.</p><p>Para no tirar tantos cables, pon terminales (<b>DEFAULT</b>) frente a cada pin del display y del micro y ponles el mismo nombre (A, B, C…). En los cables usa la herramienta <b>Label (LBL)</b>. Mismo nombre = conectados.</p><p>Para verificar una unión: clic derecho a la terminal → <b>Highlight</b>. Si no resalta nada, no está unida.</p><p>Carga el .hex en el micro y dale Play: aparece el 5.</p><p class="ojo">Elige el nombre de la etiqueta de la lista desplegable en vez de escribirlo: una letra distinta y ya no hay unión.</p><div class="dos"><figure class="cap"><a href="img/2000.webp" target="_blank"><img src="img/2000.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/2200.webp" target="_blank"><img src="img/2200.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/2400.webp" target="_blank"><img src="img/2400.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/2550.webp" target="_blank"><img src="img/2550.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Escribir el puerto completo</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Un número con una sola instrucción</h3><a class="min" href="https://youtu.be/R4yZ0rHyN3M?t=2850" target="_blank" rel="noopener">&#9654; 47:30</a></div><p>Como a–g están en PA0–PA6 en orden, se puede escribir todo el puerto de una vez en el registro <b>ODR</b>. El bit 0 es a y el bit 6 es g.</p><p>El 5 (g f e d c b a = 1 1 0 1 1 0 1) queda así:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>DPA_GPIO_Port-&gt;ODR = 0b1101101;   // número 5 en PA0..PA6</code></pre></div><p class="ojo">Escribir ODR completo también cambia PA7 a PA15. Si usas otros pines del puerto A, cambia solo los 7 bits: GPIOA->ODR = (GPIOA->ODR & ~0x7F) | valor;</p><div class="dos"><figure class="cap"><a href="img/2850.webp" target="_blank"><img src="img/2850.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/3000.webp" target="_blank"><img src="img/3000.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Calcular los códigos de cada número</h3><a class="min" href="https://youtu.be/R4yZ0rHyN3M?t=3100" target="_blank" rel="noopener">&#9654; 51:40</a></div><p>Para no calcular a mano usa una calculadora de 7 segmentos (en la clase se usó <i>7-Segment by Hannes</i>): marcas los segmentos y te da el valor en binario, decimal y hexadecimal.</p><p>Con los códigos en un arreglo puedes mostrar cualquier dígito y hacer un contador con <code>HAL_Delay</code>. Tabla para cátodo común (a = bit 0):</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint8_t tabla[10] = {0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F};
+
+for (int n = 0; n &lt; 10; n++) {
+  GPIOA-&gt;ODR = (GPIOA-&gt;ODR &amp; ~0x7F) | tabla[n];
+  HAL_Delay(1000);
+}</code></pre></div><p class="ojo">La tabla y el contador son un complemento para practicar; para ánodo común se usa el valor negado (~tabla[n] & 0x7F).</p><div class="uno"><figure class="cap"><a href="img/3120.webp" target="_blank"><img src="img/3120.webp" alt="Clase 3 2023: display de 7 segmentos con STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=R4yZ0rHyN3M" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
