@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 147: librería para motores paso a paso con el driver DRV8825 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Librería PASO_PASO_DRIVER para varios motores con DRV8825 en cualquier pin, usando el SysTick de 1 ms: modo pasos o continuo, velocidad, dirección y control por serial.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/CUJvHptUIrM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 147: librería para motores paso a paso con el driver DRV8825 · Paso a paso">
+  <meta property="og:description" content="Librería PASO_PASO_DRIVER para varios motores con DRV8825 en cualquier pin, usando el SysTick de 1 ms: modo pasos o continuo, velocidad, dirección y control por serial.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/CUJvHptUIrM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/CUJvHptUIrM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 147: <span>motores paso a paso</span> con el DRV8825 y el SysTick</h1>
+    <p class="lead">Controlamos motores paso a paso con el DRV8825 (o el DRV8824 o cualquier driver con pines STEP y DIR) desde un STM32F411. En lugar de PWM y un timer por motor, la librería usa la interrupción del SysTick, que llega cada milisegundo: cuenta hasta el factor de tiempo del motor y conmuta el pin STEP. Así cada motor puede ir en cualquier pin, con su velocidad, dirección y modo (número de pasos o giro continuo). Al final agregamos recepción serial por DMA para mandar órdenes desde una interfaz en LabVIEW.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=CUJvHptUIrM" target="_blank" rel="noopener">&#9654; Ver el video completo (26:48)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/880.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill)</li><li>Uno o dos drivers DRV8825 con motores NEMA</li><li>Fuente para los motores (8.2 a 45 V) y condensador de 100 µF</li><li>Analizador lógico (opcional)</li><li>Librerías PASO_PASO_DRIVER, pinout1 y UARTRX por DMA</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Conexión, pines y librería.</a><a href="#f2">2 · Motores, SysTick y pulsos.</a><a href="#f3">3 · Pasos, continuo y dos motores.</a><a href="#f4">4 · Órdenes desde LabVIEW.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El driver y el proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Conexión del DRV8825</h3><a class="min" href="https://youtu.be/CUJvHptUIrM?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El micro maneja solo <b>STEP</b> (pulsos) y <b>DIR</b> (dirección). <b>RESET</b> y <b>SLEEP</b> van a 3.3 V (o 5 V) y <b>ENABLE</b> a tierra.</p><p><b>M0, M1 y M2</b> quedan sin usar: paso completo. Con ellos se elige medio paso o micropaso según la tabla de la hoja de datos.</p><p>El potenciómetro del módulo ajusta la corriente: gíralo hasta que el motor no vibre ni se frene, con la mínima corriente posible para que no se caliente.</p><p class="ojo">Si el motor gira al revés, invierte una bobina o cambia la dirección por software.</p><div class="uno"><figure class="cap"><a href="img/10.webp" target="_blank"><img src="img/10.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pines STEP y DIR en CubeMX</h3><a class="min" href="https://youtu.be/CUJvHptUIrM?t=162" target="_blank" rel="noopener">&#9654; 2:42</a></div><p>Activamos el cristal (<b>HSE</b>) y el reloj al máximo con el PLL. Cualquier pin sirve: se ponen como <b>GPIO_Output</b> y se nombran <b>exactamente</b> <b>step1</b> y <b>dir1</b> (y step2, dir2… para más motores). El proyecto se llama <b>paso_paso_drv8825</b>.</p><p class="ojo">Los nombres van en minúscula: la librería usa step1_Pin, dir1_Pin, etc. con #ifdef para saber qué motores existen.</p><div class="dos"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure><figure class="cap"><a href="img/1010.webp" target="_blank"><img src="img/1010.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Agregar la librería</h3><a class="min" href="https://youtu.be/CUJvHptUIrM?t=299" target="_blank" rel="noopener">&#9654; 4:59</a></div><p>En la carpeta <b>Librerias</b> copiamos <b>PASO_PASO_DRIVER.c/.h</b> y <b>pinout1.h</b> (manejo rápido de pines) y la añadimos a las rutas de include. En PASO_PASO_DRIVER.h están las constantes de dirección y modo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define DER 1
+#define IZQ 2
+#define QUI 3
+
+#define modo_pasos    0
+#define modo_continuo 1</code></pre></div><div class="uno"><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Cómo funciona la librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Declarar los motores</h3><a class="min" href="https://youtu.be/CUJvHptUIrM?t=379" target="_blank" rel="noopener">&#9654; 6:19</a></div><p>En <b>PASO_PASO_DRIVER.c</b> se crea una variable por motor: número de motor, factor de tiempo en ms (1 es lo más rápido, 10 es diez veces más lento) y modo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//MOTORES A USAR
+//      motor_num, fac_tiempo(ms), modo
+PASOS PASO_PASO1 = {1, 1, modo_pasos};</code></pre></div><p class="ojo">El factor de tiempo es entero: el mínimo es 1 ms entre conmutaciones. Para más velocidad habría que usar PWM.</p><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Llamarla desde el SysTick</h3><a class="min" href="https://youtu.be/CUJvHptUIrM?t=446" target="_blank" rel="noopener">&#9654; 7:26</a></div><p>En <b>stm32f4xx_it.c</b> se incluye la librería y dentro de <b>SysTick_Handler</b> se llama <b>PASO_Analisis</b> para cada motor. Cada milisegundo incrementa un contador y, al llegar al factor de tiempo, genera el pulso.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;PASO_PASO_DRIVER.h&quot;
+
+void SysTick_Handler(void)
+{
+  /* USER CODE BEGIN SysTick_IRQn 0 */
+  PASO_Analisis(&amp;PASO_PASO1);
+  //PASO_Analisis(&amp;PASO_PASO2);
+  /* USER CODE END SysTick_IRQn 0 */
+  HAL_IncTick();
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Pulso, dirección y conteo de pasos</h3><a class="min" href="https://youtu.be/CUJvHptUIrM?t=540" target="_blank" rel="noopener">&#9654; 9:00</a></div><p><b>PASO_Interrupcion</b> pone el pin DIR según DER o IZQ y, si el motor no está quieto, hace <b>PIN_BLINK</b> del pin STEP de ese motor.</p><p>En modo pasos cuenta las conmutaciones; cuando llega al doble de los pulsos pedidos (alto y bajo por pulso, <b>pulsos&lt;&lt;1</b>) deja el motor en <b>QUI</b>.</p><p>Para más motores se copia el bloque <b>case</b> con step6, step7…</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (pasi-&gt;modo == modo_pasos)
+{
+  pasi-&gt;pulso_cont++;
+  //multiplico por 2: pulso alto y bajo
+  if ((pasi-&gt;pulso_cont) &gt; pasi-&gt;pulsos &lt;&lt; 1)
+  {
+    pasi-&gt;dir = QUI;   //lo deja quieto
+    pasi-&gt;pulso_cont = 0;
+  }
+}</code></pre></div><p class="ojo">En el video se corrige un error de la versión vieja: en los case 3, 4 y 5 los pines de dirección deben ser dir3, dir4 y dir5.</p><div class="dos"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Usando la librería</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Un motor en modo pasos</h3><a class="min" href="https://youtu.be/CUJvHptUIrM?t=735" target="_blank" rel="noopener">&#9654; 12:15</a></div><p>Antes del while se define la dirección y los pulsos, y se inicializa el motor. Con 5 pulsos se ven exactamente 5 en el analizador lógico; con 100 el motor gira un rato y se frena.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PASO_PASO1.dir = DER;
+PASO_PASO1.pulsos = 5;
+PASO_Init(&amp;PASO_PASO1);</code></pre></div><div class="dos"><figure class="cap"><a href="img/810.webp" target="_blank"><img src="img/810.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure><figure class="cap"><a href="img/850.webp" target="_blank"><img src="img/850.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Modo continuo y velocidad</h3><a class="min" href="https://youtu.be/CUJvHptUIrM?t=901" target="_blank" rel="noopener">&#9654; 15:01</a></div><p>Con <b>modo_continuo</b> el motor gira sin parar. Subiendo el factor de tiempo (10, 50…) va más lento.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PASOS PASO_PASO1 = {1, 50, modo_continuo};</code></pre></div><div class="uno"><figure class="cap"><a href="img/950.webp" target="_blank"><img src="img/950.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Segundo motor y cambios en ejecución</h3><a class="min" href="https://youtu.be/CUJvHptUIrM?t=1001" target="_blank" rel="noopener">&#9654; 16:41</a></div><p>Creamos <b>step2</b> y <b>dir2</b> en CubeMX, la variable <b>PASO_PASO2</b> y su llamada en el SysTick.</p><p>La velocidad se puede cambiar en cualquier momento: tras 2 segundos el motor 2 pasa a ir 10 veces más lento.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PASOS PASO_PASO1 = {1, 10, modo_continuo};
+PASOS PASO_PASO2 = {2, 1, modo_continuo};
+
+// en main
+PASO_PASO1.dir = DER;
+PASO_Init(&amp;PASO_PASO1);
+PASO_PASO2.dir = IZQ;
+PASO_Init(&amp;PASO_PASO2);
+
+HAL_Delay(2000);
+PASO_PASO2.fact_tiempo = 10;</code></pre></div><div class="dos"><figure class="cap"><a href="img/1050.webp" target="_blank"><img src="img/1050.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure><figure class="cap"><a href="img/1170.webp" target="_blank"><img src="img/1170.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Control por puerto serial</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Recepción serial por DMA</h3><a class="min" href="https://youtu.be/CUJvHptUIrM?t=1201" target="_blank" rel="noopener">&#9654; 20:01</a></div><p>Agregamos las librerías de UART con DMA en idle (vistas en clases anteriores) y en CubeMX activamos <b>USART1</b> a 115200, su interrupción y un canal DMA de recepción.</p><p>En el while se revisa la bandera, se procesa la trama y se reinicia la recepción.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+#include &quot;UARTRX.h&quot;
+
+while (1)
+{
+  if (UARTRX1.flag_rx == 1)
+  {
+    procesa_rx();
+    uartRX_DMA_Re_init(&amp;UARTRX1);
+  }
+}</code></pre></div><p class="ojo">No olvides inicializar la recepción DMA antes del while, como indica el .h de la librería.</p><div class="dos"><figure class="cap"><a href="img/1260.webp" target="_blank"><img src="img/1260.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure><figure class="cap"><a href="img/1340.webp" target="_blank"><img src="img/1340.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Procesar las órdenes</h3><a class="min" href="https://youtu.be/CUJvHptUIrM?t=1337" target="_blank" rel="noopener">&#9654; 22:17</a></div><p>Con <b>strstr</b> se buscan comandos como <b>m1der</b>, <b>m1izq</b>, <b>m1stop</b>; <b>vel1=</b> cambia el factor de tiempo, <b>pas1=</b> los pulsos y <b>mod1=</b> el modo (pasos o giro).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void procesa_rx(void)
+{
+  char procesa[100];
+  if (strstr(UARTRX1.trama_rx, &quot;m1der&quot;)) PASO_PASO1.dir = DER;
+  else if (strstr(UARTRX1.trama_rx, &quot;m2der&quot;)) PASO_PASO2.dir = DER;
+  else if (strstr(UARTRX1.trama_rx, &quot;m1izq&quot;)) PASO_PASO1.dir = IZQ;
+  else if (strstr(UARTRX1.trama_rx, &quot;m2izq&quot;)) PASO_PASO2.dir = IZQ;
+  else if (strstr(UARTRX1.trama_rx, &quot;m1stop&quot;)) PASO_PASO1.dir = QUI;
+  else if (strstr(UARTRX1.trama_rx, &quot;m2stop&quot;)) PASO_PASO2.dir = QUI;
+  else if (strstr(UARTRX1.trama_rx, &quot;vel1=&quot;))
+  {
+    strcpy(procesa, strtok(UARTRX1.trama_rx, &quot;=&quot;));
+    strcpy(procesa, strtok(0, &quot;*&quot;));
+    PASO_PASO1.fact_tiempo = atoi(procesa);
+  }
+  else if (strstr(UARTRX1.trama_rx, &quot;mod1=&quot;))
+  {
+    strcpy(procesa, strtok(UARTRX1.trama_rx, &quot;=&quot;));
+    strcpy(procesa, strtok(0, &quot;*&quot;));
+    PASO_PASO1.modo = atoi(procesa);
+  }
+  // igual para vel2=, pas1=, pas2=, mod2=
+}</code></pre></div><p class="ojo">Los nombres exactos de los comandos y del terminador están reconstruidos de la pantalla; revísalos con tu interfaz.</p><div class="dos"><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure><figure class="cap"><a href="img/1420.webp" target="_blank"><img src="img/1420.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Prueba con la interfaz</h3><a class="min" href="https://youtu.be/CUJvHptUIrM?t=1469" target="_blank" rel="noopener">&#9654; 24:29</a></div><p>Desde un programa en LabVIEW por el COM se eligen pasos, modo, velocidad y dirección de cada motor: 100 pasos a la derecha, 10 a la izquierda, giro continuo, más rápido o más lento.</p><div class="dos"><figure class="cap"><a href="img/1510.webp" target="_blank"><img src="img/1510.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Clase 147: librería para motores paso a paso con el driver DRV8825" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=CUJvHptUIrM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
