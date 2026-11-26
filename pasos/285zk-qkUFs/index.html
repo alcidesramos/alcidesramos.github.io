@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 136: escanear dispositivos I2C con STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Librería para escanear el bus I2C del STM32, ver qué direcciones responden y entender cuándo hay que desplazar la dirección un bit a la izquierda.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/285zk-qkUFs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 136: escanear dispositivos I2C con STM32 · Paso a paso">
+  <meta property="og:description" content="Librería para escanear el bus I2C del STM32, ver qué direcciones responden y entender cuándo hay que desplazar la dirección un bit a la izquierda.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/285zk-qkUFs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/285zk-qkUFs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 136: <span>escáner del bus I2C</span> con STM32</h1>
+    <p class="lead">Repasamos cómo funciona el bus I2C (resistencias pull-up, maestro y esclavos, dirección de 7 bits más el bit R/W) y armamos un proyecto con el STM32F411 que escanea el bus I2C1 y envía por serial las direcciones encontradas. Con un MPU6050 y un lidar VL53L0X conectados aparecen 0x68 y 0x29. Luego usamos la función I2C_RESPONDE para preguntar si un dispositivo concreto contesta, y vemos por qué en unas librerías la dirección va tal cual y en otras ya desplazada (0x29 << 1 = 0x52).</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=285zk-qkUFs" target="_blank" rel="noopener">&#9654; Ver el video completo (12:21)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/705.webp" alt="Clase 136: escanear dispositivos I2C con STM32"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill) o similar</li><li>Dispositivos I2C de prueba (en el video: MPU6050 y lidar VL53L0X)</li><li>Resistencias pull-up de 4.7 k (si los módulos no las traen)</li><li>Conversor USB-serial y un terminal (Hercules)</li><li>Librerías I2C_SCAN_BUS y uart del repositorio de la clase</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pull-ups y formato de la dirección.</a><a href="#f2">2 · Reloj, I2C1 y USART1.</a><a href="#f3">3 · Agregar archivos y configurar el puerto serial.</a><a href="#f4">4 · Llamar el escaneo y leer el serial.</a><a href="#f5">5 · 0x29 &lt;&lt; 1 = 0x52.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Conceptos del bus I2C</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Varios dispositivos en el mismo bus</h3><a class="min" href="https://youtu.be/285zk-qkUFs?t=36" target="_blank" rel="noopener">&#9654; 0:36</a></div><p>En I2C puede haber un maestro y varios esclavos (o varios maestros) sobre SDA y SCL.</p><p>Las pull-up van de 1.8 k a 47 k, lo típico es <b>4.7 k</b>. Si muchos módulos traen su propia resistencia, quedan en paralelo y la resistencia total del bus baja: tenlo en cuenta.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Dirección de 7 bits + bit R/W</h3><a class="min" href="https://youtu.be/285zk-qkUFs?t=69" target="_blank" rel="noopener">&#9654; 1:09</a></div><p>En el byte de dirección, el bit 0 indica lectura o escritura y la dirección real ocupa los bits 1 a 7.</p><p>Por eso muchas veces hay que <b>desplazar la dirección una posición a la izquierda</b> (multiplicar por 2). Algunas librerías lo hacen internamente y otras esperan la dirección ya desplazada.</p><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar el proyecto en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Cristal externo y reloj máximo</h3><a class="min" href="https://youtu.be/285zk-qkUFs?t=168" target="_blank" rel="noopener">&#9654; 2:48</a></div><p>Creamos el proyecto para el <b>STM32F411CEU</b>, activamos HSE (cristal) y en Clock Configuration llevamos el sistema a <b>100 MHz</b> con el PLL (84 MHz si es un F401).</p><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Habilitar I2C1 y escoger la velocidad</h3><a class="min" href="https://youtu.be/285zk-qkUFs?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>Activamos <b>I2C1</b>. La mayoría de dispositivos trabaja en Standard Mode (100 kHz); otros en <b>Fast Mode (400 kHz)</b>.</p><p>Aquí usamos 400 kHz porque el lidar da errores a 100 kHz al pedir la distancia. Si no sabes, prueba primero a 100 y luego a 400.</p><p class="ojo">Selecciona la velocidad que soporte el dispositivo que vas a probar.</p><div class="uno"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>USART1 a 115200 y generar código</h3><a class="min" href="https://youtu.be/285zk-qkUFs?t=232" target="_blank" rel="noopener">&#9654; 3:52</a></div><p>Activamos <b>USART1</b> en modo asíncrono a 115200 baudios para enviar los resultados.</p><p>En Project Manager llamamos al proyecto <b>I2C_TEST</b>, toolchain STM32CubeIDE, y generamos código.</p><div class="dos"><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería de escaneo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Carpeta LIBRERIAS</h3><a class="min" href="https://youtu.be/285zk-qkUFs?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>En <b>Core</b> creamos la carpeta <b>LIBRERIAS</b>, pegamos <b>I2C_SCAN_BUS.c/.h</b> y la librería <b>uart.c/.h</b>, y la agregamos al path (clic derecho, Add to path).</p><div class="uno"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Definir el puerto serial en el .h</h3><a class="min" href="https://youtu.be/285zk-qkUFs?t=332" target="_blank" rel="noopener">&#9654; 5:32</a></div><p>En <b>I2C_SCAN_BUS.h</b> se indica qué UART se usa para mostrar el resultado: huart1 en este caso (huart2 si usas el USART2).</p><p>La librería tiene dos funciones: <b>I2C_SCAN</b> (recorre todas las direcciones) e <b>I2C_RESPONDE</b> (pregunta por una dirección concreta).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// I2C_SCAN_BUS.h
+#include &quot;main.h&quot;
+#include &quot;uart.h&quot;
+// defina puerto serial usado para comunicacion
+#define uart_i2c  huart1
+
+extern UART_HandleTypeDef uart_i2c;
+
+void I2C_SCAN(I2C_HandleTypeDef I2CMIO);
+void I2C_RESPONDE(I2C_HandleTypeDef I2CMIO, uint8_t dir);</code></pre></div><div class="uno"><figure class="cap"><a href="img/365.webp" target="_blank"><img src="img/365.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>I2C_RESPONDE: ¿está el dispositivo?</h3><a class="min" href="https://youtu.be/285zk-qkUFs?t=364" target="_blank" rel="noopener">&#9654; 6:04</a></div><p>Usa <b>HAL_I2C_IsDeviceReady</b>: intenta 3 veces con un tiempo de espera de 300 ms y responde "SI ESTOY" o "NO EXISTO".</p><p>El escaneo hace lo mismo para cada dirección de 1 a 127 e imprime las que responden.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void I2C_RESPONDE(I2C_HandleTypeDef I2CMIO, uint8_t dir)
+{
+    // intento 3 veces hasta por 300 ms si no responde
+    uint8_t si_estoy = HAL_I2C_IsDeviceReady(&amp;I2CMIO, dir, 3, 300);
+    if (si_estoy == HAL_OK)
+        uartx_write_text(&amp;uart_i2c, &quot;SI ESTOY\r\n&quot;);
+    else
+        uartx_write_text(&amp;uart_i2c, &quot;NO EXISTO\r\n&quot;);
+}</code></pre></div><p class="ojo">El cuerpo exacto de I2C_SCAN está en el repositorio de la clase; la idea es un for de 1 a 127 con la dirección desplazada (i<<1).</p><div class="uno"><figure class="cap"><a href="img/385.webp" target="_blank"><img src="img/385.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Escanear y probar</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Llamar I2C_SCAN una sola vez</h3><a class="min" href="https://youtu.be/285zk-qkUFs?t=430" target="_blank" rel="noopener">&#9654; 7:10</a></div><p>En main.c incluimos <b>I2C_SCAN_BUS.h</b>, <b>uart.h</b>, <b>stdio.h</b> y <b>string.h</b>.</p><p>Llamamos el escaneo antes del while para que se haga una sola vez al arrancar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;I2C_SCAN_BUS.h&quot;
+#include &quot;uart.h&quot;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+/* USER CODE BEGIN 2 */
+I2C_SCAN(hi2c1);</code></pre></div><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Resultado en el terminal</h3><a class="min" href="https://youtu.be/285zk-qkUFs?t=499" target="_blank" rel="noopener">&#9654; 8:19</a></div><p>Abrimos Hercules en el COM a 115200, reseteamos el micro y aparecen <b>DIR: 0x29</b> (lidar VL53L0X) y <b>DIR: 0x68</b> (MPU6050).</p><p>Para escanear varios dispositivos a la vez, deben tener direcciones diferentes.</p><div class="uno"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Dirección directa o desplazada</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Comparar con la dirección de cada librería</h3><a class="min" href="https://youtu.be/285zk-qkUFs?t=531" target="_blank" rel="noopener">&#9654; 8:51</a></div><p>En la librería del MPU6050 la dirección 0x68 se desplaza dentro del código. En la del lidar la dirección aparece como <b>0x52</b>, que es <b>0x29 × 2</b> (ya desplazada).</p><p>Antes de usar una librería revisa si espera la dirección de 7 bits (la del escáner) o la de 8 bits.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define dir_s1 0x52   // direccion del 1er sensor lidar (0x29 &lt;&lt; 1)</code></pre></div><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Preguntar por cada sensor en el while</h3><a class="min" href="https://youtu.be/285zk-qkUFs?t=627" target="_blank" rel="noopener">&#9654; 10:27</a></div><p>En el while llamamos I2C_RESPONDE para cada dispositivo. Para el MPU damos 0x68 y lo desplazamos nosotros; para el lidar damos 0x52, que es lo mismo que 0x29 << 1.</p><p>El terminal responde "SI ESTOY" por cada sensor conectado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    uartx_write_text(&amp;huart1, &quot;respuesta MPU: &quot;);
+    I2C_RESPONDE(hi2c1, 0x68 &lt;&lt; 1);
+    uartx_write_text(&amp;huart1, &quot;respuesta LIDAR: &quot;);
+    I2C_RESPONDE(hi2c1, 0x52);   // igual a 0x29 &lt;&lt; 1
+    HAL_Delay(500);
+}</code></pre></div><p class="ojo">Los textos y el retardo son orientativos; lo importante es pasar la dirección ya desplazada a HAL.</p><div class="uno"><figure class="cap"><a href="img/705.webp" target="_blank"><img src="img/705.webp" alt="Clase 136: escanear dispositivos I2C con STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=285zk-qkUFs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
