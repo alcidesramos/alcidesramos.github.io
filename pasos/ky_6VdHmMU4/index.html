@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 145: DAC en modo simple y con DMA · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="DAC de 12 bits en el STM32H523: valores fijos y rampa en modo simple, y una senoidal de 60 Hz o 1 kHz con DMA circular disparado por el TIM6.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/ky_6VdHmMU4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 145: DAC en modo simple y con DMA · Paso a paso">
+  <meta property="og:description" content="DAC de 12 bits en el STM32H523: valores fijos y rampa en modo simple, y una senoidal de 60 Hz o 1 kHz con DMA circular disparado por el TIM6.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/ky_6VdHmMU4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/ky_6VdHmMU4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 145: <span>DAC simple y con DMA</span> para generar una senoidal</h1>
+    <p class="lead">Usamos la tarjeta WeAct con STM32H523CET6 (250 MHz) para estudiar el DAC de 12 bits. Primero en modo simple: escribimos un valor fijo, calculamos el código a partir de un voltaje y hacemos una rampa de 0 a 3.3 V. Luego generamos una senoidal: una función llena un buffer con las muestras, el TIM6 marca el ritmo (frecuencia de la señal por número de muestras) y el DMA en modo circular las envía al DAC sin ocupar la CPU. Vemos el resultado en el osciloscopio a 60 Hz y 1 kHz, y qué pasa si usamos muy pocas muestras.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=ky_6VdHmMU4" target="_blank" rel="noopener">&#9654; Ver el video completo (31:54)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1520.webp" alt="Clase 145: DAC en modo simple y con DMA"></figure>
+    <ul class="materiales"><li>Tarjeta WeAct STM32H523CET6 (formato Black Pill, cristal de 8 MHz)</li><li>ST-LINK</li><li>Osciloscopio</li><li>Hoja de Excel para calcular código DAC y timer</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Reloj y canales del DAC.</a><a href="#f2">2 · Valor fijo, voltaje y rampa.</a><a href="#f3">3 · Buffer, TIM6 y DMA circular.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configuración del DAC en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Reloj a 250 MHz</h3><a class="min" href="https://youtu.be/ky_6VdHmMU4?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Creamos el proyecto para el <b>STM32H523CETx</b>. En <b>RCC</b> activamos el <b>HSE</b> como <b>Crystal/Ceramic Resonator</b> (cristal de 8 MHz) y en Clock Configuration llevamos el sistema a <b>250 MHz</b>.</p><div class="dos"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>DAC1 con OUT1 y OUT2</h3><a class="min" href="https://youtu.be/ky_6VdHmMU4?t=175" target="_blank" rel="noopener">&#9654; 2:55</a></div><p>En <b>Analog &gt; DAC1</b> conectamos <b>OUT1</b> (PA4) y <b>OUT2</b> (PA5) a <i>only external pin</i>.</p><p>Dejamos <b>Output Buffer: Enable</b> para que la salida pueda entregar corriente. <b>DAC High Frequency Mode</b> se puede dejar en Disable o en automático.</p><div class="dos"><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>DAC en modo simple</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Escribir un valor fijo</h3><a class="min" href="https://youtu.be/ky_6VdHmMU4?t=410" target="_blank" rel="noopener">&#9654; 6:50</a></div><p>Se arranca el canal y se escribe un código de 0 a 4095 alineado a 12 bits a la derecha. Con <b>2000</b> la salida da unos <b>1.61 V</b>.</p><p>La fórmula es <b>Vout = Dato / 4095 × Vref</b>, con Vref = 3.3 V.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_DAC_Start(&amp;hdac1, DAC_CHANNEL_1);
+HAL_DAC_SetValue(&amp;hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 2000);</code></pre></div><div class="dos"><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Pasar de voltaje a código</h3><a class="min" href="https://youtu.be/ky_6VdHmMU4?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>En el canal 2 pedimos directamente un voltaje: <b>codigo = 4095 × voltaje / 3.3</b>. Con 3.0 V el código es 3723.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint16_t codigo;
+float voltaje;
+
+HAL_DAC_Start(&amp;hdac1, DAC_CHANNEL_2);
+voltaje = 3.0;
+codigo = 4095*voltaje/3.3;
+HAL_DAC_SetValue(&amp;hdac1, DAC_CHANNEL_2, DAC_ALIGN_12B_R, codigo);</code></pre></div><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Rampa de 0 a 3.3 V</h3><a class="min" href="https://youtu.be/ky_6VdHmMU4?t=700" target="_blank" rel="noopener">&#9654; 11:40</a></div><p>En el while un for sube el voltaje de 0 a 3.3 V en pasos de 0.2 V cada 200 ms; en el osciloscopio se ve la escalera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  for (voltaje = 0; voltaje &lt;= 3.3; voltaje += 0.2)
+  {
+    codigo = 4095*voltaje/3.3;
+    HAL_DAC_SetValue(&amp;hdac1, DAC_CHANNEL_2, DAC_ALIGN_12B_R, codigo);
+    HAL_Delay(200);
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Senoidal con DMA</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Función que llena el buffer</h3><a class="min" href="https://youtu.be/ky_6VdHmMU4?t=790" target="_blank" rel="noopener">&#9654; 13:10</a></div><p>Definimos Vref, resolución y número de muestras, y la función <b>SENO</b> calcula cada muestra con amplitud y offset, limitando el código entre 0 y 4095.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define DAC_VREF        3.3f
+#define DAC_RESOLUCION  4096.0f   // 12 bits
+#define muestras        100
+
+uint32_t senobuff[muestras];
+
+void SENO(float frecuencia, float amplitud, float offset)
+{
+  if (amplitud &gt; DAC_VREF) amplitud = DAC_VREF;
+  if (offset &lt; 0.0f) offset = 0.0f;
+  if (offset &gt; amplitud) offset = amplitud;
+
+  float scale = (DAC_RESOLUCION - 1.0f) / DAC_VREF;
+
+  for (uint32_t i = 0; i &lt; muestras; i++)
+  {
+    float angulo = (2.0f * M_PI * i) / muestras;
+    float voltaje_dac = offset + (amplitud - offset) *
+                        ((sinf(angulo) + 1.0f) * 0.5f);
+    int32_t code = (int32_t)(voltaje_dac * scale);
+    if (code &lt; 0) code = 0;
+    if (code &gt; (int32_t)(DAC_RESOLUCION - 1)) code = (int32_t)(DAC_RESOLUCION - 1);
+    senobuff[i] = (uint32_t)code;
+  }
+}</code></pre></div><p class="ojo">Incluye <b>math.h</b> para sinf y M_PI. El parámetro frecuencia no se usa dentro: la frecuencia real la fija el TIM6.</p><div class="dos"><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Calcular el TIM6</h3><a class="min" href="https://youtu.be/ky_6VdHmMU4?t=1000" target="_blank" rel="noopener">&#9654; 16:40</a></div><p>El timer debe dispararse a <b>frecuencia de la señal × muestras</b>. Para 60 Hz y 100 muestras son 6000 Hz.</p><p>Con 250 MHz: <b>Prescaler 10-1</b> y <b>Counter Period 4166</b> (250 MHz / 10 / 4167 ≈ 6000 Hz).</p><p>En <b>Trigger Event Selection</b> elegimos <b>Update Event</b>.</p><p class="ojo">Para 1 kHz con 100 muestras (100 kHz): Prescaler 0 (1-1) y Counter Period 2499.</p><div class="dos"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/1130.webp" target="_blank"><img src="img/1130.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Canal GPDMA y disparo del DAC</h3><a class="min" href="https://youtu.be/ky_6VdHmMU4?t=1200" target="_blank" rel="noopener">&#9654; 20:00</a></div><p>En <b>GPDMA1</b> habilitamos un canal en <b>Standard Request Mode</b> y modo <b>circular</b>. Request: <b>DAC1_CH1</b>, dirección <b>memoria a periférico</b>, con incremento en la fuente y ancho <b>Word</b> en origen y destino.</p><p>En el DAC, el <b>Trigger</b> del canal 1 pasa a <b>Timer 6 Trigger Out event</b>.</p><div class="dos"><figure class="cap"><a href="img/1160.webp" target="_blank"><img src="img/1160.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/1200.webp" target="_blank"><img src="img/1200.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/1260.webp" target="_blank"><img src="img/1260.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Arrancar DAC con DMA y el timer</h3><a class="min" href="https://youtu.be/ky_6VdHmMU4?t=1400" target="_blank" rel="noopener">&#9654; 23:20</a></div><p>Llenamos el buffer, arrancamos el DAC con DMA y luego el TIM6. Si olvidas arrancar el timer no sale nada.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>SENO(60, 3.0, 0.0);
+HAL_DAC_Start_DMA(&amp;hdac1, DAC_CHANNEL_1, (uint32_t*)senobuff, muestras, DAC_ALIGN_12B_R);
+HAL_TIM_Base_Start(&amp;htim6);</code></pre></div><p class="ojo">Los valores de SENO(...) son de ejemplo; ajusta amplitud y offset a lo que necesites.</p><div class="dos"><figure class="cap"><a href="img/1400.webp" target="_blank"><img src="img/1400.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/1520.webp" target="_blank"><img src="img/1520.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>1 kHz y efecto del número de muestras</h3><a class="min" href="https://youtu.be/ky_6VdHmMU4?t=1650" target="_blank" rel="noopener">&#9654; 27:30</a></div><p>Cambiando el TIM6 a Prescaler 0 y Period 2499 obtenemos la senoidal de <b>1 kHz</b>.</p><p>Con solo <b>4 muestras</b> la señal se reconstruye mal (criterio de Nyquist): más muestras dan una senoidal más limpia.</p><div class="dos"><figure class="cap"><a href="img/1650.webp" target="_blank"><img src="img/1650.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/1760.webp" target="_blank"><img src="img/1760.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure><figure class="cap"><a href="img/1850.webp" target="_blank"><img src="img/1850.webp" alt="Clase 145: DAC en modo simple y con DMA" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=ky_6VdHmMU4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
