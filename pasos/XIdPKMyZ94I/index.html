@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 8 2023: comunicación UART, transmisión con STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Qué es la UART (trama, bit de inicio, paridad, stop y baudios), cómo configurar el USART1 en CubeMX, enviar texto con una librería y verlo en el Virtual Terminal de Proteus, en Hercules y en el monitor serial de Arduino con puertos virtuales.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/XIdPKMyZ94I/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 8 2023: comunicación UART, transmisión con STM32 · Paso a paso">
+  <meta property="og:description" content="Qué es la UART (trama, bit de inicio, paridad, stop y baudios), cómo configurar el USART1 en CubeMX, enviar texto con una librería y verlo en el Virtual Terminal de Proteus, en Hercules y en el monitor serial de Arduino con puertos virtuales.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/XIdPKMyZ94I/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/XIdPKMyZ94I/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Comunicación <span>UART</span>: transmisión</h1>
+    <p class="lead">El LCD muestra pocos caracteres; para mandar más información se usa la comunicación serial. Se explica la UART (asíncrona: cada equipo tiene su reloj y se sincronizan con la trama), los modos simplex, half duplex y full duplex, la trama con bit de inicio, 8 bits de datos, paridad opcional y bit de parada, y la velocidad en baudios. Luego se configura el USART1 en modo asíncrono a 9600 baudios, se agrega una librería UART, se envía un texto cada segundo y se ve en el Virtual Terminal de Proteus. Al final se crean puertos COM virtuales para sacar los datos de Proteus a Hercules o al monitor serial de Arduino.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=XIdPKMyZ94I" target="_blank" rel="noopener">&#9654; Ver el video completo (28:58)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1590.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32"></figure>
+    <ul class="materiales"><li>Tarjeta Black Pill STM32F401</li><li>STM32CubeIDE y Proteus 8</li><li>Librería uart.c/uart.h</li><li>Programa de puertos virtuales (Virtual Serial Port Tools o similar)</li><li>Hercules o el monitor serial de Arduino</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Asíncrona, trama y baudios.</a><a href="#f2">2 · USART1, librería y texto.</a><a href="#f3">3 · Virtual Terminal, puertos virtuales y Hercules.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Teoría de la UART</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué es la UART</h3><a class="min" href="https://youtu.be/XIdPKMyZ94I?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p><b>UART</b>: transmisor-receptor universal <b>asíncrono</b>. La versión USART también puede trabajar en modo síncrono.</p><p>Trabaja con niveles de 0 a 3.3 V (o 5 V según el micro). Es hija del RS-232, que usa niveles más altos.</p><p><b>Simplex</b>: solo transmite o solo recibe. <b>Half duplex</b>: transmite y recibe, pero no al tiempo. <b>Full duplex</b>: las dos cosas a la vez.</p><p>En un protocolo síncrono (como I2C) se envía también el reloj. En la UART no: cada equipo tiene su reloj y ambos deben estar configurados igual.</p><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>La trama y los baudios</h3><a class="min" href="https://youtu.be/XIdPKMyZ94I?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>La línea está en 1 en reposo. El <b>bit de inicio</b> la pone en 0 para avisar que llega un dato.</p><p>Siguen los <b>datos</b> (normalmente 8 bits, un carácter), la <b>paridad</b> (opcional, detecta errores de forma muy básica) y el <b>bit de parada</b> (1, 1.5 o 2).</p><p>La velocidad se da en <b>baudios</b>. Valores típicos: 4800, 9600 y 115200.</p><p>Los dos equipos deben tener la misma configuración (baudios, bits, paridad y stop); si no, llegan caracteres raros.</p><p class="ojo">Para simular en Proteus no pases de 9600 baudios: la simulación depende de la potencia del computador. En hardware real puedes ir más rápido.</p><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar y transmitir</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Habilitar el USART1</h3><a class="min" href="https://youtu.be/XIdPKMyZ94I?t=406" target="_blank" rel="noopener">&#9654; 6:46</a></div><p>En <b>Connectivity</b> la F401 tiene USART1, USART2 y USART6.</p><p>Elige <b>USART1 → Mode: Asynchronous</b>. Los pines quedan en <b>PA9 (TX)</b> y <b>PA10 (RX)</b>.</p><p>En Parameter Settings cambia <b>Baud Rate a 9600</b>. Deja 8 bits, sin paridad y 1 bit de parada.</p><p>Deja el reloj en 16 MHz (HSI). En Proteus el micro debe tener la misma frecuencia que configuraste; si no, no hay comunicación.</p><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Agregar la librería</h3><a class="min" href="https://youtu.be/XIdPKMyZ94I?t=614" target="_blank" rel="noopener">&#9654; 10:14</a></div><p>Crea la carpeta <b>libreria</b> dentro de Core (clic derecho → New → Folder) y pega uart.c y uart.h.</p><p>Clic derecho a la carpeta → <b>Add/Remove Include Path</b>.</p><p>En el main incluye la librería y genera el .hex.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;uart.h&quot;
+/* USER CODE END Includes */</code></pre></div><div class="dos"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/890.webp" target="_blank"><img src="img/890.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Enviar un texto</h3><a class="min" href="https://youtu.be/XIdPKMyZ94I?t=878" target="_blank" rel="noopener">&#9654; 14:38</a></div><p>La librería tiene funciones para enviar un carácter o un texto. Para texto: <code>uartx_write_text(&amp;huart1, "...")</code>.</p><p>A diferencia del LCD, el texto no se queda: si no lo capturas, se pierde. Por eso se envía cada cierto tiempo.</p><p>Agrega <code>\r\n</code> al final para que cada mensaje salga en una línea nueva.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  uartx_write_text(&amp;huart1, &quot;Estudien por fa\r\n&quot;);
+  HAL_Delay(1000);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1090.webp" target="_blank"><img src="img/1090.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Ver los datos</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Virtual Terminal en Proteus</h3><a class="min" href="https://youtu.be/XIdPKMyZ94I?t=1117" target="_blank" rel="noopener">&#9654; 18:37</a></div><p>En <b>Instruments</b> toma el <b>VIRTUAL TERMINAL</b>. Une <b>PA9 (TX)</b> del micro al <b>RXD</b> del terminal (TX va con RX).</p><p>Revisa que el terminal esté a 9600, 8 bits, sin paridad.</p><p>Doble clic al micro: frecuencia de 16 MHz y el .hex. Dale Play y aparecen los mensajes.</p><p>Si cambias los baudios del terminal, salen caracteres extraños: no hay comunicación.</p><div class="dos"><figure class="cap"><a href="img/1140.webp" target="_blank"><img src="img/1140.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1210.webp" target="_blank"><img src="img/1210.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1250.webp" target="_blank"><img src="img/1250.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Sacar los datos a otro programa</h3><a class="min" href="https://youtu.be/XIdPKMyZ94I?t=1360" target="_blank" rel="noopener">&#9654; 22:40</a></div><p>Instala un programa de <b>puertos serie virtuales</b> y crea un par de puertos unidos (Local Bridge), por ejemplo <b>COM1 y COM2</b>.</p><p>En Proteus agrega el componente <b>COMPIM</b>, une TX del micro a su TXD (este va directo, no cruzado), ponle 9600 baudios y el puerto <b>COM1</b>.</p><p>Abre Hercules en la pestaña <b>Serial</b>, puerto <b>COM2</b> a 9600 y dale Open: llegan los mismos mensajes.</p><p class="ojo">Un puerto COM solo lo puede abrir un programa a la vez. Cierra Hercules antes de abrir otro monitor serial.</p><div class="dos"><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1460.webp" target="_blank"><img src="img/1460.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1500.webp" target="_blank"><img src="img/1500.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1590.webp" target="_blank"><img src="img/1590.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Con el monitor serial de Arduino</h3><a class="min" href="https://youtu.be/XIdPKMyZ94I?t=1606" target="_blank" rel="noopener">&#9654; 26:46</a></div><p>En el IDE de Arduino ve a <b>Tools → Port</b>, elige <b>COM2</b> y abre el <b>Serial Monitor</b> a 9600 baudios.</p><p>Cualquier programa con monitor serial sirve. Tarea de la clase: ver los datos en LabVIEW.</p><div class="uno"><figure class="cap"><a href="img/1690.webp" target="_blank"><img src="img/1690.webp" alt="Clase 8 2023: comunicación UART, transmisión con STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=XIdPKMyZ94I" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
