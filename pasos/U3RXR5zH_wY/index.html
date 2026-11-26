@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="LabVIEW envía órdenes por serial solo cuando se presiona un botón (estructura de eventos) y el STM32 las recibe, las compara con strstr y mueve un motor con un L298.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/U3RXR5zH_wY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32 · Paso a paso">
+  <meta property="og:description" content="LabVIEW envía órdenes por serial solo cuando se presiona un botón (estructura de eventos) y el STM32 las recibe, las compara con strstr y mueve un motor con un L298.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/U3RXR5zH_wY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/U3RXR5zH_wY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Clase en vivo: <span>órdenes desde LabVIEW al STM32</span></h1>
+    <p class="lead">En esta clase en vivo hacemos el camino contrario al de la clase anterior: LabVIEW transmite y el STM32 recibe. En LabVIEW usamos una Event Structure para transmitir solo cuando cambia un botón (motor derecha, izquierda y stop), con órdenes en texto que terminan en '*'. En Proteus armamos un puente H L298 con dos motores, conectamos el COMPIM al RX del micro y en CubeIDE agregamos a la librería uart las funciones de lectura. Con uartx_read_text leemos hasta el '*', y con strstr decidimos qué hacer con el motor.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=U3RXR5zH_wY" target="_blank" rel="noopener">&#9654; Ver el video completo (81:05)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/4740.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32"></figure>
+    <ul class="materiales"><li>LabVIEW con NI-VISA</li><li>STM32CubeIDE y Proteus</li><li>Puente H L298 (o módulo L298N) y motores DC</li><li>Librería uart.c / uart.h con las funciones de lectura</li><li>Par de puertos virtuales (COM1–COM2) y Hercules para probar</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Botones, Event Structure y órdenes en texto</a><a href="#f2">2 · L298, enables y terminales con nombre</a><a href="#f3">3 · USART1 y cuatro salidas</a><a href="#f4">4 · uartx_read_text, strstr y funciones de motor</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Panel de LabVIEW con eventos</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Diseñar el panel</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>Coloca dos LEDs (interruptores) y tres botones: Izquierda, Derecha y Stop. Los encuentras en Silver → Boolean.</p><p>Transmitiremos solo cuando haya un cambio, no a cada rato, para no saturar al microcontrolador.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Configurar el puerto y el ciclo</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=430" target="_blank" rel="noopener">&#9654; 7:10</a></div><p>En el diagrama de bloques coloca VISA Configure Serial Port con un control para el recurso, una constante de 9600 y el carácter de terminación en False.</p><p>Agrega un While Loop con su botón de stop y, dentro, una Event Structure (Structures → Event Structure).</p><div class="uno"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Agregar el evento del botón</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=520" target="_blank" rel="noopener">&#9654; 8:40</a></div><p>Clic derecho en el borde de la Event Structure → Add Event Case. Elige el botón Izquierda y el evento Value Change.</p><div class="uno"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Acción mecánica del botón</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>Clic derecho sobre el botón → Mechanical Action. Elige una acción tipo latch para que el botón vuelva solo a su estado después de presionarlo.</p><p class="ojo">La acción mecánica cambia lo que llega en NewVal. Revisa cuál elegiste antes de comparar.</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Enviar la orden solo al presionar</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=830" target="_blank" rel="noopener">&#9654; 13:50</a></div><p>Compara NewVal con una constante verdadera (Equal?).</p><p>Usa un Select: si es verdadero envía la orden, si es falso envía una cadena vacía.</p><p>Las constantes deben ser String Constant (de la paleta String), no numéricas.</p><p>Conecta la salida a VISA Write.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Orden izquierda: motorizq*
+Orden derecha:  motorder*
+Orden stop:     motorstop*</code></pre></div><p class="ojo">Todas las órdenes terminan en '*', que es el carácter con el que el micro sabe que llegó el final.</p><div class="dos"><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.6</span><h3>Duplicar eventos y cerrar el puerto</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=1300" target="_blank" rel="noopener">&#9654; 21:40</a></div><p>Clic derecho en la Event Structure → Duplicate Event Case, elige el botón Derecha y cambia solo el texto de la orden. Repite para Stop.</p><p>Fuera del While Loop pon VISA Close y Simple Error Handler.</p><div class="uno"><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.7</span><h3>Probar con Hercules</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=1150" target="_blank" rel="noopener">&#9654; 19:10</a></div><p>Con el par de puertos virtuales, LabVIEW en COM2 y Hercules en COM1. Cada vez que presionas un botón debe llegar su orden a Hercules.</p><div class="uno"><figure class="cap"><a href="img/1150.webp" target="_blank"><img src="img/1150.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Puente H y motores en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Colocar el L298 y los motores</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=1600" target="_blank" rel="noopener">&#9654; 26:40</a></div><p>Busca el L298 y dos motores DC (uno con inercia y otro sin ella, cualquiera funciona).</p><p>A la izquierda van las señales de control y a la derecha la potencia. Conecta VS al voltaje del motor (por ejemplo +12 V) y SENSA/SENSB a tierra si no vas a medir corriente.</p><div class="uno"><figure class="cap"><a href="img/1600.webp" target="_blank"><img src="img/1600.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Probar con Logic State</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=2420" target="_blank" rel="noopener">&#9654; 40:20</a></div><p>Coloca Logic State en IN1..IN4 y en los enables para entender el puente.</p><p>Con ENA en 0 el motor no gira. Con ENA en 1: IN1=1, IN2=0 gira a un lado; IN1=0, IN2=1 gira al otro; si son iguales, frena.</p><p class="ojo">Más adelante el enable recibe una señal PWM para controlar la velocidad. Hoy lo dejamos fijo en 1.</p><div class="uno"><figure class="cap"><a href="img/2420.webp" target="_blank"><img src="img/2420.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Nombrar las entradas</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=2640" target="_blank" rel="noopener">&#9654; 44:00</a></div><p>Reemplaza los Logic State de IN1..IN4 por terminales Default con nombres M11, M12, M21 y M22 (motor, pin). Deja los enables en 1.</p><div class="dos"><figure class="cap"><a href="img/2640.webp" target="_blank"><img src="img/2640.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/3000.webp" target="_blank"><img src="img/3000.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Configurar el STM32</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>USART1 asíncrona</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=3300" target="_blank" rel="noopener">&#9654; 55:00</a></div><p>En el .ioc activa USART1 en Asynchronous a 9600. Queda en PA9 (TX) y PA10 (RX). Aquí el RX es obligatorio porque el micro recibe.</p><div class="dos"><figure class="cap"><a href="img/3300.webp" target="_blank"><img src="img/3300.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/3420.webp" target="_blank"><img src="img/3420.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Pines de los motores</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=3420" target="_blank" rel="noopener">&#9654; 57:00</a></div><p>Configura cuatro pines como GPIO_Output con etiquetas M11, M12, M21 y M22, los mismos nombres de Proteus.</p><div class="uno"><figure class="cap"><a href="img/3420.webp" target="_blank"><img src="img/3420.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Conectar el COMPIM</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=3900" target="_blank" rel="noopener">&#9654; 65:00</a></div><p>El COMPIM no va cruzado en Proteus: une el RX del COMPIM con el RX del micro (PA10).</p><p>Pon el COMPIM en el puerto virtual libre (COM1) a 9600.</p><div class="uno"><figure class="cap"><a href="img/3900.webp" target="_blank"><img src="img/3900.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Recibir y procesar la orden</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Funciones de lectura de la librería</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=3640" target="_blank" rel="noopener">&#9654; 60:40</a></div><p>uartx_read lee un solo byte y es bloqueante: espera hasta que llegue un dato.</p><p>uartx_read_text limpia el buffer con memset y guarda bytes hasta que llega el carácter final o hasta llenar el tamaño máximo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint8_t uartx_read(UART_HandleTypeDef *huart)
+{
+  uint8_t dato_rx_ = 0;
+  HAL_UART_Receive(huart, &amp;dato_rx_, 1, HAL_MAX_DELAY);
+  return dato_rx_;
+}
+
+void uartx_read_text(UART_HandleTypeDef *huart, uint8_t *info, const uint8_t final, uint16_t cuanto)
+{
+  uint8_t dato_rx = 0;
+  char i = 0;
+  memset(info, 0, cuanto);          // limpia el buffer
+  while (dato_rx != final)           // lee hasta que llegue el final
+  {
+    dato_rx = uartx_read(huart);
+    *info = dato_rx;                 // lo guarda en el buffer
+    info++;
+    i++;
+    if (i &gt; cuanto - 1) break;       // si llegan demasiados datos, sale
+  }
+}</code></pre></div><p class="ojo">El tipo exacto del último parámetro no se ve completo en el video. Usa el de tu uart.h.</p><div class="uno"><figure class="cap"><a href="img/3640.webp" target="_blank"><img src="img/3640.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Leer en el while</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=4000" target="_blank" rel="noopener">&#9654; 66:40</a></div><p>Declara el buffer como variable global y en el while lee hasta el '*' o hasta 50 caracteres.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char trama_rx[50];
+
+while (1)
+{
+  uartx_read_text(&amp;huart1, (uint8_t*)trama_rx, &#x27;*&#x27;, 50);
+  procesa();
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/4130.webp" target="_blank"><img src="img/4130.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/4000.webp" target="_blank"><img src="img/4000.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Funciones del motor</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=4380" target="_blank" rel="noopener">&#9654; 73:00</a></div><p>Crea una función por acción. Cada una pone la combinación de pines del puente H.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void m1derecha(void)
+{
+  HAL_GPIO_WritePin(M11_GPIO_Port, M11_Pin, 0);
+  HAL_GPIO_WritePin(M12_GPIO_Port, M12_Pin, 1);
+}
+
+void m1izquierda(void)
+{
+  HAL_GPIO_WritePin(M11_GPIO_Port, M11_Pin, 1);
+  HAL_GPIO_WritePin(M12_GPIO_Port, M12_Pin, 0);
+}
+
+void m1stop(void)
+{
+  HAL_GPIO_WritePin(M11_GPIO_Port, M11_Pin, 0);
+  HAL_GPIO_WritePin(M12_GPIO_Port, M12_Pin, 0);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/4380.webp" target="_blank"><img src="img/4380.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Procesar con strstr</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=4460" target="_blank" rel="noopener">&#9654; 74:20</a></div><p>strstr busca si la trama recibida contiene la orden. Usa if / else if, porque solo llega una orden a la vez.</p><p>Recuerda llamar a procesa() después de leer; en la clase el motor no se movía hasta que se agregó esa llamada.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &lt;string.h&gt;
+
+void procesa(void)
+{
+  if (strstr(trama_rx, &quot;motorder&quot;)) m1derecha();
+  else if (strstr(trama_rx, &quot;motorizq&quot;)) m1izquierda();
+  else if (strstr(trama_rx, &quot;motorstop&quot;)) m1stop();
+}</code></pre></div><p class="ojo">En la pantalla del video la segunda línea quedó llamando a m1derecha. Aquí ya está corregida con m1izquierda.</p><div class="dos"><figure class="cap"><a href="img/4300.webp" target="_blank"><img src="img/4300.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/4460.webp" target="_blank"><img src="img/4460.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.5</span><h3>Prueba final y tarea</h3><a class="min" href="https://youtu.be/U3RXR5zH_wY?t=4740" target="_blank" rel="noopener">&#9654; 79:00</a></div><p>Corre Proteus y el VI de LabVIEW: el motor gira a un lado o al otro según el botón.</p><p>Tarea: agregar el stop, el segundo motor, los LEDs con órdenes compuestas y enviar las mismas órdenes desde el celular por Bluetooth.</p><div class="dos"><figure class="cap"><a href="img/4700.webp" target="_blank"><img src="img/4700.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/4740.webp" target="_blank"><img src="img/4740.webp" alt="Clase en vivo STM32: enviar órdenes desde LabVIEW y recibirlas en el STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=U3RXR5zH_wY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
