@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Configurar USART1 a 9600 en CubeMX, simular con la Virtual Terminal de Proteus, transmitir con HAL_UART_Transmit, usar la librería uart.c y enviar variables con sprintf (incluido float).">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/nlqLzPmINtE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB) · Paso a paso">
+  <meta property="og:description" content="Configurar USART1 a 9600 en CubeMX, simular con la Virtual Terminal de Proteus, transmitir con HAL_UART_Transmit, usar la librería uart.c y enviar variables con sprintf (incluido float).">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/nlqLzPmINtE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/nlqLzPmINtE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Clase en vivo: <span>puerto serial y sprintf</span></h1>
+    <p class="lead">Clase en vivo del curso de Sistemas Embebidos. Configuramos el puerto serial USART1 de un STM32F401 en modo asíncrono, conectamos la Virtual Terminal de Proteus y transmitimos primero con la función HAL y luego con nuestra librería uart.c/uart.h. Al final enviamos una variable flotante con sprintf, para lo que hay que incluir stdio.h y string.h y habilitar el uso de float con printf en el compilador.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=nlqLzPmINtE" target="_blank" rel="noopener">&#9654; Ver el video completo (58:06)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/3260.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>STM32F401 (simulado en Proteus)</li><li>Virtual Terminal de Proteus</li><li>Librerías uart.c / uart.h</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · USART1 en CubeMX</a><a href="#f2">2 · Virtual Terminal</a><a href="#f3">3 · HAL y librería propia</a><a href="#f4">4 · Texto con formato</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configurar el puerto serial</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Elegir el puerto</h3><a class="min" href="https://youtu.be/nlqLzPmINtE?t=141" target="_blank" rel="noopener">&#9654; 2:21</a></div><p>En <b>Connectivity</b> el STM32F401 tiene tres puertos seriales: USART1, USART2 y USART6 (Arduino solo tiene uno). Tomamos <b>USART1</b> y lo ponemos en modo <b>Asynchronous</b>.</p><p>Recuerde configurar el cristal igual al de la placa real y al de Proteus: en comunicación, si el reloj no coincide, los datos se desincronizan.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Baudios, datos, paridad y stop</h3><a class="min" href="https://youtu.be/nlqLzPmINtE?t=237" target="_blank" rel="noopener">&#9654; 3:57</a></div><p>Por defecto viene en 115200. Usamos <b>9600</b>, un estándar más liviano para simular. 8 bits de datos, sin paridad y 1 bit de stop. Transmisor y receptor deben tener exactamente la misma configuración.</p><p class="ojo">Los pines de los puertos se pueden remapear con Ctrl + clic sobre el pin; útil al diseñar el PCB.</p><div class="dos"><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Simular en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Agregar la Virtual Terminal</h3><a class="min" href="https://youtu.be/nlqLzPmINtE?t=740" target="_blank" rel="noopener">&#9654; 12:20</a></div><p>En Proteus, el instrumento <b>VIRTUAL TERMINAL</b> simula un puerto serial. Se configura el micro con su alimentación de 3.3 V y se agrega la terminal.</p><div class="dos"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Conexión cruzada</h3><a class="min" href="https://youtu.be/nlqLzPmINtE?t=805" target="_blank" rel="noopener">&#9654; 13:25</a></div><p>La Virtual Terminal es cruzada: el <b>TX del micro (PA9)</b> va al <b>RXD</b> de la terminal. Para no tirar cables se usan etiquetas (Label) TX y RX.</p><div class="uno"><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Configurar la terminal</h3><a class="min" href="https://youtu.be/nlqLzPmINtE?t=916" target="_blank" rel="noopener">&#9654; 15:16</a></div><p>Doble clic en la terminal: 9600 baudios, 8 bits, sin paridad y 1 bit de stop, igual que el micro.</p><p class="ojo">En Proteus, con cristales menores de 16 MHz el puerto serial a veces no simula; use 16 MHz o más. Si cambia el cristal, use el botón que regenera y recompila todo.</p><div class="uno"><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Transmitir</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Con la función HAL</h3><a class="min" href="https://youtu.be/nlqLzPmINtE?t=1171" target="_blank" rel="noopener">&#9654; 19:31</a></div><p>La forma básica es <b>HAL_UART_Transmit</b>: puerto, dato, número de caracteres y tiempo máximo en ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  HAL_UART_Transmit(&amp;huart1, (uint8_t *)&quot;Hola&quot;, 4, 1000);
+  HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1190.webp" target="_blank"><img src="img/1190.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Agregar la librería uart</h3><a class="min" href="https://youtu.be/nlqLzPmINtE?t=1600" target="_blank" rel="noopener">&#9654; 26:40</a></div><p>Se crea una carpeta <b>libreria</b>, se pegan uart.c y uart.h y se agrega la carpeta en <b>Properties → C/C++ Build → Settings → MCU GCC Compiler → Include paths</b>. La librería tiene una función para un carácter y otra para un texto completo, que recorre la cadena hasta el cero final.</p><div class="dos"><figure class="cap"><a href="img/1610.webp" target="_blank"><img src="img/1610.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure><figure class="cap"><a href="img/1830.webp" target="_blank"><img src="img/1830.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Enviar texto con la librería</h3><a class="min" href="https://youtu.be/nlqLzPmINtE?t=1924" target="_blank" rel="noopener">&#9654; 32:04</a></div><p>Se incluye uart.h y ya no hay que contar caracteres. Para un salto de línea correcto se envía <b>\r\n</b> (enter y final de línea).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+
+while (1)
+{
+  uartx_write_text(&amp;huart1, &quot;Hola\r\n&quot;);
+  HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1940.webp" target="_blank"><img src="img/1940.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure><figure class="cap"><a href="img/2180.webp" target="_blank"><img src="img/2180.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure><figure class="cap"><a href="img/2260.webp" target="_blank"><img src="img/2260.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Enviar variables con sprintf</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Incluir stdio.h y string.h</h3><a class="min" href="https://youtu.be/nlqLzPmINtE?t=3031" target="_blank" rel="noopener">&#9654; 50:31</a></div><p>sprintf da formato a un texto y lo guarda en un vector de char. Necesita <b>stdio.h</b> y <b>string.h</b>, que son del lenguaje C.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+
+float nota = 0.1;
+char texto[50];</code></pre></div><div class="uno"><figure class="cap"><a href="img/3080.webp" target="_blank"><img src="img/3080.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Formatear la variable</h3><a class="min" href="https://youtu.be/nlqLzPmINtE?t=3168" target="_blank" rel="noopener">&#9654; 52:48</a></div><p>Se incrementa la variable y se arma el texto con un decimal (<b>%.1f</b>), luego se envía por la librería.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  nota = nota + 0.1;
+  sprintf(texto, &quot;Mi nota es = %.1f\r\n&quot;, nota);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(500);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/3260.webp" target="_blank"><img src="img/3260.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Habilitar float en printf</h3><a class="min" href="https://youtu.be/nlqLzPmINtE?t=3357" target="_blank" rel="noopener">&#9654; 55:57</a></div><p>Si no sale el número, falta decirle al compilador que use float: <b>Properties → C/C++ Build → Settings → MCU Settings</b> y marcar <b>Use float with printf from newlib-nano (-u _printf_float)</b>.</p><p class="ojo">Para la siguiente clase se necesita un módulo Bluetooth HC-05.</p><div class="dos"><figure class="cap"><a href="img/3400.webp" target="_blank"><img src="img/3400.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure><figure class="cap"><a href="img/3440.webp" target="_blank"><img src="img/3440.webp" alt="Clase en vivo: puerto serial y sprintf con STM32 (Sistemas Embebidos UTB)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=nlqLzPmINtE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
