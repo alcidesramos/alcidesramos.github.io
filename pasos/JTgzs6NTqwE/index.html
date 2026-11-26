@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Librería propia para la TFT ILI9341 (igual a la de las otras TFT del canal): figuras con borde configurable, texto con o sin fondo y fuentes nuevas creadas con GLCD Font Creator.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/JTgzs6NTqwE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas · Paso a paso">
+  <meta property="og:description" content="Librería propia para la TFT ILI9341 (igual a la de las otras TFT del canal): figuras con borde configurable, texto con o sin fondo y fuentes nuevas creadas con GLCD Font Creator.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/JTgzs6NTqwE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/JTgzs6NTqwE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 128: TFT ILI9341 <span>texto y figuras propias</span></h1>
+    <p class="lead">En la clase 127 se usó una librería adaptada de un tercero. Aquí la pantalla ILI9341 pasa a usar las librerías propias del canal, con las mismas funciones que las otras TFT (ILI9488, ILI9225...). Se crea el proyecto con el nuevo flujo de STM32CubeMX separado de CubeIDE, se configura SPI1 a 50 Mbit/s y los pines de control, y se prueban líneas, rectángulos con borde de varios píxeles, elipses, caracteres y cadenas de texto. Al final se crea una fuente nueva con MikroElektronika GLCD Font Creator y se agrega a fonts.c.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=JTgzs6NTqwE" target="_blank" rel="noopener">&#9654; Ver el video completo (26:38)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1200.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas"></figure>
+    <ul class="materiales"><li>Blackpill STM32F411CEU</li><li>Pantalla TFT ILI9341 2.8" 240x320 SPI</li><li>Programador ST-LINK</li><li>STM32CubeMX + STM32CubeIDE 2.x</li><li>Librerías ILI9341.c/.h, fonts.c/.h y pinout.c/.h</li><li>MikroElektronika GLCD Font Creator (gratuito)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Reloj, SPI y pines</a><a href="#f2">2 · ILI9341, fonts y pinout</a><a href="#f3">3 · Líneas, rectángulos y elipses</a><a href="#f4">4 · Caracteres, cadenas y fuentes nuevas</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Reloj al máximo</h3><a class="min" href="https://youtu.be/JTgzs6NTqwE?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Desde CubeMX se elige el STM32F411CEU. En RCC se activa el cristal externo (HSE) y en Clock Configuration se lleva a 100 MHz.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Conexiones de la pantalla</h3><a class="min" href="https://youtu.be/JTgzs6NTqwE?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>SCK a PA5, SDO (MISO) a PA6, SDA (MOSI) a PA7, CS a PB0, RS/RST a PB1, D/C a PB2 y BL (luz) a PB10. Es la misma conexión del video anterior.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>SPI1, pines y generar código</h3><a class="min" href="https://youtu.be/JTgzs6NTqwE?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>Connectivity > SPI1 en Full-Duplex Master (MISO no se usa por ahora, pero queda listo). Datos de 8 bits.</p><p>Con prescaler 2 el SPI queda a 50 Mbit/s, la máxima velocidad de este micro y la que soporta la pantalla.</p><p>PB0, PB1, PB2 y PB10 como GPIO_Output con las etiquetas TFT_CS, TFT_RST, TFT_DC y TFT_LED. TFT_LED es opcional: si conectas BL a 3.3 V queda siempre encendida; con un pin PWM podrías controlar el brillo.</p><p>En Project Manager se pone el nombre del proyecto y la ubicación. Ojo: CubeMX siempre crea una carpeta con el nombre del proyecto dentro de la ruta elegida.</p><p>En Toolchain/IDE se selecciona STM32CubeIDE y se genera el código. Conviene que CubeIDE esté cerrado: con Open Project, CubeMX lo abre y carga el proyecto.</p><p>No le des doble clic al .ioc dentro de CubeIDE porque abre otro CubeMX; los cambios de hardware se hacen en la ventana de CubeMX que ya está abierta.</p><div class="dos"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Librerías</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Configurar ILI9341.h</h3><a class="min" href="https://youtu.be/JTgzs6NTqwE?t=520" target="_blank" rel="noopener">&#9654; 8:40</a></div><p>Se crea Core/Librerias, se agrega al include path y se pegan ILI9341.c/.h, fonts.c/.h y pinout.c/.h.</p><p>En ILI9341.h se indica el puerto SPI que usa la pantalla. Más adelante el touch usará otro SPI, por eso es configurable.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// Puerto SPI a usar
+#define TFT_SPI hspi1
+
+// Orientacion de la pantalla
+#define Vertical        0
+#define Horizontal      1
+#define Vertical_Inv    2
+#define Horizontal_Inv  3</code></pre></div><div class="uno"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Iniciar la pantalla</h3><a class="min" href="https://youtu.be/JTgzs6NTqwE?t=580" target="_blank" rel="noopener">&#9654; 9:40</a></div><p>Se enciende la luz de fondo, se inicializa la pantalla, se elige la orientación (vertical, horizontal o sus invertidas) y se pinta el fondo azul para comprobar que funciona.</p><p>Si al compilar salen errores de funciones no declaradas, faltan los #include en el main.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;ILI9341.h&quot;
+#include &quot;fonts.h&quot;
+#include &quot;pinout.h&quot;
+/* USER CODE END Includes */
+
+/* USER CODE BEGIN 2 */
+PIN_ON(TFT_LED);                 // encender la pantalla
+HAL_Delay(50);
+ILI9341_Init();                  // inicio pantalla
+HAL_Delay(50);
+
+ILI9341_direction(Horizontal);
+ILI9341_Clear(COLOR_BLUE);
+/* USER CODE END 2 */</code></pre></div><div class="dos"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Figuras</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Línea y rectángulos con borde</h3><a class="min" href="https://youtu.be/JTgzs6NTqwE?t=720" target="_blank" rel="noopener">&#9654; 12:00</a></div><p>drawFastHLine dibuja una línea horizontal: posición, largo y color.</p><p>draw_fill_rectangle hace un rectángulo relleno (con borde delgado) y draw_rectangle uno sin relleno, con un último parámetro para el grosor del borde en píxeles.</p><p>Si dos figuras comparten posición, una tapa a la otra. Cambia las coordenadas para verlas por separado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>drawFastHLine(50, 50, 50, COLOR_WHITE);                 // x, y, largo, color
+draw_fill_rectangle(100, 100, 200, 200, COLOR_RED);     // x1, y1, x2, y2, color
+draw_rectangle(150, 100, 200, 200, COLOR_YELLOW, 5);    // ... , grosor del borde
+draw_fill_ellipse(100, 100, 40, 20, COLOR_DARKGRAY);    // centro x, y, radio x, radio y</code></pre></div><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Elipse y otras figuras</h3><a class="min" href="https://youtu.be/JTgzs6NTqwE?t=940" target="_blank" rel="noopener">&#9654; 15:40</a></div><p>La librería también trae triángulos, círculos, arcos y rectángulos redondeados, rellenos o no.</p><p>En la elipse el punto es el centro: el radio tiene que caber desde ahí. En el video, con centro en (0,0) no aparecía; con (100,100) sí.</p><div class="uno"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Texto y fuentes</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Caracteres y cadenas</h3><a class="min" href="https://youtu.be/JTgzs6NTqwE?t=1060" target="_blank" rel="noopener">&#9654; 17:40</a></div><p>draw_char escribe un solo carácter y draw_string una cadena, ambas sin fondo (encima de lo que ya está).</p><p>draw_string_fondo recibe además el color de fondo del texto.</p><p>Las fuentes incluidas van de font1 a font4: font1 y font3 pequeñas, font2 mediana (19x24) y font4 muy grande.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>draw_char(150, 200, &#x27;A&#x27;, COLOR_DARKRED, font2);                  // un caracter
+draw_string_fondo(0, 0, &quot;SUSCRIBETE&quot;, COLOR_RED, COLOR_BLACK, font2); // texto con fondo
+draw_string(0, 60, &quot;AL CANAL&quot;, COLOR_WHITE, font5);               // texto sin fondo</code></pre></div><div class="dos"><figure class="cap"><a href="img/1170.webp" target="_blank"><img src="img/1170.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure><figure class="cap"><a href="img/1200.webp" target="_blank"><img src="img/1200.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Crear una fuente con GLCD Font Creator</h3><a class="min" href="https://youtu.be/JTgzs6NTqwE?t=1250" target="_blank" rel="noopener">&#9654; 20:50</a></div><p>Se abre MikroElektronika GLCD Font Creator (gratuito) y en File > New Font > Import An Existing System Font se elige una fuente de Windows y el tamaño (14 en el video).</p><p>Se deja el rango 32 a 127 y se acepta. Puedes mover o editar cada carácter a mano si alguno queda mal ubicado.</p><p>Luego Export for GLCD, pestaña mikroC, y se copia el código.</p><div class="dos"><figure class="cap"><a href="img/1250.webp" target="_blank"><img src="img/1250.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure><figure class="cap"><a href="img/1330.webp" target="_blank"><img src="img/1330.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Agregar la fuente a fonts.c</h3><a class="min" href="https://youtu.be/JTgzs6NTqwE?t=1360" target="_blank" rel="noopener">&#9654; 22:40</a></div><p>Se pega al final de fonts.c. Se cambia unsigned short por unsigned char y se le pone nombre, por ejemplo font5.</p><p>Al inicio del arreglo se escriben dos números: el ancho (19) y el alto dividido entre 8 redondeado hacia arriba (28/8 = 3.5, se pone 4).</p><p>En fonts.h se declara extern const unsigned char font5[];</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// fonts.c (al final, despues de font4)
+//GLCD FontName : Segoe_Print19x28
+//GLCD FontSize : 19 x 28
+
+const unsigned char font5[] = { 19, 4,     // ancho, alto/8 redondeado hacia arriba (28/8 = 3.5 -&gt; 4)
+    0x0A, 0x00, 0x00, 0x00, /* ... datos exportados ... */
+};
+
+// fonts.h
+extern const unsigned char font5[];</code></pre></div><p class="ojo">En el video la fuente no aparecía porque al pegar se borró parte del encabezado del arreglo. Revisa que quede const unsigned char y los dos números de tamaño.</p><div class="dos"><figure class="cap"><a href="img/1360.webp" target="_blank"><img src="img/1360.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure><figure class="cap"><a href="img/1400.webp" target="_blank"><img src="img/1400.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Usar la nueva fuente</h3><a class="min" href="https://youtu.be/JTgzs6NTqwE?t=1450" target="_blank" rel="noopener">&#9654; 24:10</a></div><p>Se escribe "AL CANAL" con font5 debajo de "SUSCRIBETE". Si el texto es muy grande puede no caber en la pantalla.</p><div class="dos"><figure class="cap"><a href="img/1450.webp" target="_blank"><img src="img/1450.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Clase 128 STM32: TFT ILI9341, texto personalizado, figuras y formas" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=JTgzs6NTqwE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
