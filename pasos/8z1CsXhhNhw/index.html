@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 138: librería ADC con DMA en modo circular (actualización) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Nueva versión de la librería ADC: lectura de un canal y lectura automática de varios canales con DMA circular en el STM32F411, con salida por serial y Teleplot.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/8z1CsXhhNhw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 138: librería ADC con DMA en modo circular (actualización) · Paso a paso">
+  <meta property="og:description" content="Nueva versión de la librería ADC: lectura de un canal y lectura automática de varios canales con DMA circular en el STM32F411, con salida por serial y Teleplot.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/8z1CsXhhNhw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/8z1CsXhhNhw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 138: <span>ADC multicanal con DMA circular</span> en STM32</h1>
+    <p class="lead">Actualizamos la librería del ADC (adc_x) para que sirva tanto con un canal en modo normal como con varios canales por DMA, y ahora en modo circular, que es más estable porque el DMA rellena el buffer solo. Primero repasamos la resolución del ADC de 12 bits (3.3 V / 4095 ≈ 0.805 mV), leemos un canal y lo pasamos a voltaje. Luego configuramos 4 canales (IN0, IN1, IN3, IN5) con escaneo continuo y DMA circular, arrancamos la conversión una sola vez y en el while solo leemos el arreglo adc1_codigo[]. Al final graficamos los cuatro voltajes en Teleplot.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=8z1CsXhhNhw" target="_blank" rel="noopener">&#9654; Ver el video completo (20:23)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1190.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill)</li><li>4 potenciómetros en PA0, PA1, PA3 y PA5</li><li>Conversor USB-serial y Hercules</li><li>Librerías adc_x y uart del repositorio de la clase</li><li>Extensión Teleplot de VS Code (opcional)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Código vs voltaje.</a><a href="#f2">2 · Configuración básica y lectura en el while.</a><a href="#f3">3 · Configurar escaneo, DMA y ranks.</a><a href="#f4">4 · Arrancar una vez y leer el arreglo.</a><a href="#f5">5 · Formato &gt;nombre:valor y retardo corto.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Repaso: resolución del ADC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>12 bits y voltaje de referencia</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>El ADC es de 12 bits: el código máximo es 2<sup>12</sup> − 1 = <b>4095</b>.</p><p>La resolución es Vref / 4095 = 3.3 / 4095 ≈ <b>0.805 mV</b> por código. El ADC no lee voltaje sino código; para pasarlo a voltios se hace una regla de tres.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>voltaje = codigo * 3.3 / 4095.0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Un solo canal</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj, USART y ADC1</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=133" target="_blank" rel="noopener">&#9654; 2:13</a></div><p>Proyecto con el <b>STM32F411CEU</b>, cristal externo y PLL a 100 MHz (84 MHz en un F401).</p><p>Activamos <b>USART1</b> asíncrono a 115200 y en Analog el <b>ADC1</b> con un canal (IN0). Para un solo canal no hay que configurar nada más.</p><p class="ojo">El F411 tiene un solo conversor (ADC1) con varios canales; otros micros tienen varios conversores y la librería sirve para todos.</p><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Generar el proyecto</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=203" target="_blank" rel="noopener">&#9654; 3:23</a></div><p>Lo llamamos <b>ADC_DMA_AUTO_2026</b>, toolchain STM32CubeIDE, y generamos código.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Librerías e includes</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=239" target="_blank" rel="noopener">&#9654; 3:59</a></div><p>Creamos la carpeta <b>LIBRERIAS</b> en Core, la agregamos al path y copiamos <b>adc_x.c/.h</b> (la X es porque sirve sola o con DMA) y <b>uart.c/.h</b>.</p><p>Incluimos todo en main.c y declaramos las variables. Activamos también printf con float en las opciones del proyecto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;adc_x.h&quot;
+#include &quot;uart.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+
+/* USER CODE BEGIN PV */
+uint16_t codigo;
+float voltaje;
+char texto[50];</code></pre></div><div class="dos"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Leer el canal y enviar código y voltaje</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=373" target="_blank" rel="noopener">&#9654; 6:13</a></div><p>Enviamos "INICIANDO" al arrancar y en el while leemos el código con <b>ADC_Read</b>, calculamos el voltaje y lo enviamos cada 500 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+
+while (1)
+{
+    codigo = ADC_Read(&amp;hadc1);
+    voltaje = codigo*3.3/4095.0;
+    sprintf(texto, &quot;COD=%u\r\n&quot;, codigo);
+    uartx_write_text(&amp;huart1, texto);
+    sprintf(texto, &quot;VOLTAJE=%.2f\r\n\r\n&quot;, voltaje);
+    uartx_write_text(&amp;huart1, texto);
+    HAL_Delay(500);
+}</code></pre></div><p class="ojo">En el video el primer intento no mostraba el voltaje porque faltaba el %.2f.</p><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Prueba con un potenciómetro</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=509" target="_blank" rel="noopener">&#9654; 8:29</a></div><p>En Hercules vemos el código y el voltaje: de 0 a <b>4095</b> y de 0 a <b>3.3 V</b> al girar el potenciómetro.</p><div class="uno"><figure class="cap"><a href="img/545.webp" target="_blank"><img src="img/545.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Varios canales con DMA circular</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Activar canales y DMA circular</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=541" target="_blank" rel="noopener">&#9654; 9:01</a></div><p>Activamos <b>IN0, IN1, IN3 e IN5</b>.</p><p>En <b>DMA Settings</b> agregamos el DMA del ADC1 y lo ponemos en <b>Circular</b>: así el DMA vuelve a llenar el buffer solo cada vez que termina, sin que tengamos que pedirlo.</p><p class="ojo">Antes la librería usaba modo Normal; el circular es más estable y preciso.</p><div class="uno"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Parámetros del ADC</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>En Parameter Settings: <b>Scan Conversion Mode</b> Enabled, <b>Continuous Conversion Mode</b> Enabled, <b>DMA Continuous Requests</b> Enabled y fin de conversión al terminar todas las conversiones.</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Número de conversiones y ranks</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=607" target="_blank" rel="noopener">&#9654; 10:07</a></div><p><b>Number of Conversion = 4</b>. Rank 1 canal 0, Rank 2 canal 1, Rank 3 canal 3 y Rank 4 canal 5. El orden de los ranks es el orden en que se llena el buffer.</p><p>El <b>Sampling Time</b> se puede subir si hay ruido (en el video, 84 ciclos para el primer canal). Generamos código.</p><p class="ojo">Si conectas potenciómetros o sensores de baja impedancia (menos de 10 k), deja un Sampling Time alto en cada rank.</p><div class="dos"><figure class="cap"><a href="img/625.webp" target="_blank"><img src="img/625.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Código con DMA</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Arrancar el DMA una sola vez</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=680" target="_blank" rel="noopener">&#9654; 11:20</a></div><p>Comentamos ADC_Read y antes del while llamamos <b>ADC_Read_DMA</b> una sola vez: desde ahí se llena solo el arreglo <b>adc1_codigo[]</b>.</p><p>En <b>adc_x.h</b> solo hay que poner el número de canales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// adc_x.h
+extern ADC_HandleTypeDef hadc1;
+#define adc1_canales 4   // coloque numero de canales del ADC
+extern uint16_t adc1_codigo[];
+
+// main.c, USER CODE BEGIN 2
+ADC_Read_DMA(&amp;hadc1, adc1_canales, adc1_codigo);</code></pre></div><div class="dos"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Leer los voltajes en el while</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=745" target="_blank" rel="noopener">&#9654; 12:25</a></div><p>adc1_codigo[0] es el rank 1 (IN0), adc1_codigo[1] el rank 2 (IN1), y así. Reutilizamos la variable voltaje para cada canal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    voltaje = adc1_codigo[0]*3.3/4095.0;
+    sprintf(texto, &quot;V1=%.2f\r\n&quot;, voltaje);
+    uartx_write_text(&amp;huart1, texto);
+
+    voltaje = adc1_codigo[1]*3.3/4095.0;
+    sprintf(texto, &quot;V2=%.2f\r\n&quot;, voltaje);
+    uartx_write_text(&amp;huart1, texto);
+
+    voltaje = adc1_codigo[2]*3.3/4095.0;
+    sprintf(texto, &quot;V3=%.2f\r\n&quot;, voltaje);
+    uartx_write_text(&amp;huart1, texto);
+
+    voltaje = adc1_codigo[3]*3.3/4095.0;
+    sprintf(texto, &quot;V4=%.2f\r\n\r\n&quot;, voltaje);
+    uartx_write_text(&amp;huart1, texto);
+
+    HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Probar los cuatro potenciómetros</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=887" target="_blank" rel="noopener">&#9654; 14:47</a></div><p>En Hercules aparecen V1 a V4 y cada uno cambia de 0 a 3.3 V al mover su potenciómetro.</p><div class="uno"><figure class="cap"><a href="img/920.webp" target="_blank"><img src="img/920.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Ver los canales en Teleplot</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Formato para Teleplot</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=953" target="_blank" rel="noopener">&#9654; 15:53</a></div><p>Cambiamos el sprintf al formato de Teleplot (<b>&gt;nombre:valor</b>) y bajamos el retardo a 1 ms. A esa velocidad Hercules se traba, pero Teleplot lo grafica sin problema.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>voltaje = adc1_codigo[0]*3.3/4095.0;
+sprintf(texto, &quot;&gt;V1:%.2f\r\n&quot;, voltaje);
+uartx_write_text(&amp;huart1, texto);
+// ... igual para V2, V3 y V4
+HAL_Delay(1);</code></pre></div><p class="ojo">Cambia el nombre de cada variable (V1, V2, V3, V4); en el video al principio todas quedaron como V1.</p><div class="dos"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Visualizar</h3><a class="min" href="https://youtu.be/8z1CsXhhNhw?t=1025" target="_blank" rel="noopener">&#9654; 17:05</a></div><p>Cerramos Hercules, abrimos Teleplot en VS Code con el COM a 115200 y vemos las cuatro señales. Con <b>último valor</b> se muestran como números grandes.</p><div class="uno"><figure class="cap"><a href="img/1190.webp" target="_blank"><img src="img/1190.webp" alt="Clase 138: librería ADC con DMA en modo circular (actualización)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=8z1CsXhhNhw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
