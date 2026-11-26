@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 139: IMU MPU6050, conceptos básicos y filtros · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leemos el MPU6050 con el STM32F411: datos crudos, conversión a g y °/s, ángulos por acelerómetro y por giroscopio, y filtros complementario y Kalman vistos en Teleplot.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/dZ0rydFtviU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 139: IMU MPU6050, conceptos básicos y filtros · Paso a paso">
+  <meta property="og:description" content="Leemos el MPU6050 con el STM32F411: datos crudos, conversión a g y °/s, ángulos por acelerómetro y por giroscopio, y filtros complementario y Kalman vistos en Teleplot.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/dZ0rydFtviU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/dZ0rydFtviU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 139: <span>IMU MPU6050</span>, de datos crudos a ángulos con filtros</h1>
+    <p class="lead">El MPU6050 tiene acelerómetro (mide aceleración en g) y giroscopio (mide velocidad angular en °/s); ninguno mide ángulo directamente. Con la librería MPU6050 de la clase, en el STM32F411 inicializamos y calibramos el sensor, leemos datos crudos, los convertimos con la sensibilidad configurada y calculamos ángulos: con el acelerómetro (rápido pero ruidoso con vibraciones) y con el giroscopio integrando (limpio pero con deriva y dependiente de un tiempo de muestreo exacto). Al final combinamos ambos con el filtro complementario y el filtro de Kalman y comparamos todo en Teleplot.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=dZ0rydFtviU" target="_blank" rel="noopener">&#9654; Ver el video completo (35:31)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2070.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill)</li><li>Módulo MPU6050 (GY-521)</li><li>Conversor USB-serial</li><li>Librerías MPU6050, kalman, uart y delays del repositorio de la clase</li><li>Extensión Teleplot de VS Code</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pines, dirección y configuración en CubeMX.</a><a href="#f2">2 · Tiempo de muestreo, I2C y UART.</a><a href="#f3">3 · init, calibración del giro y lectura.</a><a href="#f4">4 · Sensibilidad del sensor.</a><a href="#f5">5 · Pitch y roll con cada sensor.</a><a href="#f6">6 · Combinar lo mejor de ambos sensores.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El sensor y el proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Conexión del MPU6050</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>Se alimenta de 3 a 5 V. SCL y SDA van al I2C del micro; el módulo ya trae las pull-up.</p><p><b>AD0</b> a tierra o al aire: dirección <b>0x68</b>; AD0 a 3.3 V: <b>0x69</b>.</p><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Reloj, USART1 e I2C1 a 400 kHz</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>En el STM32F411 activamos el cristal externo y llevamos el reloj a 100 MHz (importante para la precisión).</p><p>Activamos <b>USART1</b> a 115200 e <b>I2C1</b> en Fast Mode (400 kHz), que el sensor acepta. El proyecto se llama <b>MPU6050_ARZ_2026</b>.</p><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Librerías</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=207" target="_blank" rel="noopener">&#9654; 3:27</a></div><p>Creamos la carpeta <b>LIBRERIAS</b> en Core, la agregamos al path y copiamos <b>uart</b>, <b>MPU6050</b> y <b>kalman</b> (la librería del MPU la necesita aunque no uses el filtro de Kalman).</p><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar la librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Con o sin timer</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=280" target="_blank" rel="noopener">&#9654; 4:40</a></div><p>En <b>MPU6050.h</b> se elige si el muestreo se hace con timer (más preciso, se usará en la siguiente clase) o con retardos.</p><p>Para trabajar sin timer dejamos comentado el define de timer y ponemos el tiempo de muestreo en ms (10 ms). También se define el I2C del sensor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// MPU6050.h
+#include &quot;main.h&quot;
+#include &quot;kalman.h&quot;
+#include &quot;math.h&quot;
+
+// si manda info serial
+#include &quot;uart.h&quot;
+
+// descomentar si usa timer que es mas preciso
+#define tiempo_muestreo 10   // tiempo muestreo ms
+
+// colocar el i2c a usar con el imu
+#define imu_i2c hi2c1</code></pre></div><p class="ojo">Cuando se define tiempo_muestreo la librería incluye timer.h; revisa el bloque #ifdef de la librería según la versión que tengas.</p><div class="dos"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>UART para enviar datos</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=682" target="_blank" rel="noopener">&#9654; 11:22</a></div><p>En <b>MPU6050.c</b> se indica el UART que usan las funciones MANDA_... y se activa printf con float en las opciones del proyecto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// MPU6050.c
+// si manda info serial
+extern UART_HandleTypeDef huart1;
+char tele[20];</code></pre></div><div class="uno"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Includes en main.c</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=347" target="_blank" rel="noopener">&#9654; 5:47</a></div><p>Incluimos uart, MPU6050, stdio, string, math y stdlib.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;uart.h&quot;
+#include &quot;MPU6050.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+#include &quot;math.h&quot;
+#include &quot;stdlib.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Inicializar, calibrar y leer datos crudos</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Inicializar el sensor</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=446" target="_blank" rel="noopener">&#9654; 7:26</a></div><p>Enviamos "INICIANDO" y llamamos <b>MPU6050_init()</b>.</p><p>La función pregunta WHO_AM_I (registro 0x75), que debería responder 0x68. Algunos clones responden otro valor (0x72) aunque funcionan, por eso esa verificación se quitó de la librería.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+MPU6050_init();
+MPU6050_Calibra();</code></pre></div><p class="ojo">Si tu sensor es original y quieres ser estricto, puedes volver a activar la verificación de WHO_AM_I.</p><div class="dos"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Calibrar el offset del giroscopio</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=618" target="_blank" rel="noopener">&#9654; 10:18</a></div><p>El giroscopio tiene offset y deriva. La calibración toma 1000 muestras con el sensor quieto, las suma y las promedia para restarlas luego.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void MPU6050_Calibra()
+{
+    uint16_t conta_;
+    off_giro_x = 0; off_giro_y = 0; off_giro_z = 0;
+    for (conta_ = 0; conta_ &lt; 1000; conta_++)
+    {
+        MPU6050_lee_datos1();
+        off_giro_x += MPU6050.giro_x;
+        off_giro_y += MPU6050.giro_y;
+        off_giro_z += MPU6050.giro_z;
+        HAL_Delay(1);
+    }
+    // luego se divide entre 1000 para tener el offset
+}</code></pre></div><p class="ojo">No muevas el sensor mientras calibra.</p><div class="uno"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Lectura de registros</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=585" target="_blank" rel="noopener">&#9654; 9:45</a></div><p><b>MPU6050_lee_datos()</b> lee acelerómetro, giroscopio y temperatura (cada valor son dos bytes) y resta el offset del giro.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>MPU6050.ace_x = (int16_t)(Dato_buff[0] &lt;&lt; 8 | Dato_buff[1]);
+MPU6050.ace_y = (int16_t)(Dato_buff[2] &lt;&lt; 8 | Dato_buff[3]);
+MPU6050.ace_z = (int16_t)(Dato_buff[4] &lt;&lt; 8 | Dato_buff[5]);
+MPU6050.giro_x = (int16_t)(Dato_buff[8] &lt;&lt; 8 | Dato_buff[9]);
+MPU6050.giro_y = (int16_t)(Dato_buff[10] &lt;&lt; 8 | Dato_buff[11]);
+MPU6050.giro_z = (int16_t)(Dato_buff[12] &lt;&lt; 8 | Dato_buff[13]);
+
+MPU6050.giro_x -= off_giro_x;
+MPU6050.giro_y -= off_giro_y;
+MPU6050.giro_z -= off_giro_z;</code></pre></div><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Enviar datos crudos a Teleplot</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=751" target="_blank" rel="noopener">&#9654; 12:31</a></div><p>Las funciones <b>MANDA_ACELERACION</b> y <b>MANDA_GIROS</b> envían en formato Teleplot (&gt;AX:valor). En el while leemos y enviamos con un retardo de 5 ms.</p><p>Los datos también están en MPU6050.ace_x, ace_y, ace_z, giro_x, giro_y, giro_z si quieres armar tu propia trama.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void MANDA_ACELERACION()
+{
+    sprintf(tele, &quot;&gt;AX:%d\n&quot;, MPU6050.ace_x);
+    uartx_write_text(&amp;huart1, tele);
+    sprintf(tele, &quot;&gt;AY:%d\n&quot;, MPU6050.ace_y);
+    uartx_write_text(&amp;huart1, tele);
+    sprintf(tele, &quot;&gt;AZ:%d\n&quot;, MPU6050.ace_z);
+    uartx_write_text(&amp;huart1, tele);
+}
+
+// main.c
+while (1)
+{
+    MPU6050_lee_datos();
+    MANDA_ACELERACION();
+    MANDA_GIROS();
+    HAL_Delay(5);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Ver los datos crudos</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=996" target="_blank" rel="noopener">&#9654; 16:36</a></div><p>En Teleplot aparecen AX, AY, AZ, GX, GY, GZ. Al mover el sensor cambian según el eje. Con vibraciones el acelerómetro se llena de ruido; el giroscopio mucho menos.</p><p class="ojo">Si Teleplot no muestra nada, ciérralo y ábrelo otra vez; verifica con Hercules que sí se está transmitiendo (y luego cierra Hercules).</p><div class="uno"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Pasar a unidades reales</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Rangos y sensibilidad</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=788" target="_blank" rel="noopener">&#9654; 13:08</a></div><p>En <b>MPU6050_init</b> se elige el rango: giroscopio 250, 500, 1000 o 2000 °/s y acelerómetro 2, 4, 8 o 16 g.</p><p>Cada rango tiene su sensibilidad (por ejemplo 131 LSB por °/s para 250 °/s). La librería la toma automáticamente.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>enum giro_sen_ {G_250=0, G_500=8, G_1000=16, G_2000=24};
+enum acel_sen_ {A_2g=0, A_4g=8, A_8g=16, A_16g=24};
+
+// en MPU6050_SEN:
+// G_250  -&gt; giro_sen = 131.0
+// G_500  -&gt; giro_sen = 65.5
+// G_1000 -&gt; giro_sen = 32.8</code></pre></div><div class="uno"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Calcular flotantes</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=1131" target="_blank" rel="noopener">&#9654; 18:51</a></div><p><b>MPU6050_calcula_flotantes()</b> divide los datos crudos entre la sensibilidad: aceleración en g y velocidad angular en °/s. También calcula la temperatura.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void MPU6050_calcula_flotantes()
+{
+    MPU6050.ace_x_f = (float)MPU6050.ace_x/acel_sen;
+    MPU6050.ace_y_f = (float)MPU6050.ace_y/acel_sen;
+    MPU6050.ace_z_f = (float)MPU6050.ace_z/acel_sen;
+
+    MPU6050.giro_x_f = (float)MPU6050.giro_x/giro_sen;
+    MPU6050.giro_y_f = (float)MPU6050.giro_y/giro_sen;
+    MPU6050.giro_z_f = (float)MPU6050.giro_z/giro_sen;
+    MPU6050.temperatura = ((float)MPU6050.temperatura_raw/340.0) + 36.54;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1120.webp" target="_blank"><img src="img/1120.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Enviar gravedades y velocidad angular</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=1171" target="_blank" rel="noopener">&#9654; 19:31</a></div><p>Con <b>MANDA_GRAVEDADES</b> y <b>MANDA_VEL_ANGULAR</b> vemos GRAX/GRAY/GRAZ en g y VELX/VELY/VELZ en °/s.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    MPU6050_lee_datos();
+    MPU6050_calcula_flotantes();
+    MANDA_GRAVEDADES();
+    MANDA_VEL_ANGULAR();
+    HAL_Delay(5);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure><figure class="cap"><a href="img/1250.webp" target="_blank"><img src="img/1250.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Ángulos: acelerómetro vs giroscopio</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Calcular los ángulos</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=1389" target="_blank" rel="noopener">&#9654; 23:09</a></div><p><b>MPU6050_Ace_angulos()</b> calcula pitch y roll con arcotangente a partir de la gravedad. No necesita tiempo, pero no mide yaw.</p><p><b>MPU6050_Giro_angulos()</b> integra la velocidad angular (suma por el tiempo de muestreo) y da pitch, roll y yaw, pero el tiempo de muestreo debe ser exacto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    MPU6050_lee_datos();
+    MPU6050_calcula_flotantes();
+    MPU6050_Ace_angulos();
+    MPU6050_Giro_angulos();
+    MANDA_ANG_ACEL();
+    MANDA_ANG_GIRO();
+    delay_ms(9);   // ~10 ms de muestreo en total
+}</code></pre></div><p class="ojo">Si el programa tiene otros retardos, el ángulo del giroscopio queda mal. En la siguiente clase se resuelve con timer.</p><div class="dos"><figure class="cap"><a href="img/1400.webp" target="_blank"><img src="img/1400.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure><figure class="cap"><a href="img/1460.webp" target="_blank"><img src="img/1460.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Retardo más preciso</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=1455" target="_blank" rel="noopener">&#9654; 24:15</a></div><p>HAL_Delay no es muy preciso, así que incluimos la librería <b>delays</b> y la inicializamos con <b>delay_Init()</b> para usar delay_ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;delays.h&quot;
+
+/* USER CODE BEGIN 2 */
+delay_Init();</code></pre></div><div class="uno"><figure class="cap"><a href="img/1500.webp" target="_blank"><img src="img/1500.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Comparar en Teleplot</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=1637" target="_blank" rel="noopener">&#9654; 27:17</a></div><p>El ángulo del acelerómetro salta con cualquier vibración. El del giroscopio es más limpio pero con el tiempo se va alejando (deriva por la integración).</p><div class="dos"><figure class="cap"><a href="img/1640.webp" target="_blank"><img src="img/1640.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure><figure class="cap"><a href="img/1700.webp" target="_blank"><img src="img/1700.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure><figure class="cap"><a href="img/1780.webp" target="_blank"><img src="img/1780.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f6"><div class="contenedor"><span class="etiqueta">Fase 6</span><h2>Filtro complementario y Kalman</h2><article class="paso"><div class="paso-cab"><span class="num">6.1</span><h3>Filtro complementario</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=1766" target="_blank" rel="noopener">&#9654; 29:26</a></div><p>Combina los dos: le da peso <b>alfa</b> al giroscopio integrado y <b>1 − alfa</b> al acelerómetro. Con alfa entre 0.95 y 0.99 se quita la vibración y se evita la deriva.</p><p>Mientras más alto alfa, más confía en el giroscopio y más ruido filtra.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// idea del filtro:
+// angulo = alfa*(angulo + giro*dt) + (1 - alfa)*angulo_acel;
+
+void Filtro_Complementario(float alpha);
+void filtro_kalman();</code></pre></div><div class="uno"><figure class="cap"><a href="img/1870.webp" target="_blank"><img src="img/1870.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.2</span><h3>Programa con ambos filtros</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=1865" target="_blank" rel="noopener">&#9654; 31:05</a></div><p>Llamamos <b>Filtro_Complementario(0.95)</b> y <b>filtro_kalman()</b> y enviamos los ángulos de cada método.</p><p>El filtro de Kalman recibe el ángulo del acelerómetro y la velocidad del giro multiplicada por el tiempo de muestreo; hay que inicializar sus canales de pitch y roll al principio del programa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    MPU6050_lee_datos();
+    MPU6050_calcula_flotantes();
+    MPU6050_Ace_angulos();
+    MPU6050_Giro_angulos();
+    Filtro_Complementario(0.95);
+    filtro_kalman();
+
+    MANDA_ANG_ACEL();
+    MANDA_ANG_GIRO();
+    MANDA_ANG_COMPLE();
+    MANDA_ANG_KARMAN();
+
+    delay_ms(9);
+}</code></pre></div><p class="ojo">El nombre exacto de la función que inicializa el Kalman está en la librería (ver MPU6050.h); en el video se menciona pero no se muestra.</p><div class="dos"><figure class="cap"><a href="img/1900.webp" target="_blank"><img src="img/1900.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure><figure class="cap"><a href="img/1950.webp" target="_blank"><img src="img/1950.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/dZ0rydFtviU?t=2000" target="_blank" rel="noopener">&#9654; 33:20</a></div><p>Pitch y roll del complementario y del Kalman son muy parecidos y casi no se afectan con la vibración, mientras el acelerómetro solo salta mucho. El Kalman queda un poco más limpio que el complementario.</p><p>Ambos dependen de un tiempo de muestreo exacto: eso se resuelve en la siguiente clase.</p><div class="dos"><figure class="cap"><a href="img/2000.webp" target="_blank"><img src="img/2000.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure><figure class="cap"><a href="img/2070.webp" target="_blank"><img src="img/2070.webp" alt="Clase 139: IMU MPU6050, conceptos básicos y filtros" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=dZ0rydFtviU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
