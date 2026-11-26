@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 144: sensor MAX30102 de pulso cardiaco y SpO2 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Librería para el MAX30102 en el STM32F411: configuración de LEDs, frecuencia de muestreo y umbral de dedo, y lectura de pulso (BPM), SpO2 y temperatura por serial.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/wGhlog8ZpiE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2 · Paso a paso">
+  <meta property="og:description" content="Librería para el MAX30102 en el STM32F411: configuración de LEDs, frecuencia de muestreo y umbral de dedo, y lectura de pulso (BPM), SpO2 y temperatura por serial.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/wGhlog8ZpiE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/wGhlog8ZpiE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 144: <span>pulso y saturación de oxígeno</span> con el MAX30102</h1>
+    <p class="lead">El MAX30102 mide pulso cardiaco y saturación de oxígeno con un LED rojo y uno infrarrojo, y además la temperatura del chip. No es de grado médico, pero sirve como referencia. Configuramos el STM32F411 con I2C1 a 400 kHz y USART1, agregamos la librería max30102 (hecha con ayuda de IA y ajustada a mano), ajustamos la configuración (frecuencia, corrientes de los LED, límites de pulso y umbral para detectar el dedo) y leemos todo con una sola función en el while.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=wGhlog8ZpiE" target="_blank" rel="noopener">&#9654; Ver el video completo (11:58)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/570.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill)</li><li>Módulo MAX30102</li><li>Conversor USB-serial y Hercules</li><li>Librerías max30102 y uart</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeMX y librerías.</a><a href="#f2">2 · Frecuencia, LEDs, pulso y dedo.</a><a href="#f3">3 · Una sola función en el while.</a><a href="#f4">4 · Resultados en Hercules.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Reloj, I2C1 y USART1</h3><a class="min" href="https://youtu.be/wGhlog8ZpiE?t=31" target="_blank" rel="noopener">&#9654; 0:31</a></div><p>Con el <b>STM32F411CEU</b> activamos el cristal y el reloj al máximo, <b>I2C1</b> a 400 kHz y <b>USART1</b> a 115200. El proyecto se llama <b>MAX30102_ARZ</b>.</p><p class="ojo">El sensor es sensible a la electricidad estática: usa manilla antiestática al soldarlo.</p><div class="dos"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure><figure class="cap"><a href="img/85.webp" target="_blank"><img src="img/85.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Librerías</h3><a class="min" href="https://youtu.be/wGhlog8ZpiE?t=178" target="_blank" rel="noopener">&#9654; 2:58</a></div><p>Copiamos <b>max30102.c/.h</b> y <b>uart.c/.h</b> en LIBRERIAS, los agregamos al path, activamos printf con float y declaramos el buffer de texto.</p><p>En max30102.h se configura el puerto I2C; la dirección del sensor es fija y no puede haber otro dispositivo con la misma en el bus.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;max30102.h&quot;
+#include &quot;uart.h&quot;
+
+/* USER CODE BEGIN PV */
+char texto[100];</code></pre></div><div class="dos"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración del sensor</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Configuración por defecto y ajustes</h3><a class="min" href="https://youtu.be/wGhlog8ZpiE?t=301" target="_blank" rel="noopener">&#9654; 5:01</a></div><p><b>MAX30102_DefaultConfig(&config)</b> carga una configuración inicial que luego se puede modificar:</p><p><b>sample_rate_hz</b>: 50, 100, 200 o 400 (con 50 o 100 a veces no lee bien la SpO2).</p><p><b>led_red_current</b> y <b>led_ir_current</b>: corriente de cada LED; de ellas depende que detecte el dedo.</p><p><b>min_bpm</b> y <b>max_bpm</b>: límites válidos del pulso.</p><p><b>finger_threshold_ir</b>: umbral del IR para saber si hay dedo; muy bajo puede no detectar y muy alto tarda.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>MAX30102_DefaultConfig(&amp;config);
+config.sample_rate_hz = 200U;     // 50 100 200 400
+config.led_red_current = 0x24;    // corriente leds rojo
+config.led_ir_current = 0x24;     // corriente del led ir
+// limites del pulso
+config.min_bpm = 50U;
+config.max_bpm = 140U;
+// para detectar el dedo
+config.finger_threshold_ir = 10000U;</code></pre></div><div class="dos"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Inicializar</h3><a class="min" href="https://youtu.be/wGhlog8ZpiE?t=429" target="_blank" rel="noopener">&#9654; 7:09</a></div><p>Si el sensor responde, enviamos "SENSOR OK"; si no está conectado o está dañado, "SENSOR BAD".</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (MAX30102_Init() == HAL_OK) uartx_write_text(&amp;huart1, &quot;SENSOR OK\r\n&quot;);
+else uartx_write_text(&amp;huart1, &quot;SENSOR BAD\r\n&quot;);</code></pre></div><p class="ojo">Revisa en max30102.h si tu versión de MAX30102_Init recibe la configuración (&config).</p><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Lectura</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>MAX30102_Update</h3><a class="min" href="https://youtu.be/wGhlog8ZpiE?t=461" target="_blank" rel="noopener">&#9654; 7:41</a></div><p><b>MAX30102_Update()</b> lee y procesa todo. Si la lectura es válida, los datos quedan en <b>data.bpm</b>, <b>data.spo2</b> y <b>data.temperature_c</b>. Si no hay dedo, <b>data.finger_present</b> vale 0.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    if (MAX30102_Update() == HAL_OK)
+    {
+        if (data.valid != 0U)
+        {
+            sprintf(texto, &quot;Pulso: %.1f BPM | SpO2: %.1f %% | Temp: %.2f C\r\n&quot;,
+                    data.bpm,
+                    data.spo2,
+                    data.temperature_c);
+            uartx_write_text(&amp;huart1, texto);
+        }
+        else if (data.finger_present == 0U)
+        {
+            uartx_write_text(&amp;huart1, &quot;Coloca el dedo en el sensor\r\n&quot;);
+        }
+    }
+    HAL_Delay(200);
+}</code></pre></div><p class="ojo">El sensor promedia muchas muestras y es lento: cuando hay dedo, retrasa el resto del programa.</p><div class="dos"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Con y sin dedo</h3><a class="min" href="https://youtu.be/wGhlog8ZpiE?t=558" target="_blank" rel="noopener">&#9654; 9:18</a></div><p>Sin dedo aparece "Coloca el dedo en el sensor". Al ponerlo, tarda un rato (unos 15 s) procesando y luego muestra pulso, SpO2 (alrededor de 98 %) y la temperatura.</p><p>El pulso a veces sale algo alto; la librería se puede seguir puliendo.</p><p class="ojo">La temperatura es la del chip (ambiente), no la del dedo.</p><div class="dos"><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 144: sensor MAX30102 de pulso cardiaco y SpO2" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=wGhlog8ZpiE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
