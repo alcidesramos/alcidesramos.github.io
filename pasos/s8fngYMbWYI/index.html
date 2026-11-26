@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 146: librerías para el DAC simple y con DMA, generador de señales · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Librería DAC.h/DAC.c para el STM32H523: código o voltaje en modo simple y, con DMA, senoidal, senoidal desfasada, cuadrada, triangular y diente de sierra con el timer calculado solo.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/s8fngYMbWYI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 146: librerías para el DAC simple y con DMA, generador de señales · Paso a paso">
+  <meta property="og:description" content="Librería DAC.h/DAC.c para el STM32H523: código o voltaje en modo simple y, con DMA, senoidal, senoidal desfasada, cuadrada, triangular y diente de sierra con el timer calculado solo.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/s8fngYMbWYI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/s8fngYMbWYI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 146: <span>generador de señales</span> con mis librerías del DAC</h1>
+    <p class="lead">Tras ver en la clase anterior de dónde salen los cálculos, ahora usamos una librería que lo hace todo. En modo simple basta con inicializar cada DAC del usuario y sacar un código o un voltaje. Con DMA (dos canales de GPDMA, TIM6 y TIM7) la librería genera la forma de onda en un buffer y calcula sola el prescaler y el periodo del timer para la frecuencia pedida. Probamos cuadrada y seno juntas, dos senos desfasados 90 o 180 grados, diente de sierra, rotación del buffer, y vemos el compromiso entre número de muestras y frecuencia máxima.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=s8fngYMbWYI" target="_blank" rel="noopener">&#9654; Ver el video completo (35:57)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1260.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales"></figure>
+    <ul class="materiales"><li>Tarjeta WeAct STM32H523CET6</li><li>ST-LINK</li><li>Osciloscopio de dos canales</li><li>Librerías DAC.h y DAC.c</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · DAC, reloj y funciones básicas.</a><a href="#f2">2 · Trigger, GPDMA y timers.</a><a href="#f3">3 · Cuadrada, seno, fase, sierra y rotación.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto y librería en modo simple</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>DAC1 con dos salidas y reloj a 250 MHz</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>En CubeMX activamos <b>DAC1 OUT1</b> y <b>OUT2</b> (only external pin), con <b>HSE</b> de 8 MHz y el sistema a <b>250 MHz</b>. Por ahora sin DMA. El proyecto se llama <b>DAC_DMA_CANAL</b>.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>La línea de oro: #define DMA</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=283" target="_blank" rel="noopener">&#9654; 4:43</a></div><p>Creamos la carpeta <b>LIBRERIAS</b> dentro de Core, pegamos <b>DAC.h</b> y <b>DAC.c</b> y la agregamos a las rutas de include.</p><p>En <b>DAC.h</b>: <b>sin DMA la línea va comentada</b>, con DMA se descomenta. La librería habilita solo las funciones que tocan.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//descomentar si usa DMA
+//#define DMA
+
+typedef struct {
+  DAC_HandleTypeDef *hdac;
+  uint32_t channel;
+#ifdef DMA
+  TIM_HandleTypeDef *htim;
+#endif
+  uint32_t *buffer;
+  uint16_t size;
+} DACS;
+
+void DAC_INIT(DACS *dac);
+void DAC_OUT_CODIGO(DACS *dac, uint16_t codigo);
+void DAC_OUT_VOLTAJE(DACS *dac, float valor);</code></pre></div><div class="dos"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Los DAC del usuario</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=388" target="_blank" rel="noopener">&#9654; 6:28</a></div><p>En <b>DAC.c</b> se declaran las variables <b>DACU1</b> y <b>DACU2</b> diciendo qué DAC y qué canal usa cada una. Si tu micro tiene más DAC, agregas DACU3, DACU4.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>DACS DACU1 = {&amp;hdac1, DAC_CHANNEL_1};
+DACS DACU2 = {&amp;hdac1, DAC_CHANNEL_2};</code></pre></div><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Código, voltaje y rampa</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=452" target="_blank" rel="noopener">&#9654; 7:32</a></div><p>En el main se inicializan los dos DAC y se saca un código por uno y un voltaje por el otro. Una rampa en el while sube el voltaje de 0 a 3.3 V.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>DAC_INIT(&amp;DACU1);
+DAC_INIT(&amp;DACU2);
+
+DAC_OUT_CODIGO(&amp;DACU1, 3000);
+DAC_OUT_VOLTAJE(&amp;DACU2, 2.2);
+
+while (1)
+{
+  for (float voltaje = 0; voltaje &lt;= 3.3; voltaje += 0.1)
+  {
+    DAC_OUT_VOLTAJE(&amp;DACU2, voltaje);
+    HAL_Delay(200);
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración para DMA</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Trigger de cada canal</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=654" target="_blank" rel="noopener">&#9654; 10:54</a></div><p>En el DAC, el trigger del canal 1 es el <b>Timer 6</b> y el del canal 2 el <b>Timer 7</b>. Así cada salida genera su propia señal.</p><div class="uno"><figure class="cap"><a href="img/670.webp" target="_blank"><img src="img/670.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Dos canales de GPDMA</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=689" target="_blank" rel="noopener">&#9654; 11:29</a></div><p>En <b>GPDMA1</b> habilitamos dos canales en <b>Standard Request Mode</b>, ambos en modo <b>circular</b>.</p><p>Request <b>DAC1_CH1</b> en uno y <b>DAC1_CH2</b> en el otro, <b>memoria a periférico</b>, incremento en la fuente y ancho <b>Word</b> en origen y destino. Prioridad media (o alta si uno debe mandar).</p><div class="uno"><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>TIM6 y TIM7</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=790" target="_blank" rel="noopener">&#9654; 13:10</a></div><p>Activamos los dos timers con <b>auto-reload preload</b> habilitado y <b>Trigger Event Selection: Update Event</b>.</p><p>El prescaler y el periodo ya no se calculan a mano: la librería busca los mejores valores para la frecuencia pedida.</p><p class="ojo">Si olvidas el Update Event el DMA no se sincroniza y no sale nada (pasó en el video).</p><div class="dos"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure><figure class="cap"><a href="img/1045.webp" target="_blank"><img src="img/1045.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Activar DMA y tamaño del buffer</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=823" target="_blank" rel="noopener">&#9654; 13:43</a></div><p>Regeneramos el código y en DAC.h descomentamos <b>#define DMA</b>. Se define el tamaño del buffer de cada DAC del usuario.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//descomentar si usa DMA
+#define DMA
+
+//define tamaño buffer de los DAC del usuario
+#define sizebuff_DACU1 200
+#define sizebuff_DACU2 200</code></pre></div><p class="ojo">Más muestras dan una señal más limpia, pero exigen un timer más rápido y bajan la frecuencia máxima posible.</p><div class="uno"><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Generando señales</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Cuadrada y senoidal a la vez</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=888" target="_blank" rel="noopener">&#9654; 14:48</a></div><p>Se llena el buffer con la forma de onda y se arranca el DMA de cada DAC. La cuadrada recibe frecuencia, voltaje, ciclo útil y offset; la seno recibe frecuencia, amplitud y offset.</p><p>La función interna <b>DAC_TimerConfig</b> prueba todos los prescaler posibles y elige el ARR con menor error.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>CUADRADA(&amp;DACU2, 1000, 3.0, 50.0, 0);
+SENO(&amp;DACU1, 900, 2.0, 1.0);
+DAC_INIT_DMA(&amp;DACU2);
+DAC_INIT_DMA(&amp;DACU1);</code></pre></div><p class="ojo">Cambiando el ciclo útil a 20 y la seno a 1200 Hz se ve el cambio al instante.</p><div class="dos"><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure><figure class="cap"><a href="img/965.webp" target="_blank"><img src="img/965.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure><figure class="cap"><a href="img/1075.webp" target="_blank"><img src="img/1075.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Dos senos desfasados</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=1164" target="_blank" rel="noopener">&#9654; 19:24</a></div><p><b>SENO_FASE</b> agrega un último parámetro con el desfase en grados. Con 90 o 180 grados se pueden tener dos senos complementarios, útiles por ejemplo para un inversor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>SENO(&amp;DACU1, 60, 2.0, 0.0);
+SENO_FASE(&amp;DACU2, 60, 2.0, 0.0, 90);
+DAC_INIT_DMA(&amp;DACU2);
+DAC_INIT_DMA(&amp;DACU1);</code></pre></div><p class="ojo">Cada señal debe ir a un DAC distinto; si las dos van al mismo canal se pisan entre ellas.</p><div class="dos"><figure class="cap"><a href="img/1135.webp" target="_blank"><img src="img/1135.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure><figure class="cap"><a href="img/1220.webp" target="_blank"><img src="img/1220.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure><figure class="cap"><a href="img/1260.webp" target="_blank"><img src="img/1260.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Diente de sierra y rotar el buffer</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=1272" target="_blank" rel="noopener">&#9654; 21:12</a></div><p><b>DIENTE_SIERRA</b> genera la rampa. <b>ROTA_DER</b> y <b>ROTA_IZQ</b> desplazan el buffer en el tiempo, como mover la señal en el eje X.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>DIENTE_SIERRA(&amp;DACU1, 60, 2.0, 0.0);
+SENO_FASE(&amp;DACU2, 60, 2.0, 0.0, 180);
+ROTA_DER(DACU1.buffer, DACU1.size, 50);
+DAC_INIT_DMA(&amp;DACU2);
+DAC_INIT_DMA(&amp;DACU1);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1385.webp" target="_blank"><img src="img/1385.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure><figure class="cap"><a href="img/1420.webp" target="_blank"><img src="img/1420.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Muestras contra frecuencia máxima</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=1437" target="_blank" rel="noopener">&#9654; 23:57</a></div><p>Con 200 muestras la seno llega a unos 95 kHz; con 500 muestras cae a unos 50 kHz porque el timer no da más.</p><p>Con 5 muestras la señal ya no parece seno (Nyquist). Con 10 muestras se llega a 300 kHz, pero muy discretizada. Un valor normal es <b>50 o 100</b> muestras.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define sizebuff_DACU1 5
+#define sizebuff_DACU2 5</code></pre></div><div class="dos"><figure class="cap"><a href="img/1700.webp" target="_blank"><img src="img/1700.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure><figure class="cap"><a href="img/1800.webp" target="_blank"><img src="img/1800.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Cambiar de señal en el tiempo</h3><a class="min" href="https://youtu.be/s8fngYMbWYI?t=1987" target="_blank" rel="noopener">&#9654; 33:07</a></div><p>Como el DMA trabaja solo, el while queda libre. Se puede cambiar la forma de onda cada cierto tiempo: cuadrada, seno y triangular cada 2 segundos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  CUADRADA(&amp;DACU1, 1000, 3.0, 20.0, 0);
+  HAL_Delay(2000);
+  SENO(&amp;DACU1, 3000, 2.0, 1.0);
+  HAL_Delay(2000);
+  TRIANGULAR(&amp;DACU1, 3000, 2.0, 1.0);
+  HAL_Delay(2000);
+}</code></pre></div><p class="ojo">Las librerías DAC.h y DAC.c son las del autor del video; descárgalas desde los enlaces del video.</p><div class="dos"><figure class="cap"><a href="img/2040.webp" target="_blank"><img src="img/2040.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure><figure class="cap"><a href="img/2140.webp" target="_blank"><img src="img/2140.webp" alt="Clase 146: librerías para el DAC simple y con DMA, generador de señales" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=s8fngYMbWYI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
