@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Formas de abrir un proyecto existente con CubeMX y CubeIDE separados, y cómo mostrar imágenes en la TFT ILI9341 convirtiéndolas con LCD Image Converter.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/74NMjwjy_8s/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341 · Paso a paso">
+  <meta property="og:description" content="Formas de abrir un proyecto existente con CubeMX y CubeIDE separados, y cómo mostrar imágenes en la TFT ILI9341 convirtiéndolas con LCD Image Converter.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/74NMjwjy_8s/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/74NMjwjy_8s/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 129: TFT ILI9341 <span>imágenes propias</span></h1>
+    <p class="lead">Continuación de la clase 128 con la pantalla ILI9341. Primero se repasan las formas de abrir un proyecto que ya existe ahora que CubeMX y CubeIDE van por separado. Después se agrega el archivo imagenes.h con las imágenes guardadas como arreglos en flash, se muestran con draw_bitmap y se explica cómo convertir cualquier foto a arreglo C con LCD Image Converter en formato RGB565. Al final se recuerda ajustar el ancho y alto de la pantalla en ILI9341.h si tu TFT es de otro tamaño.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=74NMjwjy_8s" target="_blank" rel="noopener">&#9654; Ver el video completo (16:11)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/600.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341"></figure>
+    <ul class="materiales"><li>Blackpill STM32F411CEU</li><li>Pantalla TFT ILI9341 2.8" 240x320 SPI</li><li>Proyecto de la clase 128</li><li>Archivo imagenes.h</li><li>LCD Image Converter (gratuito)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeMX y CubeIDE separados</a><a href="#f2">2 · imagenes.h y draw_bitmap</a><a href="#f3">3 · LCD Image Converter</a><a href="#f4">4 · Ancho y alto en ILI9341.h</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Abrir un proyecto existente</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Desde CubeMX</h3><a class="min" href="https://youtu.be/74NMjwjy_8s?t=50" target="_blank" rel="noopener">&#9654; 0:50</a></div><p>Se abre CubeMX, File > Load Project y se elige el .ioc. Sin hacer cambios se presiona GENERATE CODE y luego Open Project: CubeIDE se abre con el proyecto enlazado.</p><p>Hardware en CubeMX, software en CubeIDE.</p><div class="dos"><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341" loading="lazy"></a></figure><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Desde CubeIDE</h3><a class="min" href="https://youtu.be/74NMjwjy_8s?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><p>Si el proyecto ya está en el workspace de CubeIDE, doble clic al .ioc abre CubeMX. Cada cambio de hardware se hace allí y con GENERATE CODE pasa al IDE.</p><p>Si el proyecto no está en el workspace: File > Open Projects from File System (Import), se busca la carpeta y Finish. También puedes dar doble clic al .ioc desde el explorador de Windows para abrirlo en CubeMX y generar código.</p><div class="uno"><figure class="cap"><a href="img/130.webp" target="_blank"><img src="img/130.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Mostrar imágenes</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Agregar imagenes.h</h3><a class="min" href="https://youtu.be/74NMjwjy_8s?t=380" target="_blank" rel="noopener">&#9654; 6:20</a></div><p>Se copia imagenes.h a la carpeta Librerias y se incluye en el main. Las pruebas de texto de la clase anterior se dejan comentadas.</p><p>Las imágenes se guardan en la flash del micro, que no es muy grande. Más adelante se verá cómo leerlas desde una memoria SD o una flash SPI.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;imagenes.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Dibujar con draw_bitmap</h3><a class="min" href="https://youtu.be/74NMjwjy_8s?t=480" target="_blank" rel="noopener">&#9654; 8:00</a></div><p>draw_bitmap recibe la posición x, y, la escala y el nombre del arreglo.</p><p>En el video falló primero porque la carpeta de imágenes copiada era una versión vieja que no tenía el arreglo zorro. Si el compilador dice que no existe, revisa que el nombre esté en imagenes.h.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>draw_bitmap(0, 0, 1, zorro);   // x, y, escala, imagen</code></pre></div><div class="dos"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/74NMjwjy_8s?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>En la pantalla aparece el zorro en la esquina superior izquierda.</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Convertir tus propias imágenes</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Abrir la imagen</h3><a class="min" href="https://youtu.be/74NMjwjy_8s?t=660" target="_blank" rel="noopener">&#9654; 11:00</a></div><p>Se abre LCD Image Converter y File > Open. En el cuadro de diálogo elige "todos los archivos" para ver .jpg y .png.</p><p>La imagen tiene que ser más pequeña que la pantalla (máximo 320x240 en horizontal). Si no, redimensiónala antes con cualquier editor. En el video, un perro de 320x209.</p><div class="uno"><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Opciones de conversión</h3><a class="min" href="https://youtu.be/74NMjwjy_8s?t=800" target="_blank" rel="noopener">&#9654; 13:20</a></div><p>Options > Conversion. En Preset se elige Color R5G6B5 (formato 565 de 16 bits que usa la pantalla).</p><p>En la pestaña Image: Block size 16 bit, Split to rows marcado y Byte order Little-Endian. OK.</p><p>Con Show Preview aparece todo el arreglo en hexadecimal; se selecciona todo y se copia.</p><div class="uno"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Pegar en imagenes.h</h3><a class="min" href="https://youtu.be/74NMjwjy_8s?t=870" target="_blank" rel="noopener">&#9654; 14:30</a></div><p>Al final de imagenes.h se crea un arreglo nuevo, se escriben primero el ancho y el alto, y debajo se pegan los datos copiados.</p><p>Se cambia el nombre en draw_bitmap(0, 0, 1, lobo), se compila y se programa. La carga tarda un poco más por el tamaño del arreglo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const unsigned int lobo[] = {
+    320, 209,          // ancho, alto
+    /* pegar aqui los datos del Preview */
+};</code></pre></div><div class="dos"><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341" loading="lazy"></a></figure><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Tamaño de la pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Ajustar TFT_W y TFT_H</h3><a class="min" href="https://youtu.be/74NMjwjy_8s?t=960" target="_blank" rel="noopener">&#9654; 16:00</a></div><p>En ILI9341.h, en la zona de configuración, están las dimensiones de la pantalla. Si tu TFT es de otro tamaño, cámbialas aquí.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// Dimensiones de la pantalla
+#define TFT_W 240
+#define TFT_H 320</code></pre></div><div class="uno"><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Clase 129 STM32: Imágenes personalizadas en la TFT ILI9341" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=74NMjwjy_8s" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
