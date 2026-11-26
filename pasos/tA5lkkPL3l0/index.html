@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 134 STM32: TouchGFX, leer un slider · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Agregar un slider en TouchGFX, leer su valor en una función virtual, enviarlo por UART (llamando funciones de C desde C++) o pasarlo al main con una bandera, y mostrarlo en pantalla con un wildcard.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/tA5lkkPL3l0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 134 STM32: TouchGFX, leer un slider · Paso a paso">
+  <meta property="og:description" content="Agregar un slider en TouchGFX, leer su valor en una función virtual, enviarlo por UART (llamando funciones de C desde C++) o pasarlo al main con una bandera, y mostrarlo en pantalla con un wildcard.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/tA5lkkPL3l0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/tA5lkkPL3l0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 134: TouchGFX <span>slider de control</span></h1>
+    <p class="lead">Continuación del proyecto TouchGFX con la ILI9341 táctil. En la pantalla 2 se agrega un Slider de 0 a 100. Una interacción "slider value changed" llama una función virtual que recibe el valor. Se muestran dos formas de usarlo: procesarlo directamente en el archivo de la pantalla (lo que obliga a llamar funciones de C desde C++ con extern "C") o, la forma recomendada, activar una bandera y procesarlo en el main. Al final se muestra el valor en un Text Area con wildcard.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=tA5lkkPL3l0" target="_blank" rel="noopener">&#9654; Ver el video completo (17:05)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1010.webp" alt="Clase 134 STM32: TouchGFX, leer un slider"></figure>
+    <ul class="materiales"><li>Proyecto TouchGFX de las clases 131 a 133</li><li>Blackpill STM32F411</li><li>Pantalla TFT ILI9341 SPI táctil</li><li>Convertidor USB-serial en el TX de USART1</li><li>Librería uart del canal</li><li>Hercules u otra terminal serial</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Widget e interacción</a><a href="#f2">2 · UART desde C++</a><a href="#f3">3 · La recomendada</a><a href="#f4">4 · Text Area con wildcard</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Slider en TouchGFX</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Agregar el slider</h3><a class="min" href="https://youtu.be/tA5lkkPL3l0?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>En Screen2 se agrega un Slider (Miscellaneous > Slider) y se elige un estilo pequeño en Preset. Se le pone nombre: SLIDER_VELO. Por defecto va de 0 a 100; se puede cambiar el rango en sus propiedades.</p><div class="dos"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Interacción al cambiar de valor</h3><a class="min" href="https://youtu.be/tA5lkkPL3l0?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>Interactions > nueva: Trigger "Slider value changed", Choose slider SLIDER_VELO, Action "Call new virtual function" con el nombre CAMBIA_VELOCIDAD. Generate Code.</p><div class="uno"><figure class="cap"><a href="img/135.webp" target="_blank"><img src="img/135.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Declarar la función</h3><a class="min" href="https://youtu.be/tA5lkkPL3l0?t=180" target="_blank" rel="noopener">&#9654; 3:00</a></div><p>En gui_generated/include/gui_generated/screen2_screen/Screen2ViewBase.hpp aparece la función virtual, que ahora recibe el valor del slider (int value). Se copia a gui/include/gui/screen2_screen/Screen2View.hpp.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// gui/include/gui/screen2_screen/Screen2View.hpp
+virtual void CAMBIAPANTALLA();
+virtual void CAMBIA_VELOCIDAD(int value);   // recibe el valor del slider</code></pre></div><div class="dos"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Primera forma: todo en la pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>USART1 y librería uart</h3><a class="min" href="https://youtu.be/tA5lkkPL3l0?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>En CubeMX se activa USART1 a 115200 baudios y se conecta su TX a un convertidor USB-serial. Se pega la librería uart en LIBRERIAS.</p><div class="uno"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Enviar el valor por serial</h3><a class="min" href="https://youtu.be/tA5lkkPL3l0?t=420" target="_blank" rel="noopener">&#9654; 7:00</a></div><p>En Screen2View.cpp se escribe la función: arma el texto con sprintf y lo envía por USART1 cada vez que el slider cambia.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// gui/src/screen2_screen/Screen2View.cpp  -- primera forma (todo aqui)
+#include &quot;main.h&quot;
+#include &quot;uart.h&quot;
+#include &lt;stdio.h&gt;
+extern UART_HandleTypeDef huart1;
+char texto_tft[50];
+
+void Screen2View::CAMBIA_VELOCIDAD(int value)
+{
+    sprintf(texto_tft, &quot;VELOCIDAD=%d\r\n&quot;, value);
+    uartx_write_text(&amp;huart1, texto_tft);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Llamar funciones de C desde C++</h3><a class="min" href="https://youtu.be/tA5lkkPL3l0?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>Al compilar aparece undefined reference to uartx_write_text: los archivos de TouchGFX son C++ y la librería está en C.</p><p>La solución es envolver los prototipos del .h de la librería con extern "C". Sirve para cualquier librería en C que quieras usar desde C++.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// uart.h : permitir que C++ llame funciones escritas en C
+#ifdef __cplusplus
+extern &quot;C&quot; {
+#endif
+
+void uartx_write(UART_HandleTypeDef *huart, char ch);
+void uartx_write_text(UART_HandleTypeDef *huart, char *info);
+/* ... resto de prototipos ... */
+
+#ifdef __cplusplus
+}
+#endif</code></pre></div><div class="uno"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Probar</h3><a class="min" href="https://youtu.be/tA5lkkPL3l0?t=540" target="_blank" rel="noopener">&#9654; 9:00</a></div><p>En la terminal serial aparece VELOCIDAD=0 ... VELOCIDAD=100 al mover el slider. Este touch resistivo necesita bastante presión.</p><div class="uno"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Segunda forma: bandera al main</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Procesar en el main</h3><a class="min" href="https://youtu.be/tA5lkkPL3l0?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>En el main se crean velocidad, una bandera flag_velo y un texto. En el while, si la bandera está en 1 se envía el valor y la bandera vuelve a 0.</p><p>Así la pantalla solo avisa y el main decide qué hacer (PWM, motor, etc.).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// main.c -- segunda forma (bandera y se procesa en el main)
+/* USER CODE BEGIN PV */
+uint16_t velocidad;
+uint8_t  flag_velo = 0;
+char texto[50];
+/* USER CODE END PV */
+
+while (1)
+{
+    voltaje = ADC_Read(&amp;hadc1) * 100.0 / 4095.0;
+
+    if (flag_velo == 1)
+    {
+        sprintf(texto, &quot;VELOCIDAD=%d\r\n&quot;, velocidad);
+        uartx_write_text(&amp;huart1, texto);
+        flag_velo = 0;
+    }
+    MX_TouchGFX_Process();
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Activar la bandera desde la pantalla</h3><a class="min" href="https://youtu.be/tA5lkkPL3l0?t=650" target="_blank" rel="noopener">&#9654; 10:50</a></div><p>En Screen2View.cpp las variables se declaran extern y la función solo activa la bandera y copia el valor. En el video falló hasta declarar también flag_velo como extern.</p><div class="uno"><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Mostrar el valor en pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Text Area y tipografía</h3><a class="min" href="https://youtu.be/tA5lkkPL3l0?t=790" target="_blank" rel="noopener">&#9654; 13:10</a></div><p>Se agrega un Text Area llamado SLIDER_TEXT, sin Auto-size, con texto <value> y Wildcard 1 (valor inicial 0 y buffer).</p><p>En Typographies se agregan a la tipografía los Wildcard Characters 0123456789.,%</p><div class="dos"><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Escribir el valor</h3><a class="min" href="https://youtu.be/tA5lkkPL3l0?t=920" target="_blank" rel="noopener">&#9654; 15:20</a></div><p>En CAMBIA_VELOCIDAD se escribe el valor en SLIDER_TEXTBuffer y se llama SLIDER_TEXT.invalidate().</p><p>Los nombres del buffer y del tamaño salen en mayúsculas; si el widget se llama en minúsculas, te dará error. Acostúmbrate a nombrar todo en mayúsculas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// Screen2View.cpp -- segunda forma + texto en pantalla
+extern uint16_t velocidad;
+extern uint8_t  flag_velo;
+
+void Screen2View::CAMBIA_VELOCIDAD(int value)
+{
+    flag_velo = 1;          // aviso al main
+    velocidad = value;
+
+    Unicode::snprintf(SLIDER_TEXTBuffer, SLIDER_TEXT_SIZE, &quot;%d&quot;, value);
+    // Unicode::snprintfFloat(SLIDER_TEXTBuffer, SLIDER_TEXT_SIZE, &quot;%.1f&quot;, valor);  // si es flotante
+    SLIDER_TEXT.invalidate();
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/950.webp" target="_blank"><img src="img/950.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure><figure class="cap"><a href="img/1010.webp" target="_blank"><img src="img/1010.webp" alt="Clase 134 STM32: TouchGFX, leer un slider" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=tA5lkkPL3l0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
