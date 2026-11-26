@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PWM normal y PWM complementario en STM32, segunda parte · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Librerías PWMB y PWMC con estructuras: cada PWM se declara en una línea con timer, registro y canal. PWM de 25 kHz en el TIM2 y complementario de 100 kHz con 0.5 µs de tiempo muerto en el TIM1.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/ed8eANpR6QE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="PWM normal y PWM complementario en STM32, segunda parte · Paso a paso">
+  <meta property="og:description" content="Librerías PWMB y PWMC con estructuras: cada PWM se declara en una línea con timer, registro y canal. PWM de 25 kHz en el TIM2 y complementario de 100 kHz con 0.5 µs de tiempo muerto en el TIM1.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/ed8eANpR6QE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/ed8eANpR6QE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>PWM y <span>PWM complementario</span> con librerías por estructuras, parte 2</h1>
+    <p class="lead">Rehacemos el proyecto con un STM32F401 a 84 MHz y librerías más ordenadas. Primero vemos que el TIM1 cuelga del bus APB2 y que la frecuencia de ese bus es la que cuenta para los cálculos. Con la hoja de Excel actualizada configuramos el TIM2 a 25 kHz y el TIM1 complementario a 100 kHz y 45 %. Cada PWM se declara con una estructura (timer, registro CCR y canal), y las funciones init, stop, valor y valor con escala reciben solo esa variable. Al final calculamos el tiempo muerto según los rangos del registro DTG del manual de referencia y lo medimos con el analizador lógico.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=ed8eANpR6QE" target="_blank" rel="noopener">&#9654; Ver el video completo (23:03)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1235.webp" alt="PWM normal y PWM complementario en STM32, segunda parte"></figure>
+    <ul class="materiales"><li>STM32F401CCU (Black Pill) con cristal de 25 MHz</li><li>Analizador lógico</li><li>Hoja de Excel de PWM y tiempo muerto</li><li>Librerías PWMB.c/.h y PWMC.c/.h</li><li>Manual de referencia RM0368</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · 84 MHz y APB2.</a><a href="#f2">2 · TIM2 a 25 kHz y librería PWMB.</a><a href="#f3">3 · TIM1 a 100 kHz y librería PWMC.</a><a href="#f4">4 · Registro DTG y medición.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Reloj y bus del timer</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Cristal y 84 MHz</h3><a class="min" href="https://youtu.be/ed8eANpR6QE?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>Proyecto nuevo <b>PWMFINAL</b> para el STM32F401. Activamos el <b>HSE</b> y llevamos el sistema a <b>84 MHz</b>.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>¿En qué bus está el timer?</h3><a class="min" href="https://youtu.be/ed8eANpR6QE?t=97" target="_blank" rel="noopener">&#9654; 1:37</a></div><p>En el manual de referencia se ve que el <b>TIM1</b> está en <b>APB2</b> y los TIM2 a TIM5 en APB1.</p><p>La frecuencia que se usa en los cálculos es la de <b>APB timer clocks</b> del bus del timer, no la del cristal. Aquí coincide en 84 MHz, pero en otros micros los timers pueden ir divididos.</p><div class="dos"><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>PWM básico con estructuras</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>TIM2 a 25 kHz</h3><a class="min" href="https://youtu.be/ed8eANpR6QE?t=162" target="_blank" rel="noopener">&#9654; 2:42</a></div><p><b>TIM2 Channel1: PWM Generation CH1</b> (PA0). Con la hoja de Excel a 84 MHz: <b>Prescaler 1-1</b>, <b>Counter Period 3360</b>, auto-reload preload habilitado y <b>Pulse 1680</b> (50 %, 20 µs).</p><p class="ojo">Pulsa el engranaje (Device Configuration Tool) después de cada cambio en el .ioc y luego compila.</p><div class="dos"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Agregar PWMB</h3><a class="min" href="https://youtu.be/ed8eANpR6QE?t=263" target="_blank" rel="noopener">&#9654; 4:23</a></div><p>Copiamos <b>PWMB.c/.h</b> (PWM básico) en la carpeta Librerias, la añadimos a las rutas de include y en el main ponemos <b>#include "PWMB.h"</b>. En el .h ya no hay que configurar nada.</p><div class="uno"><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Declarar cada PWM en una línea</h3><a class="min" href="https://youtu.be/ed8eANpR6QE?t=329" target="_blank" rel="noopener">&#9654; 5:29</a></div><p>En <b>PWMB.c</b> se define la escala (1000 para tener décimas de porcentaje), se declaran los timers usados y cada PWM con la estructura <b>PWMS</b>: timer, registro CCR y canal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float escala = 1000;   // define la escala a trabajar el pwm
+
+//incluir los timer usados
+extern TIM_HandleTypeDef htim2;
+
+//configurar cada salida pwm usada
+PWMS PWM1 = {&amp;htim2, &amp;(TIM2-&gt;CCR1), TIM_CHANNEL_1};
+//PWMS PWM2 = {&amp;htim2, &amp;(TIM2-&gt;CCR3), TIM_CHANNEL_3};</code></pre></div><p class="ojo">El registro CCR y el canal deben corresponder: canal 1 con CCR1, canal 3 con CCR3.</p><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Inicializar y cambiar el valor</h3><a class="min" href="https://youtu.be/ed8eANpR6QE?t=461" target="_blank" rel="noopener">&#9654; 7:41</a></div><p>Con <b>PWM_init(&PWM1)</b> arranca a 25 kHz y 50 %. <b>PWM_valor</b> cambia el ciclo útil en la escala de 0 a 1000: el 10 % es 100 y el 90 % es 900.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PWM_init(&amp;PWM1);
+
+while (1)
+{
+  PWM_valor(&amp;PWM1, 100);   // 10 %
+  HAL_Delay(100);
+  PWM_valor(&amp;PWM1, 900);   // 90 %
+  HAL_Delay(100);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/505.webp" target="_blank"><img src="img/505.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Macros, stop y valor con escala</h3><a class="min" href="https://youtu.be/ed8eANpR6QE?t=594" target="_blank" rel="noopener">&#9654; 9:54</a></div><p>Se pueden crear macros para encender y apagar. <b>PWM_stop</b> existe, pero es mejor apagar con valor 0, sobre todo en el complementario.</p><p><b>PWM_valor_escala</b> recibe además la escala en la llamada; no puede superar el periodo (3360).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define pwmledon()  PWM_valor(&amp;PWM1, 800)
+#define pwmledoff() PWM_valor(&amp;PWM1, 0)
+
+PWM_valor_escala(&amp;PWM1, 1500, 3000);   // 1500 de 3000 = 50 %</code></pre></div><p class="ojo">PWM_init y PWM_stop recargan mucha configuración de la HAL y son más lentos que escribir el valor.</p><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>PWM complementario</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>TIM1 CH1 y CH1N</h3><a class="min" href="https://youtu.be/ed8eANpR6QE?t=818" target="_blank" rel="noopener">&#9654; 13:38</a></div><p><b>TIM1</b> con Internal Clock y <b>Channel1: PWM Generation CH1 CH1N</b>. Para 100 kHz y 45 %: <b>Prescaler 1-1</b>, <b>Counter Period 840</b> y <b>Pulse 378</b> (4.5 µs).</p><p class="ojo">En el video al principio quedó 368 y el ciclo útil daba 43 %; con 378 da el 45 % exacto.</p><div class="dos"><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Librería PWMC</h3><a class="min" href="https://youtu.be/ed8eANpR6QE?t=893" target="_blank" rel="noopener">&#9654; 14:53</a></div><p>En <b>PWMC.c</b> se pone su escala (por ejemplo 800, el 50 % es 400), el timer y cada PWM complementario con la estructura <b>PWMSC</b>. La init arranca el canal y el negado juntos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;PWMC.h&quot;
+
+// PWMC.c
+extern TIM_HandleTypeDef htim1;
+PWMSC PWMC1 = {&amp;htim1, &amp;(TIM1-&gt;CCR1), TIM_CHANNEL_1};
+
+void PWMC_init(PWMSC *pwm)
+{
+  // inicia el timer y el canal en modo complementario
+  HAL_TIM_PWM_Start(pwm-&gt;htim, pwm-&gt;channel);
+  HAL_TIMEx_PWMN_Start(pwm-&gt;htim, pwm-&gt;channel);
+}
+
+// main
+PWM_init(&amp;PWM1);
+PWMC_init(&amp;PWMC1);</code></pre></div><p class="ojo">PWM1 (normal) y PWMC1 (complementario) son variables distintas, de librerías independientes.</p><div class="dos"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/965.webp" target="_blank"><img src="img/965.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/1010.webp" target="_blank"><img src="img/1010.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Tiempo muerto</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Rangos del registro DTG</h3><a class="min" href="https://youtu.be/ed8eANpR6QE?t=1061" target="_blank" rel="noopener">&#9654; 17:41</a></div><p>El registro de tiempo muerto es de 8 bits y tiene cuatro rangos según sus bits altos (manual RM0368):</p><p><b>DTG[7:5]=0xx</b>: DT = DTG[7:0] × t<sub>dtg</sub> (valores 0 a 127)</p><p><b>10x</b>: DT = (64 + DTG[5:0]) × 2 t<sub>dtg</sub></p><p><b>110</b>: DT = (32 + DTG[4:0]) × 8 t<sub>dtg</sub></p><p><b>111</b>: DT = (32 + DTG[4:0]) × 16 t<sub>dtg</sub></p><p>A 84 MHz el primer rango cubre de 0 a 1.5 µs, suficiente aquí. Para 0.5 µs (5 %) el valor es <b>42</b>.</p><p class="ojo">Con frecuencias más lentas o tiempos muertos grandes hay que usar los otros rangos; la hoja de Excel los calcula.</p><div class="dos"><figure class="cap"><a href="img/1075.webp" target="_blank"><img src="img/1075.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/1110.webp" target="_blank"><img src="img/1110.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/1140.webp" target="_blank"><img src="img/1140.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Medir y cambiar el ciclo útil</h3><a class="min" href="https://youtu.be/ed8eANpR6QE?t=1195" target="_blank" rel="noopener">&#9654; 19:55</a></div><p>Con <b>Dead Time 42</b> el analizador mide <b>0.5 µs</b> de tiempo muerto.</p><p><b>PWMC_valor</b> cambia el ciclo útil en la escala del complementario: con 200 de 800 una salida queda cerca del 20 % y la otra cerca del 70 %, separadas por el tiempo muerto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PWMC_valor(&amp;PWMC1, 200);</code></pre></div><p class="ojo">Para apagar el complementario usa valor 0 o el máximo, no Stop. Si una medida no cuadra, revisa que los canales del analizador no estén cruzados (pasó en el video).</p><div class="dos"><figure class="cap"><a href="img/1235.webp" target="_blank"><img src="img/1235.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/1270.webp" target="_blank"><img src="img/1270.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure><figure class="cap"><a href="img/1310.webp" target="_blank"><img src="img/1310.webp" alt="PWM normal y PWM complementario en STM32, segunda parte" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=ed8eANpR6QE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
