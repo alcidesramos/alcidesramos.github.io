@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Primera prueba de GitHub Copilot con un STM32F401: modos ask, agent y plan, crear una librería ADC con el agente, reutilizar mi librería UART y sugerencias automáticas desde comentarios.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/LaaKAjiSKBI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C · Paso a paso">
+  <meta property="og:description" content="Primera prueba de GitHub Copilot con un STM32F401: modos ask, agent y plan, crear una librería ADC con el agente, reutilizar mi librería UART y sugerencias automáticas desde comentarios.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/LaaKAjiSKBI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/LaaKAjiSKBI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>GitHub Copilot en VS Code <span>aplicado a STM32 en C</span></h1>
+    <p class="lead">En esta clase pruebo por primera vez GitHub Copilot dentro de Visual Studio Code con un proyecto STM32 en C. Vemos los modos de chat (ask, agent y plan), cómo darle contexto, cómo le pido que haga el parpadeo de un LED, que cree una librería para leer el ADC1 y que la integre con el puerto serial. También agrego mi carpeta de librerías al espacio de trabajo para que use mi uart.c, y uso las sugerencias en línea escribiendo un comentario. Todo se simula en Proteus con un potenciómetro en el ADC y una terminal virtual.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=LaaKAjiSKBI" target="_blank" rel="noopener">&#9654; Ver el video completo (25:10)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/545.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C"></figure>
+    <ul class="materiales"><li>Visual Studio Code con la extensión STM32CubeIDE</li><li>GitHub Copilot (cuenta de GitHub, plan gratuito)</li><li>STM32F401 (simulado en Proteus)</li><li>Potenciómetro en PA1 (ADC1 IN1)</li><li>Terminal virtual a 9600 baudios</li><li>Librerías uart.c / uart.h</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Modos y contexto</a><a href="#f2">2 · CubeMX y Proteus</a><a href="#f3">3 · LED y librería ADC</a><a href="#f4">4 · uart.c en el workspace</a><a href="#f5">5 · Código desde un comentario</a><a href="#f6">6 · Cuidado con el agente</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Conocer Copilot en VS Code</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Abrir el chat de Copilot</h3><a class="min" href="https://youtu.be/LaaKAjiSKBI?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>Copilot aparece como un panel de chat en VS Code. Con el plan gratuito hay un número limitado de solicitudes al mes, suficiente para probar.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Modos ask, agent y plan</h3><a class="min" href="https://youtu.be/LaaKAjiSKBI?t=140" target="_blank" rel="noopener">&#9654; 2:20</a></div><p><b>Ask</b> solo responde preguntas sin tocar archivos. <b>Agent</b> puede crear y modificar archivos del proyecto. <b>Plan</b> arma primero un plan de pasos antes de ejecutar.</p><p>Desde el botón de herramientas se eligen qué acciones puede hacer el agente, y con <b>Add context</b> se le pasan archivos o carpetas para que entienda el proyecto.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto base</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Configuración del micro</h3><a class="min" href="https://youtu.be/LaaKAjiSKBI?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>Proyecto <b>COPILOT</b> para STM32F401: un pin de salida <b>LED</b>, <b>ADC1</b> canal IN1 (PA1) y <b>USART1</b> asíncrono a 9600 baudios. Se genera con CMake para VS Code.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Circuito en Proteus</h3><a class="min" href="https://youtu.be/LaaKAjiSKBI?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>LED en la salida, potenciómetro en PA1 y una terminal virtual en TX/RX a 9600 para ver los valores del ADC.</p><div class="uno"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Pedirle código al agente</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Parpadeo del LED</h3><a class="min" href="https://youtu.be/LaaKAjiSKBI?t=460" target="_blank" rel="noopener">&#9654; 7:40</a></div><p>Le pido en modo agente que haga parpadear el LED. Copilot agrega el código dentro del while(1) y muestra los cambios para aceptarlos o descartarlos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+HAL_Delay(500);</code></pre></div><p class="ojo">Revise siempre lo que propone antes de aceptar: el código que sugiere puede variar según el contexto.</p><div class="uno"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Crear la librería ADC1</h3><a class="min" href="https://youtu.be/LaaKAjiSKBI?t=545" target="_blank" rel="noopener">&#9654; 9:05</a></div><p>Le pido una librería para leer el ADC. Crea <b>LIBRERIAS/ADC1.c</b> y <b>ADC1.h</b>. Al principio hubo errores de include; se corrigen incluyendo <b>main.h</b> y el propio encabezado, y agregando la carpeta al CMakeLists.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;main.h&quot;
+#include &quot;ADC1.h&quot;
+
+extern ADC_HandleTypeDef hadc1;
+
+uint32_t ADC1_Read(void){
+  uint32_t value = 0;
+  HAL_ADC_Start(&amp;hadc1);
+  if(HAL_ADC_PollForConversion(&amp;hadc1, 10) == HAL_OK){
+    value = HAL_ADC_GetValue(&amp;hadc1);
+  }
+  HAL_ADC_Stop(&amp;hadc1);
+  return value;
+}</code></pre></div><p class="ojo">La línea extern de hadc1 es necesaria si la librería no la ve desde main.h; ajústela a su proyecto.</p><div class="dos"><figure class="cap"><a href="img/545.webp" target="_blank"><img src="img/545.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Enviar el valor por serial</h3><a class="min" href="https://youtu.be/LaaKAjiSKBI?t=610" target="_blank" rel="noopener">&#9654; 10:10</a></div><p>Copilot integra la lectura en main y la envía por USART1. En Proteus la terminal muestra el valor al mover el potenciómetro.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint32_t adc_val = ADC1_Read();
+char msg[48];
+int len = snprintf(msg, sizeof(msg), &quot;ADC1=%lu\r\n&quot;, (unsigned long)adc_val);
+if(len &gt; 0){
+  HAL_UART_Transmit(&amp;huart1, (uint8_t*)msg, (uint16_t)len, 100);
+}
+HAL_Delay(200);</code></pre></div><div class="uno"><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Usar mis propias librerías</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Agregar la carpeta de librerías</h3><a class="min" href="https://youtu.be/LaaKAjiSKBI?t=760" target="_blank" rel="noopener">&#9654; 12:40</a></div><p>Agrego mi carpeta de librerías al espacio de trabajo y le pido que copie <b>uart.c</b> y <b>uart.h</b> al proyecto y las use. Así escribe con mis funciones en lugar de las de HAL.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char msg[48];
+sprintf(msg, &quot;ADC Value: %lu\r\n&quot;, adc_val);
+uartx_write_text(&amp;huart1, msg);</code></pre></div><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Probar en la simulación</h3><a class="min" href="https://youtu.be/LaaKAjiSKBI?t=935" target="_blank" rel="noopener">&#9654; 15:35</a></div><p>Se compila y se vuelve a simular: la terminal muestra los valores con el nuevo formato.</p><div class="dos"><figure class="cap"><a href="img/935.webp" target="_blank"><img src="img/935.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure><figure class="cap"><a href="img/965.webp" target="_blank"><img src="img/965.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Sugerencias en línea</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Promedio de N muestras</h3><a class="min" href="https://youtu.be/LaaKAjiSKBI?t=1060" target="_blank" rel="noopener">&#9654; 17:40</a></div><p>Basta con escribir un comentario que describa la función; Copilot sugiere el código en gris y se acepta con <b>Tab</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//FUNCION QUE CALCULA EL PROMEDIO DE N MUESTRAS DEL ADC
+uint32_t ADC1_Read_Average(uint8_t samples){
+  uint32_t sum = 0;
+  for(uint8_t i = 0; i &lt; samples; i++){
+    sum += ADC1_Read();
+    HAL_Delay(10);
+  }
+  return sum / samples;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Convertir a voltaje</h3><a class="min" href="https://youtu.be/LaaKAjiSKBI?t=1165" target="_blank" rel="noopener">&#9654; 19:25</a></div><p>Con otro comentario sugiere la conversión a voltios usando 3.3 V y 4095 cuentas (12 bits).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float ADC1_Read_Voltage(uint8_t samples){
+  uint32_t avg = ADC1_Read_Average(samples);
+  return (avg * 3.3f) / 4095.0f;
+}</code></pre></div><p class="ojo">El cuerpo exacto que sugirió puede diferir; la idea es promedio × 3.3 / 4095. Para imprimir float recuerde habilitar printf con float en CMake.</p><div class="dos"><figure class="cap"><a href="img/1165.webp" target="_blank"><img src="img/1165.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure><figure class="cap"><a href="img/1235.webp" target="_blank"><img src="img/1235.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f6"><div class="contenedor"><span class="etiqueta">Fase 6</span><h2>Conclusiones</h2><article class="paso"><div class="paso-cab"><span class="num">6.1</span><h3>Mi impresión</h3><a class="min" href="https://youtu.be/LaaKAjiSKBI?t=1410" target="_blank" rel="noopener">&#9654; 23:30</a></div><p>Copilot ahorra tiempo en tareas repetitivas y en crear librerías pequeñas, pero en modo agente llegó a borrar cosas que no le pedí. Hay que revisar cada cambio y tener el proyecto en git para poder volver atrás.</p><p class="ojo">Use el modo agente con el proyecto respaldado; acepte los cambios archivo por archivo.</p><div class="dos"><figure class="cap"><a href="img/1410.webp" target="_blank"><img src="img/1410.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure><figure class="cap"><a href="img/1435.webp" target="_blank"><img src="img/1435.webp" alt="Mi primera impresión de GitHub Copilot en Visual Studio Code aplicado a STM32 en C" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=LaaKAjiSKBI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
