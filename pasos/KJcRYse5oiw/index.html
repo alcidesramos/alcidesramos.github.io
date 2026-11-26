@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Configurar TouchGFX en una Blackpill F411 con la pantalla ILI9341 por SPI con DMA: timers de base de tiempo y VSync, buffer parcial, driver de pantalla, touch XPT2046 y dos pantallas que cambian con botones.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/KJcRYse5oiw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1 · Paso a paso">
+  <meta property="og:description" content="Configurar TouchGFX en una Blackpill F411 con la pantalla ILI9341 por SPI con DMA: timers de base de tiempo y VSync, buffer parcial, driver de pantalla, touch XPT2046 y dos pantallas que cambian con botones.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/KJcRYse5oiw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/KJcRYse5oiw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 131: TouchGFX + ILI9341 <span>táctil, parte 1</span></h1>
+    <p class="lead">Primera parte de la serie con TouchGFX, el software gráfico de ST. Se trabaja con tres programas que se llaman entre sí: CubeMX para el hardware, CubeIDE para el código y TouchGFX Designer para la parte gráfica. Se configura el reloj a 100 MHz, SPI1 a 50 MHz con DMA para la pantalla, TIM11 como base de tiempo del sistema y TIM10 como señal de VSync calculada según cuánto tarda en dibujarse una pantalla completa. Se agrega el paquete X-CUBE-TOUCHGFX con buffer parcial, se integra el driver de la ILI9341 y después el touch XPT2046 por SPI2. Al final se hacen dos pantallas con botones para pasar de una a otra.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=KJcRYse5oiw" target="_blank" rel="noopener">&#9654; Ver el video completo (38:23)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1980.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1"></figure>
+    <ul class="materiales"><li>Blackpill STM32F411CEU</li><li>Pantalla TFT ILI9341 2.8" SPI con touch XPT2046</li><li>STM32CubeMX, STM32CubeIDE y TouchGFX Designer</li><li>Librerías ili9341, xpt2046 y TouchGFX_DataTransfer</li><li>Archivo STM32TouchController.cpp modificado</li><li>Excel para calcular el timer (STM32_TIMER2024)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Reloj, SPI con DMA y pines</a><a href="#f2">2 · Cuántos cuadros por segundo</a><a href="#f3">3 · Paquete X-CUBE-TOUCHGFX</a><a href="#f4">4 · ili9341 y DataTransfer</a><a href="#f5">5 · SPI2 y controlador táctil</a><a href="#f6">6 · Interacciones en TouchGFX</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Hardware en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Reloj a 100 MHz</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>Nuevo proyecto con el STM32F411CEU. En RCC se activa el cristal externo (HSE), el PLL y se lleva el micro a su máxima velocidad, 100 MHz.</p><p>Ojo: TouchGFX deja el micro casi dedicado a la parte gráfica. Si tienes tareas de tiempo crítico, conviene un micro para la pantalla y otro para el control, comunicados entre sí.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>SPI1 para la pantalla</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=210" target="_blank" rel="noopener">&#9654; 3:30</a></div><p>Connectivity > SPI1. Como a la pantalla solo se le envían datos, puede ir en Half-Duplex Master y ahorras el pin MISO.</p><p>Pines de salida: TFT_CS, TFT_RST, TFT_DC (estos nombres los usa la librería) y TFT_LED para la luz de fondo (opcional, puede ir a 3.3 V). También el LED y el botón de la tarjeta y un canal ADC para más adelante.</p><p>SPI1 queda a 50 MHz. En esta familia SPI1 y SPI4 son los más rápidos; no uses SPI2 o SPI3 para la pantalla.</p><div class="dos"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>DMA del SPI1</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=360" target="_blank" rel="noopener">&#9654; 6:00</a></div><p>En DMA Settings se agrega SPI1_TX, se activa Use Fifo con Threshold Full y se habilita la interrupción del SPI. Así los bloques grandes de la pantalla se envían mucho más rápido.</p><div class="uno"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Timer como base de tiempo</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=400" target="_blank" rel="noopener">&#9654; 6:40</a></div><p>En SYS, Timebase Source se cambia de SysTick a TIM11. Así el callback del timer queda en el main y la base de tiempo es más precisa.</p><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Timer de VSync</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Calcular la frecuencia</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=480" target="_blank" rel="noopener">&#9654; 8:00</a></div><p>TouchGFX necesita saber cuándo terminó de dibujarse una pantalla completa por SPI. Si el timer va más rápido, se pierde el sincronismo y el touch o los sliders fallan.</p><p>Según la documentación de TouchGFX, la memoria de un cuadro es ancho x alto x profundidad de color. Con 16 bits (RGB565) y el SPI a 50 MHz la pantalla se dibuja como máximo a 40,7 Hz. En el video 40 Hz funciona, 41 Hz falla; se deja en 35 Hz.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Bits por pantalla = ancho x alto x profundidad de color
+                  = 320 x 240 x 16 = 1.228.800 bits
+
+Frecuencia maxima = 50.000.000 / 1.228.800 = 40,7 Hz   (SPI a 50 MHz)
+
+Se usa 35 Hz (por debajo del limite):
+  Reloj del timer = 100 MHz, Prescaler = 100   -&gt; 1 MHz
+  Periodo        = 1.000.000 / 35 = 28.571
+
+TIM10: Prescaler = 100-1, Counter Period = 28571, interrupcion activada</code></pre></div><div class="uno"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar TIM10</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=660" target="_blank" rel="noopener">&#9654; 11:00</a></div><p>Se usa un timer que no tenga muchas funciones, como TIM10 (16 bits). No vale la pena gastar TIM2 de 32 bits con sus canales PWM y encoder.</p><p>Prescaler 100-1 y Counter Period 28571 para 35 Hz. Si el periodo pasa de 65535, sube el prescaler. Se activa la interrupción de TIM10.</p><div class="uno"><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Generar el proyecto</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=730" target="_blank" rel="noopener">&#9654; 12:10</a></div><p>En Project Manager se le pone nombre (TOUCHGFX_CANAL), Toolchain STM32CubeIDE y GENERATE CODE. Con Open Project se abre en CubeIDE y compila sin errores.</p><p>Se crea la carpeta Core/LIBRERIAS y se agrega al include path.</p><div class="uno"><figure class="cap"><a href="img/780.webp" target="_blank"><img src="img/780.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Agregar TouchGFX</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Instalar y seleccionar el paquete</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=830" target="_blank" rel="noopener">&#9654; 13:50</a></div><p>En CubeMX, Software Packs > Select Components, se busca TouchGFX. Si no está instalado, aparece Install. Se marca X-CUBE-TOUCHGFX con su Graphics Application.</p><p>En Computing se activa el CRC, que TouchGFX necesita.</p><div class="dos"><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configurar la aplicación gráfica</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=900" target="_blank" rel="noopener">&#9654; 15:00</a></div><p>En Middleware > X-CUBE-TOUCHGFX: Interface Custom, Framebuffer RGB565, ancho 320, alto 240, Framebuffer Strategy Partial Buffer (GRAM display), 3 bloques de 2048 bytes.</p><p>El buffer parcial es lo adecuado para pantallas SPI. Con micros más potentes (H7, H5) se puede pasar a buffer simple o doble.</p><div class="uno"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Abrir TouchGFX Designer</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=990" target="_blank" rel="noopener">&#9654; 16:30</a></div><p>Al generar código aparece la carpeta TouchGFX en el proyecto. Doble clic en ApplicationTemplate.touchgfx.part abre TouchGFX Designer.</p><p>Se elige un proyecto en blanco. En Config se puede cambiar la orientación; el color y el tamaño ya vienen de CubeMX.</p><p>Se pone un Box With Border de prueba y se presiona Generate Code. Conviene generar otra vez desde CubeMX para que todo quede integrado.</p><div class="dos"><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/1030.webp" target="_blank"><img src="img/1030.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Driver de la pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Pegar las librerías</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=1100" target="_blank" rel="noopener">&#9654; 18:20</a></div><p>En LIBRERIAS se pegan ili9341.c/.h y TouchGFX_DataTransfer.c/.h, y en el main se incluye ili9341.h.</p><p>TouchGFX_DataTransfer le dice a TouchGFX cómo el driver abre una ventana, dibuja un bloque de imagen y avisa que terminó. Si tienes otra pantalla, ahí se cambian esas funciones por las de tu driver (el repositorio de ST trae drivers de varias pantallas).</p><div class="dos"><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/1230.webp" target="_blank"><img src="img/1230.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Callback de los timers</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=1190" target="_blank" rel="noopener">&#9654; 19:50</a></div><p>En el callback HAL_TIM_PeriodElapsedCallback que CubeMX creó por TIM11 se agrega la llamada a touchgfxSignalVSync() cuando interrumpe TIM10. Si usaste otro timer, cambia el nombre.</p><p>Si quedan dos warnings de #warning en TouchGFXHAL.cpp, se pueden comentar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 0 */
+extern void touchgfxSignalVSync(void);
+/* USER CODE END 0 */
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+  if (htim-&gt;Instance == TIM10)
+  {
+    touchgfxSignalVSync();      // aviso a TouchGFX: ya se puede dibujar otro cuadro
+  }
+  /* USER CODE END Callback 0 */
+  if (htim-&gt;Instance == TIM11)
+  {
+    HAL_IncTick();              // base de tiempo del sistema
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1190.webp" target="_blank"><img src="img/1190.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Inicializar en el main</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=1330" target="_blank" rel="noopener">&#9654; 22:10</a></div><p>Antes del while se arranca TIM10, se inicializa la pantalla y su orientación, y se enciende la luz de fondo. CubeMX ya agregó en el while la llamada que actualiza TouchGFX.</p><p>Importante: no pongas retardos largos (HAL_Delay de 500 o 1000) en el while porque bloquean la parte gráfica y el touch. Para otras tareas usa interrupciones.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;ili9341.h&quot;
+#include &quot;xpt2046.h&quot;
+/* USER CODE END Includes */
+
+/* USER CODE BEGIN 2 */
+HAL_GPIO_WritePin(TFT_LED_GPIO_Port, TFT_LED_Pin, GPIO_PIN_SET);  // luz de fondo
+HAL_TIM_Base_Start_IT(&amp;htim10);          // timer del VSync
+ILI9341_Init();
+ILI9341_direction(Horizontal_Inv);       // segun como quede tu pantalla
+XPT2046_Init();                          // touch (hay que iniciarlo a mano)
+/* USER CODE END 2 */</code></pre></div><div class="dos"><figure class="cap"><a href="img/1330.webp" target="_blank"><img src="img/1330.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/1540.webp" target="_blank"><img src="img/1540.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Agregar imágenes</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=1480" target="_blank" rel="noopener">&#9654; 24:40</a></div><p>En TouchGFX Designer, pestaña Images, se agregan imágenes y luego se arrastran a la pantalla con el widget Image. Imágenes grandes no caben en la flash del F411; más adelante se usará memoria externa.</p><p>Generate Code y se programa desde CubeIDE: lo que se diseña aparece en la pantalla.</p><div class="uno"><figure class="cap"><a href="img/1480.webp" target="_blank"><img src="img/1480.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Touch XPT2046</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Librería y puertos SPI</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=1640" target="_blank" rel="noopener">&#9654; 27:20</a></div><p>Se pegan xpt2046.c/.h y se incluyen en el main. En ili9341.h está TFT_SPI hspi1 y en xpt2046.h el SPI del touch, aquí hspi2. Ambos son configurables.</p><div class="uno"><figure class="cap"><a href="img/1640.webp" target="_blank"><img src="img/1640.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Configurar SPI2</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=1680" target="_blank" rel="noopener">&#9654; 28:00</a></div><p>SPI2 en Full-Duplex Master (sin DMA, los datos del touch son pocos). Pines TS_MOSI, TS_MISO, TS_SCK y un pin de salida TS_CS.</p><p>El XPT2046 trabaja máximo a 10 MHz: con prescaler 8 el SPI2 queda en 6,25 MHz.</p><p>El pin de interrupción del touch (T_IRQ) no se conecta: TouchGFX lee el touch por polling en el while, y ese pin puede dar falsos toques si la pantalla tiene polvo.</p><div class="dos"><figure class="cap"><a href="img/1680.webp" target="_blank"><img src="img/1680.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/1800.webp" target="_blank"><img src="img/1800.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>STM32TouchController.cpp</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=1880" target="_blank" rel="noopener">&#9654; 31:20</a></div><p>En TouchGFX/target se reemplaza STM32TouchController.cpp por la versión modificada. La función sampleTouch lee el XPT2046, valida el toque y convierte las coordenadas a píxeles de la pantalla.</p><p>Si al tocar a la derecha reacciona algo a la izquierda (o arriba y abajo), el touch está invertido: cambia las líneas de *x o *y según tu orientación.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern &quot;C&quot; {
+static void ConvXPTtoILI(uint16_t *x, uint16_t *y)
+{
+  int16_t tx, ty;
+  tx = (int16_t)(((int32_t)*x - XPT_XMIN) * GUI_WIDTH / XPT_WIDTH);
+  tx = (tx &lt; 0) ? 0 : tx;
+  tx = (tx &gt;= GUI_WIDTH) ? GUI_WIDTH - 1 : tx;
+  ty = (int16_t)(((int32_t)*y - XPT_YMIN) * GUI_HEIGHT / XPT_HEIGHT);
+  ty = (ty &lt; 0) ? 0 : ty;
+  ty = (ty &gt;= GUI_HEIGHT) ? GUI_HEIGHT - 1 : ty;
+
+  // si el display esta bien
+  //*x = tx;                      // horizontal
+  *y = ty;                        // vertical normal
+
+  // si hay inversion, probar estas opciones
+  *x = (GUI_WIDTH - 1) - tx;      // si es horizontal_inv
+  //*y = (GUI_HEIGHT - 1) - ty;   // si es vertical invertida
+}
+}
+
+bool STM32TouchController::sampleTouch(int32_t&amp; x, int32_t&amp; y)
+{
+  static uint16_t prevx = GUI_WIDTH;
+  static uint16_t prevy = GUI_HEIGHT;
+  uint16_t intx, inty;
+
+  XPT2046_Update(&amp;intx, &amp;inty);
+  if (XPT2046_IsReasonable(intx, inty))
+  {
+    ConvXPTtoILI(&amp;intx, &amp;inty);
+    if (intx != prevx || inty != prevy)
+    {
+      prevx = intx;
+      prevy = inty;
+      x = (int16_t)intx;
+      y = (int16_t)inty;
+      return true;
+    }
+  }
+  return false;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1910.webp" target="_blank"><img src="img/1910.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f6"><div class="contenedor"><span class="etiqueta">Fase 6</span><h2>Dos pantallas con botones</h2><article class="paso"><div class="paso-cab"><span class="num">6.1</span><h3>Botón e interacción</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=1980" target="_blank" rel="noopener">&#9654; 33:00</a></div><p>En Screen1 se agrega un Button With Icon pequeño. En Interactions se crea una: cuando se presiona el botón, cambiar a Screen2.</p><p>Se agrega Screen2 con otro Box With Border y un Button With Label con el texto BACK, que vuelve a Screen1. TouchGFX solo genera los caracteres de fuente que usas, así ahorra memoria.</p><div class="dos"><figure class="cap"><a href="img/1980.webp" target="_blank"><img src="img/1980.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/2050.webp" target="_blank"><img src="img/2050.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/2130.webp" target="_blank"><img src="img/2130.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.2</span><h3>Probar en la pantalla</h3><a class="min" href="https://youtu.be/KJcRYse5oiw?t=2250" target="_blank" rel="noopener">&#9654; 37:30</a></div><p>Generate Code en TouchGFX y Run desde CubeIDE.</p><p>En el video el touch no respondía hasta agregar XPT2046_Init() en el main: la inicialización del touch se hace a mano. Con eso, al tocar los botones cambia de pantalla.</p><div class="uno"><figure class="cap"><a href="img/2270.webp" target="_blank"><img src="img/2270.webp" alt="Clase 131 STM32: TouchGFX con la TFT ILI9341 táctil, parte 1" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=KJcRYse5oiw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
