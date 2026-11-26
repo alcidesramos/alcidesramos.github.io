@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32 con Visual Studio Code: comandos cortos con snippets · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un archivo global de fragmentos de código (snippets) en VS Code para agregar con una palabra las librerías, el .hex, printf con float y la FPU por hardware o software en los archivos CMake.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/KS0WsLs1zNg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="STM32 con Visual Studio Code: comandos cortos con snippets · Paso a paso">
+  <meta property="og:description" content="Un archivo global de fragmentos de código (snippets) en VS Code para agregar con una palabra las librerías, el .hex, printf con float y la FPU por hardware o software en los archivos CMake.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/KS0WsLs1zNg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/KS0WsLs1zNg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>STM32 en VS Code: <span>snippets</span> para configurar CMake con comandos cortos</h1>
+    <p class="lead">Tercera parte de la serie de VS Code. En lugar de copiar comandos largos de CMake en cada proyecto, creamos una sola vez un archivo global de snippets. Después basta escribir un prefijo corto en CMakeLists.txt para agregar las librerías, el .hex, el soporte de flotantes en printf o todo junto, y en gcc-arm-none-eabi.cmake para cambiar la FPU entre hardware (micro real) y software (Proteus). La nueva versión busca la carpeta librerias en Core o en Core/Src sin importar mayúsculas.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=KS0WsLs1zNg" target="_blank" rel="noopener">&#9654; Ver el video completo (7:30)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/310.webp" alt="STM32 con Visual Studio Code: comandos cortos con snippets"></figure>
+    <ul class="materiales"><li>Proyecto SERIAL_VSC del video anterior</li><li>VS Code con la extensión STM32CubeIDE</li><li>Archivo de snippets del video</li><li>Proteus 9 (opcional)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Una sola vez.</a><a href="#f2">2 · CMakeLists.txt.</a><a href="#f3">3 · gcc-arm-none-eabi.cmake.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Crear el archivo de snippets</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Snippets globales</h3><a class="min" href="https://youtu.be/KS0WsLs1zNg?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>En <b>File &gt; Preferences &gt; Configure Snippets</b> elegimos <b>New Global Snippets file</b> y le damos un nombre (por ejemplo, tus iniciales).</p><p>Borramos el contenido de ejemplo, pegamos el archivo de snippets del video y guardamos. Sirve para todos los proyectos desde ahora.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{
+  &quot;Agregar printf con float&quot;: {
+    &quot;prefix&quot;: &quot;addfloat&quot;,
+    &quot;body&quot;: [
+      &quot;target_link_options(${PROJECT_NAME} PUBLIC -u _printf_float)&quot;
+    ],
+    &quot;description&quot;: &quot;Permite sprintf/printf con flotantes&quot;
+  }
+}</code></pre></div><p class="ojo">Este es solo un ejemplo de la estructura de un snippet; el archivo completo con todos los comandos está en los recursos del video.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="STM32 con Visual Studio Code: comandos cortos con snippets" loading="lazy"></a></figure><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="STM32 con Visual Studio Code: comandos cortos con snippets" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Usar los comandos cortos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>addlib, addhex, addfloat</h3><a class="min" href="https://youtu.be/KS0WsLs1zNg?t=181" target="_blank" rel="noopener">&#9654; 3:01</a></div><p>Con el CMakeLists.txt abierto, al final escribimos el prefijo y Enter:</p><p><b>addlib</b>: agrega la carpeta de librerías.</p><p><b>addhex</b>: genera .hex y .bin al compilar.</p><p><b>addfloat</b>: printf/sprintf con flotantes.</p><p><b>addall</b>: todo lo anterior de una vez.</p><p class="ojo">Los prefijos exactos son los del archivo de snippets que uses.</p><div class="dos"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="STM32 con Visual Studio Code: comandos cortos con snippets" loading="lazy"></a></figure><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="STM32 con Visual Studio Code: comandos cortos con snippets" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Búsqueda automática de librerias</h3><a class="min" href="https://youtu.be/KS0WsLs1zNg?t=231" target="_blank" rel="noopener">&#9654; 3:51</a></div><p>La versión nueva busca una carpeta llamada <b>librerias</b> (en mayúsculas o minúsculas) en <b>Core</b> o en <b>Core/Src</b>, agrega todos los .c y todas las carpetas que tengan .h, incluso subcarpetas.</p><p>Si tu carpeta se llama distinto, cambia la palabra "librerias" en el bloque.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code># BUSCA LA CARPETA &quot;librerias&quot; EN CORE O EN CORE/SRC (insensible a mayúsculas)
+set(RUTAS_DE_BUSQUEDA
+    &quot;${CMAKE_SOURCE_DIR}/Core&quot;
+    &quot;${CMAKE_SOURCE_DIR}/Core/Src&quot;
+)
+set(LIBRERIAS_DIR &quot;&quot;)
+foreach(ruta ${RUTAS_DE_BUSQUEDA})
+    if(EXISTS &quot;${ruta}&quot; AND NOT LIBRERIAS_DIR)
+        file(GLOB contenido RELATIVE &quot;${ruta}&quot; &quot;${ruta}/*&quot;)
+        foreach(item ${contenido})
+            if(IS_DIRECTORY &quot;${ruta}/${item}&quot;)
+                string(TOLOWER &quot;${item}&quot; item_lower)
+                if(item_lower STREQUAL &quot;librerias&quot;)
+                    set(LIBRERIAS_DIR &quot;${ruta}/${item}&quot;)
+                    break()
+                endif()
+            endif()
+        endforeach()
+    endif()
+endforeach()
+
+# Todos los .c de la carpeta y subcarpetas
+file(GLOB_RECURSE LIBRERIAS_SOURCES CONFIGURE_DEPENDS &quot;${LIBRERIAS_DIR}/*.c&quot;)
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${LIBRERIAS_SOURCES})
+
+# Carpetas donde hay .h
+file(GLOB_RECURSE LIBRERIAS_HEADERS CONFIGURE_DEPENDS &quot;${LIBRERIAS_DIR}/*.h&quot;)
+set(LIBRERIAS_INCLUDE_DIRS &quot;&quot;)
+foreach(header ${LIBRERIAS_HEADERS})
+    get_filename_component(header_dir &quot;${header}&quot; DIRECTORY)
+    list(APPEND LIBRERIAS_INCLUDE_DIRS &quot;${header_dir}&quot;)
+endforeach()
+if(LIBRERIAS_INCLUDE_DIRS)
+    list(REMOVE_DUPLICATES LIBRERIAS_INCLUDE_DIRS)
+    target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${LIBRERIAS_INCLUDE_DIRS})
+endif()
+#fin librerias</code></pre></div><p class="ojo">Si algo no se actualiza, ejecuta en la paleta de comandos CMake: Delete Cache and Reconfigure.</p><div class="dos"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="STM32 con Visual Studio Code: comandos cortos con snippets" loading="lazy"></a></figure><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="STM32 con Visual Studio Code: comandos cortos con snippets" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Bloque del .hex y .bin</h3><a class="min" href="https://youtu.be/KS0WsLs1zNg?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>Este es el bloque que agrega <b>addhex</b>, ahora también muestra el tamaño del programa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code># Generar .hex y .bin automáticamente después de compilar
+add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -O ihex $&lt;TARGET_FILE:${CMAKE_PROJECT_NAME}&gt; ${CMAKE_PROJECT_NAME}.hex
+    COMMAND ${CMAKE_OBJCOPY} -O binary $&lt;TARGET_FILE:${CMAKE_PROJECT_NAME}&gt; ${CMAKE_PROJECT_NAME}.bin
+    COMMAND ${CMAKE_SIZE} $&lt;TARGET_FILE:${CMAKE_PROJECT_NAME}&gt;
+    COMMENT &quot;Generando ${CMAKE_PROJECT_NAME}.hex y ${CMAKE_PROJECT_NAME}.bin&quot;
+)</code></pre></div><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="STM32 con Visual Studio Code: comandos cortos con snippets" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>FPU por hardware o software</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>addhard y addsoft</h3><a class="min" href="https://youtu.be/KS0WsLs1zNg?t=297" target="_blank" rel="noopener">&#9654; 4:57</a></div><p>En <b>cmake/gcc-arm-none-eabi.cmake</b>, bajo <b># MCU specific flags</b>, borramos la línea de TARGET_FLAGS y escribimos <b>addhard</b> (micro real, FPU por hardware) o <b>addsoft</b> (para que Proteus simule bien los flotantes).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code># addhard
+set(TARGET_FLAGS &quot;-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard &quot;)
+
+# addsoft
+set(TARGET_FLAGS &quot;-mcpu=cortex-m4 -mfloat-abi=soft &quot;)</code></pre></div><p class="ojo">Con hardware Proteus muestra valores erróneos en los flotantes; en el micro real deja hardware.</p><div class="dos"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="STM32 con Visual Studio Code: comandos cortos con snippets" loading="lazy"></a></figure><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="STM32 con Visual Studio Code: comandos cortos con snippets" loading="lazy"></a></figure><figure class="cap"><a href="img/365.webp" target="_blank"><img src="img/365.webp" alt="STM32 con Visual Studio Code: comandos cortos con snippets" loading="lazy"></a></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="STM32 con Visual Studio Code: comandos cortos con snippets" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=KS0WsLs1zNg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
