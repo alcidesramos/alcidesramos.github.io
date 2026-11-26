@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Enviar datos del STM32 por la USART1 a un módulo Bluetooth, verlos en el celular y en LabVIEW, y graficar una temperatura simulada.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/ST1R9po1I8o/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW · Paso a paso">
+  <meta property="og:description" content="Enviar datos del STM32 por la USART1 a un módulo Bluetooth, verlos en el celular y en LabVIEW, y graficar una temperatura simulada.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/ST1R9po1I8o/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/ST1R9po1I8o/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Clase en vivo: <span>serial por Bluetooth, celular y LabVIEW</span></h1>
+    <p class="lead">En esta clase en vivo configuramos la USART1 del STM32 en modo asíncrono, agregamos la librería uart.c/uart.h y enviamos texto. Luego lo llevamos a Proteus con COMPIM hacia el puerto Bluetooth del PC (COM10) y lo recibimos en una app de terminal Bluetooth en el celular. Después creamos un puente de puertos virtuales para conectar Proteus con Hercules, y finalmente armamos en LabVIEW un lector VISA que separa el texto "temp=xx.xx/" y muestra el valor en un termómetro.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=ST1R9po1I8o" target="_blank" rel="noopener">&#9654; Ver el video completo (92:50)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/3270.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW"></figure>
+    <ul class="materiales"><li>STM32CubeIDE y Proteus</li><li>Librería uart.c / uart.h del curso</li><li>Módulo Bluetooth (HC-05/HC-06) o el Bluetooth del PC</li><li>App de terminal Bluetooth en el celular</li><li>Software de puertos seriales virtuales (par COM1–COM2)</li><li>Hercules (terminal serial)</li><li>LabVIEW con NI-VISA</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · CubeIDE: USART1 asíncrona, pines y librería uart</a><a href="#f2">2 · COMPIM hacia el puerto Bluetooth y app en el celular</a><a href="#f3">3 · Puente COM1–COM2 entre Proteus y Hercules</a><a href="#f4">4 · VISA Configure, Read y Close en un ciclo</a><a href="#f5">5 · sprintf en el micro y Match Pattern en LabVIEW</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configurar la USART1 y la librería</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Activar la USART1 en modo asíncrono</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>En el .ioc activa USART1 en modo Asynchronous a 9600 baudios, 8 bits, sin paridad, 1 bit de parada.</p><p>Si quieres moverla a otros pines, mantén Ctrl presionado y haz clic sobre el pin para ver las alternativas (remapeo).</p><div class="dos"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Agregar la librería al proyecto</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=630" target="_blank" rel="noopener">&#9654; 10:30</a></div><p>Copia la carpeta con uart.c y uart.h dentro del proyecto.</p><p>Agrégala a la ruta de includes (Properties → C/C++ Build → Settings → Include paths) para que el compilador la encuentre.</p><p class="ojo">Si el compilador dice que no encuentra uart.h, revisa que la carpeta esté en los include paths del proyecto.</p><div class="dos"><figure class="cap"><a href="img/630.webp" target="_blank"><img src="img/630.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Enviar un texto de prueba</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=900" target="_blank" rel="noopener">&#9654; 15:00</a></div><p>En el while(1) envía un texto con salto de línea y un retardo para no saturar el puerto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+
+while (1)
+{
+  uartx_write_text(&amp;huart1, &quot;Hola\r\n&quot;);
+  HAL_Delay(1000);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Bluetooth: Proteus y celular</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Puerto Bluetooth entrante en Windows</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=1560" target="_blank" rel="noopener">&#9654; 26:00</a></div><p>En la configuración de Bluetooth de Windows, en Puertos COM, crea un puerto entrante. En la clase quedó como COM10.</p><p>Ese es el puerto que usará Proteus para hablar por Bluetooth.</p><div class="uno"><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar COMPIM en Proteus</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=1690" target="_blank" rel="noopener">&#9654; 28:10</a></div><p>Coloca el COMPIM y conéctalo sin cruzar: TX del micro con TX del COMPIM y RX con RX (el COMPIM ya representa el otro extremo).</p><p>Physical port: COM10, Physical baud 9600 y Virtual baud 9600, igual que la USART.</p><p class="ojo">Las dos velocidades (física y virtual) deben coincidir con la USART. Si una queda en 2400, llegarán caracteres basura.</p><div class="uno"><figure class="cap"><a href="img/1690.webp" target="_blank"><img src="img/1690.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Recibir en el celular</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=1770" target="_blank" rel="noopener">&#9654; 29:30</a></div><p>Empareja el celular con el PC y abre una app de terminal Bluetooth.</p><p>Conéctate al PC y verás llegar el texto que envía el STM32 simulado.</p><div class="dos"><figure class="cap"><a href="img/1770.webp" target="_blank"><img src="img/1770.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/1850.webp" target="_blank"><img src="img/1850.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Puerto virtual con Hercules</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Crear el par de puertos virtuales</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=2000" target="_blank" rel="noopener">&#9654; 33:20</a></div><p>Con el software de puertos seriales virtuales crea un par local, por ejemplo COM1–COM2. Lo que entra por uno sale por el otro.</p><p>Proteus (COMPIM) se conecta a un extremo y Hercules al otro, ambos a 9600.</p><p class="ojo">Cada par solo admite dos programas, uno en cada extremo. Si LabVIEW va a leer, cierra Hercules primero.</p><div class="dos"><figure class="cap"><a href="img/2000.webp" target="_blank"><img src="img/2000.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/2150.webp" target="_blank"><img src="img/2150.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Lector serial en LabVIEW</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Cerrar sesiones VISA automáticamente</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=2490" target="_blank" rel="noopener">&#9654; 41:30</a></div><p>En Tools → Options → Environment activa "Automatically close VISA sessions" para que el puerto se libere al detener el VI.</p><div class="uno"><figure class="cap"><a href="img/2490.webp" target="_blank"><img src="img/2490.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Configurar el puerto</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=2570" target="_blank" rel="noopener">&#9654; 42:50</a></div><p>Coloca VISA Configure Serial Port, crea un control para el nombre del recurso (VISA resource name) y una constante de 9600 para la velocidad.</p><p>Si es necesario, desactiva el carácter de terminación (termination char enable en False).</p><div class="dos"><figure class="cap"><a href="img/2570.webp" target="_blank"><img src="img/2570.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/2990.webp" target="_blank"><img src="img/2990.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Leer dentro de un While Loop</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=3270" target="_blank" rel="noopener">&#9654; 54:30</a></div><p>Dentro de un While Loop usa una Property Node con Bytes at Port y conéctala al byte count de VISA Read.</p><p>Muestra la salida en un indicador "read buffer".</p><p>Regula el ciclo con Wait Until Next ms Multiple (en la clase 1200 ms). Lee más rápido de lo que envía el micro (Nyquist) para no perder datos.</p><div class="dos"><figure class="cap"><a href="img/3270.webp" target="_blank"><img src="img/3270.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/3510.webp" target="_blank"><img src="img/3510.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Cerrar el puerto y limpiar errores</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=3660" target="_blank" rel="noopener">&#9654; 61:00</a></div><p>Fuera del ciclo conecta VISA Close y Clear Errors, y pon un botón de Stop para salir del While Loop.</p><div class="uno"><figure class="cap"><a href="img/3660.webp" target="_blank"><img src="img/3660.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Enviar y graficar una temperatura</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Simular una temperatura en el micro</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=3840" target="_blank" rel="noopener">&#9654; 64:00</a></div><p>Declara un buffer de texto e incluye stdio.h y string.h.</p><p>Incrementa una variable float y la envías con un formato fijo que termina en '/' para separar los datos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+char texto[30];
+float temp = 20.0;
+
+while (1)
+{
+  temp += 0.2;
+  sprintf(texto, &quot;temp=%.2f/&quot;, temp);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(1000);
+}</code></pre></div><p class="ojo">Para imprimir float con sprintf en CubeIDE activa "Use float with printf from newlib-nano" en las opciones del linker.</p><div class="dos"><figure class="cap"><a href="img/3840.webp" target="_blank"><img src="img/3840.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/3910.webp" target="_blank"><img src="img/3910.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Separar el valor con Match Pattern</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=4100" target="_blank" rel="noopener">&#9654; 68:20</a></div><p>Usa un Match Pattern con "temp=" para quedarte con lo que viene después.</p><p>Aplica otro Match Pattern con "/" y toma la salida "before substring": ese es el número.</p><div class="dos"><figure class="cap"><a href="img/4100.webp" target="_blank"><img src="img/4100.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/4430.webp" target="_blank"><img src="img/4430.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Convertir a número y mostrar en un termómetro</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=4720" target="_blank" rel="noopener">&#9654; 78:40</a></div><p>Convierte el texto con Fract/Exp String To Number y pon "use system decimal point" en False para que tome el punto como decimal.</p><p>Conéctalo a un Thermometer y activa Visible Items → Digital Display para ver también el valor.</p><div class="dos"><figure class="cap"><a href="img/4720.webp" target="_blank"><img src="img/4720.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/4910.webp" target="_blank"><img src="img/4910.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/5030.webp" target="_blank"><img src="img/5030.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.4</span><h3>Prueba final</h3><a class="min" href="https://youtu.be/ST1R9po1I8o?t=5250" target="_blank" rel="noopener">&#9654; 87:30</a></div><p>Corre la simulación y el VI: el termómetro sube 0.2 cada segundo con el valor que envía el STM32.</p><div class="dos"><figure class="cap"><a href="img/5250.webp" target="_blank"><img src="img/5250.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure><figure class="cap"><a href="img/5320.webp" target="_blank"><img src="img/5320.webp" alt="Clase en vivo STM32: recepción serial por Bluetooth, celular y LabVIEW" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=ST1R9po1I8o" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
