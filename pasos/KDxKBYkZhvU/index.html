@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Primer proyecto con la tarjeta china WeAct STM32C552VET6 (100 pines): CubeMX2, LED en PH15, reloj resuelto automáticamente, proyecto CMake en VS Code, código HAL2 y programación con ST-Link.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/KDxKBYkZhvU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code · Paso a paso">
+  <meta property="og:description" content="Primer proyecto con la tarjeta china WeAct STM32C552VET6 (100 pines): CubeMX2, LED en PH15, reloj resuelto automáticamente, proyecto CMake en VS Code, código HAL2 y programación con ST-Link.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/KDxKBYkZhvU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/KDxKBYkZhvU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Hola mundo con el <span>STM32C5 de WeAct</span> en VS Code</h1>
+    <p class="lead">La serie C5 de ST es de bajo costo y bajo consumo, y trae las nuevas librerías HAL2. Esta vez uso la tarjeta de WeAct Studio con el STM32C552VET6 de 100 pines (chip original, tarjeta china). Desde VS Code abro STM32CubeMX2, selecciono el micro por número de parte, configuro PH15 como salida con la etiqueta LED, dejo que CubeMX2 resuelva el reloj y genero el proyecto CMake. Luego lo abro en VS Code, habilito el proyecto de CMake, escribo el parpadeo con ayuda de Copilot y lo programo con el ST-Link (sirven también los clones).</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=KDxKBYkZhvU" target="_blank" rel="noopener">&#9654; Ver el video completo (11:38)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/610.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code"></figure>
+    <ul class="materiales"><li>Tarjeta WeAct STM32C552VET6 (LED en PH15, pulsador en PC13)</li><li>Programador ST-Link (original o clon)</li><li>VS Code con la extensión STM32CubeIDE</li><li>STM32CubeMX2</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Micro y pin LED</a><a href="#f2">2 · Reloj y CMake</a><a href="#f3">3 · main.c nuevo</a><a href="#f4">4 · Código y programación</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Crear el proyecto en CubeMX2</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Seleccionar el micro</h3><a class="min" href="https://youtu.be/KDxKBYkZhvU?t=145" target="_blank" rel="noopener">&#9654; 2:25</a></div><p>Desde la pestaña STM32 de VS Code abrimos <b>STM32CubeMX2</b>. Como la tarjeta no es una board oficial de ST, se busca por el micro: <b>STM32C552VET6</b> (LQFP100, Cortex-M33, 144 MHz, 512 KB de flash y 128 KB de RAM). Le damos Continue y nombramos el proyecto <b>HOLA_MUNDO_CHINA</b>.</p><div class="uno"><figure class="cap"><a href="img/145.webp" target="_blank"><img src="img/145.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>PH15 como salida LED</h3><a class="min" href="https://youtu.be/KDxKBYkZhvU?t=215" target="_blank" rel="noopener">&#9654; 3:35</a></div><p>En Pinout buscamos <b>PH15</b>, clic derecho, <b>Assign signal → GPIO</b>. En el panel de detalle se configura como salida y se le pone la etiqueta <b>LED</b> con el botón <b>Add</b>.</p><p class="ojo">La etiqueta que vale para el código es la que se agrega en Labels del pin con Add. La que se pone en otras partes de la vista GPIO es solo informativa.</p><div class="dos"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Generar el código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Opciones de generación</h3><a class="min" href="https://youtu.be/KDxKBYkZhvU?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>En <b>Project settings</b> el formato por defecto ya es <b>CMake</b> con GCC: los nuevos micros están pensados para trabajar con VS Code y no con el CubeIDE de antes.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Resolver el reloj</h3><a class="min" href="https://youtu.be/KDxKBYkZhvU?t=325" target="_blank" rel="noopener">&#9654; 5:25</a></div><p>Al generar sale un error porque el reloj no está configurado. En la pestaña <b>Clock</b> se pulsa <b>Resolve clock issues</b> y CubeMX2 lo arregla solo. Con clic derecho sobre un bloque se puede resaltar el camino del reloj hasta cada periférico.</p><div class="dos"><figure class="cap"><a href="img/325.webp" target="_blank"><img src="img/325.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Abrir en VS Code</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Abrir la carpeta del proyecto</h3><a class="min" href="https://youtu.be/KDxKBYkZhvU?t=400" target="_blank" rel="noopener">&#9654; 6:40</a></div><p>Se abre la carpeta generada con VS Code. Ya no hay carpeta Core: el <b>main.c</b> queda en la raíz y no trae los bloques USER CODE BEGIN/END. Se pone el código antes del while para lo que se ejecuta una vez, y dentro del while lo que se repite.</p><p>VS Code abre en <b>modo restringido</b>: hay que confiar en la carpeta para habilitarlo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>int main(void)
+{
+  if (mx_system_init() != SYSTEM_OK)
+  {
+    return (-1);
+  }
+  else
+  {
+    while (1)
+    {
+      /* código que se repite */
+    }
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configurar el proyecto CMake</h3><a class="min" href="https://youtu.be/KDxKBYkZhvU?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>Cuando VS Code pregunta si configura el proyecto CMake descubierto como STM32Cube, responda siempre <b>Yes</b>. Si se le pasó, vaya a la pestaña STM32, <b>Set Up STM32Cube project(s)</b>, revise que aparezca el micro y el Cortex-M33 con su proyecto, y pulse <b>Save and close</b>.</p><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Parpadeo con HAL2</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Escribir el parpadeo</h3><a class="min" href="https://youtu.be/KDxKBYkZhvU?t=545" target="_blank" rel="noopener">&#9654; 9:05</a></div><p>Escribo el comentario <i>//CODIGO PARA TITILAR LED</i> y Copilot sugiere el código. Hay que corregir el nombre del pin: el puerto y el pin se llaman según la etiqueta, <b>LED_PORT</b> y <b>LED_PIN</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  //CODIGO PARA TITILAR LED
+  HAL_GPIO_TogglePin(LED_PORT, LED_PIN);
+  HAL_Delay(1000);
+}</code></pre></div><p class="ojo">Con HAL2 cambian nombres (mayúsculas y minúsculas). Si sale error de compilación por el pin, revise los nombres que generó la etiqueta en el proyecto.</p><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure><figure class="cap"><a href="img/545.webp" target="_blank"><img src="img/545.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure><figure class="cap"><a href="img/575.webp" target="_blank"><img src="img/575.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Programar con el ST-Link</h3><a class="min" href="https://youtu.be/KDxKBYkZhvU?t=640" target="_blank" rel="noopener">&#9654; 10:40</a></div><p>Compilamos y con el botón de depuración (play con el bicho) elegimos <b>ST-Link</b>. Ahora también funcionan los clones. Si no se quiere ir paso a paso, se le da play y el LED queda parpadeando cada segundo.</p><div class="uno"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Periféricos del C5</h3><a class="min" href="https://youtu.be/KDxKBYkZhvU?t=665" target="_blank" rel="noopener">&#9654; 11:05</a></div><p>En la vista de periféricos de CubeMX2 se ven las opciones de este micro: dos ADC, comparadores y un DAC de 12 bits, entre otros. Los iremos usando en el curso.</p><div class="uno"><figure class="cap"><a href="img/665.webp" target="_blank"><img src="img/665.webp" alt="STM32 hola mundo con el nuevo STM32C5 (tarjeta WeAct Studio) en Visual Studio Code" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=KDxKBYkZhvU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
