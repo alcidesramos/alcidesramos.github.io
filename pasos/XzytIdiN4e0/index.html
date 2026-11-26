@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Repaso práctico en clase: generar el .hex, cargarlo por USB y por ST-Link, actualizar el programador, proteger y borrar el micro y simular la Black Pill en Proteus.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/XzytIdiN4e0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus) · Paso a paso">
+  <meta property="og:description" content="Repaso práctico en clase: generar el .hex, cargarlo por USB y por ST-Link, actualizar el programador, proteger y borrar el micro y simular la Black Pill en Proteus.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/XzytIdiN4e0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/XzytIdiN4e0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Clase 3 2023: <span>verificación práctica</span></h1>
+    <p class="lead">Clase de evaluación práctica: los estudiantes pasan al computador y repiten todo lo visto hasta ahora. Se revisa cómo hacer que STM32CubeIDE genere el archivo .hex, cómo cargarlo con STM32CubeProgrammer por USB (modo DFU) y por ST-Link, qué hacer cuando un ST-Link clon no conecta (actualizar su firmware), cómo proteger la lectura del micro (RDP nivel 1, 0xBB), cómo quitar la protección y borrar todo el chip, y cómo instalar la librería de la Black Pill en Proteus para simular un LED en PC13.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=XzytIdiN4e0" target="_blank" rel="noopener">&#9654; Ver el video completo (44:20)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1030.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)"></figure>
+    <ul class="materiales"><li>Tarjeta Black Pill STM32F401</li><li>Programador ST-Link V2 (original o clon)</li><li>Cable USB-C</li><li>STM32CubeIDE y STM32CubeProgrammer</li><li>Proteus con la librería de la Black Pill (ARZ.LIB, ARZ_PCB.LIB y modelos 3D)</li><li>LED y resistencia de 220 Ω</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Post-build en CubeIDE y carga con CubeProgrammer.</a><a href="#f2">2 · Conexión de pines y actualización del firmware del programador.</a><a href="#f3">3 · Read Out Protection y Full chip erase.</a><a href="#f4">4 · Instalar la librería y montar el LED en PC13.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Generar y cargar el .hex</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Activar la generación del .hex</h3><a class="min" href="https://youtu.be/XzytIdiN4e0?t=451" target="_blank" rel="noopener">&#9654; 7:31</a></div><p>En el explorador del proyecto: clic derecho sobre el proyecto → <b>Properties</b>.</p><p>Ve a <b>C/C++ Build → Settings → Tool Settings → MCU Post build outputs</b>.</p><p>Marca <b>Convert to Intel Hex file (-O ihex)</b> y aplica. Desde ahora, cada vez que compiles (martillo) se genera el .hex en la carpeta <code>Debug</code>.</p><p>Para saber en qué carpeta está el proyecto: clic derecho → Properties → <b>Resource</b>; la primera línea (Location) muestra la ruta.</p><p class="ojo">Deja abierto un solo proyecto a la vez en el explorador; con dos proyectos abiertos es fácil compilar o cargar el que no es.</p><div class="uno"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Cargar por USB (modo DFU)</h3><a class="min" href="https://youtu.be/XzytIdiN4e0?t=532" target="_blank" rel="noopener">&#9654; 8:52</a></div><p>Desconecta la tarjeta, mantén presionado el botón <b>BOOT0</b> y vuelve a conectar el cable USB. Luego suelta.</p><p>En STM32CubeProgrammer elige <b>USB</b> en lugar de ST-LINK, refresca el puerto y da <b>Connect</b>.</p><p>Abre el archivo (<b>Open file</b>) en la carpeta Debug del proyecto y da <b>Download</b>.</p><p>Presiona <b>RESET</b> en la tarjeta para que arranque el programa nuevo.</p><p class="ojo">Si el .hex que cargas no cambia aunque modificaste el código, revisa que la opción de Intel Hex siga marcada y vuelve a compilar antes de cargar.</p><div class="uno"><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>ST-Link que no conecta</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Conectar el ST-Link a la Black Pill</h3><a class="min" href="https://youtu.be/XzytIdiN4e0?t=835" target="_blank" rel="noopener">&#9654; 13:55</a></div><p>Del conector de 4 pines de la Black Pill se usan: <b>SWDIO</b> (datos), <b>SWCLK</b> (reloj), <b>GND</b> y <b>3.3 V</b>.</p><p>En el ST-Link usa los pines con el mismo nombre (SWDIO, SWCLK, GND, 3.3V). El de 5 V no se usa.</p><p>En CubeProgrammer cambia a <b>ST-LINK</b> y da Connect.</p><div class="uno"><figure class="cap"><a href="img/1420.webp" target="_blank"><img src="img/1420.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Actualizar el firmware del ST-Link</h3><a class="min" href="https://youtu.be/XzytIdiN4e0?t=978" target="_blank" rel="noopener">&#9654; 16:18</a></div><p>Si aparece <i>No STM32 target found</i> y los cables están bien, casi siempre el programador (sobre todo los clones) necesita actualizar su firmware.</p><p>En CubeProgrammer, en el panel ST-LINK configuration, pulsa <b>Firmware upgrade</b>. Se abre STLinkUpgrade.</p><p>Desconecta y vuelve a conectar el ST-Link, pulsa <b>Open in update mode</b> y luego <b>Upgrade</b>. Espera a que termine.</p><p>Desconecta el micro de los pines del programador mientras actualizas: se actualiza el programador, no la tarjeta.</p><p>Esto se hace una sola vez (o cuando ST publica un firmware nuevo).</p><p class="ojo">En un clon, si el serial sale como X, activa la opción para que lo reconozca o cámbialo de puerto USB. Un ST-Link que no actualiza ni conecta después de esto probablemente está dañado.</p><div class="dos"><figure class="cap"><a href="img/1030.webp" target="_blank"><img src="img/1030.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure><figure class="cap"><a href="img/1270.webp" target="_blank"><img src="img/1270.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Proteger y borrar el micro</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Proteger la lectura (RDP)</h3><a class="min" href="https://youtu.be/XzytIdiN4e0?t=1680" target="_blank" rel="noopener">&#9654; 28:00</a></div><p>Conectado al micro, entra a <b>Option bytes (OB)</b> → <b>Read Out Protection</b>.</p><p>Cambia RDP de <code>AA</code> (sin protección) a <code>BB</code> (nivel 1) y pulsa <b>Apply</b>.</p><p>Desconecta y reconecta: el programa sigue funcionando, pero CubeProgrammer ya no deja leer la memoria.</p><p class="ojo">No uses el nivel 2 (CC): bloquea el micro de forma permanente.</p><div class="uno"><figure class="cap"><a href="img/1830.webp" target="_blank"><img src="img/1830.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Quitar la protección y borrar todo</h3><a class="min" href="https://youtu.be/XzytIdiN4e0?t=1832" target="_blank" rel="noopener">&#9654; 30:32</a></div><p>Vuelve a poner RDP en <code>AA</code> y aplica. Al quitar la protección el micro se borra: la memoria se lee toda como <code>FF</code>.</p><p>Para dejar el micro limpio en cualquier momento usa <b>Full chip erase</b> (icono de borrar, botón azul). Borra toda la flash y luego cargas el programa de nuevo.</p><p>Se pueden borrar sectores sueltos, pero si no sabes exactamente dónde quedó tu programa es mejor borrar todo.</p><div class="uno"><figure class="cap"><a href="img/1880.webp" target="_blank"><img src="img/1880.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Simular la Black Pill en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Instalar la librería</h3><a class="min" href="https://youtu.be/XzytIdiN4e0?t=2128" target="_blank" rel="noopener">&#9654; 35:28</a></div><p>Copia los archivos <b>ARZ.LIB</b> y <b>ARZ_PCB.LIB</b> en la carpeta <code>DATA\LIBRARY</code> de Proteus (en ProgramData de Labcenter Electronics). Con eso basta para simular.</p><p>Si quieres ver la tarjeta en 3D (para una PCB), copia también los modelos <b>.STEP</b> en la carpeta <code>DATA\MODELS</code>.</p><p>Reinicia Proteus para que cargue la librería.</p><div class="uno"><figure class="cap"><a href="img/2180.webp" target="_blank"><img src="img/2180.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Montar el circuito</h3><a class="min" href="https://youtu.be/XzytIdiN4e0?t=2243" target="_blank" rel="noopener">&#9654; 37:23</a></div><p>Crea un proyecto nuevo y en <b>Pick Devices</b> busca la Black Pill (BLACKPILL_ARZ). Agrega también un LED y una resistencia.</p><p>Resistencia de 220 Ω (escribe 220). La potencia no cambia la corriente: una de 10 W y una de 0.25 W del mismo valor dejan pasar la misma corriente; la de más vatios solo es más grande y cara.</p><p>Conecta el LED con su resistencia a <b>PC13</b>, igual que en la tarjeta real, y alimenta la tarjeta con GND y la terminal de 3.3 V.</p><div class="dos"><figure class="cap"><a href="img/2290.webp" target="_blank"><img src="img/2290.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure><figure class="cap"><a href="img/2440.webp" target="_blank"><img src="img/2440.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Configurar la alimentación y cargar el programa</h3><a class="min" href="https://youtu.be/XzytIdiN4e0?t=2520" target="_blank" rel="noopener">&#9654; 42:00</a></div><p>Doble clic al micro y en <b>Program File</b> busca el .hex de la carpeta Debug del proyecto (también acepta el .elf, pero el .hex simula más fluido).</p><p>En <b>Design → Configure Power Rails</b> pon el positivo en 3.3 V y agrega el pin <b>VDDA</b> a ese mismo riel, porque también es alimentación.</p><p>Dale Play: el LED de PC13 parpadea igual que en la tarjeta.</p><div class="dos"><figure class="cap"><a href="img/2560.webp" target="_blank"><img src="img/2560.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure><figure class="cap"><a href="img/2600.webp" target="_blank"><img src="img/2600.webp" alt="Clase 3 2023: verificación práctica (HEX, programador, protección y Proteus)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=XzytIdiN4e0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
