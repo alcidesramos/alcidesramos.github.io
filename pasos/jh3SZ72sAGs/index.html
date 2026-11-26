@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2024-I Clase 5B: else if y lectura del puerto con registros (resumen) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Resumen narrado de la clase: casos excluyentes con else if, lectura de un thumbwheel con el registro IDR, máscaras AND y desplazamientos para datos en cualquier pin del puerto.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/jh3SZ72sAGs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="2024-I Clase 5B: else if y lectura del puerto con registros (resumen) · Paso a paso">
+  <meta property="og:description" content="Resumen narrado de la clase: casos excluyentes con else if, lectura de un thumbwheel con el registro IDR, máscaras AND y desplazamientos para datos en cualquier pin del puerto.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/jh3SZ72sAGs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/jh3SZ72sAGs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>else if y <span>lectura de puertos</span>: resumen</h1>
+    <p class="lead">Versión corta y narrada de nuevo de la clase de condicionales y lectura de puertos (el audio original salió mal). Se combinan dos pulsadores con && y se optimiza con else if cuando los casos son excluyentes. Luego se lee un thumbwheel BCD con GPIOB->IDR, se enmascaran los bits con AND y se desplazan con >> cuando el dato está en PB12–PB15 o PB3–PB6. También se muestra cuándo no aplica else if: si las condiciones pueden cumplirse a la vez.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=jh3SZ72sAGs" target="_blank" rel="noopener">&#9654; Ver el video completo (19:34)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1000.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Proteus 8 Professional con la librería BLACKPILL_ARZ</li><li>Dos pulsadores y dos LED</li><li>Thumbwheel BCD</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Dos pulsadores, cuatro casos.</a><a href="#f2">2 · Thumbwheel BCD, IDR y máscara.</a><a href="#f3">3 · Desplazar y enmascarar.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>if, else if y casos excluyentes</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Condiciones con && y ||</h3><a class="min" href="https://youtu.be/jh3SZ72sAGs?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>Para agrupar condiciones se usan los operadores dobles: <code>&amp;&amp;</code> (Y) y <code>||</code> (O).</p><p>Casos del ejercicio: ambos en 1 → titila LED1; SW1=1 y SW2=0 → titila LED2; ambos en 0 → titilan los dos; solo SW2 → se apagan.</p><div class="uno"><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Corregir la lógica de un pulsador</h3><a class="min" href="https://youtu.be/jh3SZ72sAGs?t=101" target="_blank" rel="noopener">&#9654; 1:41</a></div><p>En Proteus un pulsador tiene pull-up y otro pull-down. Para leer ambos igual, niega en el #define el que está al revés.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define in1 HAL_GPIO_ReadPin(in1_GPIO_Port, in1_Pin)
+#define in2 !(HAL_GPIO_ReadPin(in2_GPIO_Port, in2_Pin))</code></pre></div><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Por qué else if</h3><a class="min" href="https://youtu.be/jh3SZ72sAGs?t=249" target="_blank" rel="noopener">&#9654; 4:09</a></div><p>Los casos son mutuamente excluyentes: solo uno puede cumplirse. Con <code>if</code> separados el procesador evalúa todos; con <code>else if</code> se detiene en el primero que se cumple.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if ((in1 == 1) &amp;&amp; (in2 == 1))
+{
+  HAL_GPIO_TogglePin(led1_GPIO_Port, led1_Pin);
+  HAL_Delay(500);
+  HAL_GPIO_WritePin(led2_GPIO_Port, led2_Pin, 0);
+}
+else if ((in1 == 1) &amp;&amp; (in2 == 0))
+{
+  HAL_GPIO_TogglePin(led2_GPIO_Port, led2_Pin);
+  HAL_Delay(500);
+  HAL_GPIO_WritePin(led1_GPIO_Port, led1_Pin, 0);
+}
+else if ((in1 == 0) &amp;&amp; (in2 == 0))
+{
+  HAL_GPIO_TogglePin(led1_GPIO_Port, led1_Pin);
+  HAL_GPIO_TogglePin(led2_GPIO_Port, led2_Pin);
+  HAL_Delay(500);
+}
+else
+{
+  HAL_GPIO_WritePin(led1_GPIO_Port, led1_Pin, 0);
+  HAL_GPIO_WritePin(led2_GPIO_Port, led2_Pin, 0);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Leer el puerto completo</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Thumbwheel en los pines bajos</h3><a class="min" href="https://youtu.be/jh3SZ72sAGs?t=317" target="_blank" rel="noopener">&#9654; 5:17</a></div><p>En Proteus busca <b>THUMBSWITCH-BCD</b> y conéctalo a <b>PB0–PB3</b>. Configura esos pines como entradas (no necesitan etiqueta porque se lee el puerto completo).</p><div class="dos"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Registro IDR</h3><a class="min" href="https://youtu.be/jh3SZ72sAGs?t=386" target="_blank" rel="noopener">&#9654; 6:26</a></div><p>Escribe <code>GPIOB-&gt;IDR</code> dentro del while para que el autocompletado te ayude; luego córtalo y llévalo a un #define.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define lecturas (GPIOB-&gt;IDR)</code></pre></div><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Comparar con máscara</h3><a class="min" href="https://youtu.be/jh3SZ72sAGs?t=454" target="_blank" rel="noopener">&#9654; 7:34</a></div><p>Guarda la lectura en una variable de 16 bits. Comparar directo no funciona porque el resto del puerto también aparece en IDR.</p><p>Pon en 0 lo que no interesa con una AND (un solo &amp;, no el && de las condiciones).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint16_t codigo;
+codigo = lecturas &amp; 0x0F;
+if (codigo == 7)
+{
+  HAL_GPIO_TogglePin(led1_GPIO_Port, led1_Pin);
+  HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Datos en otros pines</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Thumbwheel en PB12–PB15</h3><a class="min" href="https://youtu.be/jh3SZ72sAGs?t=589" target="_blank" rel="noopener">&#9654; 9:49</a></div><p>Si el número entra por los pines altos, ya no vale 7 sino 0x7000. Se podría comparar así, pero es más claro desplazarlo.</p><p>Desplaza 12 posiciones a la derecha y luego aplica la máscara de 4 bits.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = lecturas &gt;&gt; 12;
+codigo = codigo &amp; 0b1111;
+if (codigo == 7) { /* ... */ }</code></pre></div><p class="ojo">Conocer el micro evita soluciones como usar otra placa solo porque una librería espera los datos en los primeros pines.</p><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Condiciones que no son excluyentes</h3><a class="min" href="https://youtu.be/jh3SZ72sAGs?t=881" target="_blank" rel="noopener">&#9654; 14:41</a></div><p>Agrega <code>if (codigo &lt;= 8)</code> para LED2. Aquí no sirve else if: el 7 cumple las dos condiciones, así que van dos if independientes.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (codigo == 7)
+{
+  HAL_GPIO_TogglePin(led1_GPIO_Port, led1_Pin);
+  HAL_Delay(500);
+}
+if (codigo &lt;= 8)
+{
+  HAL_GPIO_TogglePin(led2_GPIO_Port, led2_Pin);
+  HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure><figure class="cap"><a href="img/1130.webp" target="_blank"><img src="img/1130.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Datos en PB3–PB6</h3><a class="min" href="https://youtu.be/jh3SZ72sAGs?t=984" target="_blank" rel="noopener">&#9654; 16:24</a></div><p>Si los pines están en el centro del puerto, se desplaza solo 3 posiciones. Si el dato está repartido en dos puertos, desplaza cada parte y únelas con OR.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = (lecturas &gt;&gt; 3) &amp; 0b1111;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="2024-I Clase 5B: else if y lectura del puerto con registros (resumen)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=jh3SZ72sAGs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
