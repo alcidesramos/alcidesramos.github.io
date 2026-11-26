@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Agregamos un Dynamic Graph en TouchGFX y graficamos en tiempo real el voltaje del potenciómetro (0 a 3.3 V) leído por el ADC del STM32F411.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/VTZwLRSAWvc/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX · Paso a paso">
+  <meta property="og:description" content="Agregamos un Dynamic Graph en TouchGFX y graficamos en tiempo real el voltaje del potenciómetro (0 a 3.3 V) leído por el ADC del STM32F411.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/VTZwLRSAWvc/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/VTZwLRSAWvc/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 135: <span>gráfica del voltaje</span> en la ILI9341 con TouchGFX</h1>
+    <p class="lead">Partiendo del proyecto TouchGFX con la ILI9341 táctil (pantalla 1 con voltaje y pantalla 2 con slider), en esta clase agregamos en la pantalla 2 un widget Dynamic Graph de 200 puntos con rango 0 a 4, líneas horizontales y etiquetas en el eje Y. Creamos una interacción que cada 5 ticks llama a una función virtual GRAFICAR, la implementamos en Screen2View.cpp usando la variable externa voltaje que calcula el main, y la convertimos de escala 0-100 a 0-3.3 V. Al final corregimos un error típico: haber marcado la pantalla 2 como Startup Screen.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=VTZwLRSAWvc" target="_blank" rel="noopener">&#9654; Ver el video completo (11:55)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/690.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill) con proyecto TouchGFX de las clases anteriores</li><li>Pantalla ILI9341 SPI con táctil XPT2046</li><li>Potenciómetro en una entrada ADC</li><li>STM32CubeIDE y TouchGFX Designer 4.26</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Dynamic Graph, rango, líneas y etiquetas.</a><a href="#f2">2 · Cada 5 ticks se llama una función virtual.</a><a href="#f3">3 · Declarar, implementar y escalar el voltaje.</a><a href="#f4">4 · Ver la gráfica y corregir la Startup Screen.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Diseñar la gráfica en TouchGFX</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Agregar un Dynamic Graph en la pantalla 2</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>En TouchGFX Designer abrimos Screen2 y desde los widgets agregamos un <b>Graph</b> de tipo <b>Dynamic</b>: se alimenta punto a punto, ideal para una señal en tiempo real (el estático es para varios puntos ya conocidos).</p><p>Lo hacemos pequeño para que quepa junto al botón BACK y al slider.</p><div class="uno"><figure class="cap"><a href="img/45.webp" target="_blank"><img src="img/45.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Número de puntos y rango de valores</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>En <b>Data Points</b> ponemos <b>200</b> puntos, y en <b>Value Range</b> Min 0 y Max <b>4</b> (vamos a graficar de 0 a 3.3 V).</p><p>No usamos el mapeo de índices; los valores entran directamente en el rango de la gráfica.</p><p class="ojo">Con muchos puntos la gráfica tarda más en llenarse, así la señal se ve más continua.</p><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Líneas horizontales y color</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=99" target="_blank" rel="noopener">&#9654; 1:39</a></div><p>En <b>Elements</b> agregamos <b>Horizontal Grid Lines</b> (Major Division) con la línea delgada y un color claro, para que se vean las divisiones.</p><p>El intervalo de la división define cuántas líneas aparecen.</p><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Etiquetas del eje Y y márgenes</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=131" target="_blank" rel="noopener">&#9654; 2:11</a></div><p>Agregamos un <b>Label</b> solo en el eje Y para que aparezcan los números 0 a 4.</p><p>Con <b>Graph Area Margin</b> (Top, Left, Bottom) movemos el área de la gráfica para que los números queden visibles y bien ubicados.</p><p class="ojo">Si los números se ven cortados, ajusta el margen izquierdo y el superior.</p><div class="uno"><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Interacción que llama a GRAFICAR</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Crear la interacción cada N ticks</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=204" target="_blank" rel="noopener">&#9654; 3:24</a></div><p>En <b>Interactions</b> creamos una nueva: Trigger <b>On every N tick</b>, con <b>5 ticks</b> entre disparos para que los 200 puntos no se gasten tan rápido.</p><p>Si el sistema solo grafica y la señal es rápida, se puede dejar en 1 tick.</p><div class="uno"><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Acción: Call new virtual function</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=235" target="_blank" rel="noopener">&#9654; 3:55</a></div><p>En Action escogemos <b>Call new virtual function</b> y la llamamos <b>GRAFICAR</b> (en mayúscula).</p><p>Luego damos <b>Generate Code</b>.</p><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Nombrar la gráfica</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=435" target="_blank" rel="noopener">&#9654; 7:15</a></div><p>Ojo: el widget queda con el nombre por defecto (dynamicGraph1). Le cambiamos el nombre a <b>GRAFICA1</b> para usarlo en el código y volvemos a generar código.</p><p class="ojo">El nombre del widget es el nombre del objeto en C++; si no coincide, el código no compila.</p><div class="uno"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Código en CubeIDE</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Copiar la función virtual al View</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=266" target="_blank" rel="noopener">&#9654; 4:26</a></div><p>Compilamos y en <b>generated/gui_generated/include/gui_generated/screen2_screen/Screen2ViewBase.hpp</b> buscamos la nueva función <b>GRAFICAR</b>.</p><p>La copiamos en <b>gui/include/gui/screen2_screen/Screen2View.hpp</b> como virtual.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// Screen2View.hpp (dentro de la clase)
+virtual void GRAFICAR();</code></pre></div><div class="uno"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Implementarla en Screen2View.cpp</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=301" target="_blank" rel="noopener">&#9654; 5:01</a></div><p>En <b>gui/src/screen2_screen/Screen2View.cpp</b> agregamos la función vacía y compilamos para verificar.</p><p>Si salen errores, revisa la sintaxis <code>Screen2View::GRAFICAR()</code> (en el video faltaba un carácter).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Screen2View::GRAFICAR()
+{
+
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Traer la variable externa voltaje</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=369" target="_blank" rel="noopener">&#9654; 6:09</a></div><p>El voltaje ya lo usábamos en la pantalla 1 como <b>extern float voltaje</b>. Copiamos esa declaración también en Screen2View.cpp.</p><p>En el main el voltaje se calcula en escala de 0 a 100 a partir del ADC de 12 bits.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// main.c, en el while(1)
+voltaje = ADC_Read(&amp;hadc1)*100.0/4095.0;
+
+// Screen1View.cpp y Screen2View.cpp
+extern float voltaje;</code></pre></div><div class="dos"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Agregar el punto e invalidar</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=502" target="_blank" rel="noopener">&#9654; 8:22</a></div><p>Dentro de GRAFICAR agregamos un punto con <b>addDataPoint</b>, convirtiendo de 0-100 a 0-3.3 V, y al final <b>invalidate()</b> para que se redibuje.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern float voltaje;
+
+void Screen2View::GRAFICAR()
+{
+    GRAFICA1.addDataPoint((float)(voltaje*3.3/100.0));
+    GRAFICA1.invalidate();
+}</code></pre></div><p class="ojo">La variable se llama voltaje; en el video primero escribió voltios y salieron errores.</p><div class="uno"><figure class="cap"><a href="img/625.webp" target="_blank"><img src="img/625.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba y error de pantalla inicial</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Programar y ver la gráfica</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=573" target="_blank" rel="noopener">&#9654; 9:33</a></div><p>Compilamos, programamos y al mover el potenciómetro la gráfica sube y baja entre 0 y 3.3 V.</p><div class="uno"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>La pantalla 2 arrancaba primero</h3><a class="min" href="https://youtu.be/VTZwLRSAWvc?t=640" target="_blank" rel="noopener">&#9654; 10:40</a></div><p>Al reiniciar aparecía directo la pantalla de la gráfica: sin querer se marcó Screen2 como <b>Startup Screen</b>.</p><p>Seleccionamos <b>Screen1</b>, damos <b>Set as Startup Screen</b>, generamos código y reprogramamos.</p><p class="ojo">Revisa siempre cuál pantalla es la inicial si el equipo arranca en una que no esperabas.</p><div class="dos"><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 135: gráficas dinámicas en la ILI9341 táctil con TouchGFX" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=VTZwLRSAWvc" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
