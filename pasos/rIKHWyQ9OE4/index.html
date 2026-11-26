@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Proyecto serial con CMake en VS Code: agregar la carpeta de librerías en CMakeLists.txt, printf con flotantes, FPU por software para Proteus, generar .hex y .bin, y programar o depurar la Black Pill.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/rIKHWyQ9OE4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías · Paso a paso">
+  <meta property="og:description" content="Proyecto serial con CMake en VS Code: agregar la carpeta de librerías en CMakeLists.txt, printf con flotantes, FPU por software para Proteus, generar .hex y .bin, y programar o depurar la Black Pill.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/rIKHWyQ9OE4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/rIKHWyQ9OE4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>STM32 en VS Code: <span>CMakeLists</span>, librerías, printf con float y .hex</h1>
+    <p class="lead">Segundo video de la serie de VS Code. Creamos con CubeMX un proyecto CMake para el STM32F401 con LED y USART1 a 9600, lo abrimos en VS Code y vemos cómo el autocompletado sugiere código. Como CMake trabaja con comandos, para usar librerías propias hay que decirle en CMakeLists.txt dónde están los .c y los .h. También agregamos la opción para que sprintf imprima flotantes, cambiamos la FPU a software para que Proteus 9 simule bien, generamos .hex y .bin, y programamos con STM32CubeProgrammer o con el depurador. Los comandos están en el repositorio del video.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=rIKHWyQ9OE4" target="_blank" rel="noopener">&#9654; Ver el video completo (30:02)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1740.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías"></figure>
+    <ul class="materiales"><li>Black Pill STM32F411 (proyecto para F401, simulable en Proteus)</li><li>Mini programador ST-Link con pin RX</li><li>Proteus 9 con las librerías de Black Pill</li><li>VS Code con la extensión STM32CubeIDE</li><li>Librerías uart.c/uart.h</li><li>Hercules u otra terminal serial</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Conexión y CubeMX.</a><a href="#f2">2 · Carpeta y CMakeLists.txt.</a><a href="#f3">3 · Programmer o debugger.</a><a href="#f4">4 · Opciones extra en CMake.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Programador y proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Colores del cable del programador</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>El mini programador usa 3.3 V, SWDIO, SWCLK y GND, y tiene un pin <b>RX</b> que crea un puerto COM: el TX del micro (PA9) va a ese RX.</p><p>Hay dos versiones de cable: si termina en <b>gris</b> o si termina en <b>violeta</b> los colores cambian. Revísalo antes de conectar o puedes dañar el micro.</p><p>Para más potencia alimenta por 5 V (sin conectar 3.3 V) o con una fuente externa con tierra común.</p><div class="uno"><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto CMake con LED y USART1</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=196" target="_blank" rel="noopener">&#9654; 3:16</a></div><p>Usamos el <b>STM32F401CCU</b> porque Proteus lo simula (el código sirve en el F411 físico). Un pin como salida con la etiqueta <b>LED</b> y <b>USART1</b> asíncrono a <b>9600</b> baudios para no saturar la simulación.</p><p>En Project Manager: nombre <b>SERIAL_VSC</b> y <b>Toolchain/IDE: CMake</b>. Abrimos la carpeta con <b>Abrir con Code</b> y aceptamos configurar CMake.</p><p class="ojo">Todo esto aplica también a CubeMX2, salvo que la librería serial vieja no es 100 % compatible con la HAL2.</p><div class="uno"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Autocompletado inteligente</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=392" target="_blank" rel="noopener">&#9654; 6:32</a></div><p>Al escribir <b>HAL</b> el editor sugiere la línea completa que usaste antes (TogglePin, Delay) y basta con Tab. Esa es una de las ventajas frente al IDE anterior.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+HAL_Delay(500);</code></pre></div><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Simular en Proteus 9</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=491" target="_blank" rel="noopener">&#9654; 8:11</a></div><p>Proteus 9 simula directamente el <b>.elf</b> de <b>build/Debug</b>, sin necesitar el .hex. Ponemos un Virtual Terminal a 9600 y el LED.</p><div class="dos"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Agregar librerías</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Carpeta Librerias</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=623" target="_blank" rel="noopener">&#9654; 10:23</a></div><p>En <b>Core</b> creamos la carpeta <b>Librerias</b> y pegamos <b>uart.c</b> y <b>uart.h</b> (desde el explorador de Windows: clic derecho &gt; Reveal in File Explorer).</p><p>Respeta mayúsculas y minúsculas del nombre de la carpeta.</p><div class="uno"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Decirle a CMake dónde están</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=754" target="_blank" rel="noopener">&#9654; 12:34</a></div><p>Al final de <b>CMakeLists.txt</b> se agregan todos los .c de la carpeta y las rutas de include. Así en el main basta <b>#include "uart.h"</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>file(GLOB LIB_SOURCES
+    Core/Librerias/*.c
+)
+
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE
+    ${LIB_SOURCES}
+)
+
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    Core/Inc
+    Core/Librerias
+)</code></pre></div><p class="ojo">Si tu carpeta tiene otro nombre, cámbialo en las dos partes.</p><div class="dos"><figure class="cap"><a href="img/780.webp" target="_blank"><img src="img/780.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Usar la librería serial</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=821" target="_blank" rel="noopener">&#9654; 13:41</a></div><p>Escribimos un texto al iniciar y otro en el while. En Proteus aparece INICIANDO y FUNCIONANDO.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+
+while (1)
+{
+  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  HAL_Delay(500);
+  uartx_write_text(&amp;huart1, &quot;FUNCIONANDO\r\n&quot;);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/810.webp" target="_blank"><img src="img/810.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programar y depurar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Con STM32CubeProgrammer</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=922" target="_blank" rel="noopener">&#9654; 15:22</a></div><p>Conectamos, abrimos el <b>.elf</b> de build/Debug y pulsamos <b>Download</b>. En Hercules, en el COM del programador a 9600, se ven los mensajes.</p><div class="uno"><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Con Run and Debug</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=989" target="_blank" rel="noopener">&#9654; 16:29</a></div><p>Desde <b>Run and Debug</b> se programa y se puede ir paso a paso (Step Over). Es más lento para solo programar, pero ideal para depurar.</p><p class="ojo">Si el depurador falla después de usar el Programmer, desconecta y conecta el ST-Link.</p><div class="dos"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/1050.webp" target="_blank"><img src="img/1050.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Flotantes, FPU y .hex</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Contador con sprintf</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=1108" target="_blank" rel="noopener">&#9654; 18:28</a></div><p>Con sprintf armamos un texto con un contador en un buffer de 50 caracteres; el autocompletado propone casi todo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char buffer[50];
+int contador = 0;
+
+sprintf(buffer, &quot; %d\r\n&quot;, contador++);
+uartx_write_text(&amp;huart1, buffer);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1160.webp" target="_blank"><img src="img/1160.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>printf con float</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=1246" target="_blank" rel="noopener">&#9654; 20:46</a></div><p>Si el contador es <b>float</b> (sube de 0.5 en 0.5, con <b>%.1f</b>), no imprime nada: en CubeIDE se marcaba <i>Use float with printf</i>; aquí se agrega una línea al CMakeLists.txt.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>target_link_options(${PROJECT_NAME} PUBLIC -u _printf_float)</code></pre></div><div class="dos"><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/1340.webp" target="_blank"><img src="img/1340.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/1410.webp" target="_blank"><img src="img/1410.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>FPU por software para Proteus</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=1351" target="_blank" rel="noopener">&#9654; 22:31</a></div><p>Proteus 9 da números erróneos con la FPU por hardware. En <b>cmake/gcc-arm-none-eabi.cmake</b> se comenta la línea de hardware y se usa la de software. Para el micro real se deja en hardware.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code># MCU specific flags
+#set(TARGET_FLAGS &quot;-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard &quot;)
+set(TARGET_FLAGS &quot;-mcpu=cortex-m4 -mfloat-abi=soft &quot;)</code></pre></div><div class="dos"><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/1600.webp" target="_blank"><img src="img/1600.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Generar .hex y .bin</h3><a class="min" href="https://youtu.be/rIKHWyQ9OE4?t=1588" target="_blank" rel="noopener">&#9654; 26:28</a></div><p>Para Proteus anteriores a la versión 9 se necesita el .hex. Este bloque en CMakeLists.txt lo crea después de compilar, junto con el .bin.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -O ihex $&lt;TARGET_FILE:${PROJECT_NAME}&gt; ${PROJECT_NAME}.hex
+    COMMAND ${CMAKE_OBJCOPY} -O binary $&lt;TARGET_FILE:${PROJECT_NAME}&gt; ${PROJECT_NAME}.bin
+)</code></pre></div><p class="ojo">Desde la paleta de comandos (Ctrl+Shift+P) se puede elegir el preset Debug o Release; se crean carpetas separadas dentro de build.</p><div class="dos"><figure class="cap"><a href="img/1640.webp" target="_blank"><img src="img/1640.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/1740.webp" target="_blank"><img src="img/1740.webp" alt="STM32 con Visual Studio Code: comandos largos en CMake y agregar librerías" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=rIKHWyQ9OE4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
