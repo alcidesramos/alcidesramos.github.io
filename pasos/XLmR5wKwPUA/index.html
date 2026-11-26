@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 141: librería para el sensor IMU BNO055 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leemos el BNO055 (acelerómetro, giroscopio y magnetómetro con fusión y calibración internas) con el STM32F411: inicialización, dos sensores en el mismo bus, calibración, orientación de ejes, ángulos de Euler y horizonte artificial en Python.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/XLmR5wKwPUA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 141: librería para el sensor IMU BNO055 · Paso a paso">
+  <meta property="og:description" content="Leemos el BNO055 (acelerómetro, giroscopio y magnetómetro con fusión y calibración internas) con el STM32F411: inicialización, dos sensores en el mismo bus, calibración, orientación de ejes, ángulos de Euler y horizonte artificial en Python.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/XLmR5wKwPUA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/XLmR5wKwPUA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 141: <span>IMU BNO055</span> con fusión de sensores integrada</h1>
+    <p class="lead">El BNO055 hace internamente el filtrado y la fusión de sensores, así que entrega directamente pitch, roll y yaw (y cuaterniones). Configuramos el STM32F411 con I2C1 a 400 kHz y USART1, agregamos la librería bno055 y comprobamos el sensor con BNO055_INIT. Vemos cómo cambiar la dirección (0x28 o 0x29) para manejar dos sensores en el mismo bus, el modo de fusión (brújula o giroscopio), cómo leer el estado de calibración, cómo ajustar AXIS_MAP según la posición del chip, y enviamos los ángulos a Hercules y al horizonte artificial en Python de la clase 140.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=XLmR5wKwPUA" target="_blank" rel="noopener">&#9654; Ver el video completo (26:40)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1520.webp" alt="Clase 141: librería para el sensor IMU BNO055"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill)</li><li>Módulo BNO055 (en el video, el de Adafruit; los clones probados fallaron)</li><li>Librerías bno055 (con la imagen bno055_map.png) y uart</li><li>Programa en Python del horizonte artificial (clase 140)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · BNO055 y configuración en CubeMX.</a><a href="#f2">2 · Puerto I2C, dirección, modo y ejes.</a><a href="#f3">3 · Estado de calibración y AXIS_MAP.</a><a href="#f4">4 · Funciones disponibles y ángulos de Euler.</a><a href="#f5">5 · Reutilizar el programa de la clase 140.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El sensor y el proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué tiene el BNO055</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Tiene acelerómetro, giroscopio y magnetómetro, y hace internamente la calibración y la fusión (equivalente al Kalman que hicimos a mano con el MPU6050). Por eso es más costoso.</p><p>Los módulos chinos probados fallaron; el de <b>Adafruit</b> funcionó bien.</p><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Reloj, USART1 e I2C1</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Con el <b>STM32F411CEU</b> activamos el cristal y el reloj a 100 MHz, <b>USART1</b> a 115200 e <b>I2C1</b> a 400 kHz. El proyecto se llama <b>BNO055_2026</b>.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Librerías</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=203" target="_blank" rel="noopener">&#9654; 3:23</a></div><p>En LIBRERIAS copiamos <b>bno055.c/.h</b>, la imagen <b>bno055_map.png</b> (posiciones del chip) y <b>uart.c/.h</b>, e incluimos todo en main.c junto con stdio.h y string.h. Activamos printf con float.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+#include &quot;bno055.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+
+char texto[100];</code></pre></div><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar la librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Puerto I2C y dirección</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=272" target="_blank" rel="noopener">&#9654; 4:32</a></div><p>En <b>bno055.h</b> se pone el I2C usado y la dirección: <b>0x28</b> si el pin de dirección está en 0, <b>0x29</b> si está en 1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern I2C_HandleTypeDef hi2c1;
+
+// Direccion I2C del sensor BNO055 0x28 O 0x29
+#define BNO055_ADD 0x28
+
+extern uint8_t BNO055_I2C_ADDRESS;  // colocar direccion del sensor</code></pre></div><div class="uno"><figure class="cap"><a href="img/285.webp" target="_blank"><img src="img/285.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Inicializar y comprobar</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=303" target="_blank" rel="noopener">&#9654; 5:03</a></div><p><b>BNO055_INIT()</b> devuelve 1 si encontró el sensor. Lo usamos para avisar por serial si está bien o no.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+if (BNO055_INIT() == 1) uartx_write_text(&amp;huart1, &quot;SENSOR OK\r\n&quot;);
+else uartx_write_text(&amp;huart1, &quot;SENSOR BAD\r\n&quot;);</code></pre></div><p class="ojo">Si cambias BNO055_ADD a una dirección donde no hay sensor, aparece SENSOR BAD.</p><div class="uno"><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Dos sensores en el mismo bus</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=438" target="_blank" rel="noopener">&#9654; 7:18</a></div><p>Antes de cualquier función se puede fijar la dirección con <b>BNO055_I2C_ADDRESS</b> (desplazada a la izquierda). Todas las funciones que siguen trabajan con ese sensor.</p><p>Para dos sensores (0x28 y 0x29), antes de cada llamada se pone la dirección del sensor deseado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>BNO055_I2C_ADDRESS = 0x29&lt;&lt;1;
+if (BNO055_INIT() == 1) uartx_write_text(&amp;huart1, &quot;SENSOR1 OK\r\n&quot;);
+else uartx_write_text(&amp;huart1, &quot;SENSOR1 BAD\r\n&quot;);
+
+BNO055_I2C_ADDRESS = 0x28&lt;&lt;1;
+if (BNO055_INIT() == 1) uartx_write_text(&amp;huart1, &quot;SENSOR2 OK\r\n&quot;);
+else uartx_write_text(&amp;huart1, &quot;SENSOR2 BAD\r\n&quot;);</code></pre></div><p class="ojo">Si solo tienes un sensor no hace falta: por defecto usa la dirección de BNO055_ADD.</p><div class="dos"><figure class="cap"><a href="img/490.webp" target="_blank"><img src="img/490.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Modo de fusión</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=578" target="_blank" rel="noopener">&#9654; 9:38</a></div><p>Por defecto el init deja el modo <b>brújula (0x0C, NDOF)</b>: el yaw sale del magnetómetro, sin deriva y respecto al norte magnético. El modo <b>giro/acelerómetro (0x08)</b> calcula el yaw con el giroscopio.</p><p>Con la brújula, evita baterías, imanes y campos magnéticos cerca.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// MODO DE OPERACION O FUSION
+// BNO055_Modo(modo_brujula);   // opcional (0x0C)
+// BNO055_Modo(modo_giro_ace);  // opcional (0x08)</code></pre></div><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Calibración y orientación</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Leer el estado de calibración</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=612" target="_blank" rel="noopener">&#9654; 10:12</a></div><p>Después del init se recomienda esperar más de 1.5 s para que el sensor se calibre.</p><p><b>BNO055_Lee_calibracion()</b> deja en cali_giro, cali_ace y cali_mag un valor de 0 a 3: <b>3 = calibrado</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HAL_Delay(1500);
+
+// si se quiere leer los estados de calibracion donde 3 es ok
+BNO055_Lee_calibracion();
+sprintf(texto, &quot;cal_giro=%u\r\n&quot;, cali_giro);
+uartx_write_text(&amp;huart1, texto);
+sprintf(texto, &quot;cal_acel=%u\r\n&quot;, cali_ace);
+uartx_write_text(&amp;huart1, texto);
+sprintf(texto, &quot;cal_mag=%u\r\n&quot;, cali_mag);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><p class="ojo">Giro: déjalo quieto. Acelerómetro: gíralo 90° en los ejes X y Y. Magnetómetro: muévelo en forma de 8 en el aire (solo en modo 0x0C).</p><div class="dos"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Orientación de los ejes</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=814" target="_blank" rel="noopener">&#9654; 13:34</a></div><p>Según cómo esté montado el chip (posiciones P0 a P7 de la imagen bno055_map.png, sacada del datasheet), se ajustan <b>AXIS_MAP_CONFIG</b> y <b>AXIS_MAP_SIGN</b> en bno055.h para que los ángulos salgan con el signo correcto.</p><p>Por defecto (P1) es 0x24 / 0x00. En el video el sensor está en P2: 0x24 / 0x06.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// ojo programar aqui orientacion del sensor (ver archivo bno055_map.png)
+#define BNO055_AXIS_MAP_CONFIG_DEFAULT 0x24
+#define BNO055_AXIS_MAP_SIGN_DEFAULT   0x06   // posicion P2</code></pre></div><p class="ojo">Si al inclinar a la derecha te da positivo y lo quieres negativo (o se invierte el roll), revisa esta tabla.</p><div class="dos"><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Leer los datos</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Funciones de lectura</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=918" target="_blank" rel="noopener">&#9654; 15:18</a></div><p>La librería tiene funciones para datos crudos, aceleración (en g), aceleración lineal, giro (°/s), magnetómetro (Gauss), ángulos de Euler y cuaterniones. Cada una deja el resultado en variables globales (ax, gx, max, pitch, roll, yaw...).</p><p>Los <b>cuaterniones</b> son para casos como aviones acrobáticos que pasan de 90°, donde Euler se indetermina.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// Funcion para leer aceleraciones lineales (ejemplo de la libreria)
+void BNO055_Lee_Aceleracion_lineal()
+{
+    uint8_t data[6];
+    HAL_I2C_Mem_Read(&amp;hi2c1, BNO055_I2C_ADDRESS, BNO055_LINEAR_ACC_DATA_X_LSB, I2C_MEMADD_SIZE_8BIT, data, 6, 100);
+    int16_t raw_alx = (int16_t)(data[1] &lt;&lt; 8 | data[0]);
+    int16_t raw_aly = (int16_t)(data[3] &lt;&lt; 8 | data[2]);
+    int16_t raw_alz = (int16_t)(data[5] &lt;&lt; 8 | data[4]);
+    // Convertir datos en bruto a m/s^2
+    alx = (float)raw_alx / 100.0;
+    aly = (float)raw_aly / 100.0;
+    alz = (float)raw_alz / 100.0;
+}</code></pre></div><p class="ojo">Los parámetros finales de HAL_I2C_Mem_Read no se ven completos en el video.</p><div class="dos"><figure class="cap"><a href="img/920.webp" target="_blank"><img src="img/920.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Ángulos de Euler por serial</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=1017" target="_blank" rel="noopener">&#9654; 16:57</a></div><p>En el while llamamos <b>BNO055_Lee_Euler()</b> y enviamos pitch, roll y yaw.</p><p>Con dos sensores: pon la dirección, lee Euler y copia pitch/roll/yaw a variables propias (pitch1, pitch2...) antes de leer el otro, porque las variables son las mismas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    BNO055_Lee_Euler();
+    sprintf(texto, &quot;Pitch=%.2f    Roll=%.2f    Yaw=%.2f\r\n\r\n&quot;, pitch, roll, yaw);
+    uartx_write_text(&amp;huart1, texto);
+    HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure><figure class="cap"><a href="img/1130.webp" target="_blank"><img src="img/1130.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure><figure class="cap"><a href="img/1200.webp" target="_blank"><img src="img/1200.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Prueba en Hercules</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=1256" target="_blank" rel="noopener">&#9654; 20:56</a></div><p>Al inclinar la placa cambian pitch y roll (positivos de un lado, negativos del otro) y al girarla cambia el yaw de 0 a 360°.</p><div class="uno"><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Horizonte artificial en Python</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Trama para Python</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=1324" target="_blank" rel="noopener">&#9654; 22:04</a></div><p>Usamos el mismo programa <b>IMU_2026.py</b> de la clase 140, que espera INI=pitch/roll/yaw*. Enviamos cada 10 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>BNO055_Lee_Euler();
+sprintf(texto, &quot;INI=%.2f/%.2f/%.2f*\r\n&quot;, pitch, roll, yaw);
+uartx_write_text(&amp;huart1, texto);
+HAL_Delay(10);</code></pre></div><p class="ojo">Cierra Hercules antes de abrir el puerto desde Python.</p><div class="dos"><figure class="cap"><a href="img/1340.webp" target="_blank"><img src="img/1340.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure><figure class="cap"><a href="img/1400.webp" target="_blank"><img src="img/1400.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/XLmR5wKwPUA?t=1464" target="_blank" rel="noopener">&#9654; 24:24</a></div><p>El horizonte sigue la inclinación de la placa y la brújula marca el rumbo. Si cambias AXIS_MAP_SIGN a un valor que no corresponde a la posición, verás que un eje se invierte.</p><div class="dos"><figure class="cap"><a href="img/1480.webp" target="_blank"><img src="img/1480.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure><figure class="cap"><a href="img/1520.webp" target="_blank"><img src="img/1520.webp" alt="Clase 141: librería para el sensor IMU BNO055" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=XLmR5wKwPUA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
