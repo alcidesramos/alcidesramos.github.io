@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitHub Copilot versión paga en Visual Studio Code con STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con el plan pago de Copilot elijo Claude como modelo, muevo las funciones del ADC a su librería, mando el voltaje por serial, agrego una alerta por encima de 2.5 V y pido que comente el código.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/dTywiiegBTg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="GitHub Copilot versión paga en Visual Studio Code con STM32 · Paso a paso">
+  <meta property="og:description" content="Con el plan pago de Copilot elijo Claude como modelo, muevo las funciones del ADC a su librería, mando el voltaje por serial, agrego una alerta por encima de 2.5 V y pido que comente el código.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/dTywiiegBTg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/dTywiiegBTg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>GitHub Copilot <span>versión paga</span> con Claude en VS Code</h1>
+    <p class="lead">Continuación del video anterior, ahora con GitHub Copilot pago (10 dólares). En el selector de modelos ya se puede escoger Claude o ChatGPT. Le pido que pase las funciones del ADC que quedaron en main.c a la librería ADC1.c / ADC1.h, que envíe el valor en voltios por el puerto serial usando las funciones nuevas y que dé un mensaje de alerta cuando el voltaje supere 2.5 V. Al simular en Proteus aparece un problema con los float que no es de la IA sino de configuración: hay que usar FPU por software. Al final le pido que explique y comente el código, y muestro las opciones de esfuerzo de razonamiento y el tamaño de contexto.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=dTywiiegBTg" target="_blank" rel="noopener">&#9654; Ver el video completo (9:14)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/460.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32"></figure>
+    <ul class="materiales"><li>VS Code con GitHub Copilot (plan pago)</li><li>Proyecto COPILOT del video anterior (STM32F401)</li><li>Librerías ADC1.c/ADC1.h y uart.c/uart.h</li><li>Proteus con potenciómetro y terminal virtual</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Claude en Copilot</a><a href="#f2">2 · Mover funciones</a><a href="#f3">3 · Serial y Proteus</a><a href="#f4">4 · Condición &gt; 2.5 V</a><a href="#f5">5 · Explicar y comentar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Elegir el modelo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Cambiar de Auto a Claude</h3><a class="min" href="https://youtu.be/dTywiiegBTg?t=10" target="_blank" rel="noopener">&#9654; 0:10</a></div><p>Con el plan pago, en el selector del chat (que estaba en <b>Auto</b>) aparecen modelos como Claude o ChatGPT. Escojo <b>Claude Sonnet</b> para esta prueba.</p><div class="uno"><figure class="cap"><a href="img/10.webp" target="_blank"><img src="img/10.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Ordenar la librería ADC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pedirle que mueva las funciones</h3><a class="min" href="https://youtu.be/dTywiiegBTg?t=50" target="_blank" rel="noopener">&#9654; 0:50</a></div><p>Las funciones de promedio y voltaje habían quedado en main.c. Le pido: <i>las funciones que están en el main.c del ADC pásalas a la librería ADC1.c y ADC1.h</i>.</p><p class="ojo">La primera vez no las copió del todo; hubo que insistir. Revise siempre que la función quede en el .c y su prototipo en el .h.</p><div class="dos"><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Prototipos en ADC1.h</h3><a class="min" href="https://youtu.be/dTywiiegBTg?t=180" target="_blank" rel="noopener">&#9654; 3:00</a></div><p>Ahora sí agrega los prototipos en el encabezado. Las copias que quedaron en main.c las borro a mano y compilo: sigue funcionando.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint32_t ADC1_Read(void);
+uint32_t ADC1_Read_Average(uint8_t samples);
+float ADC1_Read_Voltage(uint8_t samples);</code></pre></div><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Enviar el voltaje</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Voltaje por el puerto serial</h3><a class="min" href="https://youtu.be/dTywiiegBTg?t=240" target="_blank" rel="noopener">&#9654; 4:00</a></div><p>Le pido mandar el valor en voltios con las funciones nuevas. Reemplaza el envío del valor crudo por el voltaje promediado con 10 muestras.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float adc_voltage = ADC1_Read_Voltage(10);
+sprintf((char *)texto, &quot;ADC Voltage: %.2f V\r\n&quot;, adc_voltage);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Float en Proteus: FPU por software</h3><a class="min" href="https://youtu.be/dTywiiegBTg?t=345" target="_blank" rel="noopener">&#9654; 5:45</a></div><p>En Proteus el texto salía mal. No era culpa de la IA: Proteus no simula la FPU por hardware, así que en el CMake hay que pasar a <b>FPU por software</b> (soft float) y habilitar printf con float. Con eso la terminal muestra el voltaje y llega a 3.3 V con el potenciómetro al máximo.</p><p class="ojo">En la placa real puede dejar la FPU por hardware; el cambio a software es solo para simular en Proteus.</p><div class="dos"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/365.webp" target="_blank"><img src="img/365.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Alerta por voltaje alto</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Agregar la alerta</h3><a class="min" href="https://youtu.be/dTywiiegBTg?t=410" target="_blank" rel="noopener">&#9654; 6:50</a></div><p>Le pido: <i>si el voltaje es mayor de 2.5 V, que me dé un mensaje de alerta por un segundo</i>. Agrega el if, envía la alerta por serial y espera 1 s.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (adc_voltage &gt; 2.5f)
+{
+  sprintf((char *)texto, &quot;ALERTA: Voltaje alto (%.2f V)\r\n&quot;, adc_voltage);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(1000);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Probar en la simulación</h3><a class="min" href="https://youtu.be/dTywiiegBTg?t=425" target="_blank" rel="noopener">&#9654; 7:05</a></div><p>Al subir el potenciómetro por encima de 2.5 V aparece la alerta cada segundo; al bajarlo solo se muestra el voltaje.</p><div class="uno"><figure class="cap"><a href="img/425.webp" target="_blank"><img src="img/425.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Entender lo que hizo la IA</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Explicar y comentar el código</h3><a class="min" href="https://youtu.be/dTywiiegBTg?t=490" target="_blank" rel="noopener">&#9654; 8:10</a></div><p>Selecciono el bloque y le pido <i>explícame al detalle el código y coméntamelo</i>. Copilot agrega comentarios línea por línea. En el selector del modelo se ve el esfuerzo de razonamiento (Low, Medium, High…) y el tamaño de contexto (1M tokens).</p><p class="ojo">La IA ayuda a ir más rápido, pero hay que entender lo que escribe: aprenda a programar y use la IA como apoyo, no para tragarse el código entero.</p><div class="dos"><figure class="cap"><a href="img/490.webp" target="_blank"><img src="img/490.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="GitHub Copilot versión paga en Visual Studio Code con STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=dTywiiegBTg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
