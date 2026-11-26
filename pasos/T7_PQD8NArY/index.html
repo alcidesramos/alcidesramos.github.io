@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Pasamos la lectura y los filtros del MPU6050 a una interrupción de timer para tener un tiempo de muestreo exacto, medimos cuánto tardan los cálculos y mostramos pitch, roll y yaw en un horizonte artificial hecho en Python.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/T7_PQD8NArY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python · Paso a paso">
+  <meta property="og:description" content="Pasamos la lectura y los filtros del MPU6050 a una interrupción de timer para tener un tiempo de muestreo exacto, medimos cuánto tardan los cálculos y mostramos pitch, roll y yaw en un horizonte artificial hecho en Python.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/T7_PQD8NArY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/T7_PQD8NArY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 140: <span>MPU6050 con muestreo por timer</span> y horizonte artificial en Python</h1>
+    <p class="lead">Continuación de la clase 139. El problema de los filtros era depender de retardos en el while. Ahora la lectura del sensor, los ángulos y los filtros complementario y Kalman se ejecutan dentro de la interrupción del TIM3 cada 5 ms, sin importar lo que haga el programa principal. Configuramos el timer con una regla sencilla (prescaler = MHz × 10 − 1, periodo = ms × 100 − 1), medimos con el contador DWT que los procedimientos tardan unos 0.42 ms y enviamos pitch y roll de Kalman y el yaw del giroscopio en una trama INI=p/r/y* que lee un programa en Python con horizonte artificial y brújula.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=T7_PQD8NArY" target="_blank" rel="noopener">&#9654; Ver el video completo (16:54)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/960.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill) con el proyecto de la clase 139</li><li>Módulo MPU6050</li><li>Librerías MPU6050, kalman, delays, uart y timer del repositorio</li><li>Python 3 con tkinter y pyserial (programa del horizonte)</li><li>Hercules o Teleplot para verificar</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Mover los cálculos a la interrupción.</a><a href="#f2">2 · Prescaler y periodo para 5 ms.</a><a href="#f3">3 · Inicializar y medir.</a><a href="#f4">4 · Teleplot con muestreo exacto.</a><a href="#f5">5 · Trama INI=pitch/roll/yaw*.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Librería de timer</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Quitar el muestreo del while</h3><a class="min" href="https://youtu.be/T7_PQD8NArY?t=1" target="_blank" rel="noopener">&#9654; 0:01</a></div><p>En la clase anterior todo se hacía en el while con delay_ms; cualquier retardo extra dañaba el ángulo del giroscopio y los filtros.</p><p>Ahora en la librería del MPU6050 cambiamos la opción de tiempo de muestreo para que lo maneje el timer y agregamos la librería <b>timer</b> a LIBRERIAS.</p><p class="ojo">Revisa en MPU6050.h el define de tiempo_muestreo según indica la librería: con timer el tiempo lo calcula la librería timer.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Escoger el timer y los procedimientos</h3><a class="min" href="https://youtu.be/T7_PQD8NArY?t=67" target="_blank" rel="noopener">&#9654; 1:07</a></div><p>En <b>timer.h</b> se indica el timer a usar (aquí TIM3) y se incluye el sensor.</p><p>En <b>timer.c</b>, dentro de <b>TIMER_PROCEDIMIENTOS()</b>, ponemos todo lo que antes estaba en el while: leer, calcular, ángulos y filtros. El callback del timer lo llama en cada periodo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// timer.c
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    // mira si el timer deseado
+    if (htim-&gt;Instance == TIM_INT)
+    {
+        TIMER_PROCEDIMIENTOS();
+    }
+}
+
+void TIMER_PROCEDIMIENTOS()
+{
+    // IMU
+    MPU6050_lee_datos();
+    MPU6050_calcula_flotantes();
+    MPU6050_Ace_angulos();
+    MPU6050_Giro_angulos();
+    Filtro_Complementario(0.95);
+    filtro_kalman();
+}</code></pre></div><p class="ojo">Los procedimientos deben tardar menos que el periodo del timer.</p><div class="dos"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Iniciar el timer y medir el tiempo</h3><a class="min" href="https://youtu.be/T7_PQD8NArY?t=133" target="_blank" rel="noopener">&#9654; 2:13</a></div><p><b>TIMER_INIT()</b> arranca el timer con interrupción.</p><p><b>TIMER_MIDE()</b> usa el contador de ciclos DWT para medir cuánto tardan los procedimientos, en µs y ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void TIMER_INIT()
+{
+    HAL_TIM_Base_Start_IT(&amp;htim_INT);
+}
+
+// MIDO TIEMPO DE ESOS PROCEDIMIENTOS
+void TIMER_MIDE()
+{
+    CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT-&gt;CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+    pasos1 = (HAL_RCC_GetSysClockFreq()/1000000);
+    // INICIA CONTADOR
+    DWT-&gt;CYCCNT = 0;
+    TIMER_PROCEDIMIENTOS();
+    tmicros = (DWT-&gt;CYCCNT / pasos1);  // retorna los us
+    tmilis = tmicros/1000.0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar el TIM3</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Cálculo del prescaler y el periodo</h3><a class="min" href="https://youtu.be/T7_PQD8NArY?t=166" target="_blank" rel="noopener">&#9654; 2:46</a></div><p>Regla práctica: <b>Prescaler = frecuencia del micro en MHz × 10 − 1</b> y <b>Counter Period = milisegundos × 100 − 1</b>.</p><p>Con 100 MHz: prescaler 1000 − 1. Para 5 ms: periodo 500 − 1 (10 ms sería 1000 − 1).</p><p class="ojo">Con 100 MHz / 1000 el timer cuenta a 100 kHz, es decir, cada cuenta son 10 µs.</p><div class="dos"><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>TIM3 en CubeMX</h3><a class="min" href="https://youtu.be/T7_PQD8NArY?t=230" target="_blank" rel="noopener">&#9654; 3:50</a></div><p>Activamos <b>TIM3</b> con Clock Source <b>Internal Clock</b>, Prescaler <b>1000-1</b>, Counter Period <b>500-1</b> y <b>auto-reload preload Enable</b>.</p><p>En NVIC Settings habilitamos la <b>interrupción global del TIM3</b> y generamos código.</p><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Inicialización</h3><a class="min" href="https://youtu.be/T7_PQD8NArY?t=352" target="_blank" rel="noopener">&#9654; 5:52</a></div><p>Inicializamos el sensor, lo calibramos, inicializamos los dos canales del filtro de Kalman (roll y pitch), los delays y por último el timer.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+MPU6050_init();
+MPU6050_Calibra();
+// se va a usar filtro kalman
+Kalman_Init(&amp;kalman_roll_);
+Kalman_Init(&amp;kalman_pitch_);
+delay_Init();
+TIMER_INIT();</code></pre></div><div class="uno"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Medir cuánto tardan los cálculos</h3><a class="min" href="https://youtu.be/T7_PQD8NArY?t=386" target="_blank" rel="noopener">&#9654; 6:26</a></div><p>Para comprobar el tiempo, llamamos una vez a TIMER_MIDE, enviamos el resultado y dejamos el programa quieto. Declaramos <b>char texto[100]</b>.</p><p>El resultado fue unos <b>0.42 ms</b>, muy por debajo de los 5 ms: el F411 tiene FPU y hace estos cálculos muy rápido.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TIMER_MIDE();
+sprintf(texto, &quot;Tus=%lu us    Tms=%.2f ms\r\n&quot;, tmicros, tmilis);
+uartx_write_text(&amp;huart1, texto);
+while(1);   // se queda aqui; luego se comenta</code></pre></div><p class="ojo">Después de medir, comenta estas líneas. Para robots 10 a 50 ms está bien; para un dron, 5 ms o menos.</p><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Ver los filtros</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Kalman vs complementario</h3><a class="min" href="https://youtu.be/T7_PQD8NArY?t=553" target="_blank" rel="noopener">&#9654; 9:13</a></div><p>Ahora el while solo envía datos y puede tener cualquier retardo: el timer muestrea exactamente cada 5 ms.</p><p>En Teleplot, el roll del acelerómetro (verde) vibra mucho; el complementario (azul) y el Kalman casi no. El complementario muestra picos algo mayores: el <b>Kalman es más preciso</b>.</p><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Horizonte artificial en Python</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>El programa en Python</h3><a class="min" href="https://youtu.be/T7_PQD8NArY?t=624" target="_blank" rel="noopener">&#9654; 10:24</a></div><p>En VS Code hay tres archivos: <b>comunicacion.py</b> (puerto serial), <b>instrumentos.py</b> (horizonte, brújula, gauges, LEDs) e <b>IMU_2026.py</b> (programa principal).</p><p>El principal crea una ventana con una fila y dos columnas: horizonte artificial en la primera y brújula en la segunda.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code># IMU_2026.py (fragmento)
+horizonte = HorizontePro(main_frame, size=250)
+horizonte.grid(row=0, column=0, padx=20, pady=20)
+
+brujula = BrujulaPro(main_frame, size=250)
+brujula.grid(row=0, column=1, padx=20, pady=20)</code></pre></div><div class="dos"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure><figure class="cap"><a href="img/670.webp" target="_blank"><img src="img/670.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Decodificar la trama</h3><a class="min" href="https://youtu.be/T7_PQD8NArY?t=658" target="_blank" rel="noopener">&#9654; 10:58</a></div><p>Los datos llegan con el formato <b>INI=valor/valor/valor*</b>. Se toma lo que hay entre INI= y *, se separa por / y se convierten a float. El yaw negativo se pasa a 0-360.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>def procesar_trama(trama):
+    global pitch, roll, yaw
+    try:
+        if &quot;INI=&quot; in trama and &quot;*&quot; in trama:
+            # Extraer datos entre INI=y/y/y *
+            datos = trama.split(&quot;INI=&quot;)[1].split(&quot;*&quot;)[0]
+            # Separar por /
+            valores = datos.split(&quot;/&quot;)
+            if len(valores) &gt;= 3:
+                pitch = float(valores[0])
+                roll = float(valores[1])
+                yaw = float(valores[2])
+                if yaw &lt; 0:
+                    yaw = yaw + 360.0
+    except:
+        pass</code></pre></div><p class="ojo">Si envías más datos, agrega más campos separados por / y ajusta el número esperado.</p><div class="uno"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Enviar la trama desde el STM32</h3><a class="min" href="https://youtu.be/T7_PQD8NArY?t=755" target="_blank" rel="noopener">&#9654; 12:35</a></div><p>En el while enviamos pitch y roll del Kalman y el yaw del giroscopio cada 10 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    delay_ms(10);
+    sprintf(texto, &quot;INI=%.2f/%.2f/%.2f*&quot;, kalman_pitch, kalman_roll, giro_yaw);
+    uartx_write_text(&amp;huart1, texto);
+}</code></pre></div><p class="ojo">El yaw solo con giroscopio deriva con el tiempo; para una brújula real conviene un magnetómetro.</p><div class="dos"><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.4</span><h3>Resultado</h3><a class="min" href="https://youtu.be/T7_PQD8NArY?t=922" target="_blank" rel="noopener">&#9654; 15:22</a></div><p>Abrimos el COM en Python (cerrado en Teleplot y Hercules). Al girar la placa se mueve la brújula (yaw) y al inclinarla el horizonte (pitch y roll). Con vibraciones no hay saltos bruscos gracias al filtro y al muestreo exacto.</p><div class="dos"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Clase 140: MPU6050 con timer, filtros Kalman y complementario, y horizonte en Python" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=T7_PQD8NArY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
