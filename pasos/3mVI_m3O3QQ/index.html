@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 143: medir corriente y voltaje con el INA219 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leemos voltaje (hasta 32 V) y corriente (hasta 2 A) con el INA219 por I2C en el STM32F411, y corregimos la corriente con una ecuación lineal sacada en Excel.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/3mVI_m3O3QQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 143: medir corriente y voltaje con el INA219 · Paso a paso">
+  <meta property="og:description" content="Leemos voltaje (hasta 32 V) y corriente (hasta 2 A) con el INA219 por I2C en el STM32F411, y corregimos la corriente con una ecuación lineal sacada en Excel.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/3mVI_m3O3QQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/3mVI_m3O3QQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 143: <span>voltaje y corriente con el INA219</span> en STM32</h1>
+    <p class="lead">El INA219 mide el voltaje del bus y la corriente a través de una resistencia shunt de 0.1 Ω. Lo conectamos al I2C1 del STM32F411 (dirección 0x40 con A0 y A1 a tierra), lo inicializamos en el rango 32 V / 2 A con la librería INA219, leemos el voltaje del bus en mV y la corriente en mA y los enviamos por serial. Como el shunt de los módulos genéricos no es de precisión, la corriente salía un poco alta: tomamos tres puntos contra la fuente, sacamos la recta en Excel y la aplicamos en el código.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=3mVI_m3O3QQ" target="_blank" rel="noopener">&#9654; Ver el video completo (18:08)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1040.webp" alt="Clase 143: medir corriente y voltaje con el INA219"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill)</li><li>Módulo INA219 (shunt R100 = 0.1 Ω)</li><li>Fuente variable (o batería) y una carga (LED con resistencia de 220 Ω)</li><li>Librerías INA219 y uart</li><li>Excel para la linealización (opcional)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pines, dirección y carga.</a><a href="#f2">2 · CubeMX y librerías.</a><a href="#f3">3 · Init, voltaje y corriente.</a><a href="#f4">4 · Linealización con Excel.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Conexión</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Cómo se conecta el INA219</h3><a class="min" href="https://youtu.be/3mVI_m3O3QQ?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>VCC a 5 V (o 3.3 V), GND a tierra, <b>SCL y SDA</b> al I2C del micro. El módulo ya trae pull-up; si usas el chip suelto, ponlas.</p><p>Con <b>A0 y A1 a tierra</b> la dirección es <b>0x40</b>.</p><p>La fuente o batería va a <b>VIN+</b>, y de <b>VIN−</b> sale hacia la carga y luego a tierra. Así se mide el voltaje y la corriente que consume la carga.</p><p class="ojo">La tierra de la fuente medida debe ser común con la del micro.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj, I2C1 y USART1</h3><a class="min" href="https://youtu.be/3mVI_m3O3QQ?t=169" target="_blank" rel="noopener">&#9654; 2:49</a></div><p>STM32F411 a 100 MHz con cristal. <b>I2C1</b> (PB6 SCL, PB7 SDA) a 400 kHz y <b>USART1</b> a 115200. Proyecto <b>INA219_2026</b>.</p><div class="dos"><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Librerías y variables</h3><a class="min" href="https://youtu.be/3mVI_m3O3QQ?t=236" target="_blank" rel="noopener">&#9654; 3:56</a></div><p>Copiamos <b>INA219.c/.h</b> y <b>uart.c/.h</b> en LIBRERIAS, los agregamos al path, activamos printf con float y declaramos las variables.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;INA219.h&quot;
+#include &quot;uart.h&quot;
+#include &quot;stdio.h&quot;
+
+/* USER CODE BEGIN PV */
+char texto[50];
+float voltaje, corriente;</code></pre></div><div class="dos"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Inicializar y leer</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Inicializar el sensor</h3><a class="min" href="https://youtu.be/3mVI_m3O3QQ?t=305" target="_blank" rel="noopener">&#9654; 5:05</a></div><p><b>INA219_Init()</b> comprueba que el sensor responda, lo resetea y lo calibra para <b>32 V y 2 A</b>. Devuelve 1 si todo está bien.</p><p>La librería también tiene calibraciones para 32 V/1 A y 16 V/400 mA.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// main.c
+if (INA219_Init() == 1) uartx_write_text(&amp;huart1, &quot;OK\r\n&quot;);
+else uartx_write_text(&amp;huart1, &quot;BAD\r\n&quot;);
+
+// en INA219.c
+uint8_t INA219_Init()
+{
+    ina219_currentDivider_mA = 0;
+    ina219_powerMultiplier_mW = 0;
+    uint8_t ina219_isReady = HAL_I2C_IsDeviceReady(&amp;INA219_I2C, INA219_ADDRESS, 3, 2);
+    if (ina219_isReady == HAL_OK)
+    {
+        INA219_Reset();
+        INA219_setCalibration_32V_2A();
+        return 1;
+    }
+    else return 0;
+}</code></pre></div><p class="ojo">Los dos últimos parámetros de IsDeviceReady no se ven completos en el video.</p><div class="dos"><figure class="cap"><a href="img/350.webp" target="_blank"><img src="img/350.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Leer el voltaje del bus</h3><a class="min" href="https://youtu.be/3mVI_m3O3QQ?t=442" target="_blank" rel="noopener">&#9654; 7:22</a></div><p><b>INA219_ReadBusVoltage()</b> devuelve el voltaje en mV de lo que se está midiendo (no confundir con ReadShuntVoltage, que es la caída en la resistencia).</p><p>Lo dividimos entre 1000.0 para tenerlo en voltios.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    int16_t volt_mil = INA219_ReadBusVoltage();
+    voltaje = volt_mil/1000.0;
+    sprintf(texto, &quot;Voltaje= %.1fV\r\n&quot;, voltaje);
+    uartx_write_text(&amp;huart1, texto);
+
+    uartx_write_text(&amp;huart1, &quot;\r\n&quot;);
+    HAL_Delay(500);
+}</code></pre></div><p class="ojo">Al principio en el video se leyó ReadShuntVoltage y salían 2 mV: hay que usar ReadBusVoltage.</p><div class="dos"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Probar el voltaje</h3><a class="min" href="https://youtu.be/3mVI_m3O3QQ?t=678" target="_blank" rel="noopener">&#9654; 11:18</a></div><p>Con la fuente a 5, 7 y 10 V el terminal muestra el mismo valor.</p><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Leer la corriente</h3><a class="min" href="https://youtu.be/3mVI_m3O3QQ?t=712" target="_blank" rel="noopener">&#9654; 11:52</a></div><p><b>INA219_ReadCurrent()</b> devuelve la corriente en <b>mA</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>corriente = INA219_ReadCurrent();
+sprintf(texto, &quot;Corriente= %.1fmA\r\n&quot;, corriente);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><p class="ojo">A 10 V el sensor marcaba 40.1 mA cuando la fuente decía 31 mA.</p><div class="dos"><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Corregir la corriente</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Tomar puntos y sacar la recta</h3><a class="min" href="https://youtu.be/3mVI_m3O3QQ?t=780" target="_blank" rel="noopener">&#9654; 13:00</a></div><p>El shunt de los módulos genéricos no es de precisión. Tomamos tres puntos: lo que marca el sensor y lo que marca la fuente o un multímetro (40.1→31, 29.1→22 y 18.3→14 mA).</p><p>En Excel hacemos un gráfico de dispersión, agregamos línea de tendencia lineal y mostramos la ecuación.</p><p class="ojo">Con estos tres puntos la recta da aproximadamente y = 0.78x − 0.43; saca la tuya con tu sensor.</p><div class="uno"><figure class="cap"><a href="img/950.webp" target="_blank"><img src="img/950.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Aplicar la ecuación</h3><a class="min" href="https://youtu.be/3mVI_m3O3QQ?t=955" target="_blank" rel="noopener">&#9654; 15:55</a></div><p>Copiamos la ecuación al código reemplazando x por la corriente leída. Si Excel usa coma decimal, cámbiala por punto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>corriente = INA219_ReadCurrent();
+corriente = 0.78*corriente - 0.43;   // ecuacion de tu linealizacion
+sprintf(texto, &quot;Corriente= %.1fmA\r\n&quot;, corriente);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><p class="ojo">Ojo con escribir == en vez de =: en el video eso hizo que la corrección no se aplicara.</p><div class="uno"><figure class="cap"><a href="img/980.webp" target="_blank"><img src="img/980.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/3mVI_m3O3QQ?t=1021" target="_blank" rel="noopener">&#9654; 17:01</a></div><p>Ahora a 6 V marca unos 14 mA y a 10 V unos 31 mA, igual que la fuente. Con corrientes mayores (cientos de mA o amperios) el error relativo es menor.</p><div class="uno"><figure class="cap"><a href="img/1040.webp" target="_blank"><img src="img/1040.webp" alt="Clase 143: medir corriente y voltaje con el INA219" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=3mVI_m3O3QQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
