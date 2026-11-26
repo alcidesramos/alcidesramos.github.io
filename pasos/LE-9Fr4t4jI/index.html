@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 137: multiplexar varios lidar I2C con el TCA9548A · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con el multiplexor I2C TCA9548A leemos varios sensores lidar VL53L0X que tienen la misma dirección, y vemos las distancias en Hercules y en Teleplot.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/LE-9Fr4t4jI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 137: multiplexar varios lidar I2C con el TCA9548A · Paso a paso">
+  <meta property="og:description" content="Con el multiplexor I2C TCA9548A leemos varios sensores lidar VL53L0X que tienen la misma dirección, y vemos las distancias en Hercules y en Teleplot.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/LE-9Fr4t4jI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/LE-9Fr4t4jI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso STM32 CubeIDE · Paso a paso</span>
+    <h1>Clase 137: <span>varios lidar con la misma dirección</span> usando el TCA9548A</h1>
+    <p class="lead">Cuando varios sensores I2C tienen la misma dirección (o la pierden al resetear, como el VL53L0X), el TCA9548A permite conectarlos en 8 canales separados. Conectamos el módulo al I2C1 del STM32F411, configuramos su dirección (0x70 con A0 a A2 a tierra) y usamos una librería que selecciona cada canal escribiendo una máscara de 1 bit. Recorremos los 8 canales para inicializar y leer cada lidar, guardamos las lecturas en distancia[0..7] y las mostramos por serial y en Teleplot.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=LE-9Fr4t4jI" target="_blank" rel="noopener">&#9654; Ver el video completo (17:43)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/935.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A"></figure>
+    <ul class="materiales"><li>STM32F411 (Black Pill)</li><li>Módulo multiplexor I2C TCA9548A</li><li>Varios sensores lidar VL53L0X (en el video, 3)</li><li>Resistencias de 4.7 k para SDA/SCL y 10 k para RESET</li><li>Librerías I2C_LIDAR_MUX_TCA9548, VL53L0X (clase 65) y uart</li><li>Hercules y la extensión Teleplot de VS Code</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Conexiones y dirección del módulo.</a><a href="#f2">2 · I2C1 a 400 kHz, USART1 y carpeta LIBRERIAS.</a><a href="#f3">3 · Configuración, selección de canal y lectura.</a><a href="#f4">4 · Inicializar, leer y graficar.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El multiplexor TCA9548A</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Para qué sirve y cómo se conecta</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se alimenta a <b>3.3 V</b> y GND, y sus pines <b>SDA/SCL</b> van al I2C del micro con pull-up de 4.7 k (aunque el módulo ya las traiga, se recomiendan).</p><p>El pin <b>RESET</b> va con una resistencia de 10 k a positivo.</p><p>Sus 8 canales (SD0/SC0 a SD7/SC7) se conectan directamente a cada sensor, sin resistencias.</p><p class="ojo">El VL53L0X permite cambiar la dirección pero no la guarda: al resetear la pierde. Por eso conviene el multiplexor.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Dirección con A0, A1 y A2</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=36" target="_blank" rel="noopener">&#9654; 0:36</a></div><p>Con A0, A1 y A2 a tierra la dirección es <b>0x70</b>; con todos a positivo, 0x77. Se pueden poner hasta 8 multiplexores en el mismo bus.</p><p>Como la dirección I2C es de 7 bits, en el código se desplaza una posición a la izquierda (0x70 << 1), como se explicó en la clase 136.</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto en CubeMX y librerías</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj, I2C1 Fast Mode y USART1</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=148" target="_blank" rel="noopener">&#9654; 2:28</a></div><p>Proyecto con el <b>STM32F411CEU</b>, cristal externo y PLL a 100 MHz.</p><p>Activamos <b>I2C1</b> en <b>Fast Mode (400 kHz)</b>, porque estos sensores trabajan a esa velocidad, y <b>USART1</b> asíncrono para enviar datos.</p><div class="uno"><figure class="cap"><a href="img/205.webp" target="_blank"><img src="img/205.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Generar código</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=214" target="_blank" rel="noopener">&#9654; 3:34</a></div><p>Llamamos al proyecto <b>I2C_MUX_LIDAR</b> con toolchain STM32CubeIDE y generamos código.</p><div class="uno"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Agregar las librerías al path</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=250" target="_blank" rel="noopener">&#9654; 4:10</a></div><p>En Core creamos la carpeta <b>LIBRERIAS</b> y copiamos la librería del multiplexor (<b>I2C_LIDAR_MUX_TCA9548.c/.h</b>), la del lidar (<b>VL53L0X</b>, de la clase 65) y la de <b>uart</b>.</p><p>Agregamos al path de include LIBRERIAS y también las carpetas <b>core/inc</b> y <b>platform/inc</b> de la librería VL53L0X (Debug y Release).</p><p class="ojo">Si aparecen errores raros, revisa que tengas la última versión de la librería del lidar: en el video el error era una versión vieja.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Cómo funciona la librería</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Configurar puertos y dirección</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=346" target="_blank" rel="noopener">&#9654; 5:46</a></div><p>En <b>I2C_LIDAR_MUX_TCA9548.h</b> se define el I2C, el UART y la dirección del multiplexor (desplazada).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;main.h&quot;
+#include &quot;uart.h&quot;
+#include &quot;lidarvl53.h&quot;
+
+// puerto I2C a usar
+#define I2C_PORT   hi2c1
+// puerto UART a usar
+#define UART_PORT  huart1
+// direccion del Tca9548
+#define LIDAR_ADDR 0x70&lt;&lt;1
+
+extern float distancia[];</code></pre></div><div class="dos"><figure class="cap"><a href="img/350.webp" target="_blank"><img src="img/350.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Seleccionar un canal</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=414" target="_blank" rel="noopener">&#9654; 6:54</a></div><p>Para activar un canal se le envía al TCA9548A un byte con un solo bit en 1: el bit del canal (0 a 7).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float distancia[8];
+char textomux[30];
+
+void I2C_MUX(uint8_t channel)
+{
+    uint8_t mask = (1 &lt;&lt; channel);
+    HAL_I2C_Master_Transmit(&amp;I2C_PORT, LIDAR_ADDR, &amp;mask, 1, 100);
+}</code></pre></div><p class="ojo">El último parámetro (timeout) no se ve completo en el video; 100 ms funciona bien.</p><div class="uno"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Leer los 8 canales</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=446" target="_blank" rel="noopener">&#9654; 7:26</a></div><p>Para leer se hace un for de 0 a 7: se selecciona el canal, se pregunta si el lidar responde y se guarda la lectura en <b>distancia[canal]</b>.</p><p>La versión FAST usa la lectura rápida del lidar. Si usas otro sensor, cambia aquí la función de lectura.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void LEE_LIDARS_FAST()
+{
+    for (uint8_t canal = 0; canal &lt; 8; canal++)
+    {
+        I2C_MUX(canal);  // activa el canal correspondiente (0-7)
+        if (HAL_I2C_IsDeviceReady(&amp;I2C_PORT, dir_s1, 1, 100) == HAL_OK)
+        {distancia[canal] = lidar_lee_cm_fast(dir_s1);}
+    }
+}</code></pre></div><p class="ojo">La función INIT_LIDARS_FAST hace el mismo recorrido, pero inicializando cada lidar y avisando por serial cuáles detectó.</p><div class="dos"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Enviar las distancias por serial</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=446" target="_blank" rel="noopener">&#9654; 7:26</a></div><p><b>Manda_Lidars</b> envía Dis1 a Dis8 con un decimal. Para que sprintf acepte float hay que activar en Properties, C/C++ Build, Settings, la opción de <b>printf con float</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Manda_Lidars()
+{
+    sprintf(textomux, &quot;Dis1=%.1f\r\n&quot;, distancia[0]);
+    uartx_write_text(&amp;UART_PORT, textomux);
+    sprintf(textomux, &quot;Dis2=%.1f\r\n&quot;, distancia[1]);
+    uartx_write_text(&amp;UART_PORT, textomux);
+    // ... igual hasta Dis8 con distancia[7]
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/485.webp" target="_blank"><img src="img/485.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Programa principal y pruebas</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>main.c</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=378" target="_blank" rel="noopener">&#9654; 6:18</a></div><p>Incluimos la librería del multiplexor (ya incluye la del lidar), inicializamos los lidar una vez y en el while leemos y enviamos cada 500 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;I2C_LIDAR_MUX_TCA9548.h&quot;
+
+/* USER CODE BEGIN 2 */
+INIT_LIDARS_FAST();
+
+/* USER CODE BEGIN WHILE */
+while (1)
+{
+    LEE_LIDARS_FAST();
+    Manda_Lidars();
+    HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure><figure class="cap"><a href="img/665.webp" target="_blank"><img src="img/665.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Resultado en Hercules</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=723" target="_blank" rel="noopener">&#9654; 12:03</a></div><p>Al resetear, el micro reporta los lidar detectados (en el video en los canales 1, 3 y 8) y luego las distancias. Los que no ven nada marcan alrededor de 200 cm.</p><div class="dos"><figure class="cap"><a href="img/735.webp" target="_blank"><img src="img/735.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure><figure class="cap"><a href="img/770.webp" target="_blank"><img src="img/770.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Graficar con Teleplot</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=788" target="_blank" rel="noopener">&#9654; 13:08</a></div><p>Cambiamos Manda_Lidars por <b>Manda_Lidars_Teleplot()</b> con un retardo de 1 ms y abrimos la extensión <b>Teleplot</b> de VS Code en el COM a 115200.</p><p>Aparecen L1 a L8; dejamos solo los canales conectados para ver las tres distancias en tiempo real.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    LEE_LIDARS_FAST();
+    Manda_Lidars_Teleplot();
+    HAL_Delay(1);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure><figure class="cap"><a href="img/935.webp" target="_blank"><img src="img/935.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Usar las distancias en tu código</h3><a class="min" href="https://youtu.be/LE-9Fr4t4jI?t=961" target="_blank" rel="noopener">&#9654; 16:01</a></div><p>El arreglo <b>distancia[8]</b> es externo, así que desde el main puedes usar distancia[0] a distancia[7] (canal 0 a 7) en cualquier cálculo.</p><p>Si tienes menos sensores, puedes reducir el for dentro de la librería.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float valor = distancia[0];   // lectura del sensor del canal 0</code></pre></div><div class="uno"><figure class="cap"><a href="img/975.webp" target="_blank"><img src="img/975.webp" alt="Clase 137: multiplexar varios lidar I2C con el TCA9548A" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=LE-9Fr4t4jI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
