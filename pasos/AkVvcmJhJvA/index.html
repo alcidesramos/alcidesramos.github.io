@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Combinar condiciones con &amp;&amp; y ||, optimizar casos excluyentes con else if y else, y leer un puerto completo con el registro IDR usando máscaras AND y desplazamientos.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/AkVvcmJhJvA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros · Paso a paso">
+  <meta property="og:description" content="Combinar condiciones con &amp;&amp; y ||, optimizar casos excluyentes con else if y else, y leer un puerto completo con el registro IDR usando máscaras AND y desplazamientos.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/AkVvcmJhJvA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/AkVvcmJhJvA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Condicionales y <span>lectura de puertos</span> con registros</h1>
+    <p class="lead">Clase del semestre 2024-I. Con dos pulsadores se analizan las cuatro combinaciones posibles uniendo condiciones con && y ||, y se optimiza el código con else if y un else final porque los casos son mutuamente excluyentes. Luego se conecta un thumbwheel BCD en Proteus y se lee el puerto B completo con el registro IDR, se filtran los bits que interesan con una máscara AND y se usan desplazamientos (>>) cuando los bits están en otra parte del puerto.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=AkVvcmJhJvA" target="_blank" rel="noopener">&#9654; Ver el video completo (60:37)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/3480.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros"></figure>
+    <ul class="materiales"><li>STM32CubeIDE</li><li>Proteus 8 Professional con la librería BLACKPILL_ARZ</li><li>Dos pulsadores y dos LED</li><li>Thumbwheel BCD (THUMBSWITCH-BCD)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · &amp;&amp; (Y) y || (O) para dos pulsadores.</a><a href="#f2">2 · Casos mutuamente excluyentes.</a><a href="#f3">3 · Thumbwheel BCD y el registro IDR.</a><a href="#f4">4 · Cuando los bits no están al inicio del puerto.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Condiciones combinadas</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Cuatro combinaciones</h3><a class="min" href="https://youtu.be/AkVvcmJhJvA?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Con dos pulsadores hay cuatro casos (00, 01, 10, 11). Para preguntar por dos condiciones a la vez se unen con operadores lógicos de condición:</p><p><code>&amp;&amp;</code> (Y): se deben cumplir ambas. <code>||</code> (O): basta con una.</p><p class="ojo">Para condiciones van dobles: && y ||. Un solo & o | es una operación entre bits, no entre condiciones.</p><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Definir las entradas</h3><a class="min" href="https://youtu.be/AkVvcmJhJvA?t=496" target="_blank" rel="noopener">&#9654; 8:16</a></div><p>Las lecturas se acortan con #define. Si un pulsador está con pull-up y otro con pull-down, niega el que lee al revés en el propio #define para que ambos lean 1 al presionar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define in1 HAL_GPIO_ReadPin(in1_GPIO_Port, in1_Pin)
+#define in2 !(HAL_GPIO_ReadPin(in2_GPIO_Port, in2_Pin))</code></pre></div><div class="uno"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Primer caso</h3><a class="min" href="https://youtu.be/AkVvcmJhJvA?t=342" target="_blank" rel="noopener">&#9654; 5:42</a></div><p>Encierra cada condición en paréntesis y toda la agrupación en otro par. Si ambos están presionados, parpadea el LED1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if ((in1 == 1) &amp;&amp; (in2 == 1))
+{
+  HAL_GPIO_TogglePin(led1_GPIO_Port, led1_Pin);
+  HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Apagar el otro LED</h3><a class="min" href="https://youtu.be/AkVvcmJhJvA?t=780" target="_blank" rel="noopener">&#9654; 13:00</a></div><p>Como los LED quedan titilando, en cada caso apaga el LED que no corresponde con <code>HAL_GPIO_WritePin(..., 0)</code>.</p><div class="uno"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>else if y else</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Usar else if</h3><a class="min" href="https://youtu.be/AkVvcmJhJvA?t=1077" target="_blank" rel="noopener">&#9654; 17:57</a></div><p>Los cuatro casos son <b>mutuamente excluyentes</b>: si se cumple uno, los demás no pueden cumplirse. Con <code>if</code> separados el micro evalúa todos y pierde tiempo; con <code>else if</code> deja de evaluar en cuanto encuentra el que se cumple.</p><div class="dos"><figure class="cap"><a href="img/1150.webp" target="_blank"><img src="img/1150.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure><figure class="cap"><a href="img/1330.webp" target="_blank"><img src="img/1330.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>El último caso con else</h3><a class="min" href="https://youtu.be/AkVvcmJhJvA?t=1287" target="_blank" rel="noopener">&#9654; 21:27</a></div><p>Si ya preguntaste por tres casos, el cuarto es el que queda: basta un <code>else</code> sin condición.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if ((in1 == 1) &amp;&amp; (in2 == 1))
+{
+  HAL_GPIO_TogglePin(led1_GPIO_Port, led1_Pin);
+  HAL_Delay(500);
+  HAL_GPIO_WritePin(led2_GPIO_Port, led2_Pin, 0);
+}
+else if ((in1 == 1) &amp;&amp; (in2 == 0))
+{
+  HAL_GPIO_TogglePin(led2_GPIO_Port, led2_Pin);
+  HAL_Delay(500);
+  HAL_GPIO_WritePin(led1_GPIO_Port, led1_Pin, 0);
+}
+else if ((in1 == 0) &amp;&amp; (in2 == 0))
+{
+  HAL_GPIO_TogglePin(led1_GPIO_Port, led1_Pin);
+  HAL_GPIO_TogglePin(led2_GPIO_Port, led2_Pin);
+  HAL_Delay(500);
+}
+else
+{
+  HAL_GPIO_WritePin(led1_GPIO_Port, led1_Pin, 0);
+  HAL_GPIO_WritePin(led2_GPIO_Port, led2_Pin, 0);
+}</code></pre></div><p class="ojo">Usa else if solo cuando los casos son excluyentes; si se pueden cumplir varios a la vez, van if separados.</p><div class="uno"><figure class="cap"><a href="img/1330.webp" target="_blank"><img src="img/1330.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Leer un puerto completo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>El thumbwheel en Proteus</h3><a class="min" href="https://youtu.be/AkVvcmJhJvA?t=1436" target="_blank" rel="noopener">&#9654; 23:56</a></div><p>Busca <b>THUMBSWITCH-BCD</b>: entrega el número seleccionado (0 a 9) en 4 bits a la vez, así no lees pin por pin.</p><p>Conecta sus salidas A, B, C, D con etiquetas a <b>PB0–PB3</b> configurados como entradas.</p><div class="dos"><figure class="cap"><a href="img/1450.webp" target="_blank"><img src="img/1450.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure><figure class="cap"><a href="img/1640.webp" target="_blank"><img src="img/1640.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure><figure class="cap"><a href="img/1780.webp" target="_blank"><img src="img/1780.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Registro de entrada IDR</h3><a class="min" href="https://youtu.be/AkVvcmJhJvA?t=1860" target="_blank" rel="noopener">&#9654; 31:00</a></div><p>Igual que ODR es el registro de salida, <b>IDR</b> (Input Data Register) tiene el estado de todas las entradas del puerto. Defínelo con un nombre corto (entre paréntesis para agruparlo).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define lecturas (GPIOB-&gt;IDR)</code></pre></div><div class="uno"><figure class="cap"><a href="img/1960.webp" target="_blank"><img src="img/1960.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Comparar el número</h3><a class="min" href="https://youtu.be/AkVvcmJhJvA?t=2017" target="_blank" rel="noopener">&#9654; 33:37</a></div><p>Guarda la lectura en una variable de 16 bits (los puertos tienen 16 pines) y compárala.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint16_t codigo;
+codigo = lecturas;
+if (codigo == 7)
+{
+  HAL_GPIO_TogglePin(led1_GPIO_Port, led1_Pin);
+  HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2120.webp" target="_blank"><img src="img/2120.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure><figure class="cap"><a href="img/2250.webp" target="_blank"><img src="img/2250.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Máscara con AND</h3><a class="min" href="https://youtu.be/AkVvcmJhJvA?t=2310" target="_blank" rel="noopener">&#9654; 38:30</a></div><p>No funciona: el resto del puerto (otros pines, otros periféricos) también aparece en IDR y altera el número.</p><p>Aplica una máscara AND para dejar en 0 todo lo que no interesa y conservar solo los 4 bits del thumbwheel.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = lecturas &amp; 0x000F;   // solo PB0..PB3
+if (codigo == 7) { /* ... */ }</code></pre></div><div class="uno"><figure class="cap"><a href="img/2460.webp" target="_blank"><img src="img/2460.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Desplazamientos</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Datos en PB12–PB15</h3><a class="min" href="https://youtu.be/AkVvcmJhJvA?t=2786" target="_blank" rel="noopener">&#9654; 46:26</a></div><p>Si el thumbwheel está en PB12–PB15, el número queda en los bits altos. Puedes comparar con la máscara y el valor desplazados (<code>& 0xF000</code> y <code>== 0x7000</code>), pero es más claro mover los bits.</p><p>Desplaza la lectura 12 posiciones a la derecha con <code>&gt;&gt;</code> y luego aplica la máscara.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = lecturas &gt;&gt; 12;
+codigo = codigo &amp; 0b1111;
+if (codigo == 7) { /* ... */ }</code></pre></div><div class="dos"><figure class="cap"><a href="img/2800.webp" target="_blank"><img src="img/2800.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure><figure class="cap"><a href="img/2890.webp" target="_blank"><img src="img/2890.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure><figure class="cap"><a href="img/2990.webp" target="_blank"><img src="img/2990.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Datos en PB3–PB6</h3><a class="min" href="https://youtu.be/AkVvcmJhJvA?t=3289" target="_blank" rel="noopener">&#9654; 54:49</a></div><p>Con el mismo método, si los bits están en PB3–PB6 desplazas 3 posiciones.</p><p>Si la información está repartida en dos grupos, desplaza cada uno a su sitio y únelos con OR.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = (lecturas &gt;&gt; 3) &amp; 0x0F;</code></pre></div><p class="ojo">Tarea: investigar el protocolo I²C y los displays LCD que lo usan.</p><div class="dos"><figure class="cap"><a href="img/3040.webp" target="_blank"><img src="img/3040.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure><figure class="cap"><a href="img/3300.webp" target="_blank"><img src="img/3300.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure><figure class="cap"><a href="img/3400.webp" target="_blank"><img src="img/3400.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure><figure class="cap"><a href="img/3480.webp" target="_blank"><img src="img/3480.webp" alt="2024-I Clase 6: condicionales if en aplicaciones reales y lectura del puerto con registros" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=AkVvcmJhJvA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
