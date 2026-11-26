@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase en vivo STM32: recepción serial por interrupción · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cambiar la lectura serial bloqueante por la interrupción de la USART: HAL_UART_Receive_IT, callback propio, buffer con contador, bandera y procesamiento en el while.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/DAqyYRk_8I0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase en vivo STM32: recepción serial por interrupción · Paso a paso">
+  <meta property="og:description" content="Cambiar la lectura serial bloqueante por la interrupción de la USART: HAL_UART_Receive_IT, callback propio, buffer con contador, bandera y procesamiento en el while.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/DAqyYRk_8I0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/DAqyYRk_8I0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Clase en vivo: <span>recepción serial por interrupción</span></h1>
+    <p class="lead">La función uartx_read_text deja el micro esperando hasta que llega el '*'. En esta clase la reemplazamos por recepción por interrupción: habilitamos la interrupción de la USART1 en el NVIC, escribimos nuestra propia HAL_UART_RxCpltCallback (la de la HAL es __weak), guardamos cada byte en trama_rx con un contador y, al llegar el '*', levantamos una bandera. El while revisa la bandera y procesa la orden, así el carrito sigue funcionando mientras el micro hace otras tareas.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=DAqyYRk_8I0" target="_blank" rel="noopener">&#9654; Ver el video completo (57:22)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/3220.webp" alt="Clase en vivo STM32: recepción serial por interrupción"></figure>
+    <ul class="materiales"><li>STM32CubeIDE y Proteus</li><li>Proyecto del carrito con LabVIEW y la librería uart</li><li>Hercules y par de puertos virtuales para probar</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · NVIC de la USART1</a><a href="#f2">2 · La función __weak de la HAL</a><a href="#f3">3 · Contador, límite y final &#x27;*&#x27;</a><a href="#f4">4 · No procesar dentro de la interrupción</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Habilitar la interrupción serial</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El problema: lectura bloqueante</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>uartx_read_text se queda esperando el final de trama. Mientras tanto el micro no hace nada más. La comentamos para reemplazarla.</p><div class="dos"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Activar USART1 global interrupt</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>En el .ioc entra a Connectivity → USART1 → NVIC Settings y marca USART1 global interrupt.</p><p>En System Core → NVIC puedes darle prioridad: número más bajo, más prioridad.</p><div class="dos"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure><figure class="cap"><a href="img/390.webp" target="_blank"><img src="img/390.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Callback propio</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Dónde llega la interrupción</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=460" target="_blank" rel="noopener">&#9654; 7:40</a></div><p>En stm32f4xx_it.c aparece USART1_IRQHandler, que llama a HAL_UART_IRQHandler. Esta termina llamando a HAL_UART_RxCpltCallback cuando se completa la recepción.</p><div class="uno"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>La palabra __weak</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=740" target="_blank" rel="noopener">&#9654; 12:20</a></div><p>En stm32f4xx_hal_uart.c, HAL_UART_RxCpltCallback está declarada como __weak (débil).</p><p>Si escribes una función con el mismo nombre en otro archivo, el compilador usa la tuya. Así tienes tu propio código en tu librería y no en el archivo generado.</p><p class="ojo">No borres la versión __weak del archivo de la HAL. Basta con definir la tuya sin la palabra __weak.</p><div class="dos"><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Arrancar la recepción</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=1030" target="_blank" rel="noopener">&#9654; 17:10</a></div><p>Como el timer, la recepción por interrupción necesita un arranque. Antes del while pide un byte con HAL_UART_Receive_IT.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+HAL_UART_Receive_IT(&amp;huart1, dato_rx, 1);
+/* USER CODE END 2 */</code></pre></div><div class="uno"><figure class="cap"><a href="img/1030.webp" target="_blank"><img src="img/1030.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Buffer de un byte</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=1170" target="_blank" rel="noopener">&#9654; 19:30</a></div><p>Declara el buffer de un dato en main.c.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char dato_rx[1];</code></pre></div><div class="uno"><figure class="cap"><a href="img/1170.webp" target="_blank"><img src="img/1170.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Primera prueba: un LED por byte</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=1270" target="_blank" rel="noopener">&#9654; 21:10</a></div><p>En uart.c escribe tu callback: cambia un LED y vuelve a pedir el siguiente byte.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  HAL_GPIO_TogglePin(led3_GPIO_Port, led3_Pin);
+  HAL_UART_Receive_IT(&amp;huart1, dato_rx, 1);
+}</code></pre></div><p class="ojo">Si no vuelves a llamar a HAL_UART_Receive_IT, solo se recibe el primer byte.</p><div class="uno"><figure class="cap"><a href="img/1270.webp" target="_blank"><img src="img/1270.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Compartir variables con extern</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=1520" target="_blank" rel="noopener">&#9654; 25:20</a></div><p>uart.c necesita dato_rx, trama_rx y huart1, que están en main.c. Decláralas con extern y el mismo tipo, sin tamaño ni valor inicial.</p><p>Recomendación del profe: deja la variable real en tu librería y el extern en main.c.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// en uart.c
+extern UART_HandleTypeDef huart1;
+extern char dato_rx[];
+extern uint8_t trama_rx[];</code></pre></div><div class="dos"><figure class="cap"><a href="img/1390.webp" target="_blank"><img src="img/1390.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure><figure class="cap"><a href="img/1520.webp" target="_blank"><img src="img/1520.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.7</span><h3>Probar</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=1600" target="_blank" rel="noopener">&#9654; 26:40</a></div><p>Corre Proteus y LabVIEW: el LED cambia con cada byte que llega.</p><div class="uno"><figure class="cap"><a href="img/1600.webp" target="_blank"><img src="img/1600.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Armar la trama</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Contador de bytes</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=1740" target="_blank" rel="noopener">&#9654; 29:00</a></div><p>Crea un contador de 16 bits en uart.c. uint8_t solo cuenta hasta 255; uint16_t llega a 65 535.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint16_t contador_rx = 0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1740.webp" target="_blank"><img src="img/1740.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Guardar cada byte</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=1960" target="_blank" rel="noopener">&#9654; 32:40</a></div><p>Copia el byte a una variable local y guárdalo en la posición del contador.</p><div class="dos"><figure class="cap"><a href="img/1960.webp" target="_blank"><img src="img/1960.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure><figure class="cap"><a href="img/2070.webp" target="_blank"><img src="img/2070.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Límite del buffer y final de trama</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=2160" target="_blank" rel="noopener">&#9654; 36:00</a></div><p>Si el contador llega al tamaño del buffer (100), vuelve a 0 para no desbordar.</p><p>Si llega el '*', la trama está completa.</p><div class="uno"><figure class="cap"><a href="img/2160.webp" target="_blank"><img src="img/2160.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Probar con Hercules</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=2330" target="_blank" rel="noopener">&#9654; 38:50</a></div><p>Envía texto sin '*' y no pasa nada; cuando envías una trama terminada en '*' el LED cambia. Para devolver la trama, une también PA9 (TX) con el TX del COMPIM.</p><div class="uno"><figure class="cap"><a href="img/2330.webp" target="_blank"><img src="img/2330.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>No olvidar incrementar</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=2560" target="_blank" rel="noopener">&#9654; 42:40</a></div><p>En la clase al principio no funcionaba porque faltaba contador_rx++ después de guardar el byte.</p><div class="uno"><figure class="cap"><a href="img/2560.webp" target="_blank"><img src="img/2560.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Bandera y procesamiento en el while</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Levantar una bandera</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=2840" target="_blank" rel="noopener">&#9654; 47:20</a></div><p>Procesar dentro de la interrupción la hace lenta. En su lugar, cuando llega el '*', pon una bandera en 1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char flag_rx = 0;
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  char dato_leido;
+  dato_leido = dato_rx[0];
+  trama_rx[contador_rx] = dato_leido;
+  contador_rx++;
+  if (contador_rx &gt;= 100)
+  {
+    contador_rx = 0;
+  }
+  if (dato_leido == &#x27;*&#x27;)
+  {
+    contador_rx = 0;
+    flag_rx = 1;
+  }
+  HAL_UART_Receive_IT(&amp;huart1, dato_rx, 1);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/2840.webp" target="_blank"><img src="img/2840.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Procesar en el while</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=2950" target="_blank" rel="noopener">&#9654; 49:10</a></div><p>En main.c declara extern char flag_rx y extern uint16_t contador_rx.</p><p>En el while, si la bandera está en 1, procesa la trama y baja la bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  if (flag_rx == 1)
+  {
+    procesarx();
+    flag_rx = 0;
+    contador_rx = 0;
+  }
+  uartx_write_text(&amp;huart1, &quot;mas puntos&quot;);
+  HAL_GPIO_TogglePin(led1_GPIO_Port, led1_Pin);
+  HAL_Delay(200);
+}</code></pre></div><p class="ojo">Una mejora es desactivar la recepción mientras se procesa y reactivarla al terminar, para tramas largas.</p><div class="dos"><figure class="cap"><a href="img/2950.webp" target="_blank"><img src="img/2950.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure><figure class="cap"><a href="img/3010.webp" target="_blank"><img src="img/3010.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Prueba final</h3><a class="min" href="https://youtu.be/DAqyYRk_8I0?t=3220" target="_blank" rel="noopener">&#9654; 53:40</a></div><p>El micro transmite y hace titilar el LED mientras recibe órdenes por interrupción: el carrito se mueve desde LabVIEW sin bloquear nada.</p><p>Si el carrito no responde, revisa que Hercules no tenga abierto el mismo puerto que LabVIEW.</p><div class="dos"><figure class="cap"><a href="img/3120.webp" target="_blank"><img src="img/3120.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure><figure class="cap"><a href="img/3220.webp" target="_blank"><img src="img/3220.webp" alt="Clase en vivo STM32: recepción serial por interrupción" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=DAqyYRk_8I0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
