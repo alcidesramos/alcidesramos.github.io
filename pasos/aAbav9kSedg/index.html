@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase 5 2023: entradas digitales y condicional if en STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leer pulsadores con la Black Pill: tolerancia a 5 V, resistencias pull-up y pull-down, HAL_GPIO_ReadPin con if, antirrebote, #define para simplificar, resistencias internas y if/else if con dos pulsadores.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/aAbav9kSedg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase 5 2023: entradas digitales y condicional if en STM32 · Paso a paso">
+  <meta property="og:description" content="Leer pulsadores con la Black Pill: tolerancia a 5 V, resistencias pull-up y pull-down, HAL_GPIO_ReadPin con if, antirrebote, #define para simplificar, resistencias internas y if/else if con dos pulsadores.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/aAbav9kSedg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/aAbav9kSedg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Entradas digitales y <span>condicional if</span></h1>
+    <p class="lead">Primera clase de entradas. Se revisa en el pinout que los pines de la F401 toleran 5 V (en la F411 hay dos que solo aceptan 3.3 V). En Proteus se conectan dos pulsadores y se explica por qué un pulsador abierto deja la entrada en el aire y cómo lo resuelven las resistencias pull-up y pull-down. Luego se lee el pulsador con HAL_GPIO_ReadPin dentro de un if, se ve el problema del rebote y cómo evitarlo con un retardo, se simplifica la lectura con #define, se activan las resistencias internas desde CubeMX y se terminan las cuatro combinaciones de dos pulsadores con if, else if y else.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=aAbav9kSedg" target="_blank" rel="noopener">&#9654; Ver el video completo (48:04)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2540.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32"></figure>
+    <ul class="materiales"><li>Tarjeta Black Pill STM32F401 o F411</li><li>2 pulsadores</li><li>Resistencias de 1 kΩ a 10 kΩ (pull-up) y 330 Ω a 1 kΩ (pull-down)</li><li>LEDs y resistencias</li><li>STM32CubeIDE y Proteus 8</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · 5 V, pull-up y pull-down.</a><a href="#f2">2 · HAL_GPIO_ReadPin, comparación y antirrebote.</a><a href="#f3">3 · #define, resistencias internas y else.</a><a href="#f4">4 · Cuatro combinaciones con if, else if y else.</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Pulsadores y resistencias</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>¿Puedo conectar sensores de 5 V?</h3><a class="min" href="https://youtu.be/aAbav9kSedg?t=35" target="_blank" rel="noopener">&#9654; 0:35</a></div><p>En el pinout de la Black Pill dice: <i>All pins are 5V tolerant on F401</i>. Con la F401 puedes conectar entradas digitales de 0 a 5 V aunque el micro se alimente a 3.3 V.</p><p>En la F411, los <b>pines 10 y 41 (PA0 y PB5)</b> solo aceptan 3.3 V. Para sensores de 5 V usa los demás.</p><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El pulsador en el aire</h3><a class="min" href="https://youtu.be/aAbav9kSedg?t=143" target="_blank" rel="noopener">&#9654; 2:23</a></div><p>En Proteus busca <b>BUTTON</b>. Un extremo va a un pin del micro y el otro a tierra o a positivo.</p><p>Si va a tierra, al presionar el micro lee 0; pero suelto, el pin queda en el aire y no se sabe qué lee. En electrónica no se puede dejar esa incertidumbre: se garantiza el estado con una resistencia.</p><div class="uno"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Pull-up y pull-down</h3><a class="min" href="https://youtu.be/aAbav9kSedg?t=383" target="_blank" rel="noopener">&#9654; 6:23</a></div><p><b>Pull-up</b>: pulsador a tierra y resistencia del pin a positivo. Suelto lee 1, presionado lee 0. Valor recomendado de 1 kΩ a 10 kΩ (máximo 47 kΩ; más alto capta ruido en la industria).</p><p><b>Pull-down</b>: pulsador a positivo y resistencia del pin a tierra. Suelto lee 0, presionado lee 1. Por experiencia, de 330 Ω a 1 kΩ: con 10 kΩ la tierra queda casi flotante y hay falsos contactos.</p><div class="dos"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Leer el pulsador con if</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Configurar el pin</h3><a class="min" href="https://youtu.be/aAbav9kSedg?t=735" target="_blank" rel="noopener">&#9654; 12:15</a></div><p>En CubeMX pon el pin del pulsador (en la clase <b>PB12</b>) como <b>GPIO_Input</b> y ponle una etiqueta, por ejemplo <b>SW1</b>.</p><p>Tras un cambio de hardware pulsa el engranaje y luego compila.</p><div class="uno"><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>La estructura if</h3><a class="min" href="https://youtu.be/aAbav9kSedg?t=841" target="_blank" rel="noopener">&#9654; 14:01</a></div><p><code>if (condición) { acción; }</code>: si la condición se cumple, hace lo que está entre llaves. El if no lleva punto y coma.</p><p>Si la acción es una sola instrucción las llaves son opcionales; con dos o más son obligatorias.</p><p>Para leer el pin usa <code>HAL_GPIO_ReadPin(puerto, pin)</code>. Con pull-up, presionado es 0.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  if (HAL_GPIO_ReadPin(SW1_GPIO_Port, SW1_Pin) == 0)
+  {
+    hola();   // cualquier procedimiento
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1210.webp" target="_blank"><img src="img/1210.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Igual (=) no es lo mismo que igual igual (==)</h3><a class="min" href="https://youtu.be/aAbav9kSedg?t=1134" target="_blank" rel="noopener">&#9654; 18:54</a></div><p><code>=</code> es <b>asignación</b>: le da un valor a una variable. <code>==</code> es <b>comparación</b>: pregunta si son iguales.</p><p>Operadores de comparación en C: <code>==</code> igual, <code>!=</code> diferente, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>.</p><p class="ojo">Si escribes un solo = dentro del if, a veces el compilador lo acepta y el programa hace algo distinto sin avisar.</p><div class="uno"><figure class="cap"><a href="img/1210.webp" target="_blank"><img src="img/1210.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Cambiar un LED y el rebote</h3><a class="min" href="https://youtu.be/aAbav9kSedg?t=1232" target="_blank" rel="noopener">&#9654; 20:32</a></div><p>Dentro del if pon <code>HAL_GPIO_TogglePin</code> para que cada pulsación invierta el LED.</p><p>Verás que a veces queda prendido, a veces apagado o titila: es el <b>rebote</b>. Las láminas del pulsador vibran al cerrar y el micro, tan rápido, lee varias pulsaciones.</p><p>La forma más simple de evitarlo es un retardo de 150 a 400 ms después de la acción.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (HAL_GPIO_ReadPin(SW1_GPIO_Port, SW1_Pin) == 0)
+{
+  HAL_GPIO_TogglePin(AMARILLO_GPIO_Port, AMARILLO_Pin);
+  HAL_Delay(300);   // antirrebote
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1650.webp" target="_blank"><img src="img/1650.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Simplificar y mejorar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Ponerle nombre a la lectura con #define</h3><a class="min" href="https://youtu.be/aAbav9kSedg?t=1705" target="_blank" rel="noopener">&#9654; 28:25</a></div><p>Para no escribir toda la función en cada if, defínela arriba con un nombre corto.</p><p>Truco: escribe la función en el while (ahí sí autocompleta), córtala y pégala en el #define.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN PD */
+#define SW1 HAL_GPIO_ReadPin(SW1_GPIO_Port, SW1_Pin)
+#define SW2 HAL_GPIO_ReadPin(SW2_GPIO_Port, SW2_Pin)
+/* USER CODE END PD */
+
+// en el while:
+if (SW1 == 0) { ... }</code></pre></div><p class="ojo">En la clase se usó el nombre switch, pero switch es una palabra reservada de C. Usa nombres como SW1 o BOTON1.</p><div class="dos"><figure class="cap"><a href="img/1790.webp" target="_blank"><img src="img/1790.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/1840.webp" target="_blank"><img src="img/1840.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>La lectura no es instantánea</h3><a class="min" href="https://youtu.be/aAbav9kSedg?t=1883" target="_blank" rel="noopener">&#9654; 31:23</a></div><p>Si después del if llamas a otro procedimiento largo (por ejemplo una melodía), el programa solo lee el pulsador cuando vuelve al if. Hay que mantenerlo presionado hasta que pase por ahí.</p><p>Con <b>else</b> haces una cosa si se cumple la condición y otra si no.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (SW1 == 0)
+{
+  HAL_GPIO_TogglePin(AMARILLO_GPIO_Port, AMARILLO_Pin);
+  HAL_Delay(300);
+}
+else chao();</code></pre></div><div class="dos"><figure class="cap"><a href="img/1990.webp" target="_blank"><img src="img/1990.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/2470.webp" target="_blank"><img src="img/2470.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Resistencias internas del micro</h3><a class="min" href="https://youtu.be/aAbav9kSedg?t=2054" target="_blank" rel="noopener">&#9654; 34:14</a></div><p>Los STM32 tienen pull-up y pull-down internas: puedes quitar la resistencia del circuito y conectar el pulsador directo a tierra o a positivo.</p><p>En CubeMX: <b>System Core → GPIO</b>, selecciona el pin (PB12) y en <b>GPIO Pull-up/Pull-down</b> elige <b>Pull-up</b> (pulsador a tierra) o <b>Pull-down</b> (pulsador a positivo).</p><div class="dos"><figure class="cap"><a href="img/2130.webp" target="_blank"><img src="img/2130.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/2160.webp" target="_blank"><img src="img/2160.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/2300.webp" target="_blank"><img src="img/2300.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Dos pulsadores</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Unir condiciones</h3><a class="min" href="https://youtu.be/aAbav9kSedg?t=2357" target="_blank" rel="noopener">&#9654; 39:17</a></div><p>Con dos pulsadores hay 2² = 4 combinaciones.</p><p>Para unir condiciones: <code>&amp;&amp;</code> es Y (las dos deben cumplirse) y <code>||</code> es O (basta una). Se escriben dobles; uno solo es una operación de bits.</p><p>Como las combinaciones son excluyentes se usa <b>else if</b>: en cuanto una se cumple, el micro no revisa las demás. La última puede ser un simple <b>else</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (SW1 == 0 &amp;&amp; SW2 == 0)
+{
+  HAL_GPIO_TogglePin(AMARILLO_GPIO_Port, AMARILLO_Pin);
+  HAL_Delay(2000);
+}
+else if (SW1 == 1 &amp;&amp; SW2 == 0) cancion();
+else if (SW1 == 0 &amp;&amp; SW2 == 1) conteo();
+else chao();</code></pre></div><p class="ojo">Con varios if sueltos el micro evalúa todos aunque ya encontró el caso. Con else if es más eficiente.</p><div class="uno"><figure class="cap"><a href="img/2540.webp" target="_blank"><img src="img/2540.webp" alt="Clase 5 2023: entradas digitales y condicional if en STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=aAbav9kSedg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
