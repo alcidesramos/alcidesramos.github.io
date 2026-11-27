@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Librerías para el sensor de temperatura sin contacto MLX90614 con STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Usar mis librerías del MLX90614 (adaptadas de una librería de Arduino en C++) en una Black Pill: I2C, verificar el sensor, emisividad y temperatura del objeto y del ambiente por serial.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/OsotzjCUYx0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32 · Paso a paso">
+  <meta property="og:description" content="Usar mis librerías del MLX90614 (adaptadas de una librería de Arduino en C++) en una Black Pill: I2C, verificar el sensor, emisividad y temperatura del objeto y del ambiente por serial.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/OsotzjCUYx0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/OsotzjCUYx0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>Sensor de temperatura sin contacto <span>MLX90614</span> con STM32</h1>
+    <p class="lead">El MLX90614 mide temperatura sin contacto: la del objeto al que apunta y la del ambiente. La librería se adaptó de una de Arduino en C++: se tomaron las funciones, se quitó lo que no servía, se cambió la parte de I2C y se agregó un Init que dice si el sensor está conectado. En el video solo se usa: se crea el proyecto, se configuran USART1 e I2C1, se agregan las librerías y se envían las lecturas a Hércules. No siempre se construye todo desde cero: si existe, se adapta y se mejora.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=OsotzjCUYx0" target="_blank" rel="noopener">&#9654; Ver el video completo (8:20)</a>
+      <a class="btn btn-sec" href="https://github.com/alcidesramos/archivos-youtube/raw/main/MLX90614/MLX90614_Canal.rar" target="_blank" rel="noopener">Descargar archivos</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/455.webp" alt="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401</li><li>Sensor MLX90614 (I2C)</li><li>Conversor USB-serial (o el del programador)</li><li>STM32CubeIDE</li><li>Hércules</li><li>Librerías MLX90614 y UART (archivos del curso)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · USART1 e I2C1</a><a href="#f2">2 · Funciones del MLX90614</a><a href="#f3">3 · Init, emisividad y temperaturas</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Crear y configurar el proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto nuevo</h3><a class="min" href="https://youtu.be/OsotzjCUYx0?t=71" target="_blank" rel="noopener">&#9654; 1:11</a></div><p>File → New → STM32 Project, elige el <b>STM32F401CCU6</b> y llámalo, por ejemplo, MLX90614_CANAL. El reloj puede quedar en 16 MHz interno (o súbelo a 84 MHz si quieres).</p><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>USART1 a 115200</h3><a class="min" href="https://youtu.be/OsotzjCUYx0?t=141" target="_blank" rel="noopener">&#9654; 2:21</a></div><p>En <b>Connectivity → USART1</b>, modo <b>Asynchronous</b> a <b>115200</b> baudios, para mandar las lecturas al computador.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>I2C1 en modo estándar</h3><a class="min" href="https://youtu.be/OsotzjCUYx0?t=155" target="_blank" rel="noopener">&#9654; 2:35</a></div><p>Activa <b>I2C1</b> en modo I2C; el <b>Standard Mode (100 kHz)</b> que trae por defecto sirve. Genera el código y compila.</p><div class="uno"><figure class="cap"><a href="img/165.webp" target="_blank"><img src="img/165.webp" alt="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Agregar las librerías</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Carpeta Librerias</h3><a class="min" href="https://youtu.be/OsotzjCUYx0?t=173" target="_blank" rel="noopener">&#9654; 2:53</a></div><p>Crea la carpeta <b>Librerias</b> dentro de Core y pega MLX90614.c/.h y la librería de UART. Agrégala a las rutas de include (clic derecho → Add/remove include path, en Debug y Release).</p><div class="dos"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Qué trae la librería</h3><a class="min" href="https://youtu.be/OsotzjCUYx0?t=206" target="_blank" rel="noopener">&#9654; 3:26</a></div><p>Las funciones principales:</p><ul><li><b>MLX90614_Init()</b>: devuelve 1 si el sensor responde.</li><li><b>read16 / write16</b> y <b>crc8</b>: lectura y escritura de 16 bits por I2C con el código de detección de errores del sensor.</li><li><b>readEmissivity / writeEmissivity</b>: leer o cambiar la emisividad.</li><li><b>readObjectTempC / readAmbientTempC</b> (y sus versiones en Fahrenheit).</li></ul><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Includes, flotante y variables</h3><a class="min" href="https://youtu.be/OsotzjCUYx0?t=238" target="_blank" rel="noopener">&#9654; 3:58</a></div><p>Incluye las dos librerías y las de C (stdio, string). En las propiedades del proyecto habilita <b>printf con float</b> (MCU Settings). Declara las variables:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char texto[100];
+float temperatura, ambiente;</code></pre></div><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Leer el sensor</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Verificar el sensor</h3><a class="min" href="https://youtu.be/OsotzjCUYx0?t=290" target="_blank" rel="noopener">&#9654; 4:50</a></div><p>Antes del while, comprueba si el sensor está conectado. Si no te interesa verificarlo, basta con llamar MLX90614_Init().</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (MLX90614_Init() == 1) uartx_write_text(&amp;huart1, &quot;sensor ok\r\n&quot;);
+else uartx_write_text(&amp;huart1, &quot;NO SENSOR\r\n&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>La emisividad</h3><a class="min" href="https://youtu.be/OsotzjCUYx0?t=336" target="_blank" rel="noopener">&#9654; 5:36</a></div><p>La emisividad depende del material, va de 0 a 1 (madera y similares: 0.92 a 0.95). Puedes escribir un valor y luego leerlo para comprobarlo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//MLX90614_writeEmissivity(0.95);
+sprintf(texto, &quot;Emi=%.2f\r\n&quot;, MLX90614_readEmissivity());
+uartx_write_text(&amp;huart1, texto);</code></pre></div><div class="uno"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Temperatura del objeto y del ambiente</h3><a class="min" href="https://youtu.be/OsotzjCUYx0?t=405" target="_blank" rel="noopener">&#9654; 6:45</a></div><p>En el while lee las dos temperaturas en grados centígrados y mándalas cada 600 ms (o el tiempo que necesites).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  temperatura = MLX90614_readObjectTempC();
+  ambiente = MLX90614_readAmbientTempC();
+  sprintf(texto, &quot;TEM=%.2f   T_AMB=%.2f\r\n\r\n&quot;, temperatura, ambiente);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(600);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Probar</h3><a class="min" href="https://youtu.be/OsotzjCUYx0?t=439" target="_blank" rel="noopener">&#9654; 7:19</a></div><p>Programa el micro y abre Hércules a 115200. Sale <b>sensor ok</b>, la emisividad y las temperaturas (en el video unos 33 °C del objeto y 32 °C del ambiente). Al poner la mano frente al sensor sube la temperatura del objeto.</p><div class="uno"><figure class="cap"><a href="img/455.webp" target="_blank"><img src="img/455.webp" alt="Librerías para el sensor de temperatura sin contacto MLX90614 con STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=OsotzjCUYx0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

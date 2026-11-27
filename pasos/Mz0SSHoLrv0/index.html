@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pantalla TFT ILI9225 con STM32: mostrar imágenes · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Convertir una imagen a un arreglo en C con LCD Image Converter (R5G6B5, 16 bits), dibujarla con draw_bitmap en la ILI9225 y cambiar la pantalla entre horizontal y vertical.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/Mz0SSHoLrv0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Pantalla TFT ILI9225 con STM32: mostrar imágenes · Paso a paso">
+  <meta property="og:description" content="Convertir una imagen a un arreglo en C con LCD Image Converter (R5G6B5, 16 bits), dibujarla con draw_bitmap en la ILI9225 y cambiar la pantalla entre horizontal y vertical.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/Mz0SSHoLrv0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Mz0SSHoLrv0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>Imágenes en la pantalla <span>TFT ILI9225</span> con STM32</h1>
+    <p class="lead">Segunda parte de la pantalla TFT ILI9225 por SPI. Para mostrar una imagen hay que convertirla a un arreglo de colores de 16 bits con el programa LCD Image Converter, configurado en el formato de la pantalla (R5G6B5). El arreglo se pega en imagenes.h con el ancho y alto al inicio y se dibuja con draw_bitmap. También se muestra cómo pasar la pantalla a vertical comentando una sola definición.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Mz0SSHoLrv0" target="_blank" rel="noopener">&#9654; Ver el video completo (8:11)</a>
+      <a class="btn btn-sec" href="https://github.com/alcidesramos/archivos-youtube/raw/main/TFT_ILI9225/TFT_CANAL.rar" target="_blank" rel="noopener">Descargar archivos</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/460.webp" alt="Pantalla TFT ILI9225 con STM32: mostrar imágenes"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401 o STM32F411</li><li>Pantalla TFT ILI9225 (SPI)</li><li>STM32CubeIDE</li><li>LCD Image Converter</li><li>Librerías ILI9225, fuentes e imágenes (archivos del curso)</li><li>Una imagen pequeña (máximo 220 x 176)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · LCD Image Converter</a><a href="#f2">2 · imagenes.h y draw_bitmap</a><a href="#f3">3 · Girar la pantalla</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Convertir la imagen</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Abrir la imagen</h3><a class="min" href="https://youtu.be/Mz0SSHoLrv0?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>Abre <b>lcd-image-converter.exe</b> y en File → Open carga la imagen. En el video, un zorro de 150 x 150 píxeles (pasa el mouse sobre el archivo en Windows para ver el tamaño).</p><div class="uno"><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="Pantalla TFT ILI9225 con STM32: mostrar imágenes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Opciones de conversión</h3><a class="min" href="https://youtu.be/Mz0SSHoLrv0?t=68" target="_blank" rel="noopener">&#9654; 1:08</a></div><p>En <b>Options → Conversion</b> deja esta configuración, que es crucial:</p><ul><li>Preset: <b>Color R5G6B5</b> (el formato de esta pantalla).</li><li>Pestaña Image: <b>Split to rows</b>, Block size <b>16 bit</b>, <b>Little-Endian</b>.</li><li>Prefix <b>0x</b> y Delimiter <b>coma</b>.</li></ul><div class="dos"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Pantalla TFT ILI9225 con STM32: mostrar imágenes" loading="lazy"></a></figure><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Pantalla TFT ILI9225 con STM32: mostrar imágenes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Copiar el arreglo</h3><a class="min" href="https://youtu.be/Mz0SSHoLrv0?t=120" target="_blank" rel="noopener">&#9654; 2:00</a></div><p>Pulsa <b>Show Preview</b> y copia todos los valores que muestra. Ahí también puedes escalar la imagen.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Pegarla en el programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Crear la variable</h3><a class="min" href="https://youtu.be/Mz0SSHoLrv0?t=136" target="_blank" rel="noopener">&#9654; 2:16</a></div><p>Lo copiado no trae el tipo de variable. En <b>imagenes.h</b> crea un arreglo constante, pon primero el ancho y el alto, pega los valores y cierra con llave y punto y coma.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const unsigned int zorro[] = {
+  150, 150,
+  0xb77b, 0xb77b, 0xb77b, /* ... lo que dio el programa ... */
+};</code></pre></div><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Pantalla TFT ILI9225 con STM32: mostrar imágenes" loading="lazy"></a></figure><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Pantalla TFT ILI9225 con STM32: mostrar imágenes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Dibujarla</h3><a class="min" href="https://youtu.be/Mz0SSHoLrv0?t=207" target="_blank" rel="noopener">&#9654; 3:27</a></div><p>En el main dibuja la imagen en la posición (0, 0) con escala 1 (puedes escalar 2 o 3 veces). Si quieres texto encima, escríbelo después de la imagen.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>lcd_init();
+HAL_GPIO_WritePin(TFT_LED_GPIO_Port, TFT_LED_Pin, 1); // enciende la luz
+draw_fill_rectangle(0, 0, WIDTH, HEIGHT, COLOR_NAVY);
+
+draw_bitmap(0, 0, 1, zorro);
+draw_string(100, 100, &quot;ARZ&quot;, COLOR_RED, font5);</code></pre></div><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Pantalla TFT ILI9225 con STM32: mostrar imágenes" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Horizontal o vertical</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Pasar a vertical</h3><a class="min" href="https://youtu.be/Mz0SSHoLrv0?t=290" target="_blank" rel="noopener">&#9654; 4:50</a></div><p>En la configuración de la librería (ILI9225.h) comenta la definición <b>LANDSCAPE</b>: el ancho y el alto se intercambian y la pantalla, textos incluidos, queda vertical. Para volver a horizontal, quita el comentario.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//#define LANDSCAPE   // comentada = vertical
+
+#ifdef LANDSCAPE
+uint16_t WIDTH = HEIGHT_;
+uint16_t HEIGHT = WIDTH_;
+#else
+uint16_t WIDTH = WIDTH_;
+uint16_t HEIGHT = HEIGHT_;
+#endif</code></pre></div><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Pantalla TFT ILI9225 con STM32: mostrar imágenes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Una foto vertical</h3><a class="min" href="https://youtu.be/Mz0SSHoLrv0?t=346" target="_blank" rel="noopener">&#9654; 5:46</a></div><p>Repite la conversión con una foto vertical del tamaño de la pantalla (176 x 220) y pégala en imagenes.h como otro arreglo (en el video, <b>yo</b>). Luego dibújala y escribe el nombre debajo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>draw_bitmap(0, 0, 1, yo);
+draw_string(0, 100, &quot;ARZ&quot;, COLOR_RED, font5);</code></pre></div><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Pantalla TFT ILI9225 con STM32: mostrar imágenes" loading="lazy"></a></figure><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Pantalla TFT ILI9225 con STM32: mostrar imágenes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/Mz0SSHoLrv0?t=444" target="_blank" rel="noopener">&#9654; 7:24</a></div><p>La foto ocupa toda la pantalla en vertical. Más adelante se verá cómo leer las imágenes desde una memoria SD.</p><div class="uno"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Pantalla TFT ILI9225 con STM32: mostrar imágenes" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Mz0SSHoLrv0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Simular en Wokwi (VS Code + PlatformIO) una ESP32 con potenciómetro y DHT22 hecha con ayuda de la IA, y sacar los datos por TCP (puerto 4000) a Hércules y a un cliente en Python.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/b-fo9t6tsFc/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones · Paso a paso">
+  <meta property="og:description" content="Simular en Wokwi (VS Code + PlatformIO) una ESP32 con potenciómetro y DHT22 hecha con ayuda de la IA, y sacar los datos por TCP (puerto 4000) a Hércules y a un cliente en Python.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/b-fo9t6tsFc/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/b-fo9t6tsFc/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vscode">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 en Visual Studio Code (y ESP32) · Paso a paso</span>
+    <h1>ESP32 en <span>Wokwi</span>: datos hacia aplicaciones externas</h1>
+    <p class="lead">La simulación de Wokwi dentro de VS Code no tiene que quedarse ahí: con una línea en wokwi.toml el puerto serial simulado sale por TCP y cualquier aplicación puede leerlo. Se crea un proyecto de ESP32 en PlatformIO, se le pide a la IA (Claude Code) el circuito con un potenciómetro y un DHT22 y el código, se ajusta lo que hace falta y luego se leen los datos desde Hércules y desde un cliente TCP en Python con barras. Ojo: la IA ayuda, pero como estudiante o ingeniero hay que entender qué está pasando y corregirla.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=b-fo9t6tsFc" target="_blank" rel="noopener">&#9654; Ver el video completo (10:49)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/600.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones"></figure>
+    <ul class="materiales"><li>VS Code con PlatformIO</li><li>Extensión Wokwi Simulator (licencia gratuita)</li><li>Asistente de IA en VS Code (en el video Claude Code; también sirve GitHub Copilot)</li><li>Hércules (terminal TCP)</li><li>Python (para el cliente)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · PlatformIO y Wokwi</a><a href="#f2">2 · rfc2217ServerPort</a><a href="#f3">3 · Interfaz con barras</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto y circuito con IA</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto nuevo en PlatformIO</h3><a class="min" href="https://youtu.be/b-fo9t6tsFc?t=73" target="_blank" rel="noopener">&#9654; 1:13</a></div><p>En PIO Home → New Project, ponle nombre (COMUNICACION_EXTERNA_IA), board <b>DOIT ESP32 DEVKIT V1</b> y framework Arduino. Si VS Code abre en modo restringido, confía en la carpeta.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pedirle el circuito a la IA</h3><a class="min" href="https://youtu.be/b-fo9t6tsFc?t=142" target="_blank" rel="noopener">&#9654; 2:22</a></div><p>En el chat de la IA pide algo concreto: <i>Simúlame en Wokwi una ESP32 DevKit V1, coloca TX0 y RX0 asociados al monitor serial, agrégale un potenciómetro lineal y un sensor DHT22</i>. TX0 y RX0 al monitor es lo que permite ver los datos en el terminal.</p><div class="dos"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones" loading="lazy"></a></figure><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Revisar el diagrama</h3><a class="min" href="https://youtu.be/b-fo9t6tsFc?t=208" target="_blank" rel="noopener">&#9654; 3:28</a></div><p>La IA crea <b>wokwi.toml</b> y <b>diagram.json</b> (el dibujo). Si no te gusta, mándale una captura y pide cambios, por ejemplo sin cables cruzados y con el potenciómetro tipo slider. Cada cambio gasta tokens: decide cuándo dejarlo así.</p><div class="uno"><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Simular y corregir el código</h3><a class="min" href="https://youtu.be/b-fo9t6tsFc?t=283" target="_blank" rel="noopener">&#9654; 4:43</a></div><p>Compila (Build) y arranca Wokwi: en el terminal salen el potenciómetro, la temperatura y la humedad. Si quieres voltios en vez de porcentaje, corrige tú la fórmula (raw × 3.3 / 4095): la IA puede equivocarse.</p><div class="uno"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Sacar los datos por TCP</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Editar wokwi.toml</h3><a class="min" href="https://youtu.be/b-fo9t6tsFc?t=350" target="_blank" rel="noopener">&#9654; 5:50</a></div><p>Agrega la línea <b>rfc2217ServerPort</b>: el serial simulado queda como un servidor TCP en ese puerto y cualquier cliente que se conecte ve la información. gdbServerPort es la del debug que se vio en la clase pasada.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>[wokwi]
+version = 1
+firmware = &#x27;.pio/build/esp32doit-devkit-v1/firmware.bin&#x27;
+elf = &#x27;.pio/build/esp32doit-devkit-v1/firmware.elf&#x27;
+gdbServerPort = 3333
+rfc2217ServerPort = 4000</code></pre></div><div class="dos"><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones" loading="lazy"></a></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Leer con Hércules</h3><a class="min" href="https://youtu.be/b-fo9t6tsFc?t=413" target="_blank" rel="noopener">&#9654; 6:53</a></div><p>Compila de nuevo e inicia la simulación. En Hércules, pestaña <b>TCP Client</b>, conéctate a la IP de tu computador en el puerto <b>4000</b>: llegan los mismos datos. Puede ser en el mismo PC o en otro de la red local.</p><div class="dos"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones" loading="lazy"></a></figure><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Cliente en Python</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Pedir el cliente a la IA</h3><a class="min" href="https://youtu.be/b-fo9t6tsFc?t=477" target="_blank" rel="noopener">&#9654; 7:57</a></div><p>Pide: <i>créame en Python un cliente TCP que se conecte al puerto 4000 y me muestre en unos widgets mis variables</i>. Crea <b>cliente_tcp.py</b> con tkinter, que se conecta a localhost:4000 y separa Pot, Temp y Hum.</p><div class="dos"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones" loading="lazy"></a></figure><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Probar</h3><a class="min" href="https://youtu.be/b-fo9t6tsFc?t=583" target="_blank" rel="noopener">&#9654; 9:43</a></div><p>Inicia la simulación en Wokwi y ejecuta python cliente_tcp.py. Al mover el slider o cambiar el DHT22, las barras cambian. Lo mismo se puede hacer en Node-RED, LabVIEW o Java; en el siguiente video, por un puerto serial.</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="ESP32 en Wokwi: sacar los datos de la simulación a Python, Node-RED u otras aplicaciones" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=b-fo9t6tsFc" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Proyecto STM32: medir la velocidad de un balín en un acelerador magnético · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Medir con el TIM2 de 32 bits (en microsegundos) cuánto dura el pulso del sensor óptico del acelerador y calcular la velocidad del balín, sin librería para el timer.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/D-f3rBjnAzA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético · Paso a paso">
+  <meta property="og:description" content="Medir con el TIM2 de 32 bits (en microsegundos) cuánto dura el pulso del sensor óptico del acelerador y calcular la velocidad del balín, sin librería para el timer.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/D-f3rBjnAzA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/D-f3rBjnAzA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-otros">&larr; Volver al curso</a>
+    <span class="etiqueta">// Otros proyectos con STM32 · Paso a paso</span>
+    <h1>Velocidad de un balín en un <span>acelerador magnético</span> con STM32</h1>
+    <p class="lead">Apoyo a un proyecto de física: un acelerador de balín con bobinas que se activan cuando unos sensores infrarrojos detectan el balín. Del circuito de cada sensor sale un pulso de unos 10 V que enciende un LED; tomado en el LED da unos 2,6 V que se pueden llevar directo al micro. El STM32F401 mide con un timer cuánto tarda el pulso y con eso calcula la velocidad. Se usan librerías solo para el serial y para leer el pin; el timer se maneja directo con sus registros.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=D-f3rBjnAzA" target="_blank" rel="noopener">&#9654; Ver el video completo (10:22)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/590.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401</li><li>Acelerador magnético de balín con sensores ópticos</li><li>Conversor USB-serial</li><li>Programador ST-Link</li><li>STM32CubeIDE</li><li>Hércules</li><li>Librerías de UART y de pines (archivos del curso)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · De dónde sale el pulso</a><a href="#f2">2 · Reloj, USART1, TIM2 y pin</a><a href="#f3">3 · Pulso, tiempo y velocidad</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El montaje</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El acelerador</h3><a class="min" href="https://youtu.be/D-f3rBjnAzA?t=1" target="_blank" rel="noopener">&#9654; 0:01</a></div><p>Cada bobina se activa cuando su detector óptico ve pasar el balín y lo impulsa hacia adelante. La señal se toma en el LED del detector (unos 2,6 V), que el micro puede leer directamente.</p><div class="uno"><figure class="cap"><a href="img/15.webp" target="_blank"><img src="img/15.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar el proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto y reloj</h3><a class="min" href="https://youtu.be/D-f3rBjnAzA?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>Crea el proyecto con el STM32F401 (balin). En RCC activa el cristal externo y lleva el PLL a <b>84 MHz</b> para procesar más rápido.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Librerías</h3><a class="min" href="https://youtu.be/D-f3rBjnAzA?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>Copia la carpeta de librerías, agrégala a las rutas de include e incluye la de UART, la de pines y las de C.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;uart.h&quot;
+#include &quot;pinout1.h&quot;
+#include &quot;stdio.h&quot;
+#include &quot;stdint.h&quot;
+#include &quot;stdlib.h&quot;
+#include &quot;string.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>USART1</h3><a class="min" href="https://youtu.be/D-f3rBjnAzA?t=201" target="_blank" rel="noopener">&#9654; 3:21</a></div><p>Activa <b>USART1</b> en modo asíncrono a <b>115200</b> baudios para enviar los datos.</p><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>TIM2 contando microsegundos</h3><a class="min" href="https://youtu.be/D-f3rBjnAzA?t=215" target="_blank" rel="noopener">&#9654; 3:35</a></div><p>Usa un timer de 32 bits (TIM2 o TIM5) con reloj interno: cuenta hasta 4 294 967 295. Con <b>Prescaler 84-1</b> cada cuenta es 1 µs (8400-1 daría décimas de milisegundo).</p><div class="uno"><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>El pin de entrada</h3><a class="min" href="https://youtu.be/D-f3rBjnAzA?t=250" target="_blank" rel="noopener">&#9654; 4:10</a></div><p>Configura el pin del pulso (en el video <b>PB7</b>) como <b>GPIO_Input</b> con la etiqueta <b>VELOCIDAD</b>. Genera el código, compila y prueba que llegue un mensaje de inicio a Hércules.</p><div class="dos"><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético" loading="lazy"></a></figure><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético" loading="lazy"></a></figure><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Medir y calcular</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Medir el pulso</h3><a class="min" href="https://youtu.be/D-f3rBjnAzA?t=380" target="_blank" rel="noopener">&#9654; 6:20</a></div><p>Se esperan los cambios del pulso con ciclos while, se pone el contador en cero, se arranca el timer y al siguiente cambio se captura la cuenta, que queda en microsegundos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  uartx_write_text(&amp;huart1, &quot;ESPERANDO\r\n&quot;);
+  while (PIN_READ(VELOCIDAD) == 1);
+  while (PIN_READ(VELOCIDAD) == 0);
+  TIM2-&gt;CNT = 0;
+  HAL_TIM_Base_Start(&amp;htim2);
+  while (PIN_READ(VELOCIDAD) == 1);
+  tiempo = TIM2-&gt;CNT;            // microsegundos
+  ...
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Calcular la velocidad</h3><a class="min" href="https://youtu.be/D-f3rBjnAzA?t=487" target="_blank" rel="noopener">&#9654; 8:07</a></div><p>Se usa la circunferencia del recorrido, 2πr con r = 19 cm. El tiempo está en microsegundos (× 1 000 000) y el radio en centímetros (÷ 100), por eso se multiplica por 10 000. Para imprimir flotantes activa printf con float en las propiedades del proyecto (MCU Settings).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>VELOCIDAD = (6.28 * 19 * 10000) / tiempo;
+sprintf(TEXTO, &quot;%1.f \r\n&quot;, VELOCIDAD);
+uartx_write_text(&amp;huart1, TEXTO);</code></pre></div><p class="ojo">Si al principio no aparece el valor, revisa que esté activado el uso de float en printf.</p><div class="uno"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Probar</h3><a class="min" href="https://youtu.be/D-f3rBjnAzA?t=519" target="_blank" rel="noopener">&#9654; 8:39</a></div><p>Con el acelerador funcionando, Hércules muestra ESPERANDO y la velocidad en cada pasada: el valor sube a medida que el balín se acelera.</p><div class="dos"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético" loading="lazy"></a></figure><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="Proyecto STM32: medir la velocidad de un balín en un acelerador magnético" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=D-f3rBjnAzA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

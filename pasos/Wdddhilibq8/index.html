@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini LIDAR y servo con STM32 y LabVIEW para un explorador de terreno · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Prototipo con Blue Pill STM32F103: un servo barre de -90° a 90°, el mini LIDAR mide la distancia en cada ángulo y LabVIEW dibuja el entorno como un radar.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/Wdddhilibq8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Mini LIDAR y servo con STM32 y LabVIEW para un explorador de terreno · Paso a paso">
+  <meta property="og:description" content="Prototipo con Blue Pill STM32F103: un servo barre de -90° a 90°, el mini LIDAR mide la distancia en cada ángulo y LabVIEW dibuja el entorno como un radar.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/Wdddhilibq8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Wdddhilibq8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-otros">&larr; Volver al curso</a>
+    <span class="etiqueta">// Otros proyectos con STM32 · Paso a paso</span>
+    <h1>Radar con <span>mini LIDAR</span>, servo, STM32 y LabVIEW</h1>
+    <p class="lead">Muestra breve de un prototipo para un vehículo explorador. Un servo mueve un mini LIDAR de -90° a 90° y de regreso; en cada ángulo el STM32F103 (Blue Pill) lee la distancia y la envía por dos caminos: un puerto USB CDC hacia el computador (para la prueba) y el USART3, donde irá un módem inalámbrico porque el vehículo no estará conectado al PC. En LabVIEW se lee la trama y se dibuja un gráfico polar con lo que el vehículo tiene al frente.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Wdddhilibq8" target="_blank" rel="noopener">&#9654; Ver el video completo (4:04)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/170.webp" alt="Mini LIDAR y servo con STM32 y LabVIEW para un explorador de terreno"></figure>
+    <ul class="materiales"><li>Blue Pill STM32F103C8</li><li>Mini LIDAR serial (trama que empieza en 0x59)</li><li>Servomotor</li><li>Módem inalámbrico serial (para el vehículo)</li><li>STM32CubeIDE</li><li>LabVIEW con VISA</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Tres puertos de comunicación</a><a href="#f2">2 · Barrido y lectura</a><a href="#f3">3 · El radar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El hardware y la configuración</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El prototipo</h3><a class="min" href="https://youtu.be/Wdddhilibq8?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El LIDAR va montado sobre el servo y conectado a la Blue Pill. El servo hace el barrido de todo el recorrido.</p><div class="dos"><figure class="cap"><a href="img/10.webp" target="_blank"><img src="img/10.webp" alt="Mini LIDAR y servo con STM32 y LabVIEW para un explorador de terreno" loading="lazy"></a></figure><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Mini LIDAR y servo con STM32 y LabVIEW para un explorador de terreno" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Puertos del micro</h3><a class="min" href="https://youtu.be/Wdddhilibq8?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>En el .ioc del STM32F103C8 se usan:</p><ul><li><b>USART1</b>: el LIDAR.</li><li><b>USB_DEVICE (CDC)</b>: crea un puerto COM en el computador para la prueba.</li><li><b>USART3</b>: el módem inalámbrico, para que la información llegue a distancia.</li><li>Un timer en PWM para el servo, con su librería (rango en grados y en milisegundos).</li></ul><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Mini LIDAR y servo con STM32 y LabVIEW para un explorador de terreno" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Barrido del servo</h3><a class="min" href="https://youtu.be/Wdddhilibq8?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Para cada ángulo de -90 a 90 se posiciona el servo, se lee el LIDAR y se envía la trama (dos veces, para que haya redundancia) por el USART3 y por el USB. Después se repite de 90 a -90.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>for (int8_t cont = -90; cont &lt;= 90; cont++)
+{
+  servo1_pos(cont);
+  lidar();
+  sprintf(texto, &quot;INI/%u/%d/INI/%u/%d/*\r\n&quot;, distancia, cont, distancia, cont);
+  uartx_write_text(&amp;huart3, texto);   // módem inalámbrico
+  usb_uart_write(texto);              // puerto USB de prueba
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Mini LIDAR y servo con STM32 y LabVIEW para un explorador de terreno" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Leer el LIDAR</h3><a class="min" href="https://youtu.be/Wdddhilibq8?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>Se reciben 25 bytes, se busca el inicio de la trama (0x59) y con los bytes siguientes se arman la distancia y la fuerza de la señal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void lidar()
+{
+  memset(trama_rx, 0, 100);
+  HAL_UART_Receive(&amp;huart1, trama_rx, 25, 300);
+  char pos = procesa_rx();      // busca el 0x59
+  lidar_low  = trama_rx[pos+2];
+  lidar_hihg = trama_rx[pos+3];
+  distancia = ((unsigned int)lidar_hihg &lt;&lt; 8) | lidar_low;
+  lidar_low  = trama_rx[pos+4];
+  lidar_hihg = trama_rx[pos+5];
+  fuerza = ((unsigned int)lidar_hihg &lt;&lt; 8) | lidar_low;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Mini LIDAR y servo con STM32 y LabVIEW para un explorador de terreno" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>LabVIEW</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Ver el entorno</h3><a class="min" href="https://youtu.be/Wdddhilibq8?t=140" target="_blank" rel="noopener">&#9654; 2:20</a></div><p>En LabVIEW se elige el COM que creó el USB (VISA resource) y la distancia máxima. Al dar Play, el gráfico polar muestra a qué distancia están los objetos en cada ángulo, como un radar: si acercas la mano, el trazo se hace más pequeño.</p><div class="uno"><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Mini LIDAR y servo con STM32 y LabVIEW para un explorador de terreno" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Cómo se lee la trama</h3><a class="min" href="https://youtu.be/Wdddhilibq8?t=196" target="_blank" rel="noopener">&#9654; 3:16</a></div><p>El diagrama de bloques lee los bytes del puerto (Bytes at Port y VISA Read), separa el ángulo y la distancia de la trama INI/…/*, los guarda en un vector y los pasa al gráfico.</p><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Mini LIDAR y servo con STM32 y LabVIEW para un explorador de terreno" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Wdddhilibq8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
