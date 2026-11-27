@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cuatro displays de 7 segmentos con transistores NPN para mostrar la palabra HOLA usando solo 11 pines, el tiempo correcto de multiplexación, el cambio del PIC16F84A al PIC16F877A con #define, y la depuración paso a paso de código MikroC en Proteus con el archivo .cof.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/unzdRHbI0EI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus · Paso a paso">
+  <meta property="og:description" content="Cuatro displays de 7 segmentos con transistores NPN para mostrar la palabra HOLA usando solo 11 pines, el tiempo correcto de multiplexación, el cambio del PIC16F84A al PIC16F877A con #define, y la depuración paso a paso de código MikroC en Proteus con el archivo .cof.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/unzdRHbI0EI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/unzdRHbI0EI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Multiplexar <span>displays</span> y depurar con .cof</h1>
+    <p class="lead">Con lo visto de puertos y pines se arma un display de cuatro dígitos multiplexado: los segmentos van a un puerto y cada dígito se habilita con un transistor 2N3904. Así en vez de 28 pines se usan 11, y el software hace el trabajo mostrando cada letra unos milisegundos. Luego se pasa el programa al PIC16F877A cambiando solo los #define, se explica el brown-out reset y se activa la generación del archivo .cof para ejecutar el código paso a paso dentro de Proteus.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=unzdRHbI0EI" target="_blank" rel="noopener">&#9654; Ver el video completo (19:38)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1060.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con PIC16F84A o PIC16F877A, display 7SEG-MPX4-CC y transistores 2N3904</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Circuito</a><a href="#f2">2 · Programa</a><a href="#f3">3 · 16F877A</a><a href="#f4">4 · Depurar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Circuito</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>NPN o PNP</h3><a class="min" href="https://youtu.be/unzdRHbI0EI?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>Un truco para distinguir los transistores BJT: en el NPN la flecha del emisor sale (no penetra) y en el PNP la flecha entra (penetra).</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Por qué multiplexar</h3><a class="min" href="https://youtu.be/unzdRHbI0EI?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><p>Cuatro displays sin multiplexar necesitan 7 × 4 = 28 pines. Multiplexados solo hacen falta 7 para los segmentos y 4 para habilitar cada dígito: 11 pines. Se muestra cada letra tan rápido que el ojo ve la palabra fija.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Transistores para cada dígito</h3><a class="min" href="https://youtu.be/unzdRHbI0EI?t=162" target="_blank" rel="noopener">&#9654; 2:42</a></div><p>Cada común del display va al colector de un 2N3904, con el emisor a tierra y una resistencia de 330 Ω en la base desde el pin del micro. Los segmentos llevan su resistencia de 220 Ω. En la vida real se agrega una resistencia de pull-up en el colector.</p><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Nombres con #define</h3><a class="min" href="https://youtu.be/unzdRHbI0EI?t=362" target="_blank" rel="noopener">&#9654; 6:02</a></div><p>Los habilitadores, el puerto del display y el puerto que apaga los dígitos se definen con nombres. Así es más fácil leer el programa y pasarlo a otro micro.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define H1 RA0_bit
+#define H2 RA1_bit
+#define H3 RA2_bit
+#define H4 RA3_bit
+#define display PORTB
+#define port_off PORTA</code></pre></div><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Secuencia de multiplexación</h3><a class="min" href="https://youtu.be/unzdRHbI0EI?t=465" target="_blank" rel="noopener">&#9654; 7:45</a></div><p>Para cada dígito: apagar todos, sacar el dato, habilitar el dígito y esperar el tiempo de visualización. Los valores de cátodo común salen del Seven Segment Editor: H = 118, O = 63, L = 56, A = 119.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TRISA = 0;
+TRISB = 0;
+while (1)
+{
+  port_off = 0b00000000;   // apaga todos
+  display = 118;           // H
+  H1 = 1;                  // habilita display 1
+  Delay_ms(5);
+
+  port_off = 0b00000000;
+  display = 63;            // O
+  H2 = 1;
+  Delay_ms(5);
+
+  port_off = 0b00000000;
+  display = 56;            // L
+  H3 = 1;
+  Delay_ms(5);
+
+  port_off = 0b00000000;
+  display = 119;           // A
+  H4 = 1;
+  Delay_ms(5);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>El tiempo de visualización</h3><a class="min" href="https://youtu.be/unzdRHbI0EI?t=497" target="_blank" rel="noopener">&#9654; 8:17</a></div><p>Cada dígito debe mostrarse entre 1 y 10 ms. Con 500 ms se ve cómo van saltando las letras; con 5 ms el ojo ve <b>HOLA</b> fijo.</p><div class="uno"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Cambiar al PIC16F877A</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Nuevo micro</h3><a class="min" href="https://youtu.be/unzdRHbI0EI?t=764" target="_blank" rel="noopener">&#9654; 12:44</a></div><p>El PIC16F877A tiene más pines, entradas análogas y más periféricos, y es fácil de conseguir. Se cambia el micro en <b>Project → Edit Project</b> y se ajustan los #define: el display al puerto C y los habilitadores al puerto B.</p><div class="uno"><figure class="cap"><a href="img/850.webp" target="_blank"><img src="img/850.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Brown-out reset y otros bits</h3><a class="min" href="https://youtu.be/unzdRHbI0EI?t=898" target="_blank" rel="noopener">&#9654; 14:58</a></div><p>Aparece el <b>Brown-out Reset</b>: el micro se reinicia si el voltaje cae a un nivel no confiable, lo que evita bloqueos y acciones erróneas. La programación en bajo voltaje (LVP) se deja deshabilitada por compatibilidad con los programadores. También se pueden proteger la memoria de programa y la EEPROM.</p><div class="uno"><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Probar</h3><a class="min" href="https://youtu.be/unzdRHbI0EI?t=1027" target="_blank" rel="noopener">&#9654; 17:07</a></div><p>La primera vez no funcionó porque faltaba cambiar los TRIS a los nuevos puertos (B y C). Corregido, la palabra HOLA aparece igual.</p><div class="uno"><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Depurar en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Generar el archivo .cof</h3><a class="min" href="https://youtu.be/unzdRHbI0EI?t=1060" target="_blank" rel="noopener">&#9654; 17:40</a></div><p>En <b>Project → Edit Project</b> se activa <b>Generate COFF file</b>. Al compilar se crea un .cof, que se carga en el micro de Proteus en vez del .hex.</p><div class="uno"><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Paso a paso</h3><a class="min" href="https://youtu.be/unzdRHbI0EI?t=1095" target="_blank" rel="noopener">&#9654; 18:15</a></div><p>Se inicia con el botón de pausa (no con play) y Proteus abre el código fuente de MikroC. Se ejecuta línea por línea viendo cómo se saca cada letra y se habilita cada dígito, lo que ayuda a encontrar errores.</p><div class="dos"><figure class="cap"><a href="img/1140.webp" target="_blank"><img src="img/1140.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/1160.webp" target="_blank"><img src="img/1160.webp" alt="Curso MikroC para PIC, lección 4: multiplexación de displays de 7 segmentos y depuración con archivos .cof en Proteus" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=unzdRHbI0EI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Por qué empezar con MikroC, familias de PIC de 8 bits, arquitectura Harvard y registros especiales, pines de alimentación, cristal y reset, puertos y registros TRIS y PORT, binario y hexadecimal, y el primer programa que prende y apaga LEDs en un PIC16F84A simulado en Proteus.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/4qMbGSKcLv8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC · Paso a paso">
+  <meta property="og:description" content="Por qué empezar con MikroC, familias de PIC de 8 bits, arquitectura Harvard y registros especiales, pines de alimentación, cristal y reset, puertos y registros TRIS y PORT, binario y hexadecimal, y el primer programa que prende y apaga LEDs en un PIC16F84A simulado en Proteus.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/4qMbGSKcLv8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/4qMbGSKcLv8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Conceptos básicos del <span>PIC</span> y primer programa</h1>
+    <p class="lead">Primera lección del curso básico de PIC con MikroC. Antes de programar se explica qué tiene el micro por dentro: memoria de programa flash, RAM, EEPROM y registros especiales; qué pines son obligatorios (alimentación, cristal con sus capacitores y reset) y cómo se nombran los puertos. Se ve por qué conviene escribir los valores en binario o hexadecimal y cómo el registro TRIS define entradas y salidas. Al final se crea el proyecto en MikroC con sus bits de configuración y se hace titilar el puerto B en Proteus.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=4qMbGSKcLv8" target="_blank" rel="noopener">&#9654; Ver el video completo (43:36)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2590.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con PIC16F84A, LEDs y resistencias de 220 Ω</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Introducción</a><a href="#f2">2 · Arquitectura</a><a href="#f3">3 · Hardware</a><a href="#f4">4 · Puertos</a><a href="#f5">5 · Programa</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>MikroC y los PIC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Por qué MikroC</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El curso empieza con MikroC porque trae muchas librerías hechas, permite crear librerías propias y tiene una ayuda muy completa que funciona sin internet, incluidas todas las librerías estándar de C. XC8 de Microchip es muy bueno pero obliga a hacer más cosas a mano; se puede pasar a él después.</p><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>La ayuda y Libstock</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=303" target="_blank" rel="noopener">&#9654; 5:03</a></div><p>MikroElektronika tiene compiladores en C, Basic y Pascal para PIC, dsPIC, PIC32, ARM, AVR, 8051 y FT90x, y la comunidad <b>Libstock</b> donde la gente publica código y librerías. En la ayuda están las librerías del hardware y las de C (string, math, ctype…).</p><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Familias de 8 bits</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=404" target="_blank" rel="noopener">&#9654; 6:44</a></div><p>Los PIC de 8 bits son los 10F, 12F, 16F y 18F: desde 6 pines hasta más de 100. Los de 16 bits son los 24F, 30F y 33F, hasta los doble núcleo 33CH. Para empezar se usa el PIC16F84A solo por respeto: es viejo, caro y no tiene ADC ni serial. Los micros nuevos suelen ser más baratos.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Por dentro del micro</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Arquitectura Harvard</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=535" target="_blank" rel="noopener">&#9654; 8:55</a></div><p>El bus de datos (8 bits) es distinto del bus de instrucciones (13 o más bits). El programa va en la memoria <b>flash</b> (no se borra al apagar), las variables en la <b>RAM</b> (rápida, se borra) y hay una pequeña <b>EEPROM</b> para datos que deben quedar guardados, como una clave.</p><div class="uno"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Registros especiales</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=635" target="_blank" rel="noopener">&#9654; 10:35</a></div><p>En la RAM hay casillas fijas, los <b>registros especiales</b> (SFR), que configuran el micro: entradas y salidas, puertos, ADC, etc. El resto queda para las variables del usuario. No hace falta aprenderlos todos de memoria: se estudia el registro de cada periférico cuando se va a usar.</p><div class="uno"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El hardware mínimo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Alimentación</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=735" target="_blank" rel="noopener">&#9654; 12:15</a></div><p>Todos los pines VSS van a tierra y todos los VDD a 5 V (o a 3 V si el micro lo permite, sin pasar de 5,5 V). En Proteus los pines de alimentación están ocultos y conectados; en el montaje real hay que conectarlos todos.</p><div class="uno"><figure class="cap"><a href="img/780.webp" target="_blank"><img src="img/780.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Cristal</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=835" target="_blank" rel="noopener">&#9654; 13:55</a></div><p>El cristal va en OSC1 y OSC2 (hasta 20 MHz en estos micros) y el micro trabaja a la cuarta parte de su frecuencia. Para estabilizarlo se pone un capacitor de 15 a 22 pF de cada pin a tierra, los dos iguales. En Proteus no hace falta: basta con poner la frecuencia en las propiedades del micro (1 a 4 MHz si el computador es lento).</p><div class="uno"><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Reset</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=1001" target="_blank" rel="noopener">&#9654; 16:41</a></div><p>El pin <b>MCLR</b> debe ir a 5 V para que el micro funcione. Para poner un botón de reset se usa una resistencia de 1 kΩ a 10 kΩ a 5 V y el pulsador a tierra; en ambientes industriales se agrega un capacitor de 100 nF (104). Algunos micros permiten usar ese pin como entrada.</p><div class="uno"><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>LEDs en el puerto B</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=1168" target="_blank" rel="noopener">&#9654; 19:28</a></div><p>Se conectan ocho LEDs con resistencias de 220 Ω a RB0–RB7. En Proteus se puede repetir un bloque con <b>Block Copy</b>.</p><div class="uno"><figure class="cap"><a href="img/1220.webp" target="_blank"><img src="img/1220.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Puertos y sistemas numéricos</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Nombres de puertos y pines</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=1276" target="_blank" rel="noopener">&#9654; 21:16</a></div><p>Los pines de puerto empiezan con R y una letra: RA, RB, RC… y un número que es el bit. Cada puerto tiene su registro PORTA, PORTB, etc. El hardware limita al software: el PIC16F84A solo tiene RA0 a RA4 aunque PORTA tenga 8 bits.</p><div class="uno"><figure class="cap"><a href="img/1320.webp" target="_blank"><img src="img/1320.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Decimal, binario y hexadecimal</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=1511" target="_blank" rel="noopener">&#9654; 25:11</a></div><p>Si se escribe PORTB = 1 solo se enciende RB0, porque el micro lo ve en binario. Para prender LEDs puntuales es más fácil escribir en binario con <b>0b</b>; si el número es largo, se agrupan los bits de a cuatro y se escribe en hexadecimal con <b>0x</b>. MikroC trae un conversor en sus herramientas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PORTB = 255;          // todo encendido en decimal
+PORTB = 0b11111111;   // lo mismo en binario
+PORTB = 0xFF;         // lo mismo en hexadecimal</code></pre></div><div class="uno"><figure class="cap"><a href="img/1680.webp" target="_blank"><img src="img/1680.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>El registro TRIS</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=1743" target="_blank" rel="noopener">&#9654; 29:03</a></div><p>Cada puerto tiene su registro TRIS: un <b>0 es salida</b> y un <b>1 es entrada</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TRISB = 0b00000000;   // puerto B salida
+TRISA = 0b11111111;   // puerto A entrada</code></pre></div><div class="uno"><figure class="cap"><a href="img/1790.webp" target="_blank"><img src="img/1790.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Primer programa</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Proyecto nuevo</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=1847" target="_blank" rel="noopener">&#9654; 30:47</a></div><p>Siempre se trabaja sobre un proyecto, en una carpeta propia. Antes se cierra cualquier proyecto abierto. Se escoge el P16F84A y la frecuencia de 4 MHz.</p><div class="uno"><figure class="cap"><a href="img/1960.webp" target="_blank"><img src="img/1960.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Bits de configuración</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=2010" target="_blank" rel="noopener">&#9654; 33:30</a></div><p>Oscilador: <b>LP</b> para menos de 1 MHz, <b>XT</b> de 1 a 8 MHz, <b>HS</b> para más de 8 MHz y RC sin cristal. El <b>watchdog</b> se deja deshabilitado por ahora. El <b>Power-up Timer</b> se recomienda activado: el micro espera a que se estabilice la alimentación antes de arrancar. La protección de código se usa en productos comerciales.</p><div class="uno"><figure class="cap"><a href="img/2060.webp" target="_blank"><img src="img/2060.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Código</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=2179" target="_blank" rel="noopener">&#9654; 36:19</a></div><p>La configuración va antes del ciclo infinito <b>while(1)</b>. Con Ctrl + espacio aparece la ayuda de MikroC.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void main()
+{
+  // configuracion
+  TRISB = 0b00000000;   // puerto B salida
+
+  // ciclo repetitivo e infinito
+  while (1)
+  {
+    PORTB = 0b10101010;
+    Delay_ms(200);
+    PORTB = 0b01010101;
+    Delay_ms(200);
+  }
+}</code></pre></div><p class="ojo">Para comprobar que se está compilando el proyecto correcto, escribe un error a propósito: si no sale el error, estás en otro archivo.</p><div class="dos"><figure class="cap"><a href="img/2300.webp" target="_blank"><img src="img/2300.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/2560.webp" target="_blank"><img src="img/2560.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.4</span><h3>Opciones del editor</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=2345" target="_blank" rel="noopener">&#9654; 39:05</a></div><p>En <b>Project → Edit Project</b> se puede hacer el compilador sensible a mayúsculas, útil para pasar el código a otros compiladores. En Tools → Options se cambian los colores del editor.</p></article><article class="paso"><div class="paso-cab"><span class="num">5.5</span><h3>Simular</h3><a class="min" href="https://youtu.be/4qMbGSKcLv8?t=2477" target="_blank" rel="noopener">&#9654; 41:17</a></div><p>El .hex queda en la carpeta del proyecto. En Proteus se carga en el micro con la misma frecuencia de 4 MHz y los LEDs se alternan.</p><div class="uno"><figure class="cap"><a href="img/2590.webp" target="_blank"><img src="img/2590.webp" alt="Curso MikroC para PIC, lección 1: conceptos básicos del microcontrolador PIC y primer programa en MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=4qMbGSKcLv8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

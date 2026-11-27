@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Qué son los dsPIC y dónde estudiarlos (manual de referencia), cómo configurar el oscilador y el PLL en un 30F4013, un 33FJ128GP710, un 33FJ128MC802 con pines remapeables y un 33EP512MU810 a 140 MHz, y un hola mundo con LEDs y UART en tarjetas reales y en Proteus.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/l38uPtZDNEU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial · Paso a paso">
+  <meta property="og:description" content="Qué son los dsPIC y dónde estudiarlos (manual de referencia), cómo configurar el oscilador y el PLL en un 30F4013, un 33FJ128GP710, un 33FJ128MC802 con pines remapeables y un 33EP512MU810 a 140 MHz, y un hola mundo con LEDs y UART en tarjetas reales y en Proteus.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/l38uPtZDNEU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/l38uPtZDNEU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#dspic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// MikroC para dsPIC · Paso a paso</span>
+    <h1>Introducción a los <span>dsPIC</span> con MikroC</h1>
+    <p class="lead">Primera clase del curso de dsPIC con MikroC. Se presentan las familias 30F, 33F, 33EP y sus diferencias (DMA, EEPROM, timers, velocidad) y se recomienda estudiar con el manual de referencia de cada familia. Luego se hace el mismo programa (LEDs que titilan y "Hola mundo" por el puerto serial) en cuatro dsPIC distintos: con el PLL por 4, 8 o 16 en el 30F, con la fórmula N1, M y N2 en los 33F, con remapeo de pines (PPS) en el 33FJ128MC802 y el 33EP, y por último simulando un 33FJ32MC202 en Proteus.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=l38uPtZDNEU" target="_blank" rel="noopener">&#9654; Ver el video completo (66:07)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/3060.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial"></figure>
+    <ul class="materiales"><li>MikroC PRO for dsPIC</li><li>Tarjetas entrenadoras con dsPIC30F4013, 33FJ128GP710, 33FJ128MC802 y 33EP512MU810 (o Proteus con un 33FJ)</li><li>Conversor USB a serial y una terminal (Hércules)</li><li>Hoja de Excel para calcular el PLL de los 33F y 33EP</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · dsPIC</a><a href="#f2">2 · 30F</a><a href="#f3">3 · 33F</a><a href="#f4">4 · PPS</a><a href="#f5">5 · 33EP</a><a href="#f6">6 · Proteus</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Los dsPIC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Estudiar con el manual de referencia</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=31" target="_blank" rel="noopener">&#9654; 0:31</a></div><p>Además del datasheet, Microchip tiene un <b>reference manual</b> por familia (30F, 33F, 33EP, 33CH, 33CK). Explica cada periférico con todos sus registros y es la mejor forma de aprender estos micros.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Tarjetas del curso</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>El curso se hace sobre todo en tarjetas reales: una entrenadora para 30F de 18, 28 o 40 pines (con un 30F4013), una para el 33FJ128GP710 de 80 pines, un 33FJ128MC802 con pines remapeables y tarjetas propias con 33EP. Proteus solo simula algunos 33FJ y no simula bien el PLL.</p><div class="uno"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Familias y arquitectura</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=573" target="_blank" rel="noopener">&#9654; 9:33</a></div><p>Son micros de 16 bits pensados para procesar señales. Los 30F trabajan a 5 V; los 33F y 33EP a 3,3 V (con versiones de 5 V como los 33EV y algunos pines tolerantes a 5 V). Los 30F no tienen DMA; los 33F sí, pero no tienen EEPROM (se puede guardar en la flash). Los 30F tienen 5 timers y los 33 hasta 9. La nomenclatura indica la memoria de programa (por ejemplo 128 = 128 KB).</p><div class="uno"><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>El PLL</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=770" target="_blank" rel="noopener">&#9654; 12:50</a></div><p>En los 30F el PLL multiplica el cristal por 4, 8 o 16 hasta 120 MHz, y la velocidad real es la cuarta parte (30 MIPS). En los 33F se calcula con una fórmula y llegan a 80 MHz (40 reales); los 33EP llegan a 140 MHz y algunos nuevos a 200 MHz.</p><div class="uno"><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Hola mundo en el dsPIC30F4013</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto y bits de configuración</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=402" target="_blank" rel="noopener">&#9654; 6:42</a></div><p>Proyecto nuevo con el P30F4013 y cristal de 8 MHz. En la configuración se escoge oscilador XT sin PLL, el tiempo de power-up y el nivel de <b>brown-out</b> (por ejemplo 4,2 V) para que el micro se reinicie si cae el voltaje. Estos micros se pueden programar por varios pares de pines.</p><div class="uno"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Pines digitales y LEDs</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=967" target="_blank" rel="noopener">&#9654; 16:07</a></div><p>El registro <b>ADPCFG</b> (16 bits) define qué pines son análogos: un 1 es digital. Después se configura el puerto B como salida y se invierte con LATB (para escribir se usa LAT y para leer PORT).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADPCFG = 0xFFFF;   // todo digital
+TRISB = 0;          // puerto B salida
+while (1)
+{
+  LATB = ~LATB;
+  Delay_ms(200);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>UART: hola mundo</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=1137" target="_blank" rel="noopener">&#9654; 18:57</a></div><p>El UART1 está en RF3 (TX) y RF2 (RX); también hay pines alternos y un UART2. Se configuran los TRIS, se agrega la librería UART y se envía el texto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TRISF3_bit = 0;   // TX
+TRISF2_bit = 1;   // RX
+UART1_Init(9600);
+
+while (1)
+{
+  LATB = ~LATB;
+  Delay_ms(200);
+  UART1_Write_Text(&quot;HOLA MUNDO\r\n&quot;);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1240.webp" target="_blank"><img src="img/1240.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure><figure class="cap"><a href="img/1310.webp" target="_blank"><img src="img/1310.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Activar el PLL</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=1305" target="_blank" rel="noopener">&#9654; 21:45</a></div><p>Al escoger XT con PLL x8 y un cristal de 8 MHz el micro corre a 64 MHz. Si no se cambia la frecuencia en el proyecto, el serial muestra basura: la frecuencia del proyecto debe ser cristal × PLL.</p><p class="ojo">No pongas PLL x16 con un cristal de 8 MHz (128 MHz): pasa del máximo de 120 MHz, se calienta y en un ambiente industrial se puede dañar.</p><div class="uno"><figure class="cap"><a href="img/1400.webp" target="_blank"><img src="img/1400.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>PLL en los dsPIC33F</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>dsPIC33FJ128GP710</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=1570" target="_blank" rel="noopener">&#9654; 26:10</a></div><p>Con cristal de 10 MHz y sin PLL el programa es el mismo, pero tiene dos registros para los pines análogos: <b>AD1PCFGL</b> y <b>AD1PCFGH</b>.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Fórmula del PLL</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=1975" target="_blank" rel="noopener">&#9654; 32:55</a></div><p>En el datasheet, sección del oscilador: la entrada se divide por <b>N1</b> (PLLPRE, de 2 a 33) y debe quedar por debajo de 8 MHz; se multiplica por <b>M</b> (PLLDIV, de 2 a 513) y el VCO debe quedar entre 100 y 200 MHz; luego se divide por <b>N2</b> (PLLPOST: 2, 4 u 8). La salida máxima es 80 MHz.</p><div class="uno"><figure class="cap"><a href="img/2000.webp" target="_blank"><img src="img/2000.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Calcular con Excel</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=2140" target="_blank" rel="noopener">&#9654; 35:40</a></div><p>Una hoja de Excel pide el cristal y la frecuencia deseada y entrega los valores de PLLPRE, PLLPOST y PLLDIV, indicando si cumplen los rangos. Para 10 MHz → 80 MHz: PLLPRE = 0, PLLPOST = 0, PLLDIV = 30.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// Fosc = Fin * M / (N1 * N2) = 10M * 32 / (2 * 2) = 80 MHz
+CLKDIVbits.PLLPRE = 0;    // N1 = 2
+CLKDIVbits.PLLPOST = 0;   // N2 = 2
+PLLFBD = 30;              // M = 32 (el valor deseado menos 2)</code></pre></div><div class="uno"><figure class="cap"><a href="img/2160.webp" target="_blank"><img src="img/2160.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Oscilador primario con PLL</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=2340" target="_blank" rel="noopener">&#9654; 39:00</a></div><p>El serial seguía mostrando basura porque en la configuración estaba el oscilador interno con PLL. Hay que escoger <b>Primary Oscillator with PLL</b> y poner 80 MHz en el proyecto.</p><div class="uno"><figure class="cap"><a href="img/2460.webp" target="_blank"><img src="img/2460.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Pines remapeables (PPS)</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>dsPIC33FJ128MC802</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=2554" target="_blank" rel="noopener">&#9654; 42:34</a></div><p>Es un micro de control de motores de 28 pines donde casi todos los pines son <b>RPn</b>: cualquier pin puede ser TX, RX u otro periférico. Con cristal de 8 MHz y el Excel: PLLPRE = 0, PLLPOST = 0, PLLDIV = 38 para 80 MHz. Solo tiene el registro <b>AD1PCFGL</b>.</p><div class="uno"><figure class="cap"><a href="img/2640.webp" target="_blank"><img src="img/2640.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Remapear el UART</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=2905" target="_blank" rel="noopener">&#9654; 48:25</a></div><p>Sin remapear no sale nada por el serial. Se agrega la librería <b>Peripheral_Pin_Select</b>, se desbloquea la configuración y se asigna TX y RX a los pines que se quieran, antes de iniciar el UART.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Unlock_IOLOCK();                       // desbloquea perifericos
+PPS_Mapping(14, _OUTPUT, _U1TX);       // TX en RP14 (RB14)
+PPS_Mapping(13, _INPUT, _U1RX);        // RX en RP13 (RB13)
+Lock_IOLOCK();
+UART1_Init(9600);</code></pre></div><div class="dos"><figure class="cap"><a href="img/2960.webp" target="_blank"><img src="img/2960.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure><figure class="cap"><a href="img/3060.webp" target="_blank"><img src="img/3060.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Cambiar de pin</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=3040" target="_blank" rel="noopener">&#9654; 50:40</a></div><p>Si la tarjeta saca el TX por RB0, basta con cambiar el mapeo a RP0 y titilar otro LED. Esa es la versatilidad de los pines remapeables.</p></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>dsPIC33EP a 140 MHz</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>dsPIC33EP512MU810</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=3210" target="_blank" rel="noopener">&#9654; 53:30</a></div><p>Los 33EP llegan a 140 MHz (montaje superficial) o 120 MHz (DIP), tienen pull-up, pull-down y colector abierto en los pines y mejores módulos de captura. Con cristal de 8 MHz el Excel de los EP da PLLDIV = 68 para 140 MHz.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>CLKDIVbits.PLLPRE = 0;    // N1 = 2
+CLKDIVbits.PLLPOST = 0;   // N2 = 2
+PLLFBD = 68;              // 8M * 70 / 4 = 140 MHz</code></pre></div><div class="uno"><figure class="cap"><a href="img/3420.webp" target="_blank"><img src="img/3420.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>ANSELx y RPn distinto al pin</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=3409" target="_blank" rel="noopener">&#9654; 56:49</a></div><p>En estos micros los pines digitales se configuran con <b>ANSELA, ANSELB…</b>, donde 0 es digital (al revés de AD1PCFG). Además el número RP no siempre coincide con el pin: RF5 es <b>RP101</b>, así que hay que buscarlo en el datasheet.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PPS_Mapping(101, _OUTPUT, _U1TX);   // TX en RP101 = RF5</code></pre></div><div class="uno"><figure class="cap"><a href="img/3500.webp" target="_blank"><img src="img/3500.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f6"><div class="contenedor"><span class="etiqueta">Fase 6</span><h2>dsPIC en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">6.1</span><h3>Simular un 33FJ32MC202</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=3715" target="_blank" rel="noopener">&#9654; 61:55</a></div><p>Con un cristal de 4 MHz sin PLL, TX remapeado en RP12, un LED y la terminal virtual, el hola mundo funciona en Proteus.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>AD1PCFGL = 0xFFFF;   // todo digital
+TRISB = 0;
+LATB = 0;
+Unlock_IOLOCK();
+PPS_Mapping(12, _OUTPUT, _U1TX);
+UART1_Init(9600);
+Lock_IOLOCK();
+
+while (1)
+{
+  LATB0_bit = ~LATB0_bit;
+  Delay_ms(200);
+  UART1_Write_Text(&quot;HOLA MUNDO\r\n&quot;);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/3820.webp" target="_blank"><img src="img/3820.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure><figure class="cap"><a href="img/3830.webp" target="_blank"><img src="img/3830.webp" alt="Curso MikroC para dsPIC, clase 1: introducción a los dsPIC 30F, 33F y 33EP, PLL y hola mundo serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">6.2</span><h3>El PLL no se simula</h3><a class="min" href="https://youtu.be/l38uPtZDNEU?t=3853" target="_blank" rel="noopener">&#9654; 64:13</a></div><p>Al activar el PLL y poner 80 MHz, Proteus no lo simula (igual que con los PIC18). Por eso el resto del curso se mostrará sobre todo en tarjetas reales.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=l38uPtZDNEU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
