@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 5: tonos y melodías con un parlante · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo generar sonidos y una melodía con la librería Sound de MikroC en un PIC16F877A, y cómo conectar bien el parlante con un transistor, un diodo de protección y un Darlington.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/BB-nJwQNLgI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 5: tonos y melodías con un parlante · Paso a paso">
+  <meta property="og:description" content="Cómo generar sonidos y una melodía con la librería Sound de MikroC en un PIC16F877A, y cómo conectar bien el parlante con un transistor, un diodo de protección y un Darlington.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/BB-nJwQNLgI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/BB-nJwQNLgI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Tonos y <span>melodías</span> con el PIC</h1>
+    <p class="lead">Quinta lección del curso. Se repasa el rango de frecuencias que escucha el ser humano y se usa por primera vez una librería de MikroC: Sound. Con Sound_Init se indica el pin del parlante y con Sound_Play se toca cada nota con su frecuencia y duración, hasta armar una melodía simulada en Proteus. Luego se explica por qué el parlante no va directo al pin y cómo armar la etapa de potencia con un transistor, un diodo para la carga inductiva y un Darlington.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=BB-nJwQNLgI" target="_blank" rel="noopener">&#9654; Ver el video completo (11:28)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/330.webp" alt="Curso MikroC PRO for PIC, lección 5: tonos y melodías con un parlante"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus (o un PIC16F877A real)</li><li>Parlante</li><li>Transistor TIP41 o un Darlington (TIP122, TIP127)</li><li>Diodo 1N4001 y resistencia de 220 Ω</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Librería</a><a href="#f2">2 · Melodía</a><a href="#f3">3 · Potencia</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Sonido con la librería Sound</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Frecuencias que escuchamos</h3><a class="min" href="https://youtu.be/BB-nJwQNLgI?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El oído humano escucha más o menos entre 20 Hz y 20 kHz. Lo que está por fuera de ese rango (ultrasonido, radiofrecuencia) también se aprovecha en electrónica: ecografías, radares, medición de distancia, celulares. La voz está más o menos entre 300 Hz y 3,3 kHz.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Crear el proyecto</h3><a class="min" href="https://youtu.be/BB-nJwQNLgI?t=98" target="_blank" rel="noopener">&#9654; 1:38</a></div><p>Se crea el proyecto <b>parlante</b> en una carpeta nueva <i>clase5</i>, con el PIC16F877A a 10 MHz. Como el cristal pasa de 8 MHz se usa el oscilador <b>HS</b>; se habilita el power-up timer y se compila una vez para guardar.</p><div class="uno"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Curso MikroC PRO for PIC, lección 5: tonos y melodías con un parlante" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Activar la librería en el Library Manager</h3><a class="min" href="https://youtu.be/BB-nJwQNLgI?t=164" target="_blank" rel="noopener">&#9654; 2:44</a></div><p>Hasta ahora se trabajó con registros; aquí se empieza a usar librerías. En el <b>Library Manager</b> se busca <b>Sound</b> y se marca su casilla. Las demás librerías se pueden desmarcar.</p><div class="uno"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Curso MikroC PRO for PIC, lección 5: tonos y melodías con un parlante" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Leer la ayuda (F1)</h3><a class="min" href="https://youtu.be/BB-nJwQNLgI?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>Con F1 se abre la ayuda, que funciona sin internet. Buscando <i>sound</i> en el índice aparecen las dos funciones: <code>Sound_Init</code>, que dice en qué puerto y pin está el parlante, y <code>Sound_Play</code>, que toca una frecuencia en Hz durante cierto tiempo en milisegundos.</p><p class="ojo">La librería configura el pin como salida sola, pero hay que saber manejar TRIS porque a veces toca hacerlo a mano.</p><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Curso MikroC PRO for PIC, lección 5: tonos y melodías con un parlante" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La melodía</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Programa de prueba</h3><a class="min" href="https://youtu.be/BB-nJwQNLgI?t=262" target="_blank" rel="noopener">&#9654; 4:22</a></div><p>Con Ctrl + espacio se ven las funciones disponibles. Se indica que el parlante está en RD0 y dentro del <code>while(1)</code> se tocan varios tonos seguidos. Para un silencio basta un <code>Delay_ms</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void main() {
+  Sound_Init(&amp;PORTD, 0);      // parlante en RD0
+  while (1) {
+    Sound_Play(1000, 200);    // 1 kHz durante 200 ms
+    Sound_Play(2000, 200);
+    Sound_Play(3000, 200);
+    Delay_ms(500);            // silencio
+    Sound_Play(5000, 400);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Curso MikroC PRO for PIC, lección 5: tonos y melodías con un parlante" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Simular en Proteus</h3><a class="min" href="https://youtu.be/BB-nJwQNLgI?t=362" target="_blank" rel="noopener">&#9654; 6:02</a></div><p>En Proteus se pone el parlante (SPEAKER) en RD0, se carga el .hex y se pone la misma frecuencia del cristal que en MikroC; si no coinciden, la melodía no suena como debe. Para una melodía de verdad hay que saber la frecuencia de cada nota, su duración y las pausas; en el video se toca la introducción de un juego clásico.</p><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Curso MikroC PRO for PIC, lección 5: tonos y melodías con un parlante" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Etapa de potencia</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>No conectar el parlante directo</h3><a class="min" href="https://youtu.be/BB-nJwQNLgI?t=432" target="_blank" rel="noopener">&#9654; 7:12</a></div><p>Cada pin del micro da como mucho 20 a 25 mA y un parlante tiene 4 u 8 Ω, así que se puede dañar el pin. Se pone un transistor como el TIP41: la base con una resistencia al pin, el emisor a tierra y el parlante entre el colector y una fuente aparte, que puede ser de 10 V o más.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Diodo para la carga inductiva</h3><a class="min" href="https://youtu.be/BB-nJwQNLgI?t=498" target="_blank" rel="noopener">&#9654; 8:18</a></div><p>El parlante, un relé o una bobina son cargas inductivas: no aceptan cambios bruscos de corriente y al conmutar invierten el voltaje, lo que puede dañar el transistor. Por eso se pone un diodo 1N4001 en paralelo con la carga, con el cátodo hacia el positivo de la fuente.</p><p class="ojo">Siempre que haya una bobina (parlante, relé, motor) se pone el diodo de protección.</p><div class="uno"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Curso MikroC PRO for PIC, lección 5: tonos y melodías con un parlante" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Darlington para saturar</h3><a class="min" href="https://youtu.be/BB-nJwQNLgI?t=563" target="_blank" rel="noopener">&#9654; 9:23</a></div><p>Si el transistor no se satura bien con una carga de baja impedancia, se usa un <b>Darlington</b>: el emisor del primero va a la base del segundo y los colectores se unen. La ganancia total es el producto de las dos (100 × 100 = 10.000). También se puede usar uno que ya venga armado, como el TIP122 o el TIP127.</p><div class="uno"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Curso MikroC PRO for PIC, lección 5: tonos y melodías con un parlante" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=BB-nJwQNLgI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

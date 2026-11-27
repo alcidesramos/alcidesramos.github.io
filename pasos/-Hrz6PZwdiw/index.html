@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo instalar las librerías de periféricos de XC16, configurar los bits y el PLL, y enviar &quot;Hola mundo&quot; por la UART en tres dsPIC: 30F4013, 33FJ128MC802 con remapeo de pines y 33EP512MU810 a 140 MHz.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/-Hrz6PZwdiw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART · Paso a paso">
+  <meta property="og:description" content="Cómo instalar las librerías de periféricos de XC16, configurar los bits y el PLL, y enviar &quot;Hola mundo&quot; por la UART en tres dsPIC: 30F4013, 33FJ128MC802 con remapeo de pines y 33EP512MU810 a 140 MHz.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/-Hrz6PZwdiw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/-Hrz6PZwdiw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#dspic-xc16">&larr; Volver al curso</a>
+    <span class="etiqueta">// MPLAB XC16 para dsPIC · Paso a paso</span>
+    <h1>Introducción a los <span>dsPIC</span> con XC16</h1>
+    <p class="lead">Primera clase del curso de dsPIC con MPLAB X y el compilador XC16. Se instalan las librerías de periféricos (se descargan aparte) y se arma el mismo programa en tres micros: un LED que titila y un mensaje por el puerto serial. En el 30F4013 se usa un cristal de 8 MHz con PLL por 8; en el 33FJ128MC802 se calcula el PLL con N1, M y N2 y se remapea el pin TX con PPS; en el 33EP512MU810 se sube a 140 MHz. En cada caso se calcula el valor del registro de baudios con una hoja de Excel.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=-Hrz6PZwdiw" target="_blank" rel="noopener">&#9654; Ver el video completo (66:31)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/3590.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART"></figure>
+    <ul class="materiales"><li>MPLAB X IDE y compilador XC16</li><li>Librerías de periféricos PIC24/dsPIC (descarga aparte)</li><li>Tarjetas con dsPIC30F4013, dsPIC33FJ128MC802 y dsPIC33EP512MU810</li><li>Programador (en la clase se usó el de MikroElektronika)</li><li>Conversor USB a serial y una terminal (Hércules)</li><li>Hoja de Excel para calcular baudios</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Entorno</a><a href="#f2">2 · 30F4013</a><a href="#f3">3 · 33FJ</a><a href="#f4">4 · 33EP</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar el entorno</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Instalar las librerías de periféricos</h3><a class="min" href="https://youtu.be/-Hrz6PZwdiw?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>Las funciones como <code>OpenUART1</code> no vienen con XC16: hay que descargar las <b>PIC24/dsPIC Peripheral Libraries</b> desde la página de compiladores de Microchip e instalarlas en la carpeta del compilador.</p><p>Estas librerías ya no se actualizan, así que no traen soporte para los micros más nuevos; para esos toca manejar los registros directamente.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Crear el proyecto y generar los bits de configuración</h3><a class="min" href="https://youtu.be/-Hrz6PZwdiw?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>Se crea un proyecto para el 30F4013 con un archivo <code>main.c</code> que incluye <code>xc.h</code>. En <b>Window &gt; Target Memory Views &gt; Configuration Bits</b> se escoge el oscilador (cristal con PLL), se apaga el watchdog y se pulsa <b>Generate Source Code to Output</b> para pegar los <code>#pragma config</code> en el programa.</p><p class="ojo">Si el watchdog queda encendido el micro se reinicia solo y parece que el programa no funciona.</p><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>dsPIC30F4013</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Velocidad del micro y Fcy</h3><a class="min" href="https://youtu.be/-Hrz6PZwdiw?t=900" target="_blank" rel="noopener">&#9654; 15:00</a></div><p>Con un cristal de 8 MHz y PLL por 8 el oscilador queda en 64 MHz. En los 30F cada instrucción toma 4 ciclos, así que la velocidad efectiva es 16 MHz. Ese valor se define como <code>FCY</code> antes de incluir <code>libpic30.h</code> para que funcionen los retardos.</p><p>Se agregan también <code>stdio.h</code>, <code>stdlib.h</code>, <code>string.h</code> y <code>uart.h</code>, y se configuran los pines del puerto serial (TX salida, RX entrada) y los pines como digitales con <code>ADPCFG = 0xFFFF</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define FCY 16000000UL
+#include &lt;xc.h&gt;
+#include &lt;libpic30.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;uart.h&gt;
+
+unsigned int config1, config2;</code></pre></div><div class="uno"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar la UART con OpenUART1</h3><a class="min" href="https://youtu.be/-Hrz6PZwdiw?t=1330" target="_blank" rel="noopener">&#9654; 22:10</a></div><p><code>OpenUART1(config1, config2, ubrg)</code> recibe dos palabras de configuración armadas con las constantes de la librería unidas con <code>&amp;</code>, y el valor del registro de baudios. La ayuda de cada función está en la documentación que se instala con las librerías.</p><p>El valor de baudios sale de <b>BRG = Fcy / (16 × baudios) − 1</b>: a 16 MHz y 9600 baudios da 103.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>config1 = UART_EN &amp; UART_IDLE_CON &amp; UART_DIS_WAKE &amp; UART_DIS_LOOPBACK &amp;
+          UART_EN_ABAUD &amp; UART_NO_PAR_8BIT &amp; UART_1STOPBIT;
+config2 = UART_INT_TX &amp; UART_TX_PIN_NORMAL &amp; UART_TX_ENABLE &amp;
+          UART_INT_RX_CHAR &amp; UART_ADR_DETECT_DIS &amp; UART_RX_OVERRUN_CLEAR;
+OpenUART1(config1, config2, 103);   // 9600 baudios a 16 MHz</code></pre></div><div class="dos"><figure class="cap"><a href="img/1330.webp" target="_blank"><img src="img/1330.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure><figure class="cap"><a href="img/1450.webp" target="_blank"><img src="img/1450.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Programar y probar</h3><a class="min" href="https://youtu.be/-Hrz6PZwdiw?t=1680" target="_blank" rel="noopener">&#9654; 28:00</a></div><p>En el ciclo infinito se invierte un LED, se envía el texto con <code>putsUART1</code> y se espera con <code>__delay_ms</code>. El programador ICD3 falló en la clase, así que se cargó el .hex con el programador de MikroElektronika, y el mensaje se vio en Hércules.</p><div class="uno"><figure class="cap"><a href="img/1680.webp" target="_blank"><img src="img/1680.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>dsPIC33FJ128MC802</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Bits de configuración y PLL</h3><a class="min" href="https://youtu.be/-Hrz6PZwdiw?t=1930" target="_blank" rel="noopener">&#9654; 32:10</a></div><p>Se arranca con el oscilador interno FRC y se pide que cambie solo al oscilador escogido con PLL. Luego, en el programa, se fija el PLL con la fórmula <b>Fosc = Fin × M / (N1 × N2)</b>: con <code>PLLPRE = 0</code> (N1 = 2), <code>PLLPOST = 0</code> (N2 = 2) y <code>PLLFBD = 38</code> (M = 40) se llega a 80 MHz, o sea 40 MHz efectivos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>CLKDIVbits.PLLPRE = 0;   // N1 = 2
+CLKDIVbits.PLLPOST = 0;  // N2 = 2
+PLLFBD = 38;             // M = 40 (siempre el deseado menos 2)
+AD1PCFGL = 0xFFFF;       // pines digitales</code></pre></div><p class="ojo">En los 33F el valor que se escribe en PLLFBD es M menos 2.</p><div class="dos"><figure class="cap"><a href="img/1930.webp" target="_blank"><img src="img/1930.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure><figure class="cap"><a href="img/2224.webp" target="_blank"><img src="img/2224.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Remapear el pin TX con PPS</h3><a class="min" href="https://youtu.be/-Hrz6PZwdiw?t=2590" target="_blank" rel="noopener">&#9654; 43:10</a></div><p>Este micro tiene pines remapeables: hay que desbloquear el PPS, asignar la salida U1TX al pin RP14 y volver a bloquear. Se usan las macros de la librería <code>pps.h</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PPSUnLock;
+PPSOutput(OUT_FN_PPS_U1TX, OUT_PIN_PPS_RP14);
+PPSLock;</code></pre></div><div class="uno"><figure class="cap"><a href="img/2590.webp" target="_blank"><img src="img/2590.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Calcular los baudios con Excel</h3><a class="min" href="https://youtu.be/-Hrz6PZwdiw?t=2760" target="_blank" rel="noopener">&#9654; 46:00</a></div><p>La documentación de la librería muestra un ejemplo de configuración de la UART que se puede copiar. Para el valor de baudios se usa una hoja de Excel: con 40 MHz efectivos y 9600 baudios, dividiendo entre 16 da 259; con la opción de alta velocidad (división entre 4) da unos 1040.</p><div class="dos"><figure class="cap"><a href="img/2760.webp" target="_blank"><img src="img/2760.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure><figure class="cap"><a href="img/3076.webp" target="_blank"><img src="img/3076.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Programar el 33FJ</h3><a class="min" href="https://youtu.be/-Hrz6PZwdiw?t=3281" target="_blank" rel="noopener">&#9654; 54:41</a></div><p>Se carga el .hex con el programador y se verifica el mensaje en la terminal.</p><div class="uno"><figure class="cap"><a href="img/3281.webp" target="_blank"><img src="img/3281.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>dsPIC33EP512MU810</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>PLL a 140 MHz</h3><a class="min" href="https://youtu.be/-Hrz6PZwdiw?t=3590" target="_blank" rel="noopener">&#9654; 59:50</a></div><p>Se repite el proyecto para el 33EP. Con N1 = 2, N2 = 2 y <code>PLLFBD = 68</code> el oscilador llega a 140 MHz y la velocidad efectiva es 70 MHz. Todos los puertos se ponen digitales con los registros <code>ANSELx = 0</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>CLKDIVbits.PLLPRE = 0;
+CLKDIVbits.PLLPOST = 0;
+PLLFBD = 68;   // 140 MHz, 70 MHz efectivos
+ANSELA = 0x00; ANSELB = 0x00; ANSELC = 0x00;</code></pre></div><div class="uno"><figure class="cap"><a href="img/3590.webp" target="_blank"><img src="img/3590.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>UART y prueba final</h3><a class="min" href="https://youtu.be/-Hrz6PZwdiw?t=3730" target="_blank" rel="noopener">&#9654; 62:10</a></div><p>Se remapea el TX igual que en el 33F, se arma la configuración de la UART y se calcula el valor de baudios: a 70 MHz y 9600 baudios, dividiendo entre 16, da 455. El mensaje llega a Hércules desde la tarjeta.</p><div class="dos"><figure class="cap"><a href="img/3730.webp" target="_blank"><img src="img/3730.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure><figure class="cap"><a href="img/3930.webp" target="_blank"><img src="img/3930.webp" alt="Curso MPLAB XC16, clase 1: introducción a los dsPIC 30F, 33F y 33EP con UART" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=-Hrz6PZwdiw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

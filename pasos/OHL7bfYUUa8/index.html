@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 6: operadores lógicos en C (NOT, AND, OR y XOR) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo usar los operadores de bits de C (~, &amp;, | y ^) con una máscara para encender, apagar o invertir solo los pines que interesan de un puerto, sin tocar los demás, en un PIC16F877A.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/OHL7bfYUUa8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 6: operadores lógicos en C (NOT, AND, OR y XOR) · Paso a paso">
+  <meta property="og:description" content="Cómo usar los operadores de bits de C (~, &amp;, | y ^) con una máscara para encender, apagar o invertir solo los pines que interesan de un puerto, sin tocar los demás, en un PIC16F877A.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/OHL7bfYUUa8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/OHL7bfYUUa8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Operadores <span>lógicos</span> en C</h1>
+    <p class="lead">Sexta lección del curso. Se repasan las tablas de verdad de NOT, AND, OR y XOR y cómo se escriben en C. Con ocho LEDs en el puerto B (dos de ellos, en RB3 y RB6, como "infiltrados") se muestra cómo NOT invierte todo el puerto, OR enciende solo los bits elegidos, AND apaga solo los elegidos y XOR los cambia de estado, todo con una sola instrucción y una máscara.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=OHL7bfYUUa8" target="_blank" rel="noopener">&#9654; Ver el video completo (18:26)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1070.webp" alt="Curso MikroC PRO for PIC, lección 6: operadores lógicos en C (NOT, AND, OR y XOR)"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con un PIC16F877A y 8 LEDs en el puerto B (o la tarjeta real)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Operadores</a><a href="#f2">2 · Máscaras</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Los operadores</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Tablas de verdad y símbolos en C</h3><a class="min" href="https://youtu.be/OHL7bfYUUa8?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>NOT se escribe <code>~</code> y actúa sobre un solo operando: invierte cada bit. AND (<code>&amp;</code>) da 1 solo si los dos son 1; OR (<code>|</code>) da 1 si alguno es 1; XOR (<code>^</code>) da 1 cuando los dos son diferentes.</p><div class="uno"><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="Curso MikroC PRO for PIC, lección 6: operadores lógicos en C (NOT, AND, OR y XOR)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El circuito y el proyecto</h3><a class="min" href="https://youtu.be/OHL7bfYUUa8?t=67" target="_blank" rel="noopener">&#9654; 1:07</a></div><p>Se usan ocho LEDs en el puerto B. Los de RB3 y RB6 son de otro color: son los "infiltrados" que no se deben alterar. Se crea el proyecto <b>operadores</b> en la carpeta <i>clase6</i>, con el PIC16F877A a 4 MHz (oscilador XT), y se definen nombres para esos dos LEDs.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define led1 RB3_bit
+#define led2 RB6_bit</code></pre></div><div class="uno"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Curso MikroC PRO for PIC, lección 6: operadores lógicos en C (NOT, AND, OR y XOR)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Dónde encontrar los símbolos</h3><a class="min" href="https://youtu.be/OHL7bfYUUa8?t=348" target="_blank" rel="noopener">&#9654; 5:48</a></div><p>Algunos símbolos, como <code>~</code> o <code>^</code>, no son fáciles de escribir en todos los teclados. En la ayuda de MikroC (F1 &gt; índice) aparece la tabla de <b>Bitwise Operators</b>, de donde se pueden copiar.</p><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Curso MikroC PRO for PIC, lección 6: operadores lógicos en C (NOT, AND, OR y XOR)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Actuar solo sobre lo que interesa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>NOT: invertir todo el puerto</h3><a class="min" href="https://youtu.be/OHL7bfYUUa8?t=283" target="_blank" rel="noopener">&#9654; 4:43</a></div><p>Para hacer titilar todos los LEDs ya no hace falta escribir dos valores: basta negar el puerto. El código ocupa menos memoria.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  PORTB = ~PORTB;
+  Delay_ms(300);
+}</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>OR: encender sin alterar lo demás</h3><a class="min" href="https://youtu.be/OHL7bfYUUa8?t=553" target="_blank" rel="noopener">&#9654; 9:13</a></div><p>La idea se explica con las luces de una casa: con OR, la máscara lleva 0 en todo, menos en lo que se quiere encender. Lo que ya estaba encendido sigue igual y lo que estaba apagado y no se toca sigue apagado.</p><p>Para encender RB0, RB2 y RB7 con una sola instrucción:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TRISB = 0;
+PORTB = 0;
+led1 = 1;   // RB3 encendido
+led2 = 0;   // RB6 apagado
+PORTB = PORTB | 0b10000101;   // enciende RB0, RB2 y RB7</code></pre></div><p class="ojo">Esto sirve cuando en el mismo puerto hay otras cosas conectadas (un parlante, un LED) que no se deben tocar.</p><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Curso MikroC PRO for PIC, lección 6: operadores lógicos en C (NOT, AND, OR y XOR)" loading="lazy"></a></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Curso MikroC PRO for PIC, lección 6: operadores lógicos en C (NOT, AND, OR y XOR)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>AND: apagar sin alterar lo demás</h3><a class="min" href="https://youtu.be/OHL7bfYUUa8?t=788" target="_blank" rel="noopener">&#9654; 13:08</a></div><p>Con AND es al revés: la máscara lleva 1 en todo, menos en lo que se quiere apagar. Para apagar los LEDs de las esquinas (RB0 y RB7) después de encender todos:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PORTB = 0xFF;
+Delay_ms(3000);
+PORTB = PORTB &amp; 0b01111110;   // apaga RB0 y RB7</code></pre></div><div class="dos"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Curso MikroC PRO for PIC, lección 6: operadores lógicos en C (NOT, AND, OR y XOR)" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Curso MikroC PRO for PIC, lección 6: operadores lógicos en C (NOT, AND, OR y XOR)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>XOR: cambiar de estado solo algunos bits</h3><a class="min" href="https://youtu.be/OHL7bfYUUa8?t=956" target="_blank" rel="noopener">&#9654; 15:56</a></div><p>Con XOR la máscara lleva 0 en todo, menos en lo que se quiere invertir. Para hacer titilar todos los LEDs menos los dos infiltrados (RB3 y RB6):</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  PORTB = PORTB ^ 0b10110111;   // invierte todo menos RB3 y RB6
+  Delay_ms(300);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1070.webp" target="_blank"><img src="img/1070.webp" alt="Curso MikroC PRO for PIC, lección 6: operadores lógicos en C (NOT, AND, OR y XOR)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Resumen</h3><a class="min" href="https://youtu.be/OHL7bfYUUa8?t=1058" target="_blank" rel="noopener">&#9654; 17:38</a></div><p>NOT invierte todo; XOR invierte solo lo que interesa; OR enciende solo lo que interesa y AND apaga solo lo que interesa. Estos operadores se usan mucho más adelante para manejar o comparar bits específicos.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=OHL7bfYUUa8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
