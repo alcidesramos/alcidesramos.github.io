@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Mostrar un contador entero y uno decimal en el LCD alfanumérico con sprintf (ancho, ceros a la izquierda, decimales y texto fijo), las librerías de C que hay que incluir, cómo activar los flotantes en el proyecto CMake (software para Proteus, hardware en la tarjeta) y un repaso de I2C y SPI.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/3ISAWOprK9M/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32 · Paso a paso">
+  <meta property="og:description" content="Mostrar un contador entero y uno decimal en el LCD alfanumérico con sprintf (ancho, ceros a la izquierda, decimales y texto fijo), las librerías de C que hay que incluir, cómo activar los flotantes en el proyecto CMake (software para Proteus, hardware en la tarjeta) y un repaso de I2C y SPI.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/3ISAWOprK9M/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/3ISAWOprK9M/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>sprintf en el LCD y <span>números flotantes</span> en VS Code</h1>
+    <p class="lead">Clase virtual sobre el proyecto del LCD de la clase anterior. Un LCD solo recibe caracteres, así que para mostrar una variable hay que convertirla a cadena con <code>sprintf</code>. Se arma un contador de 0 a 10 y se corrige el problema del dígito que queda pegado dándole ancho al formato; luego se agrega un contador decimal de 0,5 en 0,5. Para que <code>%f</code> funcione hay que habilitar el uso de flotantes en el proyecto con el generador de CMake, eligiendo FPU por software para simular en Proteus. Al final se repasan los protocolos I2C (dos hilos, direcciones de 7 bits, pull-up, velocidades) y SPI (MOSI, MISO, SCK y CS) para que cada grupo sepa explicar los sensores de su proyecto.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=3ISAWOprK9M" target="_blank" rel="noopener">&#9654; Ver el video completo (67:11)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2190.webp" alt="Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32"></figure>
+    <ul class="materiales"><li>Proyecto del LCD alfanumérico de la clase anterior</li><li>VS Code con la extensión de STM32</li><li>Generador de CMake (botón o script de Python)</li><li>Proteus con la Black Pill</li><li>Tabla de formatos de sprintf</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Contador</a><a href="#f2">2 · Flotantes</a><a href="#f3">3 · I2C y SPI</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Mostrar un contador en el LCD</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Crear la variable</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=437" target="_blank" rel="noopener">&#9654; 7:17</a></div><p>Un contador es una variable. Como solo cuenta de 0 a 10, basta un entero sin signo de 8 bits. Se declara en <code>main.c</code> en la zona de variables, inicializada en cero. Deja como comentario lo que había en el while para probar solo esto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint8_t contador = 0;</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El LCD no escribe números</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=1332" target="_blank" rel="noopener">&#9654; 22:12</a></div><p>Si pones <code>Lcd_Text(2, 3, contador);</code> el compilador da error. Al display se le mandan caracteres ASCII, no números; eso de escribir una variable y que salga es cosa de Arduino. En C hay que convertir la variable a cadena con <b>sprintf</b>.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>sprintf y su arreglo de texto</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=1470" target="_blank" rel="noopener">&#9654; 24:30</a></div><p>El primer parámetro de <code>sprintf</code> es un arreglo de <code>char</code> donde se guarda la cadena; debe ser del tamaño del display o mayor (16 o 20). Luego va el formato entre comillas y después la variable.</p><p>La IA propone <code>%d</code> (entero con signo), pero el contador nunca es negativo, así que lo correcto es <code>%u</code> (entero sin signo).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char texto[20];
+...
+sprintf(texto, &quot;%u&quot;, contador);
+Lcd_Text(2, 3, texto);</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Incluir las librerías de C</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=1678" target="_blank" rel="noopener">&#9654; 27:58</a></div><p>Para usar <code>sprintf</code> hay que incluir librerías estándar de C (no hay que copiar archivos, ya vienen con el compilador). Conviene dejar siempre estas cinco en los includes de usuario:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN Includes */
+#include &quot;stdio.h&quot;
+#include &quot;string.h&quot;
+
+#include &quot;stdint.h&quot;
+#include &quot;stdlib.h&quot;
+#include &quot;math.h&quot;
+/* USER CODE END Includes */</code></pre></div><p class="ojo"><code>stdbool.h</code> solo hace falta si vas a usar true y false.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Incrementar y reiniciar</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=1998" target="_blank" rel="noopener">&#9654; 33:18</a></div><p>Incrementa el contador, compáralo con el límite y vuelve a cero. Agrega un retardo para que se vea el conteo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;%u&quot;, contador);
+Lcd_Text(2, 3, texto);
+contador++;
+if (contador &gt; 10) contador = 0;
+HAL_Delay(500);</code></pre></div><div class="uno"><figure class="cap"><a href="img/2190.webp" target="_blank"><img src="img/2190.webp" alt="Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.6</span><h3>Dar formato: ancho, ceros y texto</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=2216" target="_blank" rel="noopener">&#9654; 36:56</a></div><p>Al pasar de 10 a 0 queda pegado el 0 del 10, porque el display no se borra. Se arregla con el formato:</p><ul><li><code>%2u</code>: ocupa siempre 2 casillas y borra lo anterior.</li><li><code>%02u</code>: rellena con ceros a la izquierda (00, 01, 02...).</li><li>Texto antes y después: <code>"con=%02u V"</code> escribe el texto tal cual y pone el número donde está el %.</li></ul><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;con=%02u V&quot;, contador);</code></pre></div><div class="dos"><figure class="cap"><a href="img/2280.webp" target="_blank"><img src="img/2280.webp" alt="Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/2440.webp" target="_blank"><img src="img/2440.webp" alt="Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Contador con decimales</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variable float y formato %f</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=2532" target="_blank" rel="noopener">&#9654; 42:12</a></div><p>Para contar de 0,5 en 0,5 hasta 5,5 se usa una variable <code>float</code>. En el formato, <code>%3.1f</code> quiere decir 3 casillas en total (el 5, el punto y el 5) y 1 decimal. Con dos decimales serían 4 casillas: <code>%4.2f</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float contf = 0.5;
+...
+sprintf(texto, &quot;conf=%3.1f&quot;, contf);
+Lcd_Text(4, 1, texto);
+contf += 0.5;
+if (contf &gt; 5.5) contf = 0;</code></pre></div><p class="ojo">La IA puso un ancho de 2 para un número de 3 caracteres. Revisa siempre lo que sugiere.</p><div class="uno"><figure class="cap"><a href="img/2700.webp" target="_blank"><img src="img/2700.webp" alt="Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Habilitar los flotantes en el proyecto</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=2935" target="_blank" rel="noopener">&#9654; 48:55</a></div><p>Por defecto el proyecto no imprime flotantes con sprintf (para ahorrar memoria) y en el LCD sale vacío o en cero. Hay que activarlo en CMake. El botón del generador de CMake (o el script de Python si no lo tienes instalado) trae las opciones: incluir la ruta de las librerías, <b>usar librerías float para sprintf</b>, generar .hex y .bin, optimización de Release y el modo FPU.</p><div class="dos"><figure class="cap"><a href="img/2930.webp" target="_blank"><img src="img/2930.webp" alt="Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/3090.webp" target="_blank"><img src="img/3090.webp" alt="Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>FPU por software para Proteus</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=3110" target="_blank" rel="noopener">&#9654; 51:50</a></div><p>La Black Pill calcula flotantes por hardware (FPU), que es más rápido, pero Proteus no lo simula. Para simular elige el modo FPU <b>software</b>; en la tarjeta real usa <b>hardware</b>. Pulsa Aceptar / Generar, compila y carga de nuevo el programa en Proteus.</p><div class="uno"><figure class="cap"><a href="img/3200.webp" target="_blank"><img src="img/3200.webp" alt="Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Repaso de I2C y SPI</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>I2C</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=3301" target="_blank" rel="noopener">&#9654; 55:01</a></div><ul><li>Bus de dos hilos: <b>SDA</b> (datos) y <b>SCL</b> (reloj).</li><li>Cada dispositivo tiene una dirección de 7 bits: hasta 128 en el mismo bus, si los cables no son muy largos.</li><li>Necesita resistencias pull-up a positivo en SDA y SCL, entre 2,2 kΩ y 10 kΩ; lo ideal 4,7 kΩ. Ojo: si varios módulos ya las traen, quedan en paralelo.</li><li>Velocidades: estándar 100 kbit/s, fast 400 kbit/s y algunos micros 1 Mbit/s.</li><li>Varios dispositivos pueden ir en el mismo puerto I2C si no repiten dirección. En Proteus la dirección del LCD I2C se ve en sus propiedades.</li></ul><div class="dos"><figure class="cap"><a href="img/3430.webp" target="_blank"><img src="img/3430.webp" alt="Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/3520.webp" target="_blank"><img src="img/3520.webp" alt="Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Otros displays</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=3576" target="_blank" rel="noopener">&#9654; 59:36</a></div><p>Los <b>OLED</b> pequeños también son I2C (de uno o dos colores fijos por zona). Los <b>TFT</b> son como pantallas de celular: muestran fotos y colores, pero gastan mucha más memoria y suelen usar SPI. Cada grupo debe investigar el display que use en su proyecto.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>SPI</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=3655" target="_blank" rel="noopener">&#9654; 60:55</a></div><p>SPI usa <b>MOSI</b> (salida del maestro, entrada del esclavo), <b>MISO</b> (entrada del maestro, salida del esclavo) y <b>SCK</b> (reloj), más un pin de habilitación (CS) por cada esclavo, que se configura como salida GPIO. Tiene más cables que I2C pero es mucho más rápido: con el micro a 84 MHz el SPI puede ir a 42 MHz. Por eso se usa en pantallas y memorias.</p><div class="uno"><figure class="cap"><a href="img/3770.webp" target="_blank"><img src="img/3770.webp" alt="Clase en vivo 2026-II: sprintf para mostrar variables en el LCD y números flotantes en VS Code con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Para la próxima</h3><a class="min" href="https://youtu.be/3ISAWOprK9M?t=3888" target="_blank" rel="noopener">&#9654; 64:48</a></div><p>Investigar el ADC (bits, resolución, frecuencia de muestreo y el teorema de Nyquist) y el protocolo UART. Para cada sensor del proyecto hay que saber si es digital, analógico, I2C, UART o SPI y a qué velocidad trabaja.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=3ISAWOprK9M" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
