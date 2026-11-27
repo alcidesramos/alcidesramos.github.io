@@ -1313,6 +1313,16 @@ const CURSOS = {
 "c": []
 },
 {
+"id": "OsotzjCUYx0",
+"n": 111,
+"t": "Mis librerías para el sensor de temperatura sin contacto MLX90614",
+"d": "Muestra como leer la temperatura ambiente y de un objeto con el sensor MLX90614.",
+"c": [
+"https://github.com/alcidesramos/MLX90614_Canal"
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/MLX90614/MLX90614_Canal.rar"
+},
+{
 "id": "vybuO7JDNUk",
 "n": 112,
 "t": "Conceptos basicos fuente conmutada con STM32 lazo abierto",
@@ -1432,6 +1442,16 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/TFT_ILI9225",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-tft-ili9225"
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/TFT_ILI9225/TFT_CANAL.rar"
+},
+{
+"id": "Mz0SSHoLrv0",
+"n": 122,
+"t": "Pantalla TFT ILI9225, mostrar imágenes",
+"d": "Muestra como mostrar imágenes usando mis librerías para ILI9225.",
+"c": [
+"https://github.com/alcidesramos/TFT_ILI9225"
 ],
 "a": "https://github.com/alcidesramos/archivos-youtube/raw/main/TFT_ILI9225/TFT_CANAL.rar"
 },
