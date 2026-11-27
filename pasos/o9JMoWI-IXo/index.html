@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Qué tipos de variables tiene MikroC (bit, sbit, char, int, long, float), cuánta memoria ocupa cada uno, cómo declarar variables y vectores, y por qué usar const para guardar tablas en la ROM y ahorrar RAM.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/o9JMoWI-IXo/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes · Paso a paso">
+  <meta property="og:description" content="Qué tipos de variables tiene MikroC (bit, sbit, char, int, long, float), cuánta memoria ocupa cada uno, cómo declarar variables y vectores, y por qué usar const para guardar tablas en la ROM y ahorrar RAM.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/o9JMoWI-IXo/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/o9JMoWI-IXo/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Tipos de <span>variables</span> en C</h1>
+    <p class="lead">Décima lección del curso. Con la tabla de la ayuda de MikroC se repasan los tipos de variables, su tamaño y su rango, y con ejemplos cotidianos se muestra cómo escoger el tipo justo para no gastar memoria ni tiempo de cálculo. Luego se declara una variable contador que alterna dos procedimientos, un vector con un juego de luces que se recorre con el contador, y al final se convierte el vector en constante para pasarlo de la RAM a la ROM, comprobándolo en las estadísticas de MikroC.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=o9JMoWI-IXo" target="_blank" rel="noopener">&#9654; Ver el video completo (31:42)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1570.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con un PIC16F877A, LEDs en el puerto B y un display de 7 segmentos en el puerto D</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Tipos</a><a href="#f2">2 · Variables</a><a href="#f3">3 · Vectores</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Los tipos de variables</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La tabla en la ayuda</h3><a class="min" href="https://youtu.be/o9JMoWI-IXo?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Un microcontrolador tiene muy poca memoria, así que hay que escoger bien cada variable. En la ayuda de MikroC, buscando <i>arithmetic types</i>, está la tabla con los tipos, su tamaño y su rango.</p><div class="uno"><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>bit y sbit</h3><a class="min" href="https://youtu.be/o9JMoWI-IXo?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p><code>bit</code> ocupa un solo bit (0 o 1) y sirve como bandera. <code>sbit</code> también vale 0 o 1, pero está asociado a un pin del micro. Los dos son propios de MikroC, no del C estándar.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>char: un byte</h3><a class="min" href="https://youtu.be/o9JMoWI-IXo?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p><code>unsigned char</code> ocupa un byte y va de 0 a 255; sirve, por ejemplo, para contar alumnos de un salón. <code>signed char</code> usa un bit para el signo y va de −128 a 127, por ejemplo para una temperatura entera.</p><p>Se recomienda usar <code>char</code> en vez de <code>short</code>: en Arduino un unsigned short ocupa 2 bytes, y al pasar código de un compilador a otro puede dar problemas.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>int y long</h3><a class="min" href="https://youtu.be/o9JMoWI-IXo?t=333" target="_blank" rel="noopener">&#9654; 5:33</a></div><p><code>unsigned int</code> ocupa 2 bytes (0 a 65.535) y <code>int</code> va de −32.768 a 32.767. <code>unsigned long</code> ocupa 4 bytes (hasta unos 4.294 millones) y <code>long</code> va de unos −2.147 a 2.147 millones.</p><p>Usar un tipo más grande del necesario no solo gasta memoria: las multiplicaciones y divisiones también son más lentas.</p><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>float y double</h3><a class="min" href="https://youtu.be/o9JMoWI-IXo?t=531" target="_blank" rel="noopener">&#9654; 8:51</a></div><p>Para números con decimales, como una nota, se usa <code>float</code>, de 4 bytes. Las operaciones con float son mucho más lentas que con enteros, así que solo se usa cuando hace falta. En estos micros de 8 bits, <code>double</code> es igual que float.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Declarar y usar variables</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Cómo se declaran</h3><a class="min" href="https://youtu.be/o9JMoWI-IXo?t=628" target="_blank" rel="noopener">&#9654; 10:28</a></div><p>Se escribe el tipo, el nombre y punto y coma, o el tipo, el nombre y un valor inicial. Las variables <b>globales</b> sirven en cualquier parte del programa y se recomienda declararlas al inicio, antes de los procedimientos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char contador;
+unsigned int transporte = 15000;
+unsigned long rumba;
+float nota = 2.4;</code></pre></div><div class="uno"><figure class="cap"><a href="img/750.webp" target="_blank"><img src="img/750.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Programa con un contador</h3><a class="min" href="https://youtu.be/o9JMoWI-IXo?t=869" target="_blank" rel="noopener">&#9654; 14:29</a></div><p>Se crea el proyecto <b>variables</b> en la carpeta <i>clase 10</i> (PIC16F877A a 4 MHz, XT) y se copian los procedimientos <code>hola()</code> y <code>baja()</code>. Una variable <code>contador</code> hace que se muestre la cuenta regresiva varias veces y luego HOLA, y vuelve a empezar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define display PORTD
+char contador = 0;   // variable con valor inicial
+
+while (1) {
+  if (contador &gt;= 3) hola();
+  else baja();
+  if (contador &gt;= 5) contador = 0;   // reinicia el conteo
+  contador = contador + 1;           // o contador++;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Vectores y constantes</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Declarar un vector</h3><a class="min" href="https://youtu.be/o9JMoWI-IXo?t=1254" target="_blank" rel="noopener">&#9654; 20:54</a></div><p>Un vector (arreglo) se declara con el tamaño entre corchetes y sus posiciones empiezan en 0. Se le pueden dar valores iniciales entre llaves, en decimal, binario o hexadecimal; si se dan los valores, el tamaño se puede omitir porque el compilador lo cuenta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char luces[3];
+luces[0] = 5;
+char efecto[] = {0, 0b00000001, 0x0F};</code></pre></div><p class="ojo">Si el tamaño es menor que la cantidad de valores, el compilador da el error "Too many initializers".</p><div class="dos"><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure><figure class="cap"><a href="img/1460.webp" target="_blank"><img src="img/1460.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Juego de luces con un vector</h3><a class="min" href="https://youtu.be/o9JMoWI-IXo?t=1418" target="_blank" rel="noopener">&#9654; 23:38</a></div><p>Se guarda cada paso del juego de luces en un vector y se recorre con el contador. Para cambiar el efecto solo se cambian los valores y el límite.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char luces[] = {0, 0b00000001, 0b00000010, 0b00000100,
+                0b00001000, 16, 32, 64, 128};
+
+while (1) {
+  PORTB = luces[contador];
+  Delay_ms(200);
+  contador++;
+  if (contador &gt; 8) contador = 0;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1570.webp" target="_blank"><img src="img/1570.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure><figure class="cap"><a href="img/1660.webp" target="_blank"><img src="img/1660.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>const para ahorrar RAM</h3><a class="min" href="https://youtu.be/o9JMoWI-IXo?t=1692" target="_blank" rel="noopener">&#9654; 28:12</a></div><p>Los datos que nunca cambian conviene declararlos con <code>const</code>: así se guardan en la ROM (unas 8.000 palabras en este micro) y no en la RAM (solo unos 350 bytes). Una constante siempre debe tener valor y no se puede cambiar durante el programa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const char luces[] = {0, 0b00000001, 0b00000010, 0b00000100,
+                      0b00001000, 16, 32, 64, 128};</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Comprobar con las estadísticas</h3><a class="min" href="https://youtu.be/o9JMoWI-IXo?t=1791" target="_blank" rel="noopener">&#9654; 29:51</a></div><p>En el botón de <b>Statistics</b> de MikroC se ve el uso de memoria: sin <code>const</code> la RAM usada era 12; con <code>const</code> bajó a 3, mientras la ROM subió un poco.</p><div class="dos"><figure class="cap"><a href="img/1830.webp" target="_blank"><img src="img/1830.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure><figure class="cap"><a href="img/1850.webp" target="_blank"><img src="img/1850.webp" alt="Curso MikroC PRO for PIC, lección 10: tipos de variables, vectores y constantes" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=o9JMoWI-IXo" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

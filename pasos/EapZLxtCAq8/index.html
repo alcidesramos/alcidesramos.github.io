@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 7: procedimientos (funciones void) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo crear procedimientos (void nombre()) en MikroC para organizar el código y ahorrar memoria: un &quot;HOLA&quot; en el display, melodías, una cuenta regresiva y juegos de luces, y cómo declararlos cuando van debajo del main.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/EapZLxtCAq8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 7: procedimientos (funciones void) · Paso a paso">
+  <meta property="og:description" content="Cómo crear procedimientos (void nombre()) en MikroC para organizar el código y ahorrar memoria: un &quot;HOLA&quot; en el display, melodías, una cuenta regresiva y juegos de luces, y cómo declararlos cuando van debajo del main.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/EapZLxtCAq8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/EapZLxtCAq8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Procedimientos en <span>C</span></h1>
+    <p class="lead">Séptima lección del curso. Con un PIC16F877A, LEDs en el puerto B, un display de 7 segmentos en el puerto D y un parlante, se crean procedimientos sin parámetros: uno que escribe HOLA en el display, dos melodías, una cuenta regresiva y un efecto de luces. Se muestra que un procedimiento no hace nada si no se llama, que llamarlo varias veces ahorra memoria frente a copiar el código, cómo usar el prototipo cuando el procedimiento está debajo del main y que un procedimiento puede llamar a otro solo si este ya fue declarado antes.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=EapZLxtCAq8" target="_blank" rel="noopener">&#9654; Ver el video completo (17:54)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/470.webp" alt="Curso MikroC PRO for PIC, lección 7: procedimientos (funciones void)"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con un PIC16F877A, 8 LEDs, un display de 7 segmentos de cátodo común y un parlante</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Procedimientos</a><a href="#f3">3 · Prototipos</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar el proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito y proyecto nuevo</h3><a class="min" href="https://youtu.be/EapZLxtCAq8?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El circuito de prueba tiene LEDs en el puerto B, un parlante para melodías y un display para letras y números en el puerto D. Se crea el proyecto <b>procedimientos</b> en la carpeta <i>clase 7</i>, con el PIC16F877A a 4 MHz (XT), y se ponen nombres a los puertos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define luces PORTB
+#define display PORTD</code></pre></div><div class="uno"><figure class="cap"><a href="img/130.webp" target="_blank"><img src="img/130.webp" alt="Curso MikroC PRO for PIC, lección 7: procedimientos (funciones void)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Librería de sonido</h3><a class="min" href="https://youtu.be/EapZLxtCAq8?t=168" target="_blank" rel="noopener">&#9654; 2:48</a></div><p>Se activa la librería <b>Sound</b> en el Library Manager, como en la lección anterior, y se indica el pin del parlante (RC6).</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Crear y llamar procedimientos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Escribir el procedimiento hola()</h3><a class="min" href="https://youtu.be/EapZLxtCAq8?t=203" target="_blank" rel="noopener">&#9654; 3:23</a></div><p>Un procedimiento se declara con <code>void</code>, un nombre y paréntesis vacíos (por ahora sin parámetros). Por ahora se escribe arriba del <code>main</code>. Los códigos de cada letra se sacan con el <b>Seven Segment Editor</b> de MikroC: H = 118, O = 63, L = 56, A = 119.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void hola() {
+  display = 118;  Delay_ms(300);   // H
+  display = 63;   Delay_ms(300);   // O
+  display = 56;   Delay_ms(300);   // L
+  display = 119;  Delay_ms(300);   // A
+  display = 0;    Delay_ms(300);   // apagado
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Curso MikroC PRO for PIC, lección 7: procedimientos (funciones void)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Si no se llama, no se ejecuta</h3><a class="min" href="https://youtu.be/EapZLxtCAq8?t=340" target="_blank" rel="noopener">&#9654; 5:40</a></div><p>El micro siempre empieza por el <code>main</code>. Si un procedimiento no se llama, no hace nada. Para llamarlo se escribe su nombre con paréntesis y punto y coma; con Ctrl + espacio MikroC lo muestra en la lista.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  hola();
+  hola();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Curso MikroC PRO for PIC, lección 7: procedimientos (funciones void)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Por qué usar procedimientos</h3><a class="min" href="https://youtu.be/EapZLxtCAq8?t=475" target="_blank" rel="noopener">&#9654; 7:55</a></div><p>Organizan el código con nombres que se entienden y ahorran memoria: si se llama tres veces, el micro va al mismo código y regresa, en vez de tener tres copias. Así se crean también <code>melodia1()</code> y <code>melodia2()</code> con <code>Sound_Play</code>.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Cuenta regresiva baja()</h3><a class="min" href="https://youtu.be/EapZLxtCAq8?t=507" target="_blank" rel="noopener">&#9654; 8:27</a></div><p>Se crea <code>baja()</code>, que muestra 5, 4, 3, 2, 1 y 0 en el display (109, 102, 79, 91, 6 y 63).</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Curso MikroC PRO for PIC, lección 7: procedimientos (funciones void)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Reemplazar solo en la selección</h3><a class="min" href="https://youtu.be/EapZLxtCAq8?t=678" target="_blank" rel="noopener">&#9654; 11:18</a></div><p>Para hacer más lenta la cuenta se seleccionan las líneas y con <b>Edit &gt; Replace</b> se cambia <code>Delay_ms(300)</code> por <code>Delay_ms(500)</code> marcando <b>Selected text only</b>, para no tocar el resto del programa.</p><div class="uno"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Curso MikroC PRO for PIC, lección 7: procedimientos (funciones void)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Efecto de luces</h3><a class="min" href="https://youtu.be/EapZLxtCAq8?t=775" target="_blank" rel="noopener">&#9654; 12:55</a></div><p>Se agrega <code>efecto1()</code>, que alterna los LEDs del puerto B, y se llama las veces que haga falta. En el <b>Code Explorer</b> aparecen todos los procedimientos y con doble clic se va a cada uno.</p><div class="uno"><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Curso MikroC PRO for PIC, lección 7: procedimientos (funciones void)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Procedimientos debajo del main</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Declarar el prototipo</h3><a class="min" href="https://youtu.be/EapZLxtCAq8?t=913" target="_blank" rel="noopener">&#9654; 15:13</a></div><p>Si el procedimiento se escribe debajo del <code>main</code>, el compilador da error de identificador no declarado. Hay que poner arriba su prototipo: la misma línea con punto y coma. No es un llamado, solo avisa que existe.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void melodia1();   // prototipo
+
+void main() {
+  ...
+  melodia1();
+}
+
+void melodia1() {
+  ...
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Curso MikroC PRO for PIC, lección 7: procedimientos (funciones void)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Un procedimiento que llama a otro</h3><a class="min" href="https://youtu.be/EapZLxtCAq8?t=1013" target="_blank" rel="noopener">&#9654; 16:53</a></div><p>Un procedimiento puede llamar a otro, por ejemplo <code>baja()</code> puede empezar llamando a <code>hola()</code>. El que se llama tiene que estar escrito o declarado más arriba en el código.</p><p class="ojo">Si se llama un procedimiento que está más abajo y sin prototipo, el compilador marca error.</p><div class="uno"><figure class="cap"><a href="img/1040.webp" target="_blank"><img src="img/1040.webp" alt="Curso MikroC PRO for PIC, lección 7: procedimientos (funciones void)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=EapZLxtCAq8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 9: el pin RA4 necesita pull-up en los PIC antiguos · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Por qué el pin RA4 del PIC16F877A no saca un 1 como salida si no tiene una resistencia pull-up externa, y cómo los PIC más nuevos como el 16F887 ya no tienen ese problema y se configuran como digitales con ANSEL y ANSELH.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/cVSoOqNwf8c/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 9: el pin RA4 necesita pull-up en los PIC antiguos · Paso a paso">
+  <meta property="og:description" content="Por qué el pin RA4 del PIC16F877A no saca un 1 como salida si no tiene una resistencia pull-up externa, y cómo los PIC más nuevos como el 16F887 ya no tienen ese problema y se configuran como digitales con ANSEL y ANSELH.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/cVSoOqNwf8c/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/cVSoOqNwf8c/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>El pin <span>RA4</span> y la pull-up en PIC antiguos</h1>
+    <p class="lead">Lección corta del curso. Se hace un juego de luces en todo el puerto A de un PIC16F877A y se ve que el LED de RA4 (que también es la entrada T0CKI del timer 0) no enciende: en este micro ese pin es de drenador abierto y necesita una pull-up externa. Luego se cambia al PIC16F887, un micro más moderno donde RA4 funciona normal, y se muestra que allí los pines se ponen digitales con ANSEL y ANSELH en vez de ADCON1.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=cVSoOqNwf8c" target="_blank" rel="noopener">&#9654; Ver el video completo (10:40)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/270.webp" alt="Curso MikroC PRO for PIC, lección 9: el pin RA4 necesita pull-up en los PIC antiguos"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con un PIC16F877A y un PIC16F887</li><li>LEDs con resistencias de 220 Ω</li><li>Resistencia de 1 kΩ a 10 kΩ para la pull-up de RA4</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · 16F877A</a><a href="#f2">2 · 16F887</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>PIC16F877A</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto nuevo</h3><a class="min" href="https://youtu.be/cVSoOqNwf8c?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>Se crea el proyecto <b>salidas_especial</b> (sin espacios en el nombre) en la carpeta <i>clase 9</i>, con el PIC16F877A a 4 MHz. En <b>Edit Project</b> se escoge el oscilador XT, se apaga el watchdog y se habilita el power-up timer.</p><div class="uno"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Curso MikroC PRO for PIC, lección 9: el pin RA4 necesita pull-up en los PIC antiguos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Poner el puerto A como digital</h3><a class="min" href="https://youtu.be/cVSoOqNwf8c?t=140" target="_blank" rel="noopener">&#9654; 2:20</a></div><p>El puerto A de este micro es analógico al arrancar. Mientras se llega al tema del conversor, basta con saber que esta línea deja todos los pines como digitales:</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void main() {
+  ADCON1 = 0b0111;       // todo digital
+  TRISA = 0b00000000;    // puerto A salida
+  while (1) {
+    PORTA = ~PORTA;
+    Delay_ms(200);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Curso MikroC PRO for PIC, lección 9: el pin RA4 necesita pull-up en los PIC antiguos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>RA4 no enciende</h3><a class="min" href="https://youtu.be/cVSoOqNwf8c?t=217" target="_blank" rel="noopener">&#9654; 3:37</a></div><p>Al simular, todos los LEDs titilan menos el de RA4. En este micro ese pin (también entrada T0CKI del timer 0) es de drenador abierto: solo puede llevar a 0 y para sacar un 1 necesita una resistencia pull-up al positivo.</p><p>En Proteus se agrega la resistencia y en sus propiedades se pone como <b>digital</b>; con eso el LED funciona.</p><p class="ojo">Si un circuito con PIC16F877A funciona en todos los pines menos RA4, revise que tenga la pull-up externa de unos 10 kΩ.</p><div class="dos"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Curso MikroC PRO for PIC, lección 9: el pin RA4 necesita pull-up en los PIC antiguos" loading="lazy"></a></figure><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Curso MikroC PRO for PIC, lección 9: el pin RA4 necesita pull-up en los PIC antiguos" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>PIC16F887</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Cambiar a un micro más moderno</h3><a class="min" href="https://youtu.be/cVSoOqNwf8c?t=317" target="_blank" rel="noopener">&#9654; 5:17</a></div><p>Se reemplaza el micro por un PIC16F887, que es compatible en pines y ya no tiene este problema. Además, con el oscilador interno, deja RA6 y RA7 libres como entradas y salidas.</p><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Curso MikroC PRO for PIC, lección 9: el pin RA4 necesita pull-up en los PIC antiguos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar el proyecto</h3><a class="min" href="https://youtu.be/cVSoOqNwf8c?t=425" target="_blank" rel="noopener">&#9654; 7:05</a></div><p>En el proyecto se cambia el micro a mano. El 16F887 tiene más opciones de oscilador, incluido el interno de 8 MHz, y el <b>Fail-Safe Clock Monitor</b>, que pasa al oscilador interno si el externo falla. Aquí se sigue usando un cristal XT.</p><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Curso MikroC PRO for PIC, lección 9: el pin RA4 necesita pull-up en los PIC antiguos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>ANSEL y ANSELH</h3><a class="min" href="https://youtu.be/cVSoOqNwf8c?t=496" target="_blank" rel="noopener">&#9654; 8:16</a></div><p>En este micro ya no se usa ADCON1 para lo digital: se ponen en 0 los registros <code>ANSEL</code> y <code>ANSELH</code>. También conviene arrancar el puerto en 0 para que todos los LEDs empiecen igual. Al simular, RA4 titila sin resistencia externa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ANSEL = 0;        // todo digital
+ANSELH = 0;
+TRISA = 0b00000000;
+PORTA = 0;        // arrancar en cero
+while (1) {
+  PORTA = ~PORTA;
+  Delay_ms(200);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Curso MikroC PRO for PIC, lección 9: el pin RA4 necesita pull-up en los PIC antiguos" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=cVSoOqNwf8c" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

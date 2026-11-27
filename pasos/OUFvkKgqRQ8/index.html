@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo leer pulsadores en un PIC16F877A con resistencias pull-up y pull-down, y decidir qué hacer con if, else, else if y condiciones unidas con &amp;&amp; y ||, además del antirrebote y las pull-up internas del puerto B.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/OUFvkKgqRQ8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if · Paso a paso">
+  <meta property="og:description" content="Cómo leer pulsadores en un PIC16F877A con resistencias pull-up y pull-down, y decidir qué hacer con if, else, else if y condiciones unidas con &amp;&amp; y ||, además del antirrebote y las pull-up internas del puerto B.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/OUFvkKgqRQ8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/OUFvkKgqRQ8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Entradas y el condicional <span>if</span></h1>
+    <p class="lead">Octava lección del curso y la primera con entradas. Se explica por qué un pulsador necesita una resistencia pull-up o pull-down, cómo configurar el pin como entrada con TRIS y cómo comparar con == (no con =). Con dos pulsadores en RB4 y RB5 y los procedimientos de la lección anterior se arman ejemplos con if, if-else, dos if independientes y una cadena de else if para las cuatro combinaciones. Al final se habla del antirrebote y de las pull-up internas del puerto B con OPTION_REG.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=OUFvkKgqRQ8" target="_blank" rel="noopener">&#9654; Ver el video completo (27:17)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1250.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con un PIC16F877A, LEDs, display de 7 segmentos, parlante y dos pulsadores</li><li>Resistencias de 10 kΩ (pull-up) o de 330 Ω a 1 kΩ (pull-down)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Entradas</a><a href="#f2">2 · if</a><a href="#f3">3 · else if</a><a href="#f4">4 · Detalles</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Entradas digitales</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Pull-up y pull-down</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Un pin de entrada necesita tener siempre un 1 o un 0 definido, pero un pulsador solo da uno de los dos. Con una resistencia al positivo (<b>pull-up</b>) el pin lee 1 en reposo y 0 al presionar; con una resistencia a tierra (<b>pull-down</b>) lee 0 en reposo y 1 al presionar.</p><p>Para la pull-up se recomienda unos 10 kΩ. Para la pull-down, 330 Ω y como mucho 1 kΩ: con valores altos, en ambientes industriales la tierra puede quedar flotando y meter ruido.</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El pin como entrada</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=106" target="_blank" rel="noopener">&#9654; 1:46</a></div><p>Para que el pin sea entrada su bit de TRIS debe ir en 1 (hasta ahora se usaban 0 porque eran salidas).</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El condicional if</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Sintaxis y operadores de comparación</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=138" target="_blank" rel="noopener">&#9654; 2:18</a></div><p><code>if (condición) { ... }</code> ejecuta el bloque solo si la condición se cumple. Las comparaciones son <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code> y <code>&lt;=</code>; la tabla está en la ayuda de MikroC (Relational Operators).</p><p class="ojo">Para comparar se usa doble igual. Un solo = asigna un valor al pin en vez de preguntar por él.</p><div class="uno"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Circuito con dos pulsadores</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=237" target="_blank" rel="noopener">&#9654; 3:57</a></div><p>Se reutiliza el circuito de la lección de procedimientos, con dos pulsadores con pull-up en RB4 y RB5: al presionar se lee 0.</p><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Proyecto y procedimientos reutilizados</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=309" target="_blank" rel="noopener">&#9654; 5:09</a></div><p>Se crea el proyecto <b>condicional</b> en la carpeta <i>clase 8</i> (PIC16F877A a 4 MHz) y se copian los procedimientos de la lección 7 (<code>hola</code>, <code>baja</code>, <code>efecto1</code>, <code>melodia1</code>, <code>melodia2</code>). Hay que activar otra vez la librería Sound.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Definir pulsadores y configurar el puerto B</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=411" target="_blank" rel="noopener">&#9654; 6:51</a></div><p>Se les pone nombre a los pulsadores (<code>RB4_bit</code> es lo mismo que <code>PORTB.B4</code>). Una forma cómoda es poner todo el puerto como salida y luego marcar solo las entradas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define sw1 RB4_bit
+#define sw2 PORTB.B5
+
+TRISB = 0;          // todo salida
+TRISD = 0;          // display
+TRISB4_bit = 1;     // entrada sw1
+TRISB5_bit = 1;     // entrada sw2
+Sound_Init(&amp;PORTC, 6);</code></pre></div><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Primer if</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=647" target="_blank" rel="noopener">&#9654; 10:47</a></div><p>Mientras sw1 esté presionado (en 0) se llama a <code>hola()</code>; al soltarlo el display se queda quieto. Dentro de las llaves pueden ir varias órdenes, por ejemplo <code>hola()</code> y <code>melodia1()</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  if (sw1 == 0) {
+    hola();
+    melodia1();
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if" loading="lazy"></a></figure><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>else, varias condiciones y else if</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>if con else</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=787" target="_blank" rel="noopener">&#9654; 13:07</a></div><p>Si <code>baja()</code> está antes del if, se ejecuta siempre y el if agrega algo más. Con <code>else</code> se hace una cosa o la otra. El pulsador no responde de inmediato: hay que esperar a que termine el procedimiento en curso (eso se resuelve más adelante con interrupciones).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (sw1 == 0) {
+  hola();
+  melodia1();
+} else {
+  baja();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Dos if independientes</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=921" target="_blank" rel="noopener">&#9654; 15:21</a></div><p>Con un if para sw1 y otro para sw2, cada uno hace lo suyo, y si se presionan los dos se hacen las dos cosas, una después de la otra.</p><div class="uno"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Unir condiciones con && y ||</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=997" target="_blank" rel="noopener">&#9654; 16:37</a></div><p>Con dos pulsadores hay cuatro combinaciones. Cada condición va entre paréntesis y todas dentro de un paréntesis general, unidas con <code>&amp;&amp;</code> (y) o <code>||</code> (o). En las comparaciones se usan dobles, no los operadores de bits de la lección 6.</p><div class="uno"><figure class="cap"><a href="img/1150.webp" target="_blank"><img src="img/1150.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Cadena de else if</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=1142" target="_blank" rel="noopener">&#9654; 19:02</a></div><p>Como las combinaciones son excluyentes, con <code>else if</code> el micro deja de revisar las demás en cuanto una se cumple, lo que ahorra procesamiento. La última puede ser un <code>else</code> solo, porque es la única que queda.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if ((sw1 == 1) &amp;&amp; (sw2 == 1)) {
+  hola();
+  melodia1();
+}
+else if ((sw1 == 0) &amp;&amp; (sw2 == 1)) {
+  efecto1();
+}
+else if ((sw1 == 1) &amp;&amp; (sw2 == 0)) {
+  melodia2();
+}
+else {            // los dos presionados
+  baja();
+  melodia1();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1250.webp" target="_blank"><img src="img/1250.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Detalles finales</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Llaves opcionales con una sola orden</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=1346" target="_blank" rel="noopener">&#9654; 22:26</a></div><p>Si dentro del if hay una sola orden, se pueden quitar las llaves y escribirla en la misma línea de la condición.</p></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Antirrebote</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=1379" target="_blank" rel="noopener">&#9654; 22:59</a></div><p>Los contactos del pulsador rebotan y el micro puede contar varias pulsaciones. Si solo se detecta la pulsación, se pone después un retardo de 100 a 300 ms. Aquí no hizo falta porque los procedimientos ya tienen retardos. MikroC trae la librería <b>Button</b>, pero el profesor prefiere hacerlo con su propio if.</p><p class="ojo">Sin antirrebote, una sola pulsación puede contarse varias veces.</p><div class="uno"><figure class="cap"><a href="img/1400.webp" target="_blank"><img src="img/1400.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Pull-up internas del puerto B</h3><a class="min" href="https://youtu.be/OUFvkKgqRQ8?t=1483" target="_blank" rel="noopener">&#9654; 24:43</a></div><p>En estos PIC el puerto B tiene resistencias pull-up internas (no pull-down) para los pines que son entrada. Se habilitan poniendo <code>OPTION_REG = 0</code> antes del <code>while</code>, y así se pueden quitar las resistencias externas y conectar el pulsador directo a tierra.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>OPTION_REG = 0;   // habilita las pull-up internas del puerto B</code></pre></div><div class="uno"><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Curso MikroC PRO for PIC, lección 8: entradas y condicionales if, else y else if" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=OUFvkKgqRQ8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
