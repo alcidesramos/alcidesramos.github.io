@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Leer cuatro canales análogos de un solo tajo con el ADC en modo scan y DMA normal en un STM32F411, usando la librería adc.c/adc.h, y enviar los códigos y los voltajes por serial. Proyecto en CubeMX y VS Code con ayuda de la IA.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/TwcxuqhvIps/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code · Paso a paso">
+  <meta property="og:description" content="Leer cuatro canales análogos de un solo tajo con el ADC en modo scan y DMA normal en un STM32F411, usando la librería adc.c/adc.h, y enviar los códigos y los voltajes por serial. Proyecto en CubeMX y VS Code con ayuda de la IA.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/TwcxuqhvIps/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/TwcxuqhvIps/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Varios canales del <span>ADC con DMA</span> en un solo paquete</h1>
+    <p class="lead">En un proyecto real hay varios sensores análogos (potenciómetros, humedad, voltaje de batería). En vez de leerlos uno por uno, el ADC en modo scan convierte todos los canales y el DMA los deja en un arreglo de una sola vez. En esta clase se configura en CubeMX un STM32F411 con cuatro canales (IN0, IN1, IN3, IN4), se activa el DMA en modo normal, se abre el proyecto en VS Code y se usa la librería del ADC. También se ve cómo usar el autocompletado de la IA con criterio: ayuda mucho, pero a veces inventa funciones o elige tipos poco eficientes. Esto no lo simula Proteus: se prueba con la tarjeta física.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=TwcxuqhvIps" target="_blank" rel="noopener">&#9654; Ver el video completo (65:32)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/3760.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code"></figure>
+    <ul class="materiales"><li>Black Pill STM32F411 (o F401)</li><li>Cuatro potenciómetros</li><li>Programador ST-Link con puerto serial (o conversor USB-serial)</li><li>STM32CubeMX y VS Code con la extensión de STM32</li><li>STM32CubeProgrammer</li><li>Hércules</li><li>Librerías adc y uart (archivos del curso)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Reloj, USART1, ADC y DMA</a><a href="#f2">2 · adc.c y adc.h</a><a href="#f3">3 · Leer, enviar y convertir a voltios</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configurar en CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Reloj y puerto serial</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=187" target="_blank" rel="noopener">&#9654; 3:07</a></div><p>Elige el micro que tienes físicamente (F401 o F411). En RCC activa el cristal, y en Clock Configuration lleva el PLL a la máxima velocidad (100 MHz en el F411, 84 MHz en el F401). Activa <b>USART1</b> asíncrono a 115200.</p><div class="dos"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Elegir los canales</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>En <b>Analog → ADC1</b> marca los canales que vas a usar. En el video IN0, IN1, IN3 e IN4: se saltó el IN2 a propósito para mostrar que no tienen que ser seguidos.</p><div class="uno"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Scan, fin de conversión y número de conversiones</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=363" target="_blank" rel="noopener">&#9654; 6:03</a></div><p>En los parámetros del ADC:</p><ul><li><b>Scan Conversion Mode: Enabled</b>, para convertir todos los canales en una sola orden.</li><li><b>End Of Conversion Selection</b>: al final de todas las conversiones.</li><li><b>Number Of Conversion: 4</b>.</li></ul><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Los Rank</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=465" target="_blank" rel="noopener">&#9654; 7:45</a></div><p>Cada <b>Rank</b> es una conversión del paquete y tú decides qué canal va en cada uno: Rank 1 canal 0, Rank 2 canal 1, Rank 3 canal 3, Rank 4 canal 4. Así puedes conectar por comodidad de hardware y aun así tener el orden que quieras.</p><p class="ojo">Sube el Sampling Time de 3 ciclos a unos 84 ciclos. Con señales lentas como potenciómetros, un tiempo muy corto hace que los canales se "peguen".</p><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Agregar el DMA</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=675" target="_blank" rel="noopener">&#9654; 11:15</a></div><p>En <b>DMA Settings</b> pulsa Add y elige <b>ADC1</b>. Deja el modo <b>Normal</b> (tú pides cada lectura) y la dirección <b>Peripheral To Memory</b>. El modo circular lee solo y sin parar, útil para un osciloscopio.</p><div class="dos"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/750.webp" target="_blank"><img src="img/750.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.6</span><h3>Generar el proyecto</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=775" target="_blank" rel="noopener">&#9654; 12:55</a></div><p>Ponle nombre (por ejemplo ADC_PROYECTO2026), genera el código con toolchain CMake y ábrelo en VS Code. Deja que la extensión de STM32 configure el proyecto (Setup STM32Cube project).</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La librería del ADC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Copiar las librerías</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=1073" target="_blank" rel="noopener">&#9654; 17:53</a></div><p>Crea la carpeta <b>LIBRERIAS</b> y pega adc.c/adc.h y uart.c/uart.h. Inclúyelas en main.c y agrégalas al proyecto para que compile.</p><div class="uno"><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Número de canales y el buffer</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=1279" target="_blank" rel="noopener">&#9654; 21:19</a></div><p>En adc.h solo se configura cuántos canales tiene el paquete. Los datos quedan en el arreglo <b>adc1_codigo</b>, uno tras otro (0, 1, 2, 3) en el orden de los Rank, sin importar el número del canal. La bandera <b>adc1_flag</b> avisa que hay datos nuevos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define adc1_canales 4   // número de canales del ADC1
+
+extern uint16_t adc1_codigo[];
+extern uint8_t  adc1_flag;   // fin de conversión
+
+void ADC_Read_DMA(ADC_HandleTypeDef *adc_n, uint8_t adc_num, uint16_t *adc_codigo);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1330.webp" target="_blank"><img src="img/1330.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>El callback de fin de conversión</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=2763" target="_blank" rel="noopener">&#9654; 46:03</a></div><p>En adc.c, cuando el DMA termina el paquete, HAL llama al callback y la librería pone <b>adc1_flag = 1</b>. El main solo procesa cuando la bandera está en 1, la pone en 0 y pide otra lectura. Esa sincronización evita bloqueos del micro.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El programa</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Iniciar la primera lectura</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=1796" target="_blank" rel="noopener">&#9654; 29:56</a></div><p>Antes del while manda un mensaje, espera un poco y lanza la primera conversión por DMA. Para no pelear con el autocompletado, copia el nombre exacto de la función desde adc.h.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char buffer[100];   // global
+
+uartx_write_text(&amp;huart1, &quot;Iniciando\r\n&quot;);
+HAL_Delay(1000);
+ADC_Read_DMA(&amp;hadc1, adc1_canales, adc1_codigo);</code></pre></div><p class="ojo">La IA a veces cambia mayúsculas o inventa funciones que no existen. Revisa siempre lo que sugiere.</p><div class="uno"><figure class="cap"><a href="img/2240.webp" target="_blank"><img src="img/2240.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Procesar cuando hay datos</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=2384" target="_blank" rel="noopener">&#9654; 39:44</a></div><p>En el while revisa la bandera, envía los cuatro códigos y vuelve a pedir otra lectura. Usa <b>%u</b> (sin signo) porque los códigos van de 0 a 4095; es un poco más eficiente que %d.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  if (adc1_flag == 1)
+  {
+    adc1_flag = 0;
+    sprintf(buffer, &quot;ADC Values: %u, %u, %u, %u\r\n&quot;,
+            adc1_codigo[0], adc1_codigo[1], adc1_codigo[2], adc1_codigo[3]);
+    uartx_write_text(&amp;huart1, buffer);
+    ADC_Read_DMA(&amp;hadc1, adc1_canales, adc1_codigo);
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2700.webp" target="_blank"><img src="img/2700.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/2780.webp" target="_blank"><img src="img/2780.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Programar y probar</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=2931" target="_blank" rel="noopener">&#9654; 48:51</a></div><p>Si el debug no arranca, programa con STM32CubeProgrammer: Connect, Open file (el .elf o .hex de build/Debug) y Download. En Hércules a 115200, al mover cada potenciómetro cambia su valor.</p><div class="uno"><figure class="cap"><a href="img/3140.webp" target="_blank"><img src="img/3140.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Pasar a voltios</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=3241" target="_blank" rel="noopener">&#9654; 54:01</a></div><p>Declara cuatro variables float y calcula el voltaje con la referencia de 3.3 V. Envía un solo decimal y agrega un retardo para no saturar el terminal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float vol1, vol2, vol3, vol4;   // globales
+
+vol1 = (adc1_codigo[0] * 3.3) / 4095.0;
+vol2 = (adc1_codigo[1] * 3.3) / 4095.0;
+vol3 = (adc1_codigo[2] * 3.3) / 4095.0;
+vol4 = (adc1_codigo[3] * 3.3) / 4095.0;
+sprintf(buffer, &quot;Voltaje: %.1f V, %.1f V, %.1f V, %.1f V\r\n&quot;, vol1, vol2, vol3, vol4);
+uartx_write_text(&amp;huart1, buffer);
+HAL_Delay(600);</code></pre></div><p class="ojo">Escribir las constantes como 3.3f y 4095.0f hace que el cálculo se haga en float y no en double, que es más lento.</p><div class="dos"><figure class="cap"><a href="img/3560.webp" target="_blank"><img src="img/3560.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/3660.webp" target="_blank"><img src="img/3660.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/3760.webp" target="_blank"><img src="img/3760.webp" alt="Clase en vivo 2026-II: leer varios canales del ADC con DMA (modo normal) en VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Tarea</h3><a class="min" href="https://youtu.be/TwcxuqhvIps?t=3753" target="_blank" rel="noopener">&#9654; 62:33</a></div><p>Graficar en Teleplot los cuatro voltajes, cada uno por separado y los cuatro juntos. En el proyecto, todos los sensores análogos (potenciómetros, humedad, batería) se deben leer juntos por DMA.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=TwcxuqhvIps" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
