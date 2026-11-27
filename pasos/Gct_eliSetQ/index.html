@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Migrar un código de un STM32 a otro, parte 1: importar el .ioc en CubeMX · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Primera forma de pasar un proyecto de un STM32F401 (Cortex-M4) a un STM32F103 (Cortex-M3): elegir el micro nuevo en CubeMX e importar el .ioc del proyecto viejo.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/Gct_eliSetQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Migrar un código de un STM32 a otro, parte 1: importar el .ioc en CubeMX · Paso a paso">
+  <meta property="og:description" content="Primera forma de pasar un proyecto de un STM32F401 (Cortex-M4) a un STM32F103 (Cortex-M3): elegir el micro nuevo en CubeMX e importar el .ioc del proyecto viejo.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/Gct_eliSetQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Gct_eliSetQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>Pasar un código a otro STM32: <span>parte 1</span></h1>
+    <p class="lead">Un proyecto que funciona en la Black Pill F401 (envía "probando" por serial y titila un LED) se pasa a la Blue Pill F103. Entre micros de la misma familia basta copiar el main, pero entre núcleos distintos conviene hacerlo con orden: en STM32CubeMX se busca el micro nuevo, se importa el .ioc viejo, se genera el proyecto para STM32CubeIDE y solo se copia la parte del main que no depende de la configuración de relojes.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Gct_eliSetQ" target="_blank" rel="noopener">&#9654; Ver el video completo (7:29)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/160.webp" alt="Migrar un código de un STM32 a otro, parte 1: importar el .ioc en CubeMX"></figure>
+    <ul class="materiales"><li>STM32CubeMX y STM32CubeIDE</li><li>Proyecto original (.ioc y main.c)</li><li>Proteus con BLUEPILL_ARZ</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · F401</a><a href="#f2">2 · Importar el .ioc</a><a href="#f3">3 · Librerías y main</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El proyecto original</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué hace</h3><a class="min" href="https://youtu.be/Gct_eliSetQ?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>El proyecto del F401 crea un puerto serial, envía "probando" y alterna un LED. La meta es que el F103 haga exactamente lo mismo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  uartx_write_text(&amp;huart1, &quot;probando\r\n&quot;);
+  HAL_GPIO_TogglePin(led_GPIO_Port, led_Pin);
+  HAL_Delay(500);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Migrar un código de un STM32 a otro, parte 1: importar el .ioc en CubeMX" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>En STM32CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Elegir el micro nuevo e importar</h3><a class="min" href="https://youtu.be/Gct_eliSetQ?t=99" target="_blank" rel="noopener">&#9654; 1:39</a></div><p>Abre STM32CubeMX y crea un proyecto con el micro destino (<b>STM32F103C8T6</b>). Luego <b>File → Import Project</b> y elige el <b>.ioc</b> del proyecto del F401.</p><p>Saldrán advertencias por ser micros distintos; continúa con <b>OK</b>.</p><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Migrar un código de un STM32 a otro, parte 1: importar el .ioc en CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Revisar la configuración</h3><a class="min" href="https://youtu.be/Gct_eliSetQ?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>Se cargan los pines, el puerto serial y el LED. Revisa el reloj: en Proteus el F103 se simula a 8 MHz.</p><div class="uno"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Migrar un código de un STM32 a otro, parte 1: importar el .ioc en CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Project Manager y Generate</h3><a class="min" href="https://youtu.be/Gct_eliSetQ?t=164" target="_blank" rel="noopener">&#9654; 2:44</a></div><p>Dale nombre y carpeta al proyecto. Con esta forma la herramienta ya queda en <b>STM32CubeIDE</b>. Pulsa <b>GENERATE CODE</b> y abre el proyecto en la IDE.</p><div class="dos"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Migrar un código de un STM32 a otro, parte 1: importar el .ioc en CubeMX" loading="lazy"></a></figure><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Migrar un código de un STM32 a otro, parte 1: importar el .ioc en CubeMX" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>En STM32CubeIDE</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Librerías y .hex</h3><a class="min" href="https://youtu.be/Gct_eliSetQ?t=261" target="_blank" rel="noopener">&#9654; 4:21</a></div><p>Copia la carpeta <b>Librerias</b> al Core del proyecto nuevo y agrégala al path. Activa el .hex en <b>Properties → C/C++ Build → Settings → MCU Post build outputs</b>.</p><div class="uno"><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Migrar un código de un STM32 a otro, parte 1: importar el .ioc en CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Copiar solo una parte del main</h3><a class="min" href="https://youtu.be/Gct_eliSetQ?t=296" target="_blank" rel="noopener">&#9654; 4:56</a></div><p>No copies todo el main. Copia desde el principio del archivo hasta el <code>while (1)</code> sin las funciones de configuración del reloj (SystemClock_Config) y pégalo sobre la misma zona del main nuevo. Así no se mezclan configuraciones de micros distintos.</p><p class="ojo">Entre micros de la misma familia (F401 → F411) sí se puede copiar el main completo.</p><div class="dos"><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="Migrar un código de un STM32 a otro, parte 1: importar el .ioc en CubeMX" loading="lazy"></a></figure><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Migrar un código de un STM32 a otro, parte 1: importar el .ioc en CubeMX" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Compilar y probar</h3><a class="min" href="https://youtu.be/Gct_eliSetQ?t=367" target="_blank" rel="noopener">&#9654; 6:07</a></div><p>Corrige los errores de copiado (por ejemplo un comentario cortado), compila y carga el .hex en la Blue Pill de Proteus: la terminal muestra "probando" y el LED titila.</p><div class="uno"><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Migrar un código de un STM32 a otro, parte 1: importar el .ioc en CubeMX" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Gct_eliSetQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

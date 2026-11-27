@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Puerto COM virtual por USB (CDC) en la Black Pill STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="La Black Pill crea su propio puerto COM con solo el cable USB: cristal externo, USB a 48 MHz, USB Device CDC y la librería de USB serial. Sin tarjeta USB-UART.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/MVHzLt_o514/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Puerto COM virtual por USB (CDC) en la Black Pill STM32 · Paso a paso">
+  <meta property="og:description" content="La Black Pill crea su propio puerto COM con solo el cable USB: cristal externo, USB a 48 MHz, USB Device CDC y la librería de USB serial. Sin tarjeta USB-UART.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/MVHzLt_o514/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/MVHzLt_o514/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>Puerto COM virtual por <span>USB CDC</span> con STM32</h1>
+    <p class="lead">Para mandar datos al computador desde un micro real normalmente se usa una tarjeta o cable USB-UART. El STM32F401 de la Black Pill puede hacerlo solo: se configura como dispositivo USB de clase CDC (Virtual COM Port) y Windows le asigna un puerto COM. Se habilita el cristal externo, se ajusta el reloj para que el USB quede en 48 MHz, se activa USB_OTG_FS y el middleware USB_DEVICE, se agrega la librería de USB serial y se cambia la función de escritura. Esto no lo simula Proteus: se hace con la tarjeta física.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=MVHzLt_o514" target="_blank" rel="noopener">&#9654; Ver el video completo (5:52)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/335.webp" alt="Puerto COM virtual por USB (CDC) en la Black Pill STM32"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401</li><li>Cable USB</li><li>STM32CubeIDE</li><li>STM32CubeProgrammer o un programador ST-Link</li><li>Hércules (terminal serial)</li><li>Librería de USB serial (archivos del curso)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Cristal, 48 MHz y CDC</a><a href="#f2">2 · Librería, COM y Hércules</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configurar el reloj y el USB</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Habilitar el cristal externo</h3><a class="min" href="https://youtu.be/MVHzLt_o514?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>En el .ioc, <b>System Core → RCC → High Speed Clock (HSE): Crystal/Ceramic Resonator</b>. El USB necesita el cristal externo y el PLL a máxima velocidad.</p><div class="dos"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Puerto COM virtual por USB (CDC) en la Black Pill STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Puerto COM virtual por USB (CDC) en la Black Pill STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Activar USB_OTG_FS como dispositivo</h3><a class="min" href="https://youtu.be/MVHzLt_o514?t=99" target="_blank" rel="noopener">&#9654; 1:39</a></div><p>En <b>Connectivity → USB_OTG_FS</b> selecciona <b>Mode: Device_Only</b>.</p><div class="uno"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Puerto COM virtual por USB (CDC) en la Black Pill STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Middleware USB_DEVICE</h3><a class="min" href="https://youtu.be/MVHzLt_o514?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>En <b>Middleware and Software Packs → USB_DEVICE</b> elige <b>Class For FS IP: Communication Device Class (Virtual Port Com)</b>.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Arreglar el reloj en rojo</h3><a class="min" href="https://youtu.be/MVHzLt_o514?t=131" target="_blank" rel="noopener">&#9654; 2:11</a></div><p>El reloj del USB debe quedar exactamente en <b>48 MHz</b>. Si Clock Configuration sale en rojo y no encuentra solución, escribe <b>84</b> en HCLK para forzarlo: él mismo pasa a PLL y al cristal y el USB queda en 48 MHz.</p><p class="ojo">Si configuras primero el USB y después el cristal, el asistente puede no encontrar la solución. Configura el cristal primero.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Puerto COM virtual por USB (CDC) en la Black Pill STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa y prueba</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Agregar la librería de USB serial</h3><a class="min" href="https://youtu.be/MVHzLt_o514?t=170" target="_blank" rel="noopener">&#9654; 2:50</a></div><p>Pega los archivos de la librería en la carpeta <b>Librerias</b> e inclúyela en la sección de includes de main.c. Compila para comprobar que todo está bien.</p><div class="uno"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Puerto COM virtual por USB (CDC) en la Black Pill STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Escribir por USB</h3><a class="min" href="https://youtu.be/MVHzLt_o514?t=203" target="_blank" rel="noopener">&#9654; 3:23</a></div><p>En el while, donde antes se escribía al UART físico (que necesita la tarjeta USB-UART), usa la función de escritura de la librería USB con el mismo texto. Así los datos salen por el cable USB directo al computador.</p><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Puerto COM virtual por USB (CDC) en la Black Pill STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Cargar el programa</h3><a class="min" href="https://youtu.be/MVHzLt_o514?t=245" target="_blank" rel="noopener">&#9654; 4:05</a></div><p>Carga el .hex con STM32CubeProgrammer (Open file → Download). Por USB a veces da problemas; es mejor un programador ST-Link, aunque sea uno económico.</p><div class="dos"><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Puerto COM virtual por USB (CDC) en la Black Pill STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Puerto COM virtual por USB (CDC) en la Black Pill STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Ver el nuevo puerto COM</h3><a class="min" href="https://youtu.be/MVHzLt_o514?t=290" target="_blank" rel="noopener">&#9654; 4:50</a></div><p>Desconecta y vuelve a conectar la tarjeta. En el <b>Administrador de dispositivos → Puertos (COM y LPT)</b> aparece un <b>STMicroelectronics Virtual COM Port</b> (en el video COM3; a ti puede salirte otro número).</p><div class="uno"><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="Puerto COM virtual por USB (CDC) en la Black Pill STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Abrir Hércules</h3><a class="min" href="https://youtu.be/MVHzLt_o514?t=305" target="_blank" rel="noopener">&#9654; 5:05</a></div><p>En Hércules, pestaña Serial, abre ese COM. La velocidad no importa porque va por USB: puedes cambiar los baudios y sigue funcionando.</p><div class="uno"><figure class="cap"><a href="img/335.webp" target="_blank"><img src="img/335.webp" alt="Puerto COM virtual por USB (CDC) en la Black Pill STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=MVHzLt_o514" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

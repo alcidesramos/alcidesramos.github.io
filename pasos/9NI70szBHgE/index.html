@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conectar el celular al PC por Bluetooth y crear un puerto COM · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Crear en Windows un puerto COM de Bluetooth para recibir datos del celular, probarlo en Hércules y en Proteus con COMPIM y Virtual Terminal.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/9NI70szBHgE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Conectar el celular al PC por Bluetooth y crear un puerto COM · Paso a paso">
+  <meta property="og:description" content="Crear en Windows un puerto COM de Bluetooth para recibir datos del celular, probarlo en Hércules y en Proteus con COMPIM y Virtual Terminal.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/9NI70szBHgE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/9NI70szBHgE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>Celular y PC por <span>Bluetooth</span> como puerto COM</h1>
+    <p class="lead">Con un puerto COM de Bluetooth el celular se comunica con el computador como si fuera un puerto serial. Sirve para probar en Proteus un circuito con microcontrolador que se maneja desde el celular (un LED, un carrito, un motor). Se crea el puerto entrante en Windows, se configuran los botones de una app de control Bluetooth y se ven los datos en Hércules y en Proteus.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=9NI70szBHgE" target="_blank" rel="noopener">&#9654; Ver el video completo (4:45)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/220.webp" alt="Conectar el celular al PC por Bluetooth y crear un puerto COM"></figure>
+    <ul class="materiales"><li>Computador con Bluetooth</li><li>Celular emparejado con el computador</li><li>App de control Bluetooth (por ejemplo Arduino Bluetooth Control; sirve para cualquier micro)</li><li>Hércules</li><li>Proteus (COMPIM y Virtual Terminal)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Configuración de Bluetooth</a><a href="#f2">2 · App y Hércules</a><a href="#f3">3 · COMPIM y Virtual Terminal</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Crear el puerto COM</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Más opciones de Bluetooth</h3><a class="min" href="https://youtu.be/9NI70szBHgE?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Escribe Bluetooth en el menú de Windows y abre la configuración. Baja casi al final y entra a <b>Más opciones de configuración de Bluetooth</b>.</p><p class="ojo">El celular ya debe estar emparejado por Bluetooth con el computador.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Conectar el celular al PC por Bluetooth y crear un puerto COM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Agregar un puerto entrante</h3><a class="min" href="https://youtu.be/9NI70szBHgE?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>En la pestaña <b>Puertos COM</b> pulsa <b>Agregar</b> y elige <b>Entrante</b> (el celular es el que se conecta al computador). Windows crea un puerto COM nuevo.</p><div class="uno"><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="Conectar el celular al PC por Bluetooth y crear un puerto COM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Probar con el celular</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Abrir el puerto en Hércules</h3><a class="min" href="https://youtu.be/9NI70szBHgE?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>En Hércules, pestaña Serial, elige el COM creado y pulsa <b>Open</b>. Si el puerto no está abierto, el celular pierde la conexión.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Conectar el celular al PC por Bluetooth y crear un puerto COM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar el botón del LED</h3><a class="min" href="https://youtu.be/9NI70szBHgE?t=120" target="_blank" rel="noopener">&#9654; 2:00</a></div><p>En la app elige el computador y entra al modo LED. En la configuración escribe lo que manda el botón en On y en Off, por ejemplo <b>LED1 ON</b> y <b>LED1 OFF</b>.</p><p class="ojo">Usa varios caracteres en vez de una sola letra (a, b): con ruido un carácter se altera y una a se puede convertir en b.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Conectar el celular al PC por Bluetooth y crear un puerto COM" loading="lazy"></a></figure><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Conectar el celular al PC por Bluetooth y crear un puerto COM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Ver los datos</h3><a class="min" href="https://youtu.be/9NI70szBHgE?t=155" target="_blank" rel="noopener">&#9654; 2:35</a></div><p>Al presionar el botón, en Hércules aparecen LED1 ON y LED1 OFF: el celular ya está comunicado con el computador. Cierra Hércules para liberar el puerto antes de usarlo en Proteus.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Probar en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Configurar COMPIM</h3><a class="min" href="https://youtu.be/9NI70szBHgE?t=190" target="_blank" rel="noopener">&#9654; 3:10</a></div><p>Pon un <b>COMPIM</b>, doble clic y elige el mismo COM, a <b>9600</b> baudios tanto en el lado físico como en el virtual.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Conectar el celular al PC por Bluetooth y crear un puerto COM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Virtual Terminal</h3><a class="min" href="https://youtu.be/9NI70szBHgE?t=205" target="_blank" rel="noopener">&#9654; 3:25</a></div><p>En Instrumentos agrega un <b>Virtual Terminal</b>. Aquí la conexión no es cruzada: RX del COMPIM con RX del terminal. Con un micro, su RX iría a ese mismo pin para leer la orden.</p><div class="uno"><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Conectar el celular al PC por Bluetooth y crear un puerto COM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Simular</h3><a class="min" href="https://youtu.be/9NI70szBHgE?t=225" target="_blank" rel="noopener">&#9654; 3:45</a></div><p>Dale Play a Proteus, reconecta la app si se desconectó y los datos del celular aparecen en el terminal. Con un micro puedes encender un LED, mover un motor o controlarle la velocidad.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=9NI70szBHgE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

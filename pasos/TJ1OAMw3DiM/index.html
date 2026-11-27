@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Migrar un código de un STM32 a otro, parte 2: List Pinout Compatible MCUs · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Segunda forma de migrar: abrir el .ioc del proyecto viejo en CubeMX y usar List Pinout Compatible MCUs para pasarlo al STM32F103; además permite cambiar de compilador.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/TJ1OAMw3DiM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Migrar un código de un STM32 a otro, parte 2: List Pinout Compatible MCUs · Paso a paso">
+  <meta property="og:description" content="Segunda forma de migrar: abrir el .ioc del proyecto viejo en CubeMX y usar List Pinout Compatible MCUs para pasarlo al STM32F103; además permite cambiar de compilador.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/TJ1OAMw3DiM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/TJ1OAMw3DiM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>Pasar un código a otro STM32: <span>parte 2</span></h1>
+    <p class="lead">Otra manera de pasar el proyecto del STM32F401 a la Blue Pill STM32F103. Se abre directamente el .ioc del proyecto original en STM32CubeMX, se pide la lista de micros con pines compatibles, se elige el F103C8 y se importa. Esta forma también deja escoger la toolchain (STM32CubeIDE, Keil MDK-ARM, EWARM, Makefile). El resto es igual que en la parte 1.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=TJ1OAMw3DiM" target="_blank" rel="noopener">&#9654; Ver el video completo (4:52)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/90.webp" alt="Migrar un código de un STM32 a otro, parte 2: List Pinout Compatible MCUs"></figure>
+    <ul class="materiales"><li>STM32CubeMX y STM32CubeIDE</li><li>Proyecto original (.ioc)</li><li>Proteus con BLUEPILL_ARZ</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pines compatibles</a><a href="#f2">2 · Igual que la parte 1</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>En STM32CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Abrir el .ioc original</h3><a class="min" href="https://youtu.be/TJ1OAMw3DiM?t=31" target="_blank" rel="noopener">&#9654; 0:31</a></div><p>En STM32CubeMX, <b>File → Load Project</b> y elige el .ioc del proyecto del F401.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Migrar un código de un STM32 a otro, parte 2: List Pinout Compatible MCUs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>List Pinout Compatible MCUs</h3><a class="min" href="https://youtu.be/TJ1OAMw3DiM?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>En <b>Pinout</b> elige <b>List Pinout Compatible MCUs</b>. En el filtro de series deja solo <b>STM32F1</b> y busca el <b>STM32F103C8Tx</b>; marca <b>Full Compatible</b>. Selecciónalo y pulsa <b>OK, Import</b>.</p><div class="dos"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Migrar un código de un STM32 a otro, parte 2: List Pinout Compatible MCUs" loading="lazy"></a></figure><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Migrar un código de un STM32 a otro, parte 2: List Pinout Compatible MCUs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Reloj y proyecto</h3><a class="min" href="https://youtu.be/TJ1OAMw3DiM?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>El micro cambia en la configuración. Verifica el reloj (8 MHz para simular en Proteus), da nombre y carpeta al proyecto.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Migrar un código de un STM32 a otro, parte 2: List Pinout Compatible MCUs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Elegir la toolchain</h3><a class="min" href="https://youtu.be/TJ1OAMw3DiM?t=136" target="_blank" rel="noopener">&#9654; 2:16</a></div><p>Aquí la herramienta no queda fija: en <b>Toolchain / IDE</b> elige <b>STM32CubeIDE</b>. La ventaja es que también podrías pasar el proyecto a otro compilador (MDK-ARM, EWARM, Makefile).</p><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Migrar un código de un STM32 a otro, parte 2: List Pinout Compatible MCUs" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>En STM32CubeIDE</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Librerías, .hex y main</h3><a class="min" href="https://youtu.be/TJ1OAMw3DiM?t=171" target="_blank" rel="noopener">&#9654; 2:51</a></div><p>Copia la carpeta Librerias y agrégala al path, activa el .hex y copia del main viejo solo la parte de arriba hasta antes de las funciones de configuración, como en la parte 1.</p><div class="dos"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Migrar un código de un STM32 a otro, parte 2: List Pinout Compatible MCUs" loading="lazy"></a></figure><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Migrar un código de un STM32 a otro, parte 2: List Pinout Compatible MCUs" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Probar en Proteus</h3><a class="min" href="https://youtu.be/TJ1OAMw3DiM?t=239" target="_blank" rel="noopener">&#9654; 3:59</a></div><p>Compila, carga el .hex de la carpeta Debug del proyecto nuevo en la Blue Pill de Proteus y verifica que la terminal muestra "probando".</p><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Migrar un código de un STM32 a otro, parte 2: List Pinout Compatible MCUs" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=TJ1OAMw3DiM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32CubeMonitor parte 1: ver variables del micro en tiempo real · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Graficar en tiempo real variables del STM32 (lectura del ADC y voltaje) con STM32CubeMonitor y el ST-Link, sin usar el puerto serial: gráfica, barra y gauge.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/TeWVsSt8exk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="STM32CubeMonitor parte 1: ver variables del micro en tiempo real · Paso a paso">
+  <meta property="og:description" content="Graficar en tiempo real variables del STM32 (lectura del ADC y voltaje) con STM32CubeMonitor y el ST-Link, sin usar el puerto serial: gráfica, barra y gauge.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/TeWVsSt8exk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/TeWVsSt8exk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>Conociendo <span>STM32CubeMonitor</span>, parte 1</h1>
+    <p class="lead">STM32CubeMonitor lee las variables del micro mientras el programa corre, usando el mismo programador (ST-Link original o el clon WeAct que permite debug). Es muy útil para identificar una planta, ver un tiempo de muestreo o preparar un PID. Se monitorea la lectura de un potenciómetro en el ADC: se configura el probe y el archivo .elf, se grafica la variable, se cambia a barras, se agrega un gauge y luego una segunda variable con el voltaje.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=TeWVsSt8exk" target="_blank" rel="noopener">&#9654; Ver el video completo (13:58)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/730.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real"></figure>
+    <ul class="materiales"><li>STM32CubeMonitor</li><li>ST-Link con debug (original o WeAct)</li><li>Black Pill STM32F401 con un potenciómetro en una entrada análoga</li><li>STM32CubeIDE</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · ADC y Serial Wire</a><a href="#f2">2 · Probe y variables</a><a href="#f3">3 · Deploy y Dashboard</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El programa del micro</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Variables globales</h3><a class="min" href="https://youtu.be/TeWVsSt8exk?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>El programa lee el canal análogo cada milisegundo y guarda el valor (0 a 4095) en una variable <b>global</b>: CubeMonitor solo ve variables globales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint16_t codigo;
+float voltaje;
+
+while (1)
+{
+  codigo = ADC_Read();
+  voltaje = 3.3 * codigo / 4095.0;
+  HAL_Delay(1);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Habilitar el debug</h3><a class="min" href="https://youtu.be/TeWVsSt8exk?t=64" target="_blank" rel="noopener">&#9654; 1:04</a></div><p>En el .ioc, <b>System Core → SYS → Debug: Serial Wire</b> (y Timebase en SysTick). Compila y <b>programa</b> el micro; compilar no basta.</p><div class="uno"><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar CubeMonitor</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Flujo básico</h3><a class="min" href="https://youtu.be/TeWVsSt8exk?t=139" target="_blank" rel="noopener">&#9654; 2:19</a></div><p>Al abrir aparece un ejemplo (Basic_Flow). Si lo dañas, recupéralo con <b>Import → Local → STM32CubeMonitor_BasicFlow.json</b>.</p><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real" loading="lazy"></a></figure><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Elegir el ST-Link</h3><a class="min" href="https://youtu.be/TeWVsSt8exk?t=173" target="_blank" rel="noopener">&#9654; 2:53</a></div><p>Doble clic en el nodo de salida (myProbe_Out), en <b>Probe</b> pulsa el lápiz, elige tu ST-Link, ponle un nombre y la frecuencia máxima. Haz lo mismo en el nodo de entrada (myProbe_In). Se hace una sola vez.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Archivo .elf y variables</h3><a class="min" href="https://youtu.be/TeWVsSt8exk?t=206" target="_blank" rel="noopener">&#9654; 3:26</a></div><p>Doble clic en <b>myVariables</b>, en Executable pulsa el lápiz y pega la ruta de la carpeta <b>Debug</b> del proyecto; elige el .elf. En la lista marca la variable <b>codigo</b>.</p><p>Si una variable declarada no aparece, puede ser que el compilador la eliminó por no usarse.</p><div class="uno"><figure class="cap"><a href="img/275.webp" target="_blank"><img src="img/275.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Ver los datos</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Deploy y Start Acquisition</h3><a class="min" href="https://youtu.be/TeWVsSt8exk?t=309" target="_blank" rel="noopener">&#9654; 5:09</a></div><p>Pulsa <b>DEPLOY</b>, luego <b>DASHBOARD</b> y <b>START ACQUISITION</b>. Al mover el potenciómetro la gráfica sube y baja en tiempo real.</p><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Gráfica de barras</h3><a class="min" href="https://youtu.be/TeWVsSt8exk?t=378" target="_blank" rel="noopener">&#9654; 6:18</a></div><p>En el nodo myChart puedes cambiar el tipo a barras. Después de cambiar algo, si DEPLOY no se activa, mueve cualquier nodo para que lo detecte.</p><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Agregar un gauge</h3><a class="min" href="https://youtu.be/TeWVsSt8exk?t=443" target="_blank" rel="noopener">&#9654; 7:23</a></div><p>Arrastra un subflow <b>Single value</b>, elige la variable codigo y conéctale un nodo <b>gauge</b> con rango de 0 a 5000. Ajusta el tamaño de cada elemento para armar tu dashboard.</p><div class="dos"><figure class="cap"><a href="img/495.webp" target="_blank"><img src="img/495.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real" loading="lazy"></a></figure><figure class="cap"><a href="img/525.webp" target="_blank"><img src="img/525.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Una segunda variable</h3><a class="min" href="https://youtu.be/TeWVsSt8exk?t=577" target="_blank" rel="noopener">&#9654; 9:37</a></div><p>Agrega el cálculo del voltaje en el programa, vuelve a programar el micro, recarga la lista en myVariables y marca <b>voltaje</b>. En la gráfica puedes ocultar una de las dos variables haciendo clic en su nombre, mostrar los puntos y hacer zoom.</p><div class="dos"><figure class="cap"><a href="img/630.webp" target="_blank"><img src="img/630.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real" loading="lazy"></a></figure><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="STM32CubeMonitor parte 1: ver variables del micro en tiempo real" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=TeWVsSt8exk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

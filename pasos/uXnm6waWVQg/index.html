@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32CubeMonitor parte 2: guardar los datos en Excel (datalogger) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Guardar en un archivo CSV las variables que lee STM32CubeMonitor (con su tiempo) para analizarlas en Excel o MATLAB, y cambiar la frecuencia de muestreo.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/uXnm6waWVQg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="STM32CubeMonitor parte 2: guardar los datos en Excel (datalogger) · Paso a paso">
+  <meta property="og:description" content="Guardar en un archivo CSV las variables que lee STM32CubeMonitor (con su tiempo) para analizarlas en Excel o MATLAB, y cambiar la frecuencia de muestreo.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/uXnm6waWVQg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/uXnm6waWVQg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>STM32CubeMonitor como <span>datalogger</span></h1>
+    <p class="lead">Además de ver los datos, a veces se necesita guardarlos para analizarlos después (por ejemplo para identificar un motor en MATLAB). Se activa el registro en el nodo de variables, se crea la variable de entorno LOGPATH en Windows con la carpeta donde se guardan los archivos y se revisa el CSV en Excel. Al final se cambia la frecuencia de muestreo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=uXnm6waWVQg" target="_blank" rel="noopener">&#9654; Ver el video completo (5:39)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/180.webp" alt="STM32CubeMonitor parte 2: guardar los datos en Excel (datalogger)"></figure>
+    <ul class="materiales"><li>STM32CubeMonitor con el flujo de la parte 1</li><li>ST-Link con debug</li><li>Excel u otro programa para abrir CSV</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Log option</a><a href="#f2">2 · Variable LOGPATH</a><a href="#f3">3 · Sampling frequency</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Activar el registro</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Log all values</h3><a class="min" href="https://youtu.be/uXnm6waWVQg?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>Doble clic en el nodo de procesamiento de <b>myVariables</b>. En <b>Log option</b> elige <b>Log all values</b> (o <i>Log only changes</i> si se repiten muchos datos) y el formato <b>CSV</b> de varias columnas para abrirlo en Excel.</p><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="STM32CubeMonitor parte 2: guardar los datos en Excel (datalogger)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Dónde se guarda</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Crear la variable de entorno</h3><a class="min" href="https://youtu.be/uXnm6waWVQg?t=97" target="_blank" rel="noopener">&#9654; 1:37</a></div><p>CubeMonitor no guarda hasta que se le dice dónde. En Windows busca <b>Editar las variables de entorno</b>, pulsa <b>Nueva</b> y crea:</p><ul><li>Nombre: <b>LOGPATH</b></li><li>Valor: la carpeta donde quieres los archivos (por ejemplo D:\guarda)</li></ul><div class="dos"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="STM32CubeMonitor parte 2: guardar los datos en Excel (datalogger)" loading="lazy"></a></figure><figure class="cap"><a href="img/135.webp" target="_blank"><img src="img/135.webp" alt="STM32CubeMonitor parte 2: guardar los datos en Excel (datalogger)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Adquirir y revisar</h3><a class="min" href="https://youtu.be/uXnm6waWVQg?t=168" target="_blank" rel="noopener">&#9654; 2:48</a></div><p>Haz DEPLOY, Start y Stop. Cada adquisición crea un archivo nuevo con fecha y hora en esa carpeta, con columnas de tiempo, codigo y voltaje.</p><p class="ojo">Si acabas de crear LOGPATH, cierra y vuelve a abrir CubeMonitor para que la tome.</p><div class="dos"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="STM32CubeMonitor parte 2: guardar los datos en Excel (datalogger)" loading="lazy"></a></figure><figure class="cap"><a href="img/195.webp" target="_blank"><img src="img/195.webp" alt="STM32CubeMonitor parte 2: guardar los datos en Excel (datalogger)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Frecuencia de muestreo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Cambiar la frecuencia</h3><a class="min" href="https://youtu.be/uXnm6waWVQg?t=233" target="_blank" rel="noopener">&#9654; 3:53</a></div><p>En myVariables, <b>Acquisition parameters → Sampling frequency</b>: sequential loop, 0.1 Hz, 1 Hz, 10 Hz, 100 Hz, 1000 Hz o una personalizada. Con 1 kHz el archivo muestra datos cada pocos milisegundos.</p><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="STM32CubeMonitor parte 2: guardar los datos en Excel (datalogger)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Para qué sirve</h3><a class="min" href="https://youtu.be/uXnm6waWVQg?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>Con los datos y su tiempo se puede graficar en MATLAB, identificar la planta y calcular un PID, sin enviar nada por el puerto serial: todo va por el programador.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=uXnm6waWVQg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

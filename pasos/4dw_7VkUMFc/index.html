@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HuskyLens parte 3: reconocimiento de rostros con STM32 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Proyecto básico con la cámara HuskyLens y una Black Pill: pedir bloques por UART, recibir con DMA e IDLE, saber si hay una cara y decir quién es por otro puerto serial.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/4dw_7VkUMFc/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="HuskyLens parte 3: reconocimiento de rostros con STM32 · Paso a paso">
+  <meta property="og:description" content="Proyecto básico con la cámara HuskyLens y una Black Pill: pedir bloques por UART, recibir con DMA e IDLE, saber si hay una cara y decir quién es por otro puerto serial.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/4dw_7VkUMFc/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/4dw_7VkUMFc/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>Reconocimiento de rostros con <span>HuskyLens y STM32</span></h1>
+    <p class="lead">Primer programa para reconocer rostros con la cámara HuskyLens desde un STM32F401. Se configuran dos UART (USART1 con la cámara, USART6 para enviar resultados), la recepción por DMA con detección de línea inactiva (IDLE) y un LED. Con dos librerías pequeñas (uart_int_idle_dma y huskeycam) se envía a la cámara el comando de pedir bloques, se mira cuántos bytes responde (32 = hay una cara) y el byte 29 dice el ID de la cara aprendida. En Proteus se simula con COMPIM conectado a la cámara real.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=4dw_7VkUMFc" target="_blank" rel="noopener">&#9654; Ver el video completo (23:36)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1360.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32"></figure>
+    <ul class="materiales"><li>Cámara HuskyLens con caras ya aprendidas (ver partes 1 y 2)</li><li>Black Pill STM32F401</li><li>Cable USB-serial (para simular con la cámara real)</li><li>Proteus con la librería BLACKPILL_ARZ y COMPIM</li><li>STM32CubeIDE</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Simulación con COMPIM</a><a href="#f2">2 · Dos UART + DMA</a><a href="#f3">3 · IDLE + DMA y cámara</a><a href="#f4">4 · ¿Hay una cara? ¿Quién es?</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Black Pill y alimentación</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=31" target="_blank" rel="noopener">&#9654; 0:31</a></div><p>Crea un proyecto nuevo con la <b>BLACKPILL_ARZ</b>. En <b>Design → Configure Power Rails</b> pon el riel positivo en 3.3 V y pasa VDDA a ese riel.</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>COMPIM hacia la cámara</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Agrega un <b>COMPIM</b> en el puerto COM donde está conectada la cámara (aquí mediante un cable USB-serial) a 9600 baudios.</p><p>En el COMPIM las líneas no van cruzadas: TX del micro (<b>PA9</b>) con TXD del COMPIM. Con la cámara física sí se cruzan: TX del micro con RX de la cámara.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>CubeMX</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>USART1 para la cámara</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>USART1 en modo <b>Asynchronous</b> a 9600 (o 115200 si la cámara está así). Activa su interrupción en NVIC y en <b>DMA Settings</b> agrega la recepción <b>USART1_RX</b>: el DMA recibe sin frenar al micro.</p><div class="dos"><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>USART6 para los resultados</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=167" target="_blank" rel="noopener">&#9654; 2:47</a></div><p>Habilita un segundo puerto (USART6, solo TX en <b>PA11</b>) a 9600 para enviar el nombre de la persona detectada.</p><p>Un LED en <b>PA0</b> como salida (LED1). Reloj a 16 MHz para Proteus (84 MHz en la tarjeta real). Activa la generación del .hex.</p><div class="uno"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librerías</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Carpeta Librerias</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=297" target="_blank" rel="noopener">&#9654; 4:57</a></div><p>En Core crea la carpeta <b>Librerias</b>, agrégala al path y copia uart.c/h, <b>uart_int_idle_dma.c</b> y <b>huskeycam.c/h</b>. Incluye string.h, stdio.h, stdint.h y huskeycam.h en el main.</p><div class="uno"><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Recepción por inactividad (IDLE)</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>Cuando llegan datos y la línea se queda quieta, el callback guarda cuántos bytes llegaron y levanta la bandera <code>flag_rx</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+  if (huart-&gt;Instance == huskeycam)
+  {
+    num_datos = Size;
+    flag_rx = 1;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Elegir el puerto de la cámara</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=363" target="_blank" rel="noopener">&#9654; 6:03</a></div><p>En huskeycam.h se define qué UART usa la cámara. Si usas otro puerto (USART2, USART6) cambia las dos líneas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define uart_husky huart1
+#define huskeycam  USART1</code></pre></div><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Iniciar la cámara y pedir bloques</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=545" target="_blank" rel="noopener">&#9654; 9:05</a></div><p><code>Huskey_init()</code> borra el buffer de 100 bytes, limpia las banderas de la UART y arranca la recepción por DMA con IDLE. <code>Huskeylen_Block()</code> envía los 6 bytes del comando que pide los bloques detectados.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const uint8_t bloque[] = {0x55,0xAA,0x11,0x00,0x21,0x31};
+
+void Huskey_init(void)
+{
+  memset(trama_huskey, 0, huskey_buff);
+  uart_husky.Instance-&gt;SR &amp;= ~(UART_SR_RXNE | UART_SR_ORE);
+  uint8_t dummy = huskeycam-&gt;DR;
+  HAL_UARTEx_ReceiveToIdle_DMA(&amp;uart_husky, (uint8_t*)trama_huskey, huskey_buff);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Preguntar y esperar</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=709" target="_blank" rel="noopener">&#9654; 11:49</a></div><p>Llama <code>Huskey_init()</code> antes del while. En el ciclo se piden bloques, se esperan 100 ms y, si llegó respuesta, se procesa y se reinicia la recepción.</p><div class="uno"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Probar la comunicación</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=843" target="_blank" rel="noopener">&#9654; 14:03</a></div><p>Con una Virtual Terminal en el RX del micro se ve si la cámara responde (en hexadecimal). Si no responde, puede estar bloqueada: desconéctala y vuelve a conectarla.</p><div class="uno"><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>32 bytes = hay una cara</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=982" target="_blank" rel="noopener">&#9654; 16:22</a></div><p>Si la respuesta tiene <b>32 bytes</b> hay un rostro en la imagen. En la posición <b>29</b> viene el ID de la cara aprendida.</p><div class="uno"><figure class="cap"><a href="img/990.webp" target="_blank"><img src="img/990.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Nombrar las caras</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=1051" target="_blank" rel="noopener">&#9654; 17:31</a></div><p>Con un <code>enum</code> se le pone nombre a cada ID y se envía por USART6 quién es. Si es una cara conocida en especial, además titila el LED.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>enum caras {nadie, chavo, alcides, roca, mujer_maravilla, scarlett_johansson};
+
+Huskeylen_Block();
+HAL_Delay(100);
+if (flag_rx == 1)
+{
+  if (num_datos == 32)
+  {
+    if (trama_huskey[29] == nadie) uartx_write_text(&amp;huart6, &quot;NO SE QUIEN ES\r\n&quot;);
+    else if (trama_huskey[29] == chavo) uartx_write_text(&amp;huart6, &quot;EL CHAVO\r\n&quot;);
+    else if (trama_huskey[29] == alcides)
+    {
+      HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+      uartx_write_text(&amp;huart6, &quot;SUSCRIBETE AL CANAL\r\n&quot;);
+    }
+    /* ... resto de caras ... */
+  }
+  flag_rx = 0;
+  Huskey_init();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.5</span><h3>Resultado</h3><a class="min" href="https://youtu.be/4dw_7VkUMFc?t=1365" target="_blank" rel="noopener">&#9654; 22:45</a></div><p>Al mostrarle fotos a la cámara, la terminal escribe el nombre de cada persona aprendida y "NO SE QUIEN ES" para las que no conoce. Si la simulación se bloquea, aumenta el retardo después de pedir bloques (por ejemplo 200 ms).</p><div class="uno"><figure class="cap"><a href="img/1360.webp" target="_blank"><img src="img/1360.webp" alt="HuskyLens parte 3: reconocimiento de rostros con STM32" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=4dw_7VkUMFc" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
