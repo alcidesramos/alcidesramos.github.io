@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Actualización de mis librerías Blue Pill y Black Pill para Proteus · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Nueva versión de mis librerías BLACKPILL_ARZ y BLUEPILL_ARZ para Proteus: pines sin cables cruzados, modelo 3D y parte análoga (VDDA).">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/gDjPsqsIy6w/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Actualización de mis librerías Blue Pill y Black Pill para Proteus · Paso a paso">
+  <meta property="og:description" content="Nueva versión de mis librerías BLACKPILL_ARZ y BLUEPILL_ARZ para Proteus: pines sin cables cruzados, modelo 3D y parte análoga (VDDA).">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/gDjPsqsIy6w/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/gDjPsqsIy6w/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>Librerías <span>Blue Pill y Black Pill</span> actualizadas para Proteus</h1>
+    <p class="lead">Varios me contaron que al cablear mis librerías de Black Pill y Blue Pill en Proteus los cables salían cruzados. En esta actualización cada pin queda con su nombre en el lugar correcto, se incluye la vista 3D y ahora también funciona la parte análoga. Al final se muestra cómo arreglar el error de VDDA en Power Rail Configuration.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=gDjPsqsIy6w" target="_blank" rel="noopener">&#9654; Ver el video completo (2:29)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/55.webp" alt="Actualización de mis librerías Blue Pill y Black Pill para Proteus"></figure>
+    <ul class="materiales"><li>Proteus 8 Professional</li><li>Librerías de Proteus (enlace de descarga abajo)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Nueva librería</a><a href="#f2">2 · Pines y 3D</a><a href="#f3">3 · Error de VDDA</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Descargar e instalar</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El enlace nuevo</h3><a class="min" href="https://youtu.be/gDjPsqsIy6w?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Descarga las librerías desde <a href="https://github.com/alcidesramos/LIBRERIAS_PROTEUS_2026" target="_blank" rel="noopener">github.com/alcidesramos/LIBRERIAS_PROTEUS_2026</a>.</p><p>Cómo se copian a Proteus está explicado en la clase 7 del curso (Tips de simulación STM32 en Proteus); solo hay que reemplazar los archivos por los nuevos.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Actualización de mis librerías Blue Pill y Black Pill para Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Qué cambió</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Buscar las tarjetas</h3><a class="min" href="https://youtu.be/gDjPsqsIy6w?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>En Pick Devices escribe <b>ARZ</b>: salen <b>BLACKPILL_ARZ</b> y <b>BLUEPILL_ARZ</b>.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Actualización de mis librerías Blue Pill y Black Pill para Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Pines en su lugar</h3><a class="min" href="https://youtu.be/gDjPsqsIy6w?t=40" target="_blank" rel="noopener">&#9654; 0:40</a></div><p>Cada pin del dibujo coincide con la tarjeta real (B12, B13, A8…). Así se cablea sin que los cables se crucen y los esquemas quedan más limpios.</p><p>La librería también trae la vista 3D de la tarjeta, como en el video de la clase 7.</p><div class="uno"><figure class="cap"><a href="img/55.webp" target="_blank"><img src="img/55.webp" alt="Actualización de mis librerías Blue Pill y Black Pill para Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Proyectos con ADC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Asignar VDDA a la alimentación</h3><a class="min" href="https://youtu.be/gDjPsqsIy6w?t=98" target="_blank" rel="noopener">&#9654; 1:38</a></div><p>Si al simular aparece un error porque no reconoce <b>VDDA</b>, ve a <b>Design → Configure Power Rails…</b>.</p><p>En el riel de 3.3 V (VCC/VDD) pasa <b>VDDA</b> de la lista de la izquierda (sin conectar) a la de la derecha con <b>Add</b>.</p><div class="dos"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Actualización de mis librerías Blue Pill y Black Pill para Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="Actualización de mis librerías Blue Pill y Black Pill para Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Probar</h3><a class="min" href="https://youtu.be/gDjPsqsIy6w?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><p>Con eso la simulación del ADC funciona: el LCD y la terminal virtual muestran el código del ADC, el voltaje y la temperatura.</p><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Actualización de mis librerías Blue Pill y Black Pill para Proteus" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=gDjPsqsIy6w" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Analizando el esquemático de la Black Pill: daños comunes y reparación · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Recorrido por el plano de la Black Pill (STM32F401/F411 de WeAct): pulsadores, BOOT, RTC con batería, cristales, regulador de 3.3 V, USB-C, el diodo que más se quema y cómo salvar la tarjeta.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/Z3oG9cOtZq4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Analizando el esquemático de la Black Pill: daños comunes y reparación · Paso a paso">
+  <meta property="og:description" content="Recorrido por el plano de la Black Pill (STM32F401/F411 de WeAct): pulsadores, BOOT, RTC con batería, cristales, regulador de 3.3 V, USB-C, el diodo que más se quema y cómo salvar la tarjeta.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/Z3oG9cOtZq4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Z3oG9cOtZq4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>El esquemático de la <span>Black Pill</span>, daños y reparación</h1>
+    <p class="lead">Como ingenieros hay que conocer la tarjeta con la que trabajamos. Se analiza bloque por bloque el esquemático de la Black Pill V3.0 de WeAct Studio: el pulsador de usuario en PA0, el reset, los pines BOOT, el respaldo de batería del RTC, los dos cristales, la alimentación del micro con su bobina para VREF, los LED, el regulador de 3.3 V, el conector SWD y el USB-C. Al final se explica la falla más común (el diodo de 5 V que se quema al conectar cargas) y tres maneras de seguir usando la tarjeta, y la memoria Flash SPI opcional que se puede soldar por debajo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Z3oG9cOtZq4" target="_blank" rel="noopener">&#9654; Ver el video completo (15:41)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/610.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación"></figure>
+    <ul class="materiales"><li>Esquemático de la Black Pill (WeAct Studio, STM32F4x1Cx V3.0)</li><li>Tarjeta Black Pill</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Vista general</a><a href="#f2">2 · Entradas y arranque</a><a href="#f3">3 · RTC y cristales</a><a href="#f4">4 · 3.3 V y LED</a><a href="#f5">5 · SWD y USB-C</a><a href="#f6">6 · Reparación</a><a href="#f7">7 · Flash opcional</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Lo que se ve en la tarjeta</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Componentes a simple vista</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=31" target="_blank" rel="noopener">&#9654; 0:31</a></div><p>La tarjeta tiene pulsadores de <b>BOOT0</b>, <b>NRST</b> (reset) y <b>KEY</b> (usuario), un LED de encendido, un LED de usuario en <b>PC13</b> y los pines a los lados. Para entender qué hay detrás, lo correcto es leer el esquemático.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Pulsadores, reset y BOOT</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Tecla de usuario en PA0</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=63" target="_blank" rel="noopener">&#9654; 1:03</a></div><p>El pulsador KEY va a <b>PA0</b> a través de una resistencia de 330 Ω y cierra a tierra. No tiene pull-up ni pull-down externo, así que al usarlo configura el pin con <b>pull-up</b> interno: presionado da 0.</p><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Circuito de reset</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=95" target="_blank" rel="noopener">&#9654; 1:35</a></div><p>NRST tiene una resistencia a 3.3 V para que el micro no quede reseteado y un condensador de 100 nF que filtra el ruido. En diseños propios o industriales no lo omitas: evita reinicios por ruido.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>BOOT0 y BOOT1</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=129" target="_blank" rel="noopener">&#9654; 2:09</a></div><p>El pulsador BOOT0 pone un 1 al presionarlo (normalmente está a tierra con 10 kΩ). BOOT1 va a tierra con otra resistencia de 10 kΩ en <b>PB2</b>: la combinación BOOT0=1, BOOT1=0 entra al cargador por USB (DFU), así que PB2 queda libre para usar.</p><div class="uno"><figure class="cap"><a href="img/135.webp" target="_blank"><img src="img/135.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Reloj y respaldo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Batería del RTC con diodo doble</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=161" target="_blank" rel="noopener">&#9654; 2:41</a></div><p>El pin <b>VBAT</b> alimenta el reloj de tiempo real en bajo consumo. Tiene un condensador de 100 nF y un diodo doble <b>BAT54C</b>: entra la alimentación de 3.3 V o la de una batería externa (VB), la que esté presente. Es un buen circuito de respaldo.</p><div class="uno"><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Dos cristales</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=223" target="_blank" rel="noopener">&#9654; 3:43</a></div><p>Hay un cristal de <b>32.768 kHz</b> para el RTC y otro de <b>25 MHz</b> para el reloj principal. Cada uno con sus dos capacitores a tierra, todo pegado al micro, como debe ser en un buen diseño. VCAP lleva un capacitor de 2.2 µF que necesita el núcleo ARM.</p><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Alimentación</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Alimentación del micro y VREF</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=324" target="_blank" rel="noopener">&#9654; 5:24</a></div><p>El micro trabaja a 3.3 V (no a 5 V). Todos los VDD llevan sus capacitores de 100 nF. VREF+ del ADC está fijo a 3.3 V a través de una bobina de choque que reduce el ruido; no se puede cambiar la referencia.</p><div class="uno"><figure class="cap"><a href="img/365.webp" target="_blank"><img src="img/365.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>LED de usuario y de encendido</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=391" target="_blank" rel="noopener">&#9654; 6:31</a></div><p>El LED de <b>PC13</b> está conectado a 3.3 V: es de <b>lógica negativa</b>. Con un 0 se enciende y con un 1 se apaga.</p><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Regulador de 5 V a 3.3 V</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=425" target="_blank" rel="noopener">&#9654; 7:05</a></div><p>El regulador (de 300 mA) lleva capacitores en la entrada de 5 V y en la salida de 3.3 V. Algunas tarjetas traen una versión sin referencia visible.</p><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Programación y USB</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Conector SWD</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=492" target="_blank" rel="noopener">&#9654; 8:12</a></div><p>El conector de 4 pines de arriba tiene 3.3 V, <b>SWDIO (PA13)</b>, <b>SWCLK (PA14)</b> y GND: ahí se conecta el ST-Link.</p><div class="uno"><figure class="cap"><a href="img/510.webp" target="_blank"><img src="img/510.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>USB-C y el diodo de VBUS</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=525" target="_blank" rel="noopener">&#9654; 8:45</a></div><p>Los 5 V del USB (VBUS) pasan por un diodo antes de llegar al regulador. Ese diodo, de 1 A, es lo que <b>más se quema</b> cuando se conectan motores, muchos LED o cargas directamente a la tarjeta.</p><div class="dos"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f6"><div class="contenedor"><span class="etiqueta">Fase 6</span><h2>Si se quema el diodo</h2><article class="paso"><div class="paso-cab"><span class="num">6.1</span><h3>Tres salidas</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=660" target="_blank" rel="noopener">&#9654; 11:00</a></div><p>Para evitarlo usa resistencias, transistores o drivers (puente H) y no alimentes cargas desde la tarjeta. Si ya se dañó:</p><ul><li>Alimentar la tarjeta directamente por el pin de <b>3.3 V</b> (por ejemplo desde el ST-Link) y seguir trabajando.</li><li>Cambiar el diodo de montaje superficial por otro (un 1N4148 sirve si el consumo es bajo).</li><li>Como último recurso, puentear el diodo. Es bajo tu propio riesgo: el puerto USB del computador queda sin protección.</li></ul><p class="ojo">Antes de puentear, encuentra y quita el corto que quemó el diodo.</p><div class="uno"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f7"><div class="contenedor"><span class="etiqueta">Fase 7</span><h2>Extra: memoria Flash SPI</h2><article class="paso"><div class="paso-cab"><span class="num">7.1</span><h3>Espacio para una Flash W25Q</h3><a class="min" href="https://youtu.be/Z3oG9cOtZq4?t=792" target="_blank" rel="noopener">&#9654; 13:12</a></div><p>Por debajo hay un espacio (U3, SOIC-8) para soldar una memoria Flash SPI tipo <b>W25Q32</b>, conectada a PA4–PA7. Sirve para guardar datos (el micro no tiene EEPROM) o ampliar el almacenamiento.</p><div class="uno"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Analizando el esquemático de la Black Pill: daños comunes y reparación" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Z3oG9cOtZq4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

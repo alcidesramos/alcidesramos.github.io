@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ST-Link clon con esteroides: firmware de memoria USB (Mass Storage) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cambiar el firmware del Mini Debugger WeAct a Debug + Mass storage + VCP: aparece una unidad STLINK y se programa el STM32 arrastrando el .hex.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/HzFlAdeSvWs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="ST-Link clon con esteroides: firmware de memoria USB (Mass Storage) · Paso a paso">
+  <meta property="og:description" content="Cambiar el firmware del Mini Debugger WeAct a Debug + Mass storage + VCP: aparece una unidad STLINK y se programa el STM32 arrastrando el .hex.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/HzFlAdeSvWs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/HzFlAdeSvWs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>ST-Link como <span>memoria USB</span> para programar</h1>
+    <p class="lead">Una función más del programador WeAct: al cambiar el tipo de firmware a STM32 Debug + Mass storage + VCP, al conectarlo aparece en Windows una unidad llamada STLINK, como una memoria USB. Basta arrastrar el archivo .hex a esa unidad para programar el micro, sin abrir STM32CubeProgrammer ni STM32CubeIDE.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=HzFlAdeSvWs" target="_blank" rel="noopener">&#9654; Ver el video completo (5:24)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/140.webp" alt="ST-Link clon con esteroides: firmware de memoria USB (Mass Storage)"></figure>
+    <ul class="materiales"><li>WeAct Mini Debugger (STLink-STM32)</li><li>Blue Pill o Black Pill</li><li>STM32CubeProgrammer (solo para cambiar el firmware)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Mass storage</a><a href="#f2">2 · Copiar el .hex</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Cambiar el tipo de firmware</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Puerto serial ya disponible</h3><a class="min" href="https://youtu.be/HzFlAdeSvWs?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Al conectarlo, en el Administrador de dispositivos ya aparece <b>STMicroelectronics STLink Virtual COM Port</b>: sirve como cable USB-serial.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="ST-Link clon con esteroides: firmware de memoria USB (Mass Storage)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Abrir Firmware upgrade</h3><a class="min" href="https://youtu.be/HzFlAdeSvWs?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>En STM32CubeProgrammer pulsa <b>Firmware upgrade</b>. Desconecta y vuelve a conectar el programador, pulsa Refresh y <b>Open in update mode</b>.</p><div class="dos"><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="ST-Link clon con esteroides: firmware de memoria USB (Mass Storage)" loading="lazy"></a></figure><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="ST-Link clon con esteroides: firmware de memoria USB (Mass Storage)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Change Type</h3><a class="min" href="https://youtu.be/HzFlAdeSvWs?t=67" target="_blank" rel="noopener">&#9654; 1:07</a></div><p>Marca <b>Change Type</b> y elige <b>STM32 Debug+Mass storage+VCP</b> en vez de STM32 Debug+VCP. Pulsa <b>Upgrade</b>.</p><div class="dos"><figure class="cap"><a href="img/95.webp" target="_blank"><img src="img/95.webp" alt="ST-Link clon con esteroides: firmware de memoria USB (Mass Storage)" loading="lazy"></a></figure><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="ST-Link clon con esteroides: firmware de memoria USB (Mass Storage)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Listo</h3><a class="min" href="https://youtu.be/HzFlAdeSvWs?t=120" target="_blank" rel="noopener">&#9654; 2:00</a></div><p>Al terminar dice <i>Upgrade successful</i> y el tipo queda como Debug+Mass storage+VCP. Windows muestra una unidad nueva llamada <b>STLINK</b>.</p><p class="ojo">Si algo no te gusta, vuelve a Change Type y deja el firmware como estaba.</p><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="ST-Link clon con esteroides: firmware de memoria USB (Mass Storage)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programar arrastrando</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Copiar el .hex a la unidad STLINK</h3><a class="min" href="https://youtu.be/HzFlAdeSvWs?t=160" target="_blank" rel="noopener">&#9654; 2:40</a></div><p>Busca el programa en la carpeta <b>Debug</b> del proyecto y copia el archivo <b>.hex</b> a la unidad STLINK. El .elf no lo acepta (es más pesado); usa el .hex.</p><p>La copia programa el micro y el LED empieza a titilar.</p><div class="dos"><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="ST-Link clon con esteroides: firmware de memoria USB (Mass Storage)" loading="lazy"></a></figure><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="ST-Link clon con esteroides: firmware de memoria USB (Mass Storage)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Para qué sirve</h3><a class="min" href="https://youtu.be/HzFlAdeSvWs?t=241" target="_blank" rel="noopener">&#9654; 4:01</a></div><p>Si alguien te pasa un .hex, puedes programar una tarjeta sin instalar CubeProgrammer ni CubeIDE. El mismo programador sigue dando 3.3 V y 5 V, puerto serial y debug con STM32CubeIDE.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=HzFlAdeSvWs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

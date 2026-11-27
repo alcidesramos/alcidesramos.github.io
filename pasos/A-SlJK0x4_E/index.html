@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32 MCU Finder: elegir el microcontrolador adecuado · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo usar ST-MCU-FINDER-PC para filtrar entre miles de STM32 por encapsulado, núcleo o periféricos (por ejemplo, 8 pines o con DAC).">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/A-SlJK0x4_E/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="STM32 MCU Finder: elegir el microcontrolador adecuado · Paso a paso">
+  <meta property="og:description" content="Cómo usar ST-MCU-FINDER-PC para filtrar entre miles de STM32 por encapsulado, núcleo o periféricos (por ejemplo, 8 pines o con DAC).">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/A-SlJK0x4_E/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/A-SlJK0x4_E/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>Elegir el micro con <span>STM32 MCU Finder</span></h1>
+    <p class="lead">Cuando hay que escoger un micro para un proyecto, ST tiene una herramienta gratuita, STM32 MCU Finder, que permite filtrar todos los STM32 por memoria, encapsulado, núcleo y periféricos. En este video corto se hacen dos búsquedas: un micro diminuto de 8 pines para un llavero (STM32G031 en SO-8) y un Cortex-M4 con dos DAC (STM32F405). Luego se revisan sus características antes de comprarlo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=A-SlJK0x4_E" target="_blank" rel="noopener">&#9654; Ver el video completo (4:07)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/80.webp" alt="STM32 MCU Finder: elegir el microcontrolador adecuado"></figure>
+    <ul class="materiales"><li>ST-MCU-FINDER-PC (descarga gratuita en st.com)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Instalar MCU Finder</a><a href="#f2">2 · Encapsulado SO-8</a><a href="#f3">3 · Filtrar por periféricos</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La herramienta</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Descargar ST-MCU-FINDER-PC</h3><a class="min" href="https://youtu.be/A-SlJK0x4_E?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>Busca <b>stm32 mcu finder</b>: es el programa ST-MCU-FINDER-PC de STMicroelectronics para escritorio. Se instala como cualquier aplicación.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="STM32 MCU Finder: elegir el microcontrolador adecuado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Los filtros</h3><a class="min" href="https://youtu.be/A-SlJK0x4_E?t=40" target="_blank" rel="noopener">&#9654; 0:40</a></div><p>A la izquierda están los filtros: Product info, Memory, Timer, Analog, Communication interface, etc. Abajo aparece la lista de micros que cumplen (al inicio, más de 3600).</p><div class="uno"><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="STM32 MCU Finder: elegir el microcontrolador adecuado" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Ejemplo 1: un micro de 8 pines</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Filtrar por encapsulado</h3><a class="min" href="https://youtu.be/A-SlJK0x4_E?t=45" target="_blank" rel="noopener">&#9654; 0:45</a></div><p>En <b>Product info → Package</b> marca <b>SO-8</b>. La lista queda solo con los STM32 de 8 pines, ideales para algo que quepa en la mano.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="STM32 MCU Finder: elegir el microcontrolador adecuado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Revisar el micro</h3><a class="min" href="https://youtu.be/A-SlJK0x4_E?t=74" target="_blank" rel="noopener">&#9654; 1:14</a></div><p>Al seleccionar uno (por ejemplo <b>STM32G031J6M6</b>) se ve el resumen: Cortex-M0+ a 64 MHz, 32 KB de Flash, 8 KB de RAM, USART, timers y ADC. Con la referencia ya se puede buscar dónde comprarlo.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Ejemplo 2: un Cortex-M4 con DAC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Limpiar filtros y elegir la serie</h3><a class="min" href="https://youtu.be/A-SlJK0x4_E?t=139" target="_blank" rel="noopener">&#9654; 2:19</a></div><p>Primero limpia los filtros anteriores. En <b>Series</b> marca los Cortex-M4 (por ejemplo STM32F4).</p><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="STM32 MCU Finder: elegir el microcontrolador adecuado" loading="lazy"></a></figure><figure class="cap"><a href="img/165.webp" target="_blank"><img src="img/165.webp" alt="STM32 MCU Finder: elegir el microcontrolador adecuado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Pedir 1 a 2 DAC</h3><a class="min" href="https://youtu.be/A-SlJK0x4_E?t=173" target="_blank" rel="noopener">&#9654; 2:53</a></div><p>En <b>Analog → DAC 12-bit</b> mueve el rango de 1 a 2 canales. Aparecen los <b>STM32F405</b>, Cortex-M4 con DSP y FPU a 168 MHz.</p><p class="ojo">Revisa la columna Marketing status: algunos aparecen como NRND (no recomendado para diseños nuevos).</p><div class="dos"><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="STM32 MCU Finder: elegir el microcontrolador adecuado" loading="lazy"></a></figure><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="STM32 MCU Finder: elegir el microcontrolador adecuado" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=A-SlJK0x4_E" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Probando el ST-Link V2 clon &quot;con esteroides&quot;: mejor que el original · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Segunda prueba del Mini Debugger de WeAct: alimentación a 3.3 V o 5 V, puerto serial virtual, actualización desde CubeIDE y debug con variables vigiladas.">
+  <link rel="canonical" href="https://alcidesramos.github.io/pasos/-NsYqoONvYI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Probando el ST-Link V2 clon &quot;con esteroides&quot;: mejor que el original · Paso a paso">
+  <meta property="og:description" content="Segunda prueba del Mini Debugger de WeAct: alimentación a 3.3 V o 5 V, puerto serial virtual, actualización desde CubeIDE y debug con variables vigiladas.">
+  <meta property="og:url" content="https://alcidesramos.github.io/pasos/-NsYqoONvYI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/-NsYqoONvYI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>Probando el ST-Link <span>con esteroides</span></h1>
+    <p class="lead">Más pruebas con el programador WeAct que se reconoce como ST-Link original. Se alimenta la tarjeta a 3.3 V o a 5 V, se programa desde STM32CubeProgrammer sin trucos, se actualiza el firmware desde STM32CubeIDE, se usa su puerto serial virtual para ver mensajes del micro y se depura paso a paso vigilando una variable en Expressions. La recomendación final: este reemplaza al clon común, que no permite depurar.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=-NsYqoONvYI" target="_blank" rel="noopener">&#9654; Ver el video completo (11:08)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/150.webp" alt="Probando el ST-Link V2 clon &quot;con esteroides&quot;: mejor que el original"></figure>
+    <ul class="materiales"><li>WeAct Mini Debugger (STLink-STM32)</li><li>Black Pill STM32F411</li><li>STM32CubeIDE y STM32CubeProgrammer</li><li>Terminal serial (Hercules)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · 3.3 V o 5 V</a><a href="#f2">2 · Firmware</a><a href="#f3">3 · VCP</a><a href="#f4">4 · Expressions</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Conexión y alimentación</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Los pines que importan</h3><a class="min" href="https://youtu.be/-NsYqoONvYI?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El programador trae marcados 3V3, SWDIO, SWCLK, GND, SWO, NRST, RXD, TXD, GND y 5V. Para programar basta con <b>3.3 V (rojo), SWDIO (negro), SWCLK (amarillo) y GND (verde o café)</b>.</p><div class="uno"><figure class="cap"><a href="img/15.webp" target="_blank"><img src="img/15.webp" alt="Probando el ST-Link V2 clon &quot;con esteroides&quot;: mejor que el original" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Alimentar a 3.3 V o a 5 V</h3><a class="min" href="https://youtu.be/-NsYqoONvYI?t=104" target="_blank" rel="noopener">&#9654; 1:44</a></div><p>Puedes alimentar la tarjeta por 3.3 V directo, o quitar ese cable y llevar los <b>5 V</b> (gris) al pin de 5 V para que el regulador de la tarjeta haga el resto.</p><p>Sirve para sensores y cosas de bajo consumo; no para motores ni cargas de corriente.</p><p class="ojo">No alimentes motores desde el programador ni desde la tarjeta.</p><div class="uno"><figure class="cap"><a href="img/115.webp" target="_blank"><img src="img/115.webp" alt="Probando el ST-Link V2 clon &quot;con esteroides&quot;: mejor que el original" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Programar desde CubeProgrammer</h3><a class="min" href="https://youtu.be/-NsYqoONvYI?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>Al pulsar Connect lo reconoce de una vez, sin activar Shared. Se carga un .hex de LED con Download y, tras un reset, el LED titila.</p><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Probando el ST-Link V2 clon &quot;con esteroides&quot;: mejor que el original" loading="lazy"></a></figure><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Probando el ST-Link V2 clon &quot;con esteroides&quot;: mejor que el original" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Actualizar desde STM32CubeIDE</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Debugger: ST-LINK y Scan</h3><a class="min" href="https://youtu.be/-NsYqoONvYI?t=238" target="_blank" rel="noopener">&#9654; 3:58</a></div><p>En la configuración de Debug elige <b>ST-LINK (ST-LINK GDB server)</b> y pulsa <b>Scan</b> para detectarlo.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Aceptar la actualización</h3><a class="min" href="https://youtu.be/-NsYqoONvYI?t=270" target="_blank" rel="noopener">&#9654; 4:30</a></div><p>Aunque ya lo hayas actualizado con CubeProgrammer, CubeIDE vuelve a pedirlo: acepta con <b>Yes</b> y en STLinkUpgrade pulsa Open in update mode y Upgrade. Así queda como <b>STM32 Debug+VCP</b> y se puede depurar.</p><div class="dos"><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Probando el ST-Link V2 clon &quot;con esteroides&quot;: mejor que el original" loading="lazy"></a></figure><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Probando el ST-Link V2 clon &quot;con esteroides&quot;: mejor que el original" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Puerto serial virtual</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Conectar el RX</h3><a class="min" href="https://youtu.be/-NsYqoONvYI?t=373" target="_blank" rel="noopener">&#9654; 6:13</a></div><p>Lleva el cable <b>morado (RX del programador)</b> al TX del micro (<b>PA9</b> en la Black Pill). Abre una terminal en el COM que crea el programador a 9600 baudios.</p><div class="uno"><figure class="cap"><a href="img/415.webp" target="_blank"><img src="img/415.webp" alt="Probando el ST-Link V2 clon &quot;con esteroides&quot;: mejor que el original" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Mensajes del micro</h3><a class="min" href="https://youtu.be/-NsYqoONvYI?t=341" target="_blank" rel="noopener">&#9654; 5:41</a></div><p>El programa envía "Iniciando" una vez y luego "Probando" en cada vuelta mientras alterna el LED. Al resetear la tarjeta vuelve a salir "Iniciando".</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, &quot;Iniciando\r\n&quot;);
+while (1)
+{
+  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  uartx_write_text(&amp;huart1, &quot;Probando\r\n&quot;);
+  HAL_Delay(500);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Probando el ST-Link V2 clon &quot;con esteroides&quot;: mejor que el original" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Debug con variables</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Paso a paso</h3><a class="min" href="https://youtu.be/-NsYqoONvYI?t=444" target="_blank" rel="noopener">&#9654; 7:24</a></div><p>Con el botón de debug corre el programa línea a línea. <b>Step Over</b> salta las funciones largas; cada paso se ve en el LED y en la terminal.</p></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Vigilar una variable</h3><a class="min" href="https://youtu.be/-NsYqoONvYI?t=507" target="_blank" rel="noopener">&#9654; 8:27</a></div><p>Crea una variable de prueba, por ejemplo <code>uint8_t PRUEBA = 20;</code> y más abajo <code>PRUEBA = 50;</code>.</p><p>En debug, clic derecho sobre la variable → <b>Add Watch Expression</b>. En la pestaña Expressions verás que vale 20 y, tras el siguiente paso, 50.</p><p class="ojo">Para un proyecto que vas a entregar, al final protege el micro contra lectura.</p><div class="uno"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Probando el ST-Link V2 clon &quot;con esteroides&quot;: mejor que el original" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=-NsYqoONvYI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
