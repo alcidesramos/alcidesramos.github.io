@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Pulsos y pines del servo, ejercicio en Proteus con tres servos a -90, 0 y 90 grados, un timer a 50 Hz en microsegundos con tres canales PWM, librerías servos y PWMB para dos servos y un motor DC con puente H L298, el laboratorio 4 y una muestra de control por internet con ESP32 simulado en Wokwi.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/VHQB1MrBZGM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4 · Paso a paso">
+  <meta property="og:description" content="Pulsos y pines del servo, ejercicio en Proteus con tres servos a -90, 0 y 90 grados, un timer a 50 Hz en microsegundos con tres canales PWM, librerías servos y PWMB para dos servos y un motor DC con puente H L298, el laboratorio 4 y una muestra de control por internet con ESP32 simulado en Wokwi.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/VHQB1MrBZGM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/VHQB1MrBZGM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Servos, motor DC y <span>PWM</span> con librerías (grupo H)</h1>
+    <p class="lead">Es la versión del grupo H de la clase de servos. Se repasa la señal del servo (50 Hz, de 1 a 2 ms) y se hace un reto en Proteus con generadores de pulso. Luego se configura el TIM1 con tres canales en PWM, todos a 50 Hz porque comparten timer con los servos, usando la hoja de cálculo de timers para el prescaler y el periodo. Con las librerías servos y PWMB se mueven dos servos y se cambia la velocidad de un motor DC a través de un L298. Al final se explica el laboratorio 4 y se muestra una simulación en Wokwi de un ESP32 con servo, LEDs y DHT22 controlados desde una página web.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=VHQB1MrBZGM" target="_blank" rel="noopener">&#9654; Ver el video completo (86:58)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/4420.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401 o F411</li><li>VS Code con la extensión de STM32</li><li>STM32CubeMX</li><li>Proteus con la Black Pill, MOTOR-PWMSERVO, motor DC y L298</li><li>Librerías servos.c/.h y PWMB.c/.h</li><li>Hoja de cálculo para timers (opcional)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Servo</a><a href="#f2">2 · Timer PWM</a><a href="#f3">3 · Librerías</a><a href="#f4">4 · Motor DC</a><a href="#f5">5 · Laboratorio</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El servomotor</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Frecuencia y pulso</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=1002" target="_blank" rel="noopener">&#9654; 16:42</a></div><p>Un servo trabaja sí o sí a <b>50 Hz</b>. El pulso va de 1 ms a 2 ms: 1 ms es -90° (o 0°) y 2 ms es 90° (o 180°). El rango es el mismo; solo cambia la escala que uno use.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pines del servo</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=1100" target="_blank" rel="noopener">&#9654; 18:20</a></div><p>En el cable real, un extremo es tierra, el centro es positivo (de 4,5 a 7,2 V en la mayoría) y el otro extremo es la señal. No necesita driver ni transistor. En Proteus la señal está en el centro, el positivo arriba y la tierra abajo; para simular basta con la señal.</p><p class="ojo">Si haces una PCB, usa el orden de pines del servo real, no el del símbolo de Proteus.</p><div class="uno"><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Reto: tres servos</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=1274" target="_blank" rel="noopener">&#9654; 21:14</a></div><p>Con un generador PULSE en la señal de control, tres servos deben quedar en -90°, 0° y 90° al primer play: pulsos de 1 ms, 1,5 ms y 2 ms con la misma frecuencia. En el generador el tiempo se escribe con unidades, por ejemplo <b>1m</b> para 1 ms.</p><div class="uno"><figure class="cap"><a href="img/1340.webp" target="_blank"><img src="img/1340.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Calibrar servos reales</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=3479" target="_blank" rel="noopener">&#9654; 57:59</a></div><p>El rango de 1 a 2 ms sirve para drones, aviones y barcos. En brazos robóticos muchos servos van de 0,5 a unos 2,4 ms. Sin datasheet, sube poco a poco (2,1, 2,3, 2,4) o baja de 1 ms hacia 0,5, sin pasarte, porque el motor empieza a sonar y se puede dañar.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Timer en modo PWM</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Canales del timer</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=2366" target="_blank" rel="noopener">&#9654; 39:26</a></div><p>La mayoría de timers tiene cuatro canales PWM y este micro tiene cerca de 18 salidas. En el TIM1 se pone el reloj interno; ahora sí se usan pines físicos.</p><div class="uno"><figure class="cap"><a href="img/2480.webp" target="_blank"><img src="img/2480.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>¿Juntos o separados?</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=2465" target="_blank" rel="noopener">&#9654; 41:05</a></div><p>Se van a manejar dos servos y un motor DC (que también puede ser una bomba, un motovibrador o un bombillo de 12 V). Si todo va en el mismo timer, la frecuencia la impone el servo: <b>50 Hz</b>. Si se separan, el motor puede ir a 1 kHz, 10 kHz o 20 kHz en su propio timer.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Prescaler y periodo</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=2637" target="_blank" rel="noopener">&#9654; 43:57</a></div><p>Las librerías de servos necesitan que el timer cuente en microsegundos. Con 16 MHz el prescaler es <b>16 - 1</b> y el periodo <b>20000 - 1</b> para llegar a 20 ms (50 Hz). La hoja de cálculo de timers ayuda a verificarlo.</p><div class="uno"><figure class="cap"><a href="img/2660.webp" target="_blank"><img src="img/2660.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Tres canales PWM</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=2773" target="_blank" rel="noopener">&#9654; 46:13</a></div><p>Se activan tres canales en <b>PWM Generation CHx</b>, se ponen el prescaler y el periodo y se habilita el auto-reload. El pulso inicial de cada canal se puede dejar así porque lo maneja la librería.</p><div class="uno"><figure class="cap"><a href="img/2830.webp" target="_blank"><img src="img/2830.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librerías servos y PWMB</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Librerías separadas</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=2931" target="_blank" rel="noopener">&#9654; 48:51</a></div><p>Se crea la carpeta de librerías y se copian <b>PWMB.c/.h</b> (PWM básico) y <b>servos.c/.h</b>. Si se hacen librerías propias, deben ir en su .c y .h, no todo revuelto en el main: eso es programación estructurada.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configurar los servos</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=3102" target="_blank" rel="noopener">&#9654; 51:42</a></div><p>En servos.c se declara el timer y cada servo con su canal. La librería admite hasta 20 servos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern TIM_HandleTypeDef htim1;
+SERVOS SERVO1 = {&amp;htim1, &amp;(TIM1-&gt;CCR1), TIM_CHANNEL_1};
+SERVOS SERVO2 = {&amp;htim1, &amp;(TIM1-&gt;CCR2), TIM_CHANNEL_2};</code></pre></div><div class="uno"><figure class="cap"><a href="img/3110.webp" target="_blank"><img src="img/3110.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Configurar el PWM</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=3240" target="_blank" rel="noopener">&#9654; 54:00</a></div><p>En PWMB.c se pone la escala (0 a 100 para trabajar en porcentaje; hasta 10000 si se quiere más resolución, por ejemplo en un robot minisumo) y cada salida PWM con su timer y canal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float escala = 100;
+extern TIM_HandleTypeDef htim1;
+PWMS PWM1 = {&amp;htim1, &amp;(TIM1-&gt;CCR3), TIM_CHANNEL_3};</code></pre></div><p class="ojo">Si falla la compilación, revisa que el botón mágico haya agregado las librerías y que no queden caracteres de más en las líneas comentadas.</p><div class="uno"><figure class="cap"><a href="img/3290.webp" target="_blank"><img src="img/3290.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Límites del servo</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=3479" target="_blank" rel="noopener">&#9654; 57:59</a></div><p>En servos.h se ajustan los límites del pulso y el rango de ángulos (de -90 a 90 o de 0 a 180).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define ser_lim_inf_ms 1.0
+#define ser_lim_sup_ms 2.0
+#define ser_inf -90.0
+#define ser_sup  90.0</code></pre></div><div class="uno"><figure class="cap"><a href="img/3500.webp" target="_blank"><img src="img/3500.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Mover los servos</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=3544" target="_blank" rel="noopener">&#9654; 59:04</a></div><p>Antes del while se inicia cada servo y en el while se les da el ángulo. Las líneas que se agregan deben ir dentro de los USER CODE para que no se borren al regenerar código. También existe una función para dar el pulso en milisegundos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>SERVO_init(&amp;SERVO1);
+SERVO_init(&amp;SERVO2);
+
+while (1)
+{
+  SERVO_ANG(&amp;SERVO1, 30);
+  SERVO_ANG(&amp;SERVO2, -30);
+  HAL_Delay(1000);
+  SERVO_ANG(&amp;SERVO1, 90);
+  SERVO_ANG(&amp;SERVO2, -90);
+  HAL_Delay(1000);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/3620.webp" target="_blank"><img src="img/3620.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.6</span><h3>Prueba de los servos</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=3754" target="_blank" rel="noopener">&#9654; 62:34</a></div><p>En Proteus se quitan los generadores de dos servos y se conectan a PA8 y PA9. Al dar play, los servos se mueven a los ángulos programados.</p><div class="uno"><figure class="cap"><a href="img/3870.webp" target="_blank"><img src="img/3870.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Motor DC con puente H</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>L298 en Proteus</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=3894" target="_blank" rel="noopener">&#9654; 64:54</a></div><p>El micro no se conecta directo al motor. Se pone un <b>L298</b>: el motor en OUT1/OUT2, SENSA y SENSB a tierra, IN1 e IN2 con LOGICSTATE para el giro y <b>ENA</b> al pin del PWM (PA10). VS a +12 V y VCC a +5 V.</p><p class="ojo">Con una resistencia pequeña (1 a 2,7 Ω) en SENSA se obtiene un voltaje proporcional a la corriente del motor, que se puede leer con el ADC para detectar sobrecorriente.</p><div class="uno"><figure class="cap"><a href="img/4000.webp" target="_blank"><img src="img/4000.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Velocidad con PWM_valor</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=4184" target="_blank" rel="noopener">&#9654; 69:44</a></div><p>Se inicia el PWM antes del while y se le da un valor de 0 a 100. Para notar el cambio de velocidad pese a la inercia, se alterna 90 % y 10 % cada pocos segundos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PWM_init(&amp;PWM1);
+
+while (1)
+{
+  SERVO_ANG(&amp;SERVO1, 30);
+  SERVO_ANG(&amp;SERVO2, -30);
+  PWM_valor(&amp;PWM1, 90);
+  HAL_Delay(3000);
+  SERVO_ANG(&amp;SERVO1, 90);
+  SERVO_ANG(&amp;SERVO2, -90);
+  PWM_valor(&amp;PWM1, 10);
+  HAL_Delay(3000);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/4280.webp" target="_blank"><img src="img/4280.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Prueba completa</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=4403" target="_blank" rel="noopener">&#9654; 73:23</a></div><p>Con IN1 e IN2 en estados distintos el motor gira, rápido con 90 % y lento con 10 %, mientras los servos se mueven. Si en vez del motor va un motovibrador o una bomba, funciona igual.</p><div class="uno"><figure class="cap"><a href="img/4420.webp" target="_blank"><img src="img/4420.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Laboratorio 4 e IoT</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Qué pide el laboratorio</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=4645" target="_blank" rel="noopener">&#9654; 77:25</a></div><p>El laboratorio junta todo lo visto:</p><ul><li>Tres LEDs titilando a tiempos distintos con un timer</li><li>Un LED asociado a un pulsador por interrupción de flanco</li><li>Un LED que se prende y apaga por interrupción serial</li><li>Un actuador del proyecto con PWM cuyo valor llega por serial, por ejemplo <b>SERVO=90*</b></li><li>Las órdenes llegan por Bluetooth o WiFi, sin el cable del programador</li></ul></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Control por internet con ESP32</h3><a class="min" href="https://youtu.be/VHQB1MrBZGM?t=4813" target="_blank" rel="noopener">&#9654; 80:13</a></div><p>Como muestra de IoT se simula en <b>Wokwi</b> dentro de VS Code un ESP32 con servo, LEDs y sensor DHT22, controlado desde una página web por MQTT. En el proyecto, el ESP32 puede ser el puente a internet, pero los actuadores los maneja el STM32; también se puede usar el módulo DT-06.</p><div class="dos"><figure class="cap"><a href="img/4850.webp" target="_blank"><img src="img/4850.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure><figure class="cap"><a href="img/4930.webp" target="_blank"><img src="img/4930.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure><figure class="cap"><a href="img/4990.webp" target="_blank"><img src="img/4990.webp" alt="Clase en vivo 2026-II (grupo H): servomotores y motor DC con PWM en STM32, librerías servos y PWMB, puente H L298 y laboratorio 4" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=VHQB1MrBZGM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
