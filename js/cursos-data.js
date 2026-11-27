@@ -117,7 +117,8 @@ const CURSOS = {
 "d": "Indica, los temas tarjetas y software autilizar en el curso. se recomienda ver este video de la familia stm32 y el link de librerias en proteus.",
 "c": [
 "https://github.com/alcidesramos/LIBRERIAS_PROTEUS_2026"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/tree/main/LIBRERIAS_PROTEUS"
 },
 {
 "id": "BC46jcSBV8I",
@@ -544,7 +545,8 @@ const CURSOS = {
 "d": "Muestra como usar la aplicacion bluetooth electronics para monitorear variables analogas y digitales en el celular.",
 "c": [
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-turbulencia-serial"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/BLUETOOTH_ELECTRONICS/turbulencia_BLUE.rar"
 },
 {
 "id": "hNp0Ox3xM5Y",
@@ -982,9 +984,9 @@ const CURSOS = {
 "t": "Librerias de manejo de memoria SD",
 "d": "De memoria Muestra como cerar archivos y manejar una memorisa sd con stm32. imagen d ela memoria.",
 "c": [
-"https://github.com/alcidesramos/archivos-youtube/raw/main/MEMORIA_SD_STM32/sdcard_image.mmc",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5761-stm32-sd-library"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/MEMORIA_SD_STM32/sdcard_image.mmc"
 },
 {
 "id": "RTduyquKRUg",
@@ -1318,7 +1320,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/conmutada_LAZO_ABIERTO",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-fuente-conmutada"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/CONMUTADA_LAZO_ABIERTO/conmutada%20canal.rar"
 },
 {
 "id": "f2-Re_lqEPY",
@@ -1328,7 +1331,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/conmutada_cana_PID",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-fuente-conmutada-pid"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/CONMUTADA_PID/conmutada%20cana_PID.rar"
 },
 {
 "id": "NRudNTw0RFM",
@@ -1338,7 +1342,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/LAZO_ABIERTO",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-control-motor-dc"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/CONTROL_MOTOR_LAZO_ABIERTO/CONTORL_MOTOR.rar"
 },
 {
 "id": "Chyq1VGmcv8",
@@ -1348,7 +1353,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/CONTROL_MOTOR_MUESTREO",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-control-motor-muestreo"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/CONTROL_MOTOR_MUESTREO/CONTORL_MOTOR_MUESTREO.rar"
 },
 {
 "id": "twqMAYntxLo",
@@ -1358,7 +1364,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/ADQUISION",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-motor-adquisicion"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/ADQUISICION/ADQUISION.rar"
 },
 {
 "id": "R3MppyNEEbU",
@@ -1368,7 +1375,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/Identificacion_PID1",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-identificacion-pid-1"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/Identificacion_PID1/Identificacion_PID1.rar"
 },
 {
 "id": "TBlBqf17pjU",
@@ -1378,7 +1386,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/Identificacion_PID2",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-identificacion-pid-2"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/Identificacion_PID2/Identificacion_PID2.rar"
 },
 {
 "id": "m47blusdFIo",
@@ -1388,7 +1397,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/ms5611_arz_presion",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-ms5611-presion"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/MS5611/ms5611_presion.rar"
 },
 {
 "id": "I733nHpXUoA",
@@ -1422,7 +1432,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/TFT_ILI9225",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-tft-ili9225"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/TFT_ILI9225/TFT_CANAL.rar"
 },
 {
 "id": "7mPNZSDV8dQ",
@@ -1432,7 +1443,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/TFT_ILI9488_CANAL",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-tft-ili9488"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/TFT_ILI9488/TFT_ILI9488_CANAL.rar"
 },
 {
 "id": "P2XmxowY0so",
@@ -1442,7 +1454,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/TFT_ILI9488_CANAL",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-tft-ili9488"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/TFT_ILI9488/TFT_ILI9488_CANAL.rar"
 },
 {
 "id": "R8GJqsuhCuM",
@@ -1452,7 +1465,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/TFT_ILI9488_CANAL",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-tft-ili9488"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/TFT_ILI9488/TFT_ILI9488_CANAL.rar"
 },
 {
 "id": "lLgp0dJeypw",
@@ -1462,7 +1476,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/ADXL345_CANAL",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-adxl345"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/ADXL345/ADXL345_CANAL.rar"
 },
 {
 "id": "U9vyOKXWfso",
@@ -1472,7 +1487,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/TFT_CANAL_ILI9341",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-tft-ili9341"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/TFT_ILI9341_ST7789V/TFT_Canal2.rar"
 },
 {
 "id": "RnYqbtIociU",
@@ -2459,7 +2475,8 @@ const CURSOS = {
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-fuente-conmutada-pid"
 ],
 "s": "2025-I",
-"f": "2025-06-01"
+"f": "2025-06-01",
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/CONMUTADA_PID/conmutada%20cana_PID.rar"
 },
 {
 "id": "XuxFiapt8Qc",
@@ -3108,7 +3125,8 @@ const CURSOS = {
 "d": "Indica, los temas tarjetas y software autilizar en el curso. se recomienda ver este video de la familia stm32 y el link de librerias en proteus.",
 "c": [
 "https://github.com/alcidesramos/LIBRERIAS_PROTEUS_2026"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/tree/main/LIBRERIAS_PROTEUS"
 },
 {
 "id": "BC46jcSBV8I",
@@ -4001,7 +4019,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2545-temperature-data-recorder-whith-mikroc-using-microsd-memory",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-pic-xc8-datalogger-ds1307"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/DATALOGGER_SD/sdcard_image.IMA"
 },
 {
 "id": "9TBZKIv4XXQ",
@@ -4780,7 +4799,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-pic-xc8-datalogger-ds1307",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/2551-temperature-data-recorder-with-mplab-xc8-using-microsd-memor"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/DATALOGGER_SD/sdcard_image.IMA"
 },
 {
 "id": "-DfV0pcxzk8",
@@ -5337,9 +5357,8 @@ const CURSOS = {
 "n": null,
 "t": "Cómo clonar código .hex de arduino",
 "d": "Pasar el código máquina de un Arduino a otro Link.",
-"c": [
-"https://github.com/alcidesramos/archivos-youtube/raw/main/CLONAR_HEX_ARDUINO/CLONAR.rar"
-]
+"c": [],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/CLONAR_HEX_ARDUINO/CLONAR.rar"
 },
 {
 "id": "2U31VmYJZKc",
@@ -5577,7 +5596,8 @@ const CURSOS = {
 "d": "Muestra como adquirir datos desde simulink usando arduino.",
 "c": [
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-simulink-arduino-adquisicion"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/tree/main/SIMULINK_ARDUINO"
 },
 {
 "id": "rk-SdRB1DU0",
@@ -5595,7 +5615,8 @@ const CURSOS = {
 "d": "Muestra como Programar la esp32 con arduino y wokwi.",
 "c": [
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-esp32-robotica-elemental"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/ROBOTICA_ESP32_WOKWI/programas.rar"
 },
 {
 "id": "5CZr16UkUio",
@@ -5809,7 +5830,8 @@ const CURSOS = {
 "d": "Muestra como Programar la esp32 con arduino y wokwi.",
 "c": [
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-esp32-robotica-elemental"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/ROBOTICA_ESP32_WOKWI/programas.rar"
 },
 {
 "id": "MuQ8mR9KwjI",
@@ -6054,7 +6076,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-simulink-arduino-adquisicion"
 ],
-"f": "2023-10-22"
+"f": "2023-10-22",
+"a": "https://github.com/alcidesramos/archivos-youtube/tree/main/SIMULINK_ARDUINO"
 },
 {
 "id": "UmHmBIZbFwc",
@@ -6600,7 +6623,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-jdy-33-bluetooth"
 ],
-"f": "2024-04-09"
+"f": "2024-04-09",
+"a": "https://github.com/alcidesramos/archivos-youtube/tree/main/JDY-33_PROTEUS"
 },
 {
 "id": "FSVhB44mj1Q",
@@ -6681,7 +6705,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-matlab-app-designer-serial"
 ],
-"f": "2022-10-30"
+"f": "2022-10-30",
+"a": "https://github.com/alcidesramos/archivos-youtube/tree/main/MATLAB_APP_DESIGNER_SERIAL"
 },
 {
 "id": "PHNhqPFJjCk",
@@ -6691,7 +6716,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-matlab-app-designer-serial"
 ],
-"f": "2023-03-23"
+"f": "2023-03-23",
+"a": "https://github.com/alcidesramos/archivos-youtube/tree/main/MATLAB_APP_DESIGNER_SERIAL"
 },
 {
 "id": "pOJnhdfs8QI",
@@ -6741,7 +6767,8 @@ const CURSOS = {
 "c": [
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-simulink-arduino-adquisicion"
 ],
-"f": "2023-10-22"
+"f": "2023-10-22",
+"a": "https://github.com/alcidesramos/archivos-youtube/tree/main/SIMULINK_ARDUINO"
 },
 {
 "id": "F28q5Wqq-uk",
@@ -6790,7 +6817,8 @@ const CURSOS = {
 "https://github.com/alcidesramos/Identificacion_PID1",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-identificacion-pid-1"
 ],
-"f": "2025-06-03"
+"f": "2025-06-03",
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/Identificacion_PID1/Identificacion_PID1.rar"
 },
 {
 "id": "TBlBqf17pjU",
@@ -6801,7 +6829,8 @@ const CURSOS = {
 "https://github.com/alcidesramos/Identificacion_PID2",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/drive-stm32-identificacion-pid-2"
 ],
-"f": "2025-06-03"
+"f": "2025-06-03",
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/Identificacion_PID2/Identificacion_PID2.rar"
 }
 ]
 },
@@ -7104,7 +7133,8 @@ const CURSOS = {
 "f": "2025-06-02",
 "m": [
 "STM32"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/CONTROL_MOTOR_LAZO_ABIERTO/CONTORL_MOTOR.rar"
 },
 {
 "id": "Chyq1VGmcv8",
@@ -7118,7 +7148,8 @@ const CURSOS = {
 "f": "2025-06-02",
 "m": [
 "STM32"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/CONTROL_MOTOR_MUESTREO/CONTORL_MOTOR_MUESTREO.rar"
 },
 {
 "id": "twqMAYntxLo",
@@ -7132,7 +7163,8 @@ const CURSOS = {
 "f": "2025-06-03",
 "m": [
 "STM32"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/ADQUISICION/ADQUISION.rar"
 },
 {
 "id": "R3MppyNEEbU",
@@ -7146,7 +7178,8 @@ const CURSOS = {
 "f": "2025-06-03",
 "m": [
 "STM32"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/Identificacion_PID1/Identificacion_PID1.rar"
 },
 {
 "id": "TBlBqf17pjU",
@@ -7160,7 +7193,8 @@ const CURSOS = {
 "f": "2025-06-03",
 "m": [
 "STM32"
-]
+],
+"a": "https://github.com/alcidesramos/archivos-youtube/raw/main/Identificacion_PID2/Identificacion_PID2.rar"
 },
 {
 "id": "E2Nal6-5vE0",

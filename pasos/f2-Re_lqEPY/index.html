@@ -44,6 +44,7 @@
     <p class="lead">Continuación de la clase 112. El objetivo no es sintonizar el PID sino mostrar cómo se implementa dentro del microcontrolador con un tiempo de muestreo preciso. El ADC pasa a DMA con dos canales: el voltaje de salida y un potenciómetro que da el set point de 0 a 21 V. Con el TIM2 a 1 µs se mide cuánto tarda el proceso de lectura y control (unos 35 µs), luego todo se mueve a la interrupción del TIM3 cada 10 ms. La librería PID calcula la parte proporcional, integral y derivativa, satura la salida entre 0 y 1000 y la carga al PWM. Al final se grafica set point y voltaje con un osciloscopio serial.</p>
     <div class="acciones">
       <a class="btn btn-primario" href="https://www.youtube.com/watch?v=f2-Re_lqEPY" target="_blank" rel="noopener">&#9654; Ver el video completo (27:58)</a>
+      <a class="btn btn-sec" href="https://github.com/alcidesramos/archivos-youtube/raw/main/CONMUTADA_PID/conmutada%20cana_PID.rar" target="_blank" rel="noopener">Descargar archivos</a>
       <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
     </div>
     <figure class="portada"><img src="img/1610.webp" alt="Clase 113: Fuente conmutada en lazo cerrado con PID en STM32"></figure>

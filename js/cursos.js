@@ -41,6 +41,7 @@
           ${(window.PASOS && window.PASOS[v.id]) ? `<a class="btn-mini btn-pasos" href="pasos/${v.id}/">Ver paso-paso</a>` : ''}
           <a class="btn-mini btn-video" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">Ver video</a>
           ${codigos}
+          ${v.a ? `<a class="btn-mini btn-codigo" href="${esc(v.a)}" target="_blank" rel="noopener">Descargar archivos</a>` : ''}
         </div>
       </div>
     </article>`;
