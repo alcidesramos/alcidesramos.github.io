@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Qué conector usar en la tarjeta del proyecto (borneras, enchufables, Dupont, JST, Molex KF2510, XT30/60/90), y la primera interrupción: un timer configurado con prescaler y periodo para parpadear un LED cada 100 ms mientras el main sigue con su retardo.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/HOKtF_IeW18/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC) · Paso a paso">
+  <meta property="og:description" content="Qué conector usar en la tarjeta del proyecto (borneras, enchufables, Dupont, JST, Molex KF2510, XT30/60/90), y la primera interrupción: un timer configurado con prescaler y periodo para parpadear un LED cada 100 ms mientras el main sigue con su retardo.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/HOKtF_IeW18/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/HOKtF_IeW18/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-vivo">&larr; Volver al curso</a>
+    <span class="etiqueta">// Clases en vivo de STM32 · Paso a paso</span>
+    <h1>Conectores para el proyecto e <span>interrupción de timer</span></h1>
+    <p class="lead">La clase empieza con un repaso de conectores para que la tarjeta del proyecto quede ordenada y fácil de mantener. Luego se explica qué es una interrupción (con el ejemplo de atender a alguien que llega en medio de la clase y volver a lo que se estaba haciendo) y qué son las prioridades. Con un LED parpadeando cada 500 ms en el main, se configura el TIM1 con el prescaler y el periodo calculados para 100 ms, se habilita su interrupción en el NVIC y se cambia otro LED dentro del procedimiento de interrupción.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=HOKtF_IeW18" target="_blank" rel="noopener">&#9654; Ver el video completo (51:41)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/3000.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)"></figure>
+    <ul class="materiales"><li>Black Pill STM32F401 o F411</li><li>VS Code con la extensión de STM32</li><li>STM32CubeMX</li><li>Proteus con la Black Pill y dos LEDs</li><li>Hoja de Excel para calcular timers (opcional)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Conectores</a><a href="#f2">2 · Concepto</a><a href="#f3">3 · Timer</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Conectores para la tarjeta</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Borneras enchufables</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Las borneras de tornillo son fáciles de conseguir. Las <b>enchufables</b> son mejores para el mantenimiento: se retira el bloque con los cables sin desatornillar y se vuelve a conectar sin errores. Hay versiones industriales con tornillos laterales para equipos con vibración. No llenes la tarjeta de borneras: ocupan mucho espacio.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Dupont y extensores de servo</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=96" target="_blank" rel="noopener">&#9654; 1:36</a></div><p>Los <b>Dupont</b> (paso 2,54 mm, el mismo de los servos) se arman crimpando terminales macho o hembra. Para alargar el cable de un servo no hagas empalmes: compra un extensor de servo del largo que necesites. Si hay vibración, asegura el conector con cinta.</p><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>JST, cable ribbon y Molex KF2510</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=195" target="_blank" rel="noopener">&#9654; 3:15</a></div><ul><li><b>JST XH</b>: polarizados y con traba; muy usados para señales de sensores en equipos biomédicos. Se consiguen también con el cable ya armado.</li><li><b>Cable ribbon</b>: para extender sensores; el de colores ayuda a no invertir conexiones.</li><li><b>KF2510 (Molex)</b>: baratos y fáciles de conseguir; hay que crimpar bien la grapa y revisar continuidad para evitar falsos contactos.</li></ul><div class="dos"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Conectores de batería</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=362" target="_blank" rel="noopener">&#9654; 6:02</a></div><p>Las baterías de alta corriente traen conectores <b>XT30, XT60 o XT90</b>. No cortes el conector: compra la pareja y suéldala a la tarjeta. La tarjeta debe verse ordenada, sin cables sueltos ni cinta.</p><div class="uno"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Qué es una interrupción</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>El problema del retardo</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=1290" target="_blank" rel="noopener">&#9654; 21:30</a></div><p>Con un LED parpadeando cada 500 ms con HAL_Delay, el micro queda detenido esos 500 ms. Si se quiere otro LED cada 100 ms, otro retardo no sirve: se suman. Las interrupciones permiten atender varias cosas, una tras otra, tan rápido que parece al mismo tiempo.</p><div class="uno"><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Interrupción y prioridad</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=1358" target="_blank" rel="noopener">&#9654; 22:38</a></div><p>Una interrupción es un evento que se sabe que puede pasar, pero no cuándo. Cuando ocurre, el micro deja lo que hace, ejecuta su procedimiento y vuelve donde estaba. Si llega otra de mayor prioridad, deja la actual y atiende la nueva. Ese procedimiento no se llama desde el código: se ejecuta solo cuando ocurre el evento, y debe ser corto.</p><p>Hay interrupciones de timer, de flanco, de puerto serial y otras. Hoy, de timer.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Interrupción de timer</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Elegir el timer</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=2059" target="_blank" rel="noopener">&#9654; 34:19</a></div><p>Un timer es un contador que cuenta de cero hasta un valor y vuelve a empezar; al llegar puede generar una interrupción. Los de 16 bits cuentan hasta 65535 y los de 32 bits (TIM2 y TIM5) hasta unos 4 mil millones. En CubeMX, en <b>Timers</b>, activa por ejemplo <b>TIM1</b> con <b>Clock Source: Internal Clock</b>, que es el reloj con que trabaja el micro (16 MHz con el interno, 84 MHz con el cristal).</p><div class="dos"><figure class="cap"><a href="img/2140.webp" target="_blank"><img src="img/2140.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure><figure class="cap"><a href="img/2200.webp" target="_blank"><img src="img/2200.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Calcular prescaler y periodo</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=2192" target="_blank" rel="noopener">&#9654; 36:32</a></div><p>El <b>prescaler</b> divide la frecuencia. A 16 MHz, dividiendo entre 16 se cuenta a 1 MHz (1 µs por cuenta), pero 100 ms serían 100000 cuentas, más de lo que cabe en 16 bits. Dividiendo entre 16000 cada cuenta es de 1 ms y para 100 ms el periodo es 100. A ambos se les resta 1 porque el conteo arranca en cero.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Prescaler (PSC)        = 16000 - 1
+Counter Period (ARR)   = 100 - 1
+16 MHz / 16000 = 1 kHz  -&gt; 1 ms por cuenta
+100 cuentas x 1 ms = 100 ms</code></pre></div><div class="dos"><figure class="cap"><a href="img/2310.webp" target="_blank"><img src="img/2310.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure><figure class="cap"><a href="img/2450.webp" target="_blank"><img src="img/2450.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Hoja de cálculo para timers</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=2496" target="_blank" rel="noopener">&#9654; 41:36</a></div><p>Una hoja de Excel hace la cuenta: frecuencia del micro, tiempo deseado y prescaler, y entrega el valor del contador. Ninguno de los dos puede pasar de 65535 en un timer de 16 bits. Hay muchas combinaciones válidas; para PWM sí importa que el contador sea grande para tener resolución.</p><div class="dos"><figure class="cap"><a href="img/2510.webp" target="_blank"><img src="img/2510.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure><figure class="cap"><a href="img/2620.webp" target="_blank"><img src="img/2620.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Auto-reload y NVIC</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=2674" target="_blank" rel="noopener">&#9654; 44:34</a></div><p>Habilita <b>auto-reload preload</b> para que el timer se recargue. En <b>NVIC Settings</b> (Nested Vectored Interrupt Controller) marca <b>TIM1 update interrupt and TIM10 global interrupt</b>. El TIM1 comparte esa interrupción con el TIM10.</p><div class="dos"><figure class="cap"><a href="img/2700.webp" target="_blank"><img src="img/2700.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure><figure class="cap"><a href="img/2770.webp" target="_blank"><img src="img/2770.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Código en la interrupción</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=2782" target="_blank" rel="noopener">&#9654; 46:22</a></div><p>Al generar código, en <code>stm32f4xx_it.c</code> está <code>TIM1_UP_TIM10_IRQHandler</code>, al que el micro salta cada 100 ms. Ahí se cambia el otro LED. La IA sugiere cambiar el mismo LED del main: hay que corregirla.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN TIM1_UP_TIM10_IRQn 1 */
+HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+/* USER CODE END TIM1_UP_TIM10_IRQn 1 */</code></pre></div><div class="uno"><figure class="cap"><a href="img/2840.webp" target="_blank"><img src="img/2840.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.6</span><h3>Arrancar el timer</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=2885" target="_blank" rel="noopener">&#9654; 48:05</a></div><p>Antes del while hay que arrancar cada timer con interrupción. Con eso, mientras el main espera sus 500 ms, cada 100 ms el micro cambia el otro LED y vuelve.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* USER CODE BEGIN 2 */
+HAL_TIM_Base_Start_IT(&amp;htim1);
+/* USER CODE END 2 */
+
+while (1)
+{
+  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  HAL_Delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2930.webp" target="_blank"><img src="img/2930.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure><figure class="cap"><a href="img/3000.webp" target="_blank"><img src="img/3000.webp" alt="Clase en vivo 2026-II: conectores para el proyecto e interrupción de timer en STM32 (prescaler, periodo y NVIC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.7</span><h3>Tarea</h3><a class="min" href="https://youtu.be/HOKtF_IeW18?t=3020" target="_blank" rel="noopener">&#9654; 50:20</a></div><p>Agregar un tercer LED que cambie cada 2 segundos usando lo visto en clase, simulado en Proteus.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=HOKtF_IeW18" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
