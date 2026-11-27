@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo manejar una LCD de caracteres con solo dos pines usando el módulo PCF8574 e I2C por software en MikroC, con una librería propia compatible con la de MikroC, primero pegada en el programa y luego en archivos .h y .c.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/qKYxHJzyuXk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C · Paso a paso">
+  <meta property="og:description" content="Cómo manejar una LCD de caracteres con solo dos pines usando el módulo PCF8574 e I2C por software en MikroC, con una librería propia compatible con la de MikroC, primero pegada en el programa y luego en archivos .h y .c.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/qKYxHJzyuXk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/qKYxHJzyuXk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Pantalla LCD por <span>I2C</span></h1>
+    <p class="lead">Lección 16 del curso. El módulo con el PCF8574 convierte la LCD a I2C y permite manejarla con dos pines. Se usa una librería propia con I2C por software (en cualquier par de pines): primero se pega todo el código arriba del main, luego se pasa a un archivo .h incluido con #include y finalmente se separa en .h (cabeceras) y .c (código) agregando el .c al proyecto. Las funciones son iguales a las de la librería LCD de MikroC con el prefijo I2C_. Al final se prueba en una tarjeta real con un PIC18F2550 y bootloader USB.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=qKYxHJzyuXk" target="_blank" rel="noopener">&#9654; Ver el video completo (24:43)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1000.webp" alt="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con un PIC16F877A a 8 MHz, una LCD LM044L y un PCF8574 con resistencias pull-up de 4,7 kΩ</li><li>Módulo I2C para LCD (PCF8574) para la prueba real</li><li>Librería soft_i2c_lcd (.h y .c) del profesor</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Módulo</a><a href="#f2">2 · Librería</a><a href="#f3">3 · Tarjeta</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El módulo I2C</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué hace el PCF8574</h3><a class="min" href="https://youtu.be/qKYxHJzyuXk?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El PCF8574 es un expansor de puertos por I2C: con solo dos pines (SDA y SCL) maneja todos los pines de la LCD. El módulo que se vende ya trae el chip y las resistencias pull-up. El 16F877A tiene I2C por hardware en RC4 (SDA) y RC3 (SCL), pero aquí se usa I2C por software para poder usar cualquier pin, algo útil en micros pequeños.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto y librería Software I2C</h3><a class="min" href="https://youtu.be/qKYxHJzyuXk?t=98" target="_blank" rel="noopener">&#9654; 1:38</a></div><p>Se crea el proyecto <b>lcd2</b> con el PIC16F877A a 8 MHz. En el Library Manager se activa <b>Software_I2C</b> y, de la librería LCD, solo las <b>Lcd_Constants</b>.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La librería propia</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pines y dirección del módulo</h3><a class="min" href="https://youtu.be/qKYxHJzyuXk?t=202" target="_blank" rel="noopener">&#9654; 3:22</a></div><p>Se pega la librería arriba del <code>main</code> y se cambian los pines de SDA y SCL. La dirección del módulo con PCF8574 es 0x4E; algunos módulos traen el PCF8574A y usan 0x7E. Si la pantalla no responde, se prueba con la otra.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit Soft_I2C_Sda at RB0_bit;
+sbit Soft_I2C_Scl at RB1_bit;
+sbit Soft_I2C_Sda_Direction at TRISB0_bit;
+sbit Soft_I2C_Scl_Direction at TRISB1_bit;
+
+#define LCD_ADDR 0x4E    // PCF8574 (0x7E si es PCF8574A)</code></pre></div><div class="dos"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C" loading="lazy"></a></figure><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C" loading="lazy"></a></figure><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Mismas funciones con prefijo I2C_</h3><a class="min" href="https://youtu.be/qKYxHJzyuXk?t=404" target="_blank" rel="noopener">&#9654; 6:44</a></div><p>Las funciones se hicieron compatibles con las de MikroC: solo se antepone <code>I2C_</code>. Se copia el programa de la clase anterior y con <b>Edit &gt; Replace</b> (solo en la selección) se cambia <code>Lcd_</code> por <code>I2C_LCD_</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>I2C_LCD_Init();
+I2C_LCD_Cmd(_LCD_CLEAR);
+I2C_LCD_Cmd(_LCD_CURSOR_OFF);
+I2C_LCD_Out(1, 5, &quot;ESTO ES UNA&quot;);
+I2C_LCD_Out(2, 1, &quot;    PRUEBA&quot;);
+I2C_LCD_Out(3, 1, &quot;temp=30&quot;);
+I2C_LCD_Chr_CP(223);</code></pre></div><div class="dos"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Pasar la librería a un archivo .h</h3><a class="min" href="https://youtu.be/qKYxHJzyuXk?t=577" target="_blank" rel="noopener">&#9654; 9:37</a></div><p>Para no tener todo ese código en el programa, se guarda en un archivo <code>soft_i2c_lcd.h</code> en la carpeta del proyecto (con los pines como <code>extern</code>) y se incluye. En el programa solo quedan los pines y el <code>main</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;soft_i2c_lcd.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Separar en .h y .c</h3><a class="min" href="https://youtu.be/qKYxHJzyuXk?t=718" target="_blank" rel="noopener">&#9654; 11:58</a></div><p>Lo recomendado es que el <b>.c</b> tenga el código y el <b>.h</b> solo las cabeceras: constantes, variables externas y los nombres de las funciones que se usan afuera. En MikroC, además de incluir el .h, se agrega el .c al proyecto: <b>Project Manager &gt; Sources &gt; clic derecho &gt; Add Existing File</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// soft_i2c_lcd.h
+extern sbit Soft_I2C_Sda;
+extern sbit Soft_I2C_Scl;
+#define LCD_ADDR 0x4E
+void I2C_LCD_Cmd(char out_char);
+void I2C_LCD_Init();
+void I2C_LCD_Chr(char row, char column, char out_char);
+void I2C_LCD_Chr_Cp(char out_char);
+void I2C_LCD_Out(char row, char col, char *text);
+void I2C_LCD_Out_Cp(char *text);</code></pre></div><p class="ojo">Si solo se incluye el .h y no se agrega el .c al proyecto, el compilador dice que no encuentra las funciones.</p><div class="uno"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Caracteres propios</h3><a class="min" href="https://youtu.be/qKYxHJzyuXk?t=889" target="_blank" rel="noopener">&#9654; 14:49</a></div><p>Los caracteres especiales de la clase anterior funcionan igual: se copian las direcciones, los vectores y la función <code>CustomChar</code>, cambiando las llamadas a las versiones I2C.</p><div class="dos"><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba en una tarjeta real</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>PIC18F2550 con bootloader USB</h3><a class="min" href="https://youtu.be/qKYxHJzyuXk?t=1030" target="_blank" rel="noopener">&#9654; 17:10</a></div><p>Se usa una tarjeta propia con un PIC18F2550 a 48 MHz y bootloader USB, con el módulo conectado a 5 V, tierra, SDA y SCL. Se crea el proyecto cargando el esquema de configuración de la tarjeta, se copian el .h y el .c, se incluye el .h, se agrega el .c y se activan Software_I2C y Lcd_Constants. En el <code>main</code> se ponen los pines digitales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0x0F;   // todo digital en el 18F2550
+I2C_LCD_Init();
+I2C_LCD_Cmd(_LCD_CLEAR);
+I2C_LCD_Cmd(_LCD_CURSOR_OFF);
+I2C_LCD_Out(1, 2, &quot;ESTO ES UNA&quot;);
+I2C_LCD_Out(2, 5, &quot;PRUEBA&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Curso MikroC PRO for PIC, lección 16: pantalla LCD por I2C" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Cargar con el bootloader USB</h3><a class="min" href="https://youtu.be/qKYxHJzyuXk?t=1308" target="_blank" rel="noopener">&#9654; 21:48</a></div><p>En <b>Tools &gt; USB HID Bootloader</b>: resetear la tarjeta, conectar, buscar el .hex y cargar. Si el programa no se actualiza, hay que revisar que no haya otra ventana del bootloader abierta.</p><p class="ojo">Si queda abierta una ventana vieja del bootloader, la nueva entra en conflicto y no programa.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=qKYxHJzyuXk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo convertir una librería propia (.c y .h) en un paquete de MikroC con el Package Manager para que aparezca en el Library Manager como las de MikroElektronika, y cómo hacer una versión protegida con el .mcl compilado para no mostrar el código.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/K-6vqhA21qU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías · Paso a paso">
+  <meta property="og:description" content="Cómo convertir una librería propia (.c y .h) en un paquete de MikroC con el Package Manager para que aparezca en el Library Manager como las de MikroElektronika, y cómo hacer una versión protegida con el .mcl compilado para no mostrar el código.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/K-6vqhA21qU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/K-6vqhA21qU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Crear e instalar <span>librerías</span> en MikroC</h1>
+    <p class="lead">Lección 17 del curso. Con la librería de LCD por I2C de la clase anterior, ahora en un PIC12F1822 de 8 pines, se repasa cómo usarla agregando el .c al proyecto e incluyendo el .h. Luego se crea un paquete con el Package Manager de MikroC: nombre, autor, micros compatibles, dependencia de Software_I2C y archivos. Al instalarlo, la librería aparece en el Library Manager y basta marcarla. Por último se crea un paquete protegido con el archivo .mcl compilado, para que otros la usen sin ver ni cambiar el código.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=K-6vqhA21qU" target="_blank" rel="noopener">&#9654; Ver el video completo (16:28)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/650.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (Package Manager)</li><li>Proteus con un PIC12F1822, LCD con módulo PCF8574</li><li>Librería soft_i2c_lcd (.c, .h y .mcl)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · 12F1822</a><a href="#f2">2 · Paquete</a><a href="#f3">3 · Protegida</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La librería en un micro pequeño</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>LCD I2C con un PIC de 8 pines</h3><a class="min" href="https://youtu.be/K-6vqhA21qU?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La LCD por I2C se conecta a un PIC12F1822 en RA0 (SDA) y RA1 (SCL). Se crea el proyecto <b>lcd12f1822</b> a 8 MHz con oscilador interno, sin watchdog ni monitor de reloj, y se configura como en la lección 14: oscilador interno a 8 MHz, PLL apagado, pines digitales y puerto como salida.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>IRCF3_bit = 1;  IRCF2_bit = 1;
+IRCF1_bit = 1;  IRCF0_bit = 0;   // 8 MHz
+// SPLLEN_bit = 1;  // PLL x4 = 32 MHz
+ANSELA = 0;   // todo digital
+TRISA = 0;
+LATA = 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Usarla con .c y .h</h3><a class="min" href="https://youtu.be/K-6vqhA21qU?t=169" target="_blank" rel="noopener">&#9654; 2:49</a></div><p>El .c se agrega en <b>Project Manager &gt; Sources</b> y el .h se incluye en el programa. También hay que activar Lcd_Constants y Software_I2C. Así el programa principal queda corto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;soft_i2c_lcd.h&quot;
+
+sbit Soft_I2C_Sda at RA0_bit;
+sbit Soft_I2C_Scl at RA1_bit;
+sbit Soft_I2C_Sda_Direction at TRISA0_bit;
+sbit Soft_I2C_Scl_Direction at TRISA1_bit;</code></pre></div><div class="dos"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Crear el paquete</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Sacar los archivos del proyecto</h3><a class="min" href="https://youtu.be/K-6vqhA21qU?t=334" target="_blank" rel="noopener">&#9654; 5:34</a></div><p>Se quitan del proyecto el .c y el .h, y se mueven a otra carpeta junto con el <b>.mcl</b> (la librería compilada que MikroC crea al compilar). Si se dejan en la carpeta del proyecto, a veces MikroC no reconoce la librería instalada.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Package Manager</h3><a class="min" href="https://youtu.be/K-6vqhA21qU?t=402" target="_blank" rel="noopener">&#9654; 6:42</a></div><p>En <b>Tools &gt; Package Manager</b> se crea un paquete nuevo para MikroC PRO for PIC con nombre (por ejemplo <i>lcd_i2c</i>) y autor. Se agrega una librería, se le pone nombre y se escogen los micros: se pueden filtrar (por ejemplo solo los 12F) o marcar todos, aunque así tarda más en instalar.</p><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Dependencias y archivos</h3><a class="min" href="https://youtu.be/K-6vqhA21qU?t=474" target="_blank" rel="noopener">&#9654; 7:54</a></div><p>Con clic derecho en <b>Dependency</b> se agrega <b>Software_I2C</b>, para que se active sola al marcar la librería. En <b>Main Library File</b> se agrega el .c y en <b>Other Library Files</b> el .h. Si se tiene, también se puede agregar un ejemplo y un archivo de ayuda. Luego se guarda el paquete (.mpkg).</p><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Instalar y usar</h3><a class="min" href="https://youtu.be/K-6vqhA21qU?t=572" target="_blank" rel="noopener">&#9654; 9:32</a></div><p>Con doble clic al .mpkg (o el botón de instalar del Package Manager) se instala. Después, en el Library Manager, se pulsa <b>Rebuild all available libraries</b> y la librería aparece en <b>Third Party Libraries</b>. Basta marcarla: ya no hay que incluir el .h ni agregar el .c, y sale en cualquier proyecto nuevo.</p><p class="ojo">Si se marca la librería y además se dejan los archivos en el proyecto, el compilador da error por funciones repetidas.</p><div class="dos"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Ver el código de la librería</h3><a class="min" href="https://youtu.be/K-6vqhA21qU?t=734" target="_blank" rel="noopener">&#9654; 12:14</a></div><p>Con clic derecho sobre la librería instalada se puede ver la ayuda, los ejemplos, desinstalarla o abrir su código, que cualquiera puede leer y modificar.</p><div class="uno"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería protegida</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Paquete con el .mcl</h3><a class="min" href="https://youtu.be/K-6vqhA21qU?t=765" target="_blank" rel="noopener">&#9654; 12:45</a></div><p>Para que otros usen la librería sin ver el código, se crea otro paquete (por ejemplo <i>lcd_i2c_protegida</i>) igual al anterior, pero en <b>Main Library File</b> se pone el <b>.mcl</b> compilado en vez del .c. Se guarda y se instala.</p><div class="uno"><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Usar una u otra</h3><a class="min" href="https://youtu.be/K-6vqhA21qU?t=864" target="_blank" rel="noopener">&#9654; 14:24</a></div><p>Tras reconstruir las librerías aparecen las dos. Solo se puede marcar una, porque tienen las mismas funciones. En la protegida no aparece la opción de abrir el código. Cada quien escoge la que le convenga.</p><div class="uno"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Curso MikroC PRO for PIC, lección 17: creación e instalación de librerías" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=K-6vqhA21qU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

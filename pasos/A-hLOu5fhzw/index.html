@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo usar switch case para armar una máquina de estados en un PIC12F1822 de 8 pines: un pulsador cambia entre seis efectos de luces y una melodía, con oscilador interno, registros LAT y nombres de estados con enum.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/A-hLOu5fhzw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado · Paso a paso">
+  <meta property="og:description" content="Cómo usar switch case para armar una máquina de estados en un PIC12F1822 de 8 pines: un pulsador cambia entre seis efectos de luces y una melodía, con oscilador interno, registros LAT y nombres de estados con enum.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/A-hLOu5fhzw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/A-hLOu5fhzw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Switch case y <span>máquinas de estado</span></h1>
+    <p class="lead">Lección 14 del curso. Se explica la estructura de switch case (casos, break y default) y la idea de máquina de estados: en cada estado se revisa una condición y, si se cumple, se prepara y se pasa al siguiente. Se aplica en un PIC12F1822 de 8 pines con cuatro LEDs, un parlante y un pulsador: se configura el oscilador interno a 8 MHz por registros, se ponen los pines digitales, se escribe con LATA y se arma un juego de luces con seis estados. Al final se les ponen nombres a los estados con enum para que el programa se entienda mejor.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=A-hLOu5fhzw" target="_blank" rel="noopener">&#9654; Ver el video completo (37:51)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1980.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con un PIC12F1822, 4 LEDs con resistencias de 220 Ω, un parlante y un pulsador con pull-up de 1 kΩ</li><li>Datasheet del PIC12F1822</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · switch</a><a href="#f2">2 · 12F1822</a><a href="#f3">3 · Estados</a><a href="#f4">4 · enum</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>switch case</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Estructura</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p><code>switch</code> analiza una variable y salta al <code>case</code> que tenga ese valor. Cada caso termina con <code>break</code>. Los casos no tienen que ir en orden, y <code>default</code> (opcional) se ejecuta si no se cumple ninguno. Es más ordenado que una cadena larga de else if.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>switch (variable) {
+  case 0:
+    // acciones
+    break;
+  case 3:
+    break;
+  default:
+    break;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Máquina de estados</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=96" target="_blank" rel="noopener">&#9654; 1:36</a></div><p>Cada caso es un estado. En cada estado se revisa una condición; si se cumple, se prepara lo necesario y se cambia la variable para pasar al siguiente estado. El ejemplo es como unas luces navideñas: cada pulsación cambia el efecto.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El PIC12F1822</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Escoger un micro adecuado</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=129" target="_blank" rel="noopener">&#9654; 2:09</a></div><p>Para 5 salidas y 1 entrada basta un micro de 8 pines como el PIC12F1822. Con el oscilador interno, los pines del cristal quedan libres. El pin de reset (RA3) también se puede usar, pero solo como entrada, por eso el pulsador va allí con pull-up.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Proyecto con oscilador interno</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=263" target="_blank" rel="noopener">&#9654; 4:23</a></div><p>Se crea el proyecto <b>switchcase</b> en la carpeta <i>Clase 14</i> con el PIC12F1822 a 8 MHz. En la configuración se escoge el oscilador interno (INTOSC), se apaga el watchdog, se deshabilita el reset externo para usar RA3 como entrada y se deja apagados el Fail-Safe Clock Monitor y el PLL (que multiplicaría por 4, hasta 32 MHz).</p><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Configurar el oscilador por registros</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=495" target="_blank" rel="noopener">&#9654; 8:15</a></div><p>En el capítulo del oscilador del datasheet está el registro <b>OSCCON</b>. Los bits IRCF escogen la frecuencia del oscilador interno (1110 = 8 MHz), SPLLEN enciende el PLL y los bits SCS deben indicar oscilador interno; si falta esto último, el micro no corre a la velocidad esperada.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>IRCF3_bit = 1;   // oscilador interno a 8 MHz
+IRCF2_bit = 1;
+IRCF1_bit = 1;
+IRCF0_bit = 0;
+SPLLEN_bit = 0;  // PLL apagado
+SCS1_bit = 1;    // usar el oscilador interno
+SCS0_bit = 1;</code></pre></div><div class="dos"><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Entradas, salidas y el registro LAT</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=698" target="_blank" rel="noopener">&#9654; 11:38</a></div><p>Primero todo el puerto como salida y luego RA3 como entrada. En los PIC18 y los 16F nuevos se escribe en <code>LATA</code> y se lee en <code>PORTA</code>, porque a altas velocidades no se recomienda usar el mismo registro para las dos cosas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit sw at RA3_bit;
+
+TRISA = 0;          // todo salida
+TRISA3_bit = 1;     // entrada del pulsador
+LATA = 0;           // arrancan apagados</code></pre></div><div class="uno"><figure class="cap"><a href="img/750.webp" target="_blank"><img src="img/750.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Pines digitales según el micro</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=907" target="_blank" rel="noopener">&#9654; 15:07</a></div><p>Para saber cómo se ponen los pines digitales se busca en el datasheet: si no aparece ANSEL, se hace con ADCON1 (micros antiguos como el 16F877A); si aparecen ANSEL y ANSELH, con esos (16F887); en los nuevos, con ANSELA, ANSELB, etc. En el 12F1822 es <code>ANSELA = 0</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ANSELA = 0;   // todo digital</code></pre></div><div class="uno"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>La máquina de estados</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Estado 0: encendido</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=1075" target="_blank" rel="noopener">&#9654; 17:55</a></div><p>Se crea la variable <code>estados</code> y el switch. En el primer estado los LEDs se encienden y el parlante (RA5) queda apagado. Si se presiona el pulsador, se espera el antirrebote y se pasa al estado 1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char estados = 0;
+
+switch (estados) {
+  case 0:              // 543210
+    LATA = 0b010111;   // LEDs encendidos, parlante apagado
+    if (sw == 0) {
+      estados = 1;
+      Delay_ms(250);   // antirrebote
+    }
+    break;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Estado 1: flash con XOR</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=1274" target="_blank" rel="noopener">&#9654; 21:14</a></div><p>Para que los LEDs titilen no se puede negar todo el puerto, porque también cambiaría el parlante. Con XOR y una máscara solo se invierten los bits de los LEDs (lección 6).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>case 1:
+  LATA = LATA ^ 0b010111;   // invierte solo los LEDs
+  Delay_ms(200);
+  if (sw == 0) {
+    LATA = 0b010100;        // se prepara el siguiente estado
+    estados = 2;
+    Delay_ms(250);
+  }
+  break;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1360.webp" target="_blank"><img src="img/1360.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prepararse para el siguiente estado</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=1412" target="_blank" rel="noopener">&#9654; 23:32</a></div><p>Antes de pasar al estado "policía" (dos encendidos y dos apagados) se dejan los LEDs en ese patrón; así, dentro del estado, basta con invertirlos igual que en el flash. Lo mismo se hace para "alternado" (uno sí y uno no) y para "apagado", que solo apaga los LEDs.</p><div class="dos"><figure class="cap"><a href="img/1470.webp" target="_blank"><img src="img/1470.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure><figure class="cap"><a href="img/1700.webp" target="_blank"><img src="img/1700.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Estado 5: melodía</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=1710" target="_blank" rel="noopener">&#9654; 28:30</a></div><p>Se activa la librería Sound, se inicializa con el parlante en RA5 y en el último estado se tocan unos tonos. Al presionar se prepara el estado encendido y se vuelve al estado 0.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Sound_Init(&amp;PORTA, 5);
+...
+case 5:
+  Sound_Play(1000, 100);
+  Sound_Play(2000, 100);
+  Sound_Play(3000, 100);
+  if (sw == 0) {
+    LATA = 0b010111;
+    estados = 0;
+    Delay_ms(250);
+  }
+  break;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1880.webp" target="_blank"><img src="img/1880.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Nombres con enum</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Darles nombre a los estados</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=1912" target="_blank" rel="noopener">&#9654; 31:52</a></div><p>Con <code>enum</code> se crea una lista de constantes con nombre (encendido vale 0, flash 1, y así). Así los casos se llaman por su nombre y no hay que recordar números; el programa queda más fácil de leer para cualquiera. <code>enum</code> es de C estándar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>enum maquina1_est {encendido, flash, policia, alternado, apagado, melodia};
+char estados = encendido;
+
+switch (estados) {
+  case encendido:
+    ...
+    if (sw == 0) { estados = flash; Delay_ms(250); }
+    break;
+  case flash:
+    ...
+}</code></pre></div><p class="ojo">El nombre del enum no puede ser igual al de una variable que ya exista.</p><div class="dos"><figure class="cap"><a href="img/1980.webp" target="_blank"><img src="img/1980.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure><figure class="cap"><a href="img/2140.webp" target="_blank"><img src="img/2140.webp" alt="Curso MikroC PRO for PIC, lección 14: switch case y máquinas de estado" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Arrancar en cualquier estado</h3><a class="min" href="https://youtu.be/A-hLOu5fhzw?t=2184" target="_blank" rel="noopener">&#9654; 36:24</a></div><p>Basta con cambiar el valor inicial de la variable, por ejemplo <code>estados = alternado</code>, para que el programa arranque en ese estado.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=A-hLOu5fhzw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

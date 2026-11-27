@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo conectar una pantalla LCD de caracteres a un PIC16F877A en modo de 4 bits y escribir textos, caracteres, el símbolo de grados y hasta 8 caracteres propios con la librería LCD de MikroC.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/Iam63Vbe_3w/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica · Paso a paso">
+  <meta property="og:description" content="Cómo conectar una pantalla LCD de caracteres a un PIC16F877A en modo de 4 bits y escribir textos, caracteres, el símbolo de grados y hasta 8 caracteres propios con la librería LCD de MikroC.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/Iam63Vbe_3w/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Iam63Vbe_3w/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Pantalla <span>LCD</span> alfanumérica</h1>
+    <p class="lead">Lección 15 del curso. Se explican los tipos de LCD alfanuméricas (filas por columnas), sus pines y cómo conectarlas: contraste con potenciómetro o resistencia, RW a tierra, luz de fondo con resistencia y solo 6 pines del micro en modo de 4 bits. Luego, con la librería LCD de MikroC, se escriben textos y caracteres en cualquier posición o donde va el cursor, se muestra el símbolo de grados y se crean caracteres propios con el generador de MikroC, modificando su función para cargar varios a la vez.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Iam63Vbe_3w" target="_blank" rel="noopener">&#9654; Ver el video completo (32:37)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/860.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con un PIC16F877A a 8 MHz y una LCD 16x2 o 20x4 (LM044L)</li><li>Potenciómetro de 10 kΩ o resistencia de unos 330 Ω para el contraste</li><li>Resistencia de 100 Ω a 1 kΩ para la luz de fondo</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Conexión</a><a href="#f2">2 · Textos</a><a href="#f3">3 · Caracteres</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La pantalla y su conexión</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Tipos de LCD</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>En Proteus están en la categoría Optoelectronics &gt; Alphanumeric LCDs. Se nombran por columnas y filas: una 16x2 tiene 2 filas de 16 caracteres y una 20x4 tiene 4 filas de 20.</p><div class="uno"><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Alimentación y contraste</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>Pin 1 a tierra, pin 2 a 5 V y pin 3 (contraste) a un potenciómetro de 10 kΩ entre tierra y 5 V. Cuando ya se conoce la pantalla, el potenciómetro se puede cambiar por una resistencia a tierra de 220 Ω a 2,2 kΩ (normalmente 330 Ω).</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Pines de control y de datos</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=164" target="_blank" rel="noopener">&#9654; 2:44</a></div><p>RS y E van a pines del micro; RW va a tierra (si no, no funciona con MikroC). Se usa el modo de 4 bits con D4 a D7, a los pines que se quiera; D0 a D3 pueden quedar al aire, aunque conviene aterrizarlos para evitar ruido. En total se usan 6 pines del micro.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Luz de fondo</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=230" target="_blank" rel="noopener">&#9654; 3:50</a></div><p>Las pantallas de 16 pines tienen la luz de fondo en los pines 15 (ánodo, a 5 V) y 16 (cátodo, a tierra). Por seguridad se pone una resistencia de 100 Ω a 1 kΩ, porque algunas pantallas antiguas no traen la resistencia interna y el LED se quema.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Escribir en la pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto y pines de la librería</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=365" target="_blank" rel="noopener">&#9654; 6:05</a></div><p>Se crea el proyecto <b>lcd1</b> con el PIC16F877A a 8 MHz y se activa la librería <b>Lcd</b> en el Library Manager. De la ayuda (F1, índice <i>Lcd Library</i>) se copian las 12 líneas de conexión del ejemplo y se cambian a los pines usados.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit LCD_RS at RC0_bit;
+sbit LCD_EN at RC1_bit;
+sbit LCD_D4 at RC2_bit;
+sbit LCD_D5 at RC3_bit;
+sbit LCD_D6 at RC4_bit;
+sbit LCD_D7 at RD0_bit;
+
+sbit LCD_RS_Direction at TRISC0_bit;
+sbit LCD_EN_Direction at TRISC1_bit;
+sbit LCD_D4_Direction at TRISC2_bit;
+sbit LCD_D5_Direction at TRISC3_bit;
+sbit LCD_D6_Direction at TRISC4_bit;
+sbit LCD_D7_Direction at TRISD0_bit;</code></pre></div><p class="ojo">Cada pin de datos debe coincidir con su línea Direction (el mismo pin con TRIS).</p><div class="dos"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Iniciar la pantalla</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=645" target="_blank" rel="noopener">&#9654; 10:45</a></div><p>Al inicio del <code>main</code> van tres líneas: iniciar la LCD, borrarla y (opcional) apagar el cursor. Si no se apaga, queda titilando después del último carácter.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Init();
+Lcd_Cmd(_LCD_CLEAR);
+Lcd_Cmd(_LCD_CURSOR_OFF);</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Textos y caracteres</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=715" target="_blank" rel="noopener">&#9654; 11:55</a></div><p><code>Lcd_Out(fila, columna, "texto")</code> escribe una cadena y <code>Lcd_Chr(fila, columna, 'V')</code> un solo carácter, que ocupa menos memoria. Las cadenas van entre comillas dobles y los caracteres entre comillas simples.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Out(1, 5, &quot;ESTO ES UNA&quot;);
+Lcd_Out(2, 1, &quot;    PRUEBA&quot;);
+Lcd_Chr(2, 16, &#x27;V&#x27;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Escribir donde va el cursor</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=922" target="_blank" rel="noopener">&#9654; 15:22</a></div><p>Para no contar posiciones, <code>Lcd_Out_CP</code> y <code>Lcd_Chr_CP</code> escriben justo después de lo último que se escribió.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Out(3, 1, &quot;100&quot;);
+Lcd_Out_CP(&quot;Volts&quot;);
+Lcd_Out(4, 4, &quot;30&quot;);
+Lcd_Chr_CP(&#x27;C&#x27;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>El símbolo de grados</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=1242" target="_blank" rel="noopener">&#9654; 20:42</a></div><p>El símbolo de grados de la LCD es el carácter 223 (en la tabla ASCII del PC sería otro símbolo).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Out(3, 1, &quot;temp=30&quot;);
+Lcd_Chr_CP(223);   // símbolo de grados</code></pre></div><div class="uno"><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Caracteres propios</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Generador de caracteres</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=1110" target="_blank" rel="noopener">&#9654; 18:30</a></div><p>En <b>Tools &gt; LCD Custom Character</b> se dibuja el carácter (por ejemplo una carita feliz) y con <b>Generate Code</b> se copia el código: un vector con el dibujo y la función <code>CustomChar</code>, que se pega arriba del <code>main</code> y se llama con la posición.</p><div class="uno"><figure class="cap"><a href="img/1160.webp" target="_blank"><img src="img/1160.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Dirección de cada carácter</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=1410" target="_blank" rel="noopener">&#9654; 23:30</a></div><p>La pantalla guarda hasta 8 caracteres propios en su memoria, en las direcciones 64, 72, 80 ... 120. Si se crean dos con la misma dirección, el segundo reemplaza al primero; hay que escoger otro número de carácter en el generador para que cambie la dirección.</p><div class="uno"><figure class="cap"><a href="img/1460.webp" target="_blank"><img src="img/1460.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Cargar varios caracteres a la vez</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=1550" target="_blank" rel="noopener">&#9654; 25:50</a></div><p>Para simplificar, se definen las 8 direcciones, se guardan los dibujos en vectores constantes y se modifica <code>CustomChar</code> para que solo cargue todos los caracteres en la memoria de la pantalla, sin escribirlos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define char1 64
+#define char2 72
+#define char3 80
+
+const char character1[] = {10,10,4,4,0,17,14,0};
+const char character2[] = {4,4,4,4,21,21,14,0};
+const char character3[] = {4,31,21,21,21,21,14,17};
+
+void CustomChar() {
+  char i;
+  Lcd_Cmd(char1);
+  for (i = 0; i &lt;= 7; i++) Lcd_Chr_CP(character1[i]);
+  Lcd_Cmd(char2);
+  for (i = 0; i &lt;= 7; i++) Lcd_Chr_CP(character2[i]);
+  Lcd_Cmd(char3);
+  for (i = 0; i &lt;= 7; i++) Lcd_Chr_CP(character3[i]);
+  Lcd_Cmd(_LCD_RETURN_HOME);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1650.webp" target="_blank"><img src="img/1650.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure><figure class="cap"><a href="img/1780.webp" target="_blank"><img src="img/1780.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Mostrar los caracteres</h3><a class="min" href="https://youtu.be/Iam63Vbe_3w?t=1803" target="_blank" rel="noopener">&#9654; 30:03</a></div><p>Se llama una vez <code>CustomChar()</code> y luego cada carácter se escribe como uno normal, con su número del 0 al 7.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>CustomChar();         // carga los caracteres
+Lcd_Chr(3, 15, 0);    // carácter 0
+Lcd_Chr(4, 15, 1);    // carácter 1
+Lcd_Chr(4, 17, 2);    // carácter 2</code></pre></div><div class="uno"><figure class="cap"><a href="img/1900.webp" target="_blank"><img src="img/1900.webp" alt="Curso MikroC PRO for PIC, lección 15: pantalla LCD alfanumérica" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Iam63Vbe_3w" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
