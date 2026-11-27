@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Usar mis librerías del GY-85 (acelerómetro ADXL345, giroscopio ITG3205 y brújula) en una Black Pill: lecturas, ángulos roll y pitch, filtro complementario y filtro de Kalman, con muestreo por timer.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/GgW_t5KkCpY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman · Paso a paso">
+  <meta property="og:description" content="Usar mis librerías del GY-85 (acelerómetro ADXL345, giroscopio ITG3205 y brújula) en una Black Pill: lecturas, ángulos roll y pitch, filtro complementario y filtro de Kalman, con muestreo por timer.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/GgW_t5KkCpY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/GgW_t5KkCpY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#stm32-cubeide">&larr; Volver al curso</a>
+    <span class="etiqueta">// STM32 con STM32CubeIDE · Paso a paso</span>
+    <h1>Sensor inercial <span>GY-85</span> con STM32</h1>
+    <p class="lead">El GY-85 es una IMU de 9 grados de libertad por I2C: acelerómetro ADXL345, giroscopio ITG3205 y magnetómetro. Con la librería GY85 se inicializa el sensor, se leen los tres instrumentos, se calculan los ángulos con el acelerómetro y se combinan con el giroscopio mediante un filtro complementario y un filtro de Kalman (kalman.c), que da ángulos más estables. El muestreo puede hacerse con un timer (TIM9) o con uwTick y un tiempo fijo. Los resultados se ven por serial y graficados.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=GgW_t5KkCpY" target="_blank" rel="noopener">&#9654; Ver el video completo (34:10)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1900.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman"></figure>
+    <ul class="materiales"><li>Black Pill STM32F411 (o F401)</li><li>Módulo GY-85 (ADXL345 + ITG3205 + magnetómetro)</li><li>Conversor USB-serial</li><li>STM32CubeIDE</li><li>Terminal serial con gráfica</li><li>Librerías GY85, kalman, timer y uart (archivos del curso)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · I2C1, TIM9 y USART1</a><a href="#f2">2 · Init, acelerómetro, giroscopio y brújula</a><a href="#f3">3 · Complementario y Kalman</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configurar el proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto y periféricos</h3><a class="min" href="https://youtu.be/GgW_t5KkCpY?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Crea el proyecto (imu_gy85) y en el .ioc activa:</p><ul><li><b>I2C1</b> para el GY-85.</li><li><b>TIM9</b> con reloj interno, para el tiempo de muestreo.</li><li><b>USART1</b> para enviar los datos.</li><li>Cristal externo y PLL a máxima velocidad.</li></ul><div class="dos"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Agregar las librerías</h3><a class="min" href="https://youtu.be/GgW_t5KkCpY?t=280" target="_blank" rel="noopener">&#9654; 4:40</a></div><p>Copia GY85, kalman, timer y uart a la carpeta <b>Librerias</b>, agrégala a las rutas de include e inclúyelas en main.c.</p><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Configurar la librería</h3><a class="min" href="https://youtu.be/GgW_t5KkCpY?t=460" target="_blank" rel="noopener">&#9654; 7:40</a></div><p>En <b>GY85.h</b> se indica qué I2C y qué timer se usan. Si no usas timer, deja definido el tiempo de muestreo en milisegundos; si usas timer, deja esa línea comentada.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define imu_i2c hi2c1
+#define TIMIMU  TIM9     // timer a usar
+#define htimimu htim9
+
+// Comentar si usa timer; si no, poner el tiempo de muestreo
+//#define tiempo_muestreo 10.0   // en milisegundos</code></pre></div><div class="uno"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Leer el sensor</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Inicializar</h3><a class="min" href="https://youtu.be/GgW_t5KkCpY?t=550" target="_blank" rel="noopener">&#9654; 9:10</a></div><p>GY85_Init devuelve 1 si el sensor responde.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uartx_write_text(&amp;huart1, &quot;INICIANDO\r\n&quot;);
+if (GY85_Init() != 1) uartx_write_text(&amp;huart1, &quot;SENSOR NO CONECTADO\r\n&quot;);
+else uartx_write_text(&amp;huart1, &quot;CONECTADO\r\n&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/550.webp" target="_blank"><img src="img/550.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Lecturas y ángulos del acelerómetro</h3><a class="min" href="https://youtu.be/GgW_t5KkCpY?t=640" target="_blank" rel="noopener">&#9654; 10:40</a></div><p>Funciones principales de la librería:</p><ul><li><b>GY85_Read_ace(), GY85_Read_giro(), GY85_Read_bruj()</b>: leen cada instrumento (la estructura <b>imu</b> guarda los valores crudos y en flotante).</li><li><b>GY85_calcula_flotantes()</b>: pasa a g, grados por segundo y gauss.</li><li><b>GY85_Ace_angulos()</b>: roll y pitch con el acelerómetro.</li><li><b>GY85_Giro_angulos()</b>: ángulos integrando el giroscopio.</li></ul><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>GY85_Read_ace();
+GY85_Read_giro();
+GY85_Read_bruj();
+GY85_Ace_angulos();
+sprintf(texto, &quot;AC_roll=%.1f    AC_pitch=%.1f\r\n\r\n&quot;, acel_roll, acel_pitch);
+uartx_write_text(&amp;huart1, texto);
+HAL_Delay(800);</code></pre></div><div class="dos"><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Filtros</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Muestreo fijo</h3><a class="min" href="https://youtu.be/GgW_t5KkCpY?t=1090" target="_blank" rel="noopener">&#9654; 18:10</a></div><p>Los filtros necesitan un tiempo de muestreo constante. Sin timer se usa uwTick: se lee cada tiempo_muestreo milisegundos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>tiempo_imu = uwTick;   // antes del while
+
+while (1)
+{
+  if (uwTick - tiempo_imu &gt;= tiempo_muestreo)
+  {
+    tiempo_imu = uwTick;
+    GY85_Read_ace();
+    GY85_Read_giro();
+    GY85_Read_bruj();
+    GY85_Ace_angulos();
+    Filtro_Complementario();
+    filtro_kalman();
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1090.webp" target="_blank"><img src="img/1090.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Filtro complementario</h3><a class="min" href="https://youtu.be/GgW_t5KkCpY?t=1360" target="_blank" rel="noopener">&#9654; 22:40</a></div><p>Combina el ángulo del acelerómetro (estable pero ruidoso) con el del giroscopio (suave pero con deriva). Compara en la gráfica el ángulo del acelerómetro con el filtrado (compAngle_Roll, compAngle_Pitch).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;%.1f,%.1f\r&quot;, acel_pitch, compAngle_Pitch);
+uartx_write_text(&amp;huart1, texto);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1360.webp" target="_blank"><img src="img/1360.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Filtro de Kalman</h3><a class="min" href="https://youtu.be/GgW_t5KkCpY?t=1450" target="_blank" rel="noopener">&#9654; 24:10</a></div><p>En kalman.c están los parámetros del modelo: Q_angle y Q_bias (ruido del proceso) y R_measure (ruido de la medida del acelerómetro). Valores más altos de Q reaccionan más rápido; un R más alto confía menos en el acelerómetro. Se inicializa un filtro para roll y otro para pitch.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Kalman_Init(&amp;kalman_roll_);
+Kalman_Init(&amp;kalman_pitch_);
+
+// dentro de filtro_kalman():
+kalman_roll  = Kalman_Update(&amp;kalman_roll_,  acel_roll,  imu.giro_x_f, muestreo);
+kalman_pitch = Kalman_Update(&amp;kalman_pitch_, acel_pitch, imu.giro_y_f, muestreo);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1450.webp" target="_blank"><img src="img/1450.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure><figure class="cap"><a href="img/1720.webp" target="_blank"><img src="img/1720.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Comparar y usar el timer</h3><a class="min" href="https://youtu.be/GgW_t5KkCpY?t=1630" target="_blank" rel="noopener">&#9654; 27:10</a></div><p>Envía los tres ángulos separados por comas para graficarlos juntos: acelerómetro, complementario y Kalman. Al final el muestreo se pasa al timer con <b>TIMERIMU_Init()</b> y en el while solo se imprime el resultado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TIMERIMU_Init();   // el timer hace las lecturas y los filtros
+
+while (1)
+{
+  sprintf(texto, &quot;roll=%.1f    pitch=%.1f\r\n\r\n&quot;, kalman_roll, kalman_pitch);
+  uartx_write_text(&amp;huart1, texto);
+  HAL_Delay(800);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1810.webp" target="_blank"><img src="img/1810.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure><figure class="cap"><a href="img/1990.webp" target="_blank"><img src="img/1990.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/GgW_t5KkCpY?t=1900" target="_blank" rel="noopener">&#9654; 31:40</a></div><p>Con el GY-85 conectado a la Black Pill, inclina el módulo y observa cómo cambian roll y pitch.</p><div class="uno"><figure class="cap"><a href="img/1900.webp" target="_blank"><img src="img/1900.webp" alt="Librerías para el sensor inercial GY-85 con STM32: ángulos, filtro complementario y Kalman" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=GgW_t5KkCpY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
