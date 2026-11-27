@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Diferencia entre Delay_ms, Delay_us y Vdelay_ms en MikroC, cómo crear un retardo propio en segundos con un procedimiento con parámetro y variable local, y cómo medir tiempos y ver variables con el debugger de MikroC y con Proteus.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/m0A16parj_s/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC · Paso a paso">
+  <meta property="og:description" content="Diferencia entre Delay_ms, Delay_us y Vdelay_ms en MikroC, cómo crear un retardo propio en segundos con un procedimiento con parámetro y variable local, y cómo medir tiempos y ver variables con el debugger de MikroC y con Proteus.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/m0A16parj_s/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/m0A16parj_s/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Retardos y <span>debugger</span> en MikroC</h1>
+    <p class="lead">Lección 13 del curso. Con un contador de 0 a 9 en un display se muestra que Delay_ms y Delay_us solo aceptan constantes y que para un retardo variable se usa Vdelay_ms. Luego se crea el procedimiento delay_seg con un parámetro y una variable local para hacer retardos en segundos, y se usa el debugger de MikroC para medir cuánto tarda y para ver variables. Al final se ven las mismas variables en Proteus cargando el archivo .cof.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=m0A16parj_s" target="_blank" rel="noopener">&#9654; Ver el video completo (17:48)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/760.webp" alt="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con un PIC16F877A y un display de 7 segmentos en el puerto D</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Retardos</a><a href="#f2">2 · delay_seg</a><a href="#f3">3 · Debugger</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Retardos de MikroC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Contador de 0 a 9</h3><a class="min" href="https://youtu.be/m0A16parj_s?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se crea el proyecto <b>retardos</b> en la carpeta <i>Clase 13</i> (PIC16F877A a 4 MHz) y se copian de la clase anterior el <code>#define</code> del display y el vector de códigos. Un for muestra los números de 0 a 9.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define display PORTD
+const char codigos[] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111};
+char cuenta;
+
+void main() {
+  TRISD = 0;
+  while (1) {
+    for (cuenta = 0; cuenta &lt; 10; cuenta++) {
+      display = codigos[cuenta];
+      Delay_ms(100);
+    }
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Delay_ms y Delay_us solo aceptan constantes</h3><a class="min" href="https://youtu.be/m0A16parj_s?t=202" target="_blank" rel="noopener">&#9654; 3:22</a></div><p><code>Delay_ms(1)</code> es lo mismo que <code>Delay_us(1000)</code>, pero a los dos solo se les puede pasar un número fijo. Si se escribe una variable, el compilador da error.</p><div class="uno"><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Vdelay_ms para retardos variables</h3><a class="min" href="https://youtu.be/m0A16parj_s?t=267" target="_blank" rel="noopener">&#9654; 4:27</a></div><p>Para un retardo que dependa de una variable está <code>Vdelay_ms</code> (solo en milisegundos). Con <code>Vdelay_ms(cuenta * 50)</code> el conteo arranca rápido y se va haciendo más lento.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Vdelay_ms(cuenta * 50);</code></pre></div><div class="uno"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Retardo propio en segundos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Procedimiento con parámetro</h3><a class="min" href="https://youtu.be/m0A16parj_s?t=334" target="_blank" rel="noopener">&#9654; 5:34</a></div><p>Por primera vez un procedimiento recibe un valor: entre los paréntesis se declara la variable (<code>unsigned int time</code>). Al llamarlo, por ejemplo <code>delay_seg(3)</code>, ese valor se carga en <code>time</code>.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Variables locales</h3><a class="min" href="https://youtu.be/m0A16parj_s?t=399" target="_blank" rel="noopener">&#9654; 6:39</a></div><p>Una variable declarada como parámetro o dentro de un procedimiento es <b>local</b>: solo existe dentro de él. Si se intenta usar en el <code>main</code>, el compilador dice que no está declarada.</p><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>El retardo con un for</h3><a class="min" href="https://youtu.be/m0A16parj_s?t=463" target="_blank" rel="noopener">&#9654; 7:43</a></div><p>El procedimiento repite un retardo de un segundo tantas veces como diga <code>time</code>. Luego se usa en el contador para que cambie cada segundo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void delay_seg(unsigned int time) {
+  char cont;
+  for (cont = 1; cont &lt;= time; cont++)
+    Delay_ms(1000);
+}
+
+...
+display = codigos[cuenta];
+delay_seg(1);</code></pre></div><div class="uno"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Depurar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Activar la barra del debugger</h3><a class="min" href="https://youtu.be/m0A16parj_s?t=599" target="_blank" rel="noopener">&#9654; 9:59</a></div><p>En <b>View &gt; Toolbars</b> se activa la <b>Debugger Toolbar</b>. Con <b>Start Debugger</b> el programa corre dentro de MikroC y se puede avanzar línea por línea.</p><div class="uno"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Medir cuánto tarda un código</h3><a class="min" href="https://youtu.be/m0A16parj_s?t=669" target="_blank" rel="noopener">&#9654; 11:09</a></div><p>Se llama <code>delay_seg(1)</code> antes del <code>while</code> a propósito, se inicia el debugger, se pone en cero el cronómetro del <b>Watch Clock</b> y se pasa por encima con <b>Step Over</b>. Marcó 1000,02 ms: el retardo está bien. Si se necesitara más precisión se ajustaría el valor, por ejemplo a 999.</p><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Ver variables</h3><a class="min" href="https://youtu.be/m0A16parj_s?t=735" target="_blank" rel="noopener">&#9654; 12:15</a></div><p>En <b>Watch Values</b> se agregan variables, como <code>cuenta</code> o el vector <code>codigos</code>, y se ve cómo cambian al avanzar. Con clic derecho sobre el valor se escoge si se muestra en decimal, hexadecimal o binario, con o sin signo.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Ver variables en Proteus con el .cof</h3><a class="min" href="https://youtu.be/m0A16parj_s?t=802" target="_blank" rel="noopener">&#9654; 13:22</a></div><p>En <b>Project &gt; Edit Project</b> (u Output Settings) se activa <b>Generate COF file</b> y se compila. En Proteus se carga el .cof en vez del .hex, se arranca en pausa y en <b>Debug &gt; Watch Window</b> se arrastra la variable. Con clic derecho se cambia su formato.</p><p>El archivo de Proteus debe estar en la misma carpeta que el proyecto de MikroC.</p><p class="ojo">Para ver variables en Proteus hay que cargar el archivo .cof; con el .hex no aparecen.</p><div class="dos"><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Step Into o Step Over</h3><a class="min" href="https://youtu.be/m0A16parj_s?t=972" target="_blank" rel="noopener">&#9654; 16:12</a></div><p><b>Step Into</b> entra a los procedimientos propios para ver qué hacen por dentro. En las funciones de MikroC, como <code>Delay_ms</code>, conviene usar <b>Step Over</b>, porque si no se termina dentro de código en ensamblador. El debugger sirve para encontrar errores y para medir tiempos.</p><div class="uno"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Curso MikroC PRO for PIC, lección 13: retardos y depurador (debugger) en MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=m0A16parj_s" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

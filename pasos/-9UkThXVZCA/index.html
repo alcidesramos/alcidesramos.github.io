@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 12: ciclos while y do-while · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="La diferencia entre while y do-while, y cómo usar un while para que un contador en un display avance una sola vez por cada pulsación aunque se deje el pulsador presionado.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/-9UkThXVZCA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 12: ciclos while y do-while · Paso a paso">
+  <meta property="og:description" content="La diferencia entre while y do-while, y cómo usar un while para que un contador en un display avance una sola vez por cada pulsación aunque se deje el pulsador presionado.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/-9UkThXVZCA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/-9UkThXVZCA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Los ciclos <span>while</span> y do-while</h1>
+    <p class="lead">Lección 12 del curso. Se explica que while revisa la condición antes de entrar (puede no ejecutarse nunca) y do-while la revisa después (se ejecuta al menos una vez). Luego, con un PIC16F877A, un display en el puerto D y un pulsador con pull-up en RC0, se arma un contador de 0 a 9: primero se ve el problema del rebote, se agrega un antirrebote y al final un while que espera a que se suelte el pulsador.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=-9UkThXVZCA" target="_blank" rel="noopener">&#9654; Ver el video completo (10:28)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/580.webp" alt="Curso MikroC PRO for PIC, lección 12: ciclos while y do-while"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con un PIC16F877A, un display de 7 segmentos de cátodo común en el puerto D y un pulsador con resistencia pull-up en RC0</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Ciclos</a><a href="#f2">2 · Contador</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>while y do-while</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El ciclo while</h3><a class="min" href="https://youtu.be/-9UkThXVZCA?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p><code>while (condición) { ... }</code> revisa la condición y, mientras se cumpla, repite lo que está entre llaves. Si no se cumple desde el principio, no lo hace ni una vez.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Curso MikroC PRO for PIC, lección 12: ciclos while y do-while" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El ciclo do-while</h3><a class="min" href="https://youtu.be/-9UkThXVZCA?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p><code>do { ... } while (condición);</code> primero hace la acción y después revisa la condición. Se usa cuando la acción debe hacerse al menos una vez.</p><div class="uno"><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Curso MikroC PRO for PIC, lección 12: ciclos while y do-while" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Contador con pulsador</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto y códigos del display</h3><a class="min" href="https://youtu.be/-9UkThXVZCA?t=99" target="_blank" rel="noopener">&#9654; 1:39</a></div><p>Se crea el proyecto <b>ciclowhile</b> en la carpeta <i>Clase 12</i> (PIC16F877A a 4 MHz) y se copian los códigos de 7 segmentos de la clase anterior. Si al compilar no reconoce <code>TRISD</code>, hay que revisar que el micro escogido en el proyecto sea el correcto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define display PORTD
+const char codigos[] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111};
+char cuenta = 0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Curso MikroC PRO for PIC, lección 12: ciclos while y do-while" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Nombrar el pulsador con sbit</h3><a class="min" href="https://youtu.be/-9UkThXVZCA?t=270" target="_blank" rel="noopener">&#9654; 4:30</a></div><p>El pulsador está en RC0. Se puede nombrar con <code>#define</code> o con una variable <code>sbit</code>, que asocia el nombre al pin; esta segunda forma es la que usan muchas librerías de MikroC (LCD, motores). No se pueden usar las dos a la vez con el mismo nombre. RC0 se configura como entrada.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit sw at RC0_bit;
+
+TRISD = 0;        // salida display
+TRISC0_bit = 1;   // entrada pulsador</code></pre></div><div class="dos"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Curso MikroC PRO for PIC, lección 12: ciclos while y do-while" loading="lazy"></a></figure><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Curso MikroC PRO for PIC, lección 12: ciclos while y do-while" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>El problema del rebote</h3><a class="min" href="https://youtu.be/-9UkThXVZCA?t=373" target="_blank" rel="noopener">&#9654; 6:13</a></div><p>Si al leer el pulsador en 0 se incrementa la cuenta, cada pulsación avanza varios números: las láminas del pulsador rebotan y el micro alcanza a leer esos pulsos. Se agrega un retardo antirrebote de 200 a 300 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  display = codigos[cuenta];
+  if (sw == 0) {
+    cuenta++;
+    if (cuenta &gt; 9) cuenta = 0;
+    Delay_ms(300);   // antirrebote
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Curso MikroC PRO for PIC, lección 12: ciclos while y do-while" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Esperar a que se suelte con while</h3><a class="min" href="https://youtu.be/-9UkThXVZCA?t=513" target="_blank" rel="noopener">&#9654; 8:33</a></div><p>Con el antirrebote, si se deja presionado el pulsador sigue contando cada 300 ms. Para que cuente solo una vez por pulsación se agrega un <code>while</code> vacío que deja al programa esperando mientras el pulsador siga en 0. Así el retardo puede bajar a 100 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (sw == 0) {
+  cuenta++;
+  if (cuenta &gt; 9) cuenta = 0;
+  Delay_ms(100);
+  while (sw == 0);   // espera a que se suelte
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Curso MikroC PRO for PIC, lección 12: ciclos while y do-while" loading="lazy"></a></figure><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Curso MikroC PRO for PIC, lección 12: ciclos while y do-while" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=-9UkThXVZCA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

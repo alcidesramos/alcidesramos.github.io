@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 11: el ciclo for · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo usar el ciclo for en MikroC para repetir acciones: decir HOLA tres veces, hacer titilar LEDs, recorrer un vector de luces de ida y vuelta y contar de 0 a 9 en un display.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/p7WGXWVDu_4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 11: el ciclo for · Paso a paso">
+  <meta property="og:description" content="Cómo usar el ciclo for en MikroC para repetir acciones: decir HOLA tres veces, hacer titilar LEDs, recorrer un vector de luces de ida y vuelta y contar de 0 a 9 en un display.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/p7WGXWVDu_4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/p7WGXWVDu_4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>El ciclo <span>for</span></h1>
+    <p class="lead">Lección 11 del curso. Se explica la estructura del for (valor inicial, condición de permanencia e incremento) y se aplica en un PIC16F877A con LEDs en el puerto B y un display en el puerto D: repetir un procedimiento un número de veces, invertir los LEDs varias veces para un juego de luces, recorrer un vector constante subiendo y bajando, y mostrar los números del 0 al 9 en el display con un vector de códigos.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=p7WGXWVDu_4" target="_blank" rel="noopener">&#9654; Ver el video completo (17:59)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/860.webp" alt="Curso MikroC PRO for PIC, lección 11: el ciclo for"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con un PIC16F877A, 8 LEDs en el puerto B y un display de 7 segmentos de cátodo común en el puerto D</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · for</a><a href="#f2">2 · Ejemplos</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Cómo funciona el for</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto nuevo</h3><a class="min" href="https://youtu.be/p7WGXWVDu_4?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>Se crea el proyecto <b>ciclofor</b> en la carpeta <i>Clase 11</i> con el PIC16F877A a 4 MHz (XT). Conviene no ponerle a los proyectos nombres de palabras de C, como <i>for</i>, para evitar problemas. Los puertos B y D se ponen como salida.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Estructura del for</h3><a class="min" href="https://youtu.be/p7WGXWVDu_4?t=103" target="_blank" rel="noopener">&#9654; 1:43</a></div><p>Entre paréntesis van tres partes separadas por punto y coma: el valor inicial de una variable, la condición para seguir en el ciclo y la operación que cambia la variable. Mientras la condición se cumpla, se repite lo que está entre llaves.</p><p><code>cuenta++</code> es lo mismo que <code>cuenta = cuenta + 1</code>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>for (cuenta = 0; cuenta &lt; 10; cuenta++) {
+  // se repite 10 veces
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Curso MikroC PRO for PIC, lección 11: el ciclo for" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Ejemplos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Repetir un procedimiento</h3><a class="min" href="https://youtu.be/p7WGXWVDu_4?t=204" target="_blank" rel="noopener">&#9654; 3:24</a></div><p>Se definen nombres para los puertos y se copia el procedimiento <code>hola()</code> de las clases anteriores, encima del <code>main</code>. Con una variable <code>char cuenta</code> (no necesita valor inicial porque el for se lo da) se enciende los LEDs, se dice HOLA tres veces y se apagan.</p><p>Contar de 0 mientras sea menor que 3, o de 1 mientras sea menor o igual a 3, da las mismas tres vueltas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define leds PORTB
+#define display PORTD
+char cuenta;
+
+leds = 0b11111111;
+for (cuenta = 0; cuenta &lt; 3; cuenta++) {
+  hola();
+}
+leds = 0;
+Delay_ms(1000);</code></pre></div><p class="ojo">Si dentro del for hay una sola orden, las llaves se pueden omitir. Con dos o más son obligatorias.</p><div class="dos"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Curso MikroC PRO for PIC, lección 11: el ciclo for" loading="lazy"></a></figure><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Curso MikroC PRO for PIC, lección 11: el ciclo for" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Juego de luces invirtiendo</h3><a class="min" href="https://youtu.be/p7WGXWVDu_4?t=439" target="_blank" rel="noopener">&#9654; 7:19</a></div><p>Se carga un patrón en los LEDs y se invierte varias veces con un for. Cambiando el patrón y el número de vueltas se arman distintos efectos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>leds = 0;
+for (cuenta = 0; cuenta &lt; 4; cuenta++) {
+  leds = ~leds;
+  Delay_ms(100);
+}
+leds = 0b00110011;
+for (cuenta = 0; cuenta &lt; 4; cuenta++) {
+  leds = ~leds;
+  Delay_ms(100);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Curso MikroC PRO for PIC, lección 11: el ciclo for" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Curso MikroC PRO for PIC, lección 11: el ciclo for" loading="lazy"></a></figure><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Curso MikroC PRO for PIC, lección 11: el ciclo for" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Recorrer un vector de ida y vuelta</h3><a class="min" href="https://youtu.be/p7WGXWVDu_4?t=673" target="_blank" rel="noopener">&#9654; 11:13</a></div><p>Con el vector constante de luces de la clase anterior, un for creciente recorre las posiciones de 0 a 8 y otro decreciente las recorre de 8 a 0. La misma variable <code>cuenta</code> se reutiliza en todos los for.</p><p>Como el for de bajada compara con mayor o igual a 0, se recomienda que la variable tenga signo (<code>signed char</code>) para que pueda pasar a negativo y el ciclo termine bien.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const char luces[] = {0, 0b00000001, 0b00000010, 0b00000100,
+                      0b00001000, 16, 32, 64, 128};
+signed char cuenta;
+
+for (cuenta = 0; cuenta &lt;= 8; cuenta++) {
+  leds = luces[cuenta];
+  Delay_ms(100);
+}
+for (cuenta = 8; cuenta &gt;= 0; cuenta--) {
+  leds = luces[cuenta];
+  Delay_ms(100);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/780.webp" target="_blank"><img src="img/780.webp" alt="Curso MikroC PRO for PIC, lección 11: el ciclo for" loading="lazy"></a></figure><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Curso MikroC PRO for PIC, lección 11: el ciclo for" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Contar de 0 a 9 en el display</h3><a class="min" href="https://youtu.be/p7WGXWVDu_4?t=877" target="_blank" rel="noopener">&#9654; 14:37</a></div><p>Los códigos de 7 segmentos de 0 a 9 (sacados con el Seven Segment Editor) se guardan en otro vector constante y se recorren igual, hacia arriba y hacia abajo. Un vector puede tener efectos de luces y otro números o letras.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const char codigos[] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111};
+
+for (cuenta = 0; cuenta &lt;= 9; cuenta++) {
+  display = codigos[cuenta];
+  Delay_ms(500);
+}
+for (cuenta = 9; cuenta &gt;= 0; cuenta--) {
+  display = codigos[cuenta];
+  Delay_ms(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Curso MikroC PRO for PIC, lección 11: el ciclo for" loading="lazy"></a></figure><figure class="cap"><a href="img/1040.webp" target="_blank"><img src="img/1040.webp" alt="Curso MikroC PRO for PIC, lección 11: el ciclo for" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=p7WGXWVDu_4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
