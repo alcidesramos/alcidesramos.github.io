@@ -982,7 +982,7 @@ const CURSOS = {
 "t": "Librerias de manejo de memoria SD",
 "d": "De memoria Muestra como cerar archivos y manejar una memorisa sd con stm32. imagen d ela memoria.",
 "c": [
-"https://drive.google.com/drive/folders/1YcyMXKKAmfClXoltpv2qeEPJ3EzXkKz-?usp=sharing",
+"https://github.com/alcidesramos/archivos-youtube/raw/main/MEMORIA_SD_STM32/sdcard_image.mmc",
 "https://github.com/alcidesramos/CODIGOS_LIBSTOCK/tree/main/5761-stm32-sd-library"
 ]
 },
@@ -5338,7 +5338,7 @@ const CURSOS = {
 "t": "Cómo clonar código .hex de arduino",
 "d": "Pasar el código máquina de un Arduino a otro Link.",
 "c": [
-"https://drive.google.com/drive/folders/1l-tkosJgmDlIWx0rnOKTJ83IjuhRlUrA?usp=sharing"
+"https://github.com/alcidesramos/archivos-youtube/raw/main/CLONAR_HEX_ARDUINO/CLONAR.rar"
 ]
 },
 {
