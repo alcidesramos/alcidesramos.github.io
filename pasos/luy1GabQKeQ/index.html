@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC18F2550 con un ESP8266 actúa como cliente Modbus TCP: escribe registros holding con dos potenciómetros y salidas digitales con cuatro pulsadores, y Factory IO, como servidor, mueve una grúa y las bandas.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/luy1GabQKeQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO · Paso a paso">
+  <meta property="og:description" content="Un PIC18F2550 con un ESP8266 actúa como cliente Modbus TCP: escribe registros holding con dos potenciómetros y salidas digitales con cuatro pulsadores, y Factory IO, como servidor, mueve una grúa y las bandas.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/luy1GabQKeQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/luy1GabQKeQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1><span>Modbus TCP</span> con PIC y ESP8266</h1>
+    <p class="lead">Factory IO se configura como servidor Modbus TCP en el puerto 502. El PIC18F2550 maneja el ESP8266 a 9600 baudios con una librería propia y se conecta a la IP del PC. Una trama Modbus TCP lleva la cabecera MBAP (identificador de transacción, protocolo 0 y largo) y luego el esclavo, la función y los datos. La función 0x06 escribe un registro holding; con la escritura de varios registros se mandan los dos potenciómetros en una sola trama, más rápido. digital_out es un entero de 16 bits con nombres para cada bit, que se manda como coils para mover las bandas con cuatro pulsadores. Una UART por software sirve para depurar.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=luy1GabQKeQ" target="_blank" rel="noopener">&#9654; Ver el video completo (20:47)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1230.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO"></figure>
+    <ul class="materiales"><li>PIC18F2550</li><li>Módulo ESP8266</li><li>Dos potenciómetros, cuatro pulsadores y LEDs</li><li>Factory IO como servidor Modbus TCP</li><li>Librerías esp8266 y Modbus_TCP del autor</li><li>MikroC PRO for PIC y Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Preparar</a><a href="#f2">2 · Modbus</a><a href="#f3">3 · Varios</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparación</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El montaje</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El PIC18F2550 tiene dos potenciómetros, pulsadores, LEDs y el ESP8266; dos terminales virtuales muestran lo que recibe el ESP y una UART por software para depurar.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>Proyecto en MikroC para el PIC18F2550 a 20 MHz con oscilador HS. Se agregan las librerías esp8266.c y Modbus_TCP.c.</p><div class="uno"><figure class="cap"><a href="img/91.webp" target="_blank"><img src="img/91.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Variables</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>Cuatro pulsadores en RB4 a RB7, LEDs en LATC, las variables de recepción Modbus, el buffer para varios registros y digital_out para las salidas digitales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;Librerias\Modbus_TCP.h&quot;
+#include &quot;Librerias\esp8266.h&quot;
+
+sbit sw1 at RB4_bit;
+sbit sw2 at RB5_bit;
+sbit sw3 at RB6_bit;
+sbit sw4 at RB7_bit;
+
+sbit led1 at LATC0_bit;
+sbit led2 at LATC1_bit;
+sbit led3 at LATC2_bit;
+// usadas para leer datos modbus
+extern unsigned int rec_son;
+extern unsigned char flag_modbus;
+
+// buffer para enviar varias variables análogas holding
+unsigned int buff_tx[5];
+// registro para escribir coils digitales
+unsigned int digital_out = 0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/234.webp" target="_blank"><img src="img/234.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Enviar al ESP8266</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=280" target="_blank" rel="noopener">&#9654; 4:40</a></div><p>Para mandar datos por el socket se usa AT+CIPSEND con el número de bytes y luego la trama.</p><div class="uno"><figure class="cap"><a href="img/305.webp" target="_blank"><img src="img/305.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>UART por software e interrupción</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=340" target="_blank" rel="noopener">&#9654; 5:40</a></div><p>Funciones para escribir texto y buffers por la UART de software, y la interrupción que atiende al ESP8266.</p><div class="uno"><figure class="cap"><a href="img/376.webp" target="_blank"><img src="img/376.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.6</span><h3>Configuración</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=420" target="_blank" rel="noopener">&#9654; 7:00</a></div><p>Dos entradas análogas, cuatro pulsadores con pull-up, LEDs, TX y RX, y la interrupción de periféricos.</p><div class="uno"><figure class="cap"><a href="img/447.webp" target="_blank"><img src="img/447.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Factory IO y Modbus</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Servidor en Factory IO</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=560" target="_blank" rel="noopener">&#9654; 9:20</a></div><p>En Factory IO se elige Modbus TCP/IP Server, la IP del PC, el puerto 502 y el adaptador de red. El ESP8266 se conecta a esa IP. Las credenciales de la red WiFi se ponen en el código (no se muestran aquí).</p><div class="uno"><figure class="cap"><a href="img/589.webp" target="_blank"><img src="img/589.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Escribir un registro</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=700" target="_blank" rel="noopener">&#9654; 11:40</a></div><p>modbus_write_holding arma la cabecera MBAP (transacción 0, protocolo 0, largo 6), el esclavo, la función 6 y la dirección y el dato en dos bytes cada uno.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void modbus_write_holding(unsigned int dir_mod, unsigned int dat_mod) {
+  RCIE_bit = 0;     // deshabilita interrupciones
+  modbus_tx[0] = 0;
+  modbus_tx[1] = 0;
+  modbus_tx[2] = 0;
+  modbus_tx[3] = 0; // identifica protocolo modbus
+  modbus_tx[4] = 0; // identifica protocolo modbus
+  modbus_tx[5] = 6; // largo trama
+  modbus_tx[6] = dir_esclavo; // identificación del esclavo
+  modbus_tx[7] = 6; // comando de escribir 1 registro holding
+  // guarda la dirección
+  modbus_tx[8] = Hi(dir_mod);
+  modbus_tx[9] = Lo(dir_mod);
+  // ... el dato y el envío (ver video)
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/732.webp" target="_blank"><img src="img/732.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>La cabecera MBAP</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=780" target="_blank" rel="noopener">&#9654; 13:00</a></div><p>En la documentación de Modbus: identificador de transacción (2 bytes), de protocolo (2 bytes, 0 = Modbus), longitud (2 bytes) e identificador de unidad (1 byte).</p><div class="uno"><figure class="cap"><a href="img/803.webp" target="_blank"><img src="img/803.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Primera prueba</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=850" target="_blank" rel="noopener">&#9654; 14:10</a></div><p>Con los potenciómetros escalados de 0 a 100 Factory IO mueve los ejes X y Z de la grúa.</p><div class="uno"><figure class="cap"><a href="img/874.webp" target="_blank"><img src="img/874.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Varios datos</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Varios registros</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=990" target="_blank" rel="noopener">&#9654; 16:30</a></div><p>En lugar de dos tramas se carga el buffer con los dos valores y se mandan juntos desde la dirección 0; así el sistema responde más en tiempo real.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>val2 = codigo * 100.0 / 1023.0;  // lo escala de 0 a 100
+Delay_us(2);
+
+// manda varias variables análogas
+// carga el buffer con los datos a enviar
+buff_tx[0] = val1;
+buff_tx[1] = val2;
+modbus_write_holding_varios(0, buff_tx, 2); // manda desde la dirección cero dos datos</code></pre></div><div class="uno"><figure class="cap"><a href="img/1016.webp" target="_blank"><img src="img/1016.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Salidas digitales</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=1100" target="_blank" rel="noopener">&#9654; 18:20</a></div><p>digital_out tiene 16 bits con un nombre para cada salida. Los pulsadores, con pull-up, se invierten y encienden las bandas transportadoras.</p><div class="uno"><figure class="cap"><a href="img/1159.webp" target="_blank"><img src="img/1159.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/luy1GabQKeQ?t=1200" target="_blank" rel="noopener">&#9654; 20:00</a></div><p>La grúa sigue a los potenciómetros y las bandas responden a los pulsadores.</p><div class="uno"><figure class="cap"><a href="img/1230.webp" target="_blank"><img src="img/1230.webp" alt="Modbus TCP con PIC18F2550 y ESP8266 en MikroC para manejar Factory IO" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=luy1GabQKeQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

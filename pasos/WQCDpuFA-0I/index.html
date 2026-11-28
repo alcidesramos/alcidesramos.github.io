@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulación de robot seguidor de línea y evasor de obstáculos en Proteus, parte 1 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo usar el robot tortuga virtual de Proteus: probar sus sensores de línea y motores con estados lógicos, crear pistas propias en Paint, y activar el sonar y su servo para evitar obstáculos.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/WQCDpuFA-0I/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Simulación de robot seguidor de línea y evasor de obstáculos en Proteus, parte 1 · Paso a paso">
+  <meta property="og:description" content="Cómo usar el robot tortuga virtual de Proteus: probar sus sensores de línea y motores con estados lógicos, crear pistas propias en Paint, y activar el sonar y su servo para evitar obstáculos.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/WQCDpuFA-0I/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/WQCDpuFA-0I/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Robot <span>seguidor de línea</span> en Proteus</h1>
+    <p class="lead">Proteus trae un ejemplo de robot tortuga para Arduino; se copia a un proyecto nuevo para usarlo con cualquier micro. Con estados lógicos se descubre qué es cada pin: tres sensores de línea, dos entradas de dirección y un enable por motor, el disparo y el eco del sonar y el servo. La pista se carga con doble clic sobre el robot; se puede dibujar en Paint (al menos 1000 píxeles). El sonar solo se activa si la pista tiene algo rojo y se le da un pulso de unos 10 µs cada 2,5 ms; el eco es un pulso cuyo ancho cambia con la distancia. El servo del sonar se maneja con 50 Hz y 1 a 2 ms.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=WQCDpuFA-0I" target="_blank" rel="noopener">&#9654; Ver el video completo (15:11)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/338.webp" alt="Simulación de robot seguidor de línea y evasor de obstáculos en Proteus, parte 1"></figure>
+    <ul class="materiales"><li>Proteus 8 con el modelo TURTLE</li><li>Paint u otro editor de imágenes</li><li>Generadores de pulso, estados lógicos y osciloscopio de Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Robot</a><a href="#f2">2 · Pista</a><a href="#f3">3 · Sonar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El robot</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El ejemplo de Proteus</h3><a class="min" href="https://youtu.be/WQCDpuFA-0I?t=30" target="_blank" rel="noopener">&#9654; 0:30</a></div><p>En los ejemplos de Proteus, buscando line, están el robot tortuga y el robot sumo. Se copia el robot tortuga a un proyecto nuevo.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Cargar la pista</h3><a class="min" href="https://youtu.be/WQCDpuFA-0I?t=72" target="_blank" rel="noopener">&#9654; 1:12</a></div><p>Con doble clic sobre el robot se elige la imagen de la pista (en la carpeta de ejemplos de Proteus hay pistas en PNG), el ángulo inicial, la posición y la velocidad máxima.</p><div class="uno"><figure class="cap"><a href="img/179.webp" target="_blank"><img src="img/179.webp" alt="Simulación de robot seguidor de línea y evasor de obstáculos en Proteus, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Identificar los pines</h3><a class="min" href="https://youtu.be/WQCDpuFA-0I?t=203" target="_blank" rel="noopener">&#9654; 3:23</a></div><p>Se pone un estado lógico en cada pin para ver su nombre: disparo y eco del sonar, servo, entradas de los motores y enable de velocidad, y los tres sensores de línea.</p><div class="uno"><figure class="cap"><a href="img/259.webp" target="_blank"><img src="img/259.webp" alt="Simulación de robot seguidor de línea y evasor de obstáculos en Proteus, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Probar motores y sensores</h3><a class="min" href="https://youtu.be/WQCDpuFA-0I?t=304" target="_blank" rel="noopener">&#9654; 5:04</a></div><p>Con los enable en 1 y las entradas en 1 0 o 0 1 el robot avanza, retrocede o gira. Los sensores se ven en verde cuando están sobre la línea. Si el robot se pierde, se resetea con clic derecho.</p><div class="uno"><figure class="cap"><a href="img/338.webp" target="_blank"><img src="img/338.webp" alt="Simulación de robot seguidor de línea y evasor de obstáculos en Proteus, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Pista propia</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Dibujar en Paint</h3><a class="min" href="https://youtu.be/WQCDpuFA-0I?t=371" target="_blank" rel="noopener">&#9654; 6:11</a></div><p>Con el pincel más grueso en negro se dibuja la pista, de al menos 1000 píxeles, y se guarda como PNG.</p><div class="uno"><figure class="cap"><a href="img/418.webp" target="_blank"><img src="img/418.webp" alt="Simulación de robot seguidor de línea y evasor de obstáculos en Proteus, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Probarla</h3><a class="min" href="https://youtu.be/WQCDpuFA-0I?t=439" target="_blank" rel="noopener">&#9654; 7:19</a></div><p>Se carga la pista nueva y el robot reacciona a ella, así se pueden hacer competencias virtuales.</p><div class="uno"><figure class="cap"><a href="img/497.webp" target="_blank"><img src="img/497.webp" alt="Simulación de robot seguidor de línea y evasor de obstáculos en Proteus, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Sonar y servo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Activar el sonar</h3><a class="min" href="https://youtu.be/WQCDpuFA-0I?t=472" target="_blank" rel="noopener">&#9654; 7:52</a></div><p>El sonar solo funciona si la pista tiene algo rojo. Con un osciloscopio se ve que el ejemplo da un pulso de unos 10 a 20 µs cada 2,5 ms.</p><div class="uno"><figure class="cap"><a href="img/577.webp" target="_blank"><img src="img/577.webp" alt="Simulación de robot seguidor de línea y evasor de obstáculos en Proteus, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Obstáculos</h3><a class="min" href="https://youtu.be/WQCDpuFA-0I?t=589" target="_blank" rel="noopener">&#9654; 9:49</a></div><p>Con un generador de pulsos de 0 a 5 V, periodo de 2,5 ms y ancho de 10 µs se activa el sonar. Las figuras rojas son obstáculos: si no se evitan, el robot choca.</p><div class="uno"><figure class="cap"><a href="img/656.webp" target="_blank"><img src="img/656.webp" alt="Simulación de robot seguidor de línea y evasor de obstáculos en Proteus, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>El servo del sonar</h3><a class="min" href="https://youtu.be/WQCDpuFA-0I?t=730" target="_blank" rel="noopener">&#9654; 12:10</a></div><p>El sonar va sobre un servo: periodo de 20 ms (50 Hz), 1 ms a la izquierda, 1,5 ms al centro y 2 ms a la derecha.</p><div class="uno"><figure class="cap"><a href="img/815.webp" target="_blank"><img src="img/815.webp" alt="Simulación de robot seguidor de línea y evasor de obstáculos en Proteus, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Leer el eco</h3><a class="min" href="https://youtu.be/WQCDpuFA-0I?t=831" target="_blank" rel="noopener">&#9654; 13:51</a></div><p>El ancho del eco se hace pequeño cuando hay un objeto cerca y grande cuando está lejos, como en un SRF04. El micro debe dar el disparo, medir el eco, leer los sensores y manejar los motores.</p><div class="uno"><figure class="cap"><a href="img/895.webp" target="_blank"><img src="img/895.webp" alt="Simulación de robot seguidor de línea y evasor de obstáculos en Proteus, parte 1" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=WQCDpuFA-0I" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

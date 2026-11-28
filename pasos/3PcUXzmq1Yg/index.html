@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo funciona una fuente reductora buck, cómo calcular la bobina, qué hacen el capacitor y la carga, y cómo un PIC12F1822 genera el PWM de 20 kHz que conmuta el MOSFET.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/3PcUXzmq1Yg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM · Paso a paso">
+  <meta property="og:description" content="Cómo funciona una fuente reductora buck, cómo calcular la bobina, qué hacen el capacitor y la carga, y cómo un PIC12F1822 genera el PWM de 20 kHz que conmuta el MOSFET.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/3PcUXzmq1Yg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/3PcUXzmq1Yg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Fuente conmutada <span>buck</span> con PIC</h1>
+    <p class="lead">En una fuente buck un interruptor (MOSFET) se abre y cierra con PWM; la bobina, el diodo Schottky y el capacitor entregan un voltaje de salida aproximado de Vout = D·Vin. La bobina se calcula con L = (Vin − Vout)·D / (f·ΔI): de 24 V a 5 V, 2 A, rizado del 15 % y 20 kHz salen unos 659 µH; a mayor frecuencia, menor bobina. En Proteus se simula con un IRF530, una bobina de 1000 µH y un capacitor grande: con 90 % de ciclo útil salen unos 19 V y con 10 %, 2,21 V, pero el resultado cambia con la carga, por eso las fuentes reales (como la LM2596) son de lazo cerrado. Se agrega un driver con 2N3904, que invierte la lógica, y un PIC12F1822 a 4 MHz genera el PWM de 20 kHz por CCP1 según un potenciómetro, en lazo abierto. Al final se muestra la fuente elevadora del PICkit 2 como ejemplo de lazo cerrado.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=3PcUXzmq1Yg" target="_blank" rel="noopener">&#9654; Ver el video completo (19:28)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/751.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM"></figure>
+    <ul class="materiales"><li>PIC12F1822</li><li>MOSFET IRF530 o similar</li><li>Diodo Schottky</li><li>Bobina de 500 a 1000 µH</li><li>Capacitor de salida de 220 µF o más</li><li>Transistor 2N3904 y resistencias de 220 Ω y 10 kΩ</li><li>Potenciómetro</li><li>Fuente de 24 V</li><li>Proteus, Excel y MikroC PRO for PIC</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Cálculo</a><a href="#f2">2 · Simular</a><a href="#f3">3 · PIC</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Teoría y cálculo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La idea</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Siguiendo con los MOSFET, se ve su uso en fuentes conmutadas. En la buck un interruptor se abre y cierra y, según el tiempo que está cerrado, cambia el voltaje de salida.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El circuito básico</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=64" target="_blank" rel="noopener">&#9654; 1:04</a></div><p>Lo que interesa es la alimentación, el interruptor, el diodo, la bobina, el capacitor y la carga. El diodo debe ser rápido, tipo Schottky.</p><div class="uno"><figure class="cap"><a href="img/86.webp" target="_blank"><img src="img/86.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Voltaje de salida</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=129" target="_blank" rel="noopener">&#9654; 2:09</a></div><p>Sin entrar en el análisis completo (modo continuo y discontinuo), la salida es aproximadamente Vout = D·Vin. Con D máximo la salida se acerca a la entrada; por eso se llama reductora, step down o buck.</p><div class="uno"><figure class="cap"><a href="img/153.webp" target="_blank"><img src="img/153.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Calcular la bobina</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=162" target="_blank" rel="noopener">&#9654; 2:42</a></div><p>L = (Vin − Vout)·D / (f·ΔI). En Excel: de 24 V a 5 V, 2 A, rizado del 15 % (0,3 A) y 20 kHz da 6,6·10⁻⁴ H, unos 659 µH.</p><div class="uno"><figure class="cap"><a href="img/219.webp" target="_blank"><img src="img/219.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Frecuencia y rizado</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=227" target="_blank" rel="noopener">&#9654; 3:47</a></div><p>Normalmente la frecuencia es alta (40 o 100 kHz) para que no se escuche. A mayor frecuencia, menor bobina; si se quiere menos rizado, la bobina crece. Con una bobina de 1000 µH el rizado baja.</p><div class="uno"><figure class="cap"><a href="img/286.webp" target="_blank"><img src="img/286.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Simulación en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Armar la fuente</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=324" target="_blank" rel="noopener">&#9654; 5:24</a></div><p>Se usa una bobina de 1000 µH, el capacitor, la carga de 10 Ω y medidores de corriente y voltaje. Primero el PWM se da con un generador de 0 a 24 V a 20 kHz.</p><div class="uno"><figure class="cap"><a href="img/352.webp" target="_blank"><img src="img/352.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Respuesta</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=357" target="_blank" rel="noopener">&#9654; 5:57</a></div><p>Con 90 % de ciclo útil la salida se estabiliza cerca de 19 o 20 V; con 10 %, en 2,21 V. La gráfica parece una función de transferencia: tiene picos y luego se estabiliza.</p><div class="uno"><figure class="cap"><a href="img/419.webp" target="_blank"><img src="img/419.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Depende de la carga</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=454" target="_blank" rel="noopener">&#9654; 7:34</a></div><p>Al cambiar la carga el voltaje ya no cumple la fórmula. Por eso estas fuentes no se dejan en lazo abierto: se pone un divisor de tensión a la salida y se realimenta, como hace la LM2596.</p><div class="uno"><figure class="cap"><a href="img/485.webp" target="_blank"><img src="img/485.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>El capacitor</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=551" target="_blank" rel="noopener">&#9654; 9:11</a></div><p>La bobina tiene que ver con el rizado y el capacitor lo reduce. Conviene un capacitor de 220 µF o más; la bobina se elige por tamaño y espacio.</p><div class="uno"><figure class="cap"><a href="img/552.webp" target="_blank"><img src="img/552.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Disparo del MOSFET</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=649" target="_blank" rel="noopener">&#9654; 10:49</a></div><p>Las señales lógicas no alcanzan para conmutar el MOSFET con 24 V. Se agrega un 2N3904 con resistencias de 220 Ω y 10 kΩ. Ojo: la lógica se invierte, a mayor ciclo útil, menor voltaje.</p><div class="uno"><figure class="cap"><a href="img/685.webp" target="_blank"><img src="img/685.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Prueba al 50 %</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=750" target="_blank" rel="noopener">&#9654; 12:30</a></div><p>Con una bobina menor y 50 % de ciclo útil se mide la salida con el driver ya puesto.</p><div class="uno"><figure class="cap"><a href="img/751.webp" target="_blank"><img src="img/751.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El PWM con el PIC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>PIC12F1822</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=782" target="_blank" rel="noopener">&#9654; 13:02</a></div><p>Un micro pequeño genera la señal GATE por el PWM1 (CCP1). Un potenciómetro en un canal análogo fija el ciclo útil, en lazo abierto.</p><div class="uno"><figure class="cap"><a href="img/818.webp" target="_blank"><img src="img/818.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Programa</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=886" target="_blank" rel="noopener">&#9654; 14:46</a></div><p>Proyecto en MikroC con 4 MHz y oscilador interno, sin MCLR. Se usan las librerías ADC y PWM: el PWM se inicia a 20 kHz y el valor del ADC (0 a 1023) se desplaza dos bits para llevarlo a 0 a 255 y se resta de 255 porque el driver invierte la señal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// Reconstruido de la explicación del video; el código completo no se ve en pantalla
+unsigned int codigo;
+
+void main() {
+  // pines digitales y la entrada del potenciómetro como análoga (ver video)
+  PWM1_Init(20000);      // PWM a 20 kHz
+  PWM1_Set_Duty(127);    // valor inicial, la mitad
+  PWM1_Start();
+  ADC_Init();
+  while (1) {
+    codigo = ADC_Read(CANAL);              // CANAL: entrada del potenciómetro
+    PWM1_Set_Duty(255 - (codigo &gt;&gt; 2));   // 10 a 8 bits, invertido por el 2N3904
+    // un pequeño retardo (opcional)
+  }
+}</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=1051" target="_blank" rel="noopener">&#9654; 17:31</a></div><p>Al mover el potenciómetro el voltaje baja casi a 0 V o sube, por ejemplo a 13 V con 72 %. La simulación es lenta. Para una fuente real hay que leer la salida con un divisor y corregir el PWM si cambia la carga.</p><div class="uno"><figure class="cap"><a href="img/1084.webp" target="_blank"><img src="img/1084.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Ejemplo: PICkit 2</h3><a class="min" href="https://youtu.be/3PcUXzmq1Yg?t=1115" target="_blank" rel="noopener">&#9654; 18:35</a></div><p>El PICkit 2 tiene una fuente elevadora (boost) hecha por el mismo micro con un transistor, una bobina y un diodo, y lee la salida con un divisor para ajustar el PWM y dar los 12 V de programación.</p><div class="uno"><figure class="cap"><a href="img/1150.webp" target="_blank"><img src="img/1150.webp" alt="Fuente conmutada tipo buck (reductora) con MOSFET y PIC12F1822: cálculo, simulación y PWM" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=3PcUXzmq1Yg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

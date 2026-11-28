@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Una librería propia para el HX711 en MikroC: lectura de 24 bits con selección de ganancia, promedio, tara y cálculo del peso con un factor de calibración, mostrado en una LCD.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/4Qip3j4fVJ4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A · Paso a paso">
+  <meta property="og:description" content="Una librería propia para el HX711 en MikroC: lectura de 24 bits con selección de ganancia, promedio, tara y cálculo del peso con un factor de calibración, mostrado en una LCD.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/4Qip3j4fVJ4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/4Qip3j4fVJ4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Balanza con <span>HX711</span> en MikroC</h1>
+    <p class="lead">El HX711 es un ADC de 24 bits para celdas de carga. Se leen 24 bits por DOUT dando pulsos por PD_SCK; los pulsos extra eligen el canal y la ganancia siguiente: uno para el canal A con 128, dos para el B con 32 y tres para el A con 64. La librería hx711 (.c y .h) tiene funciones para iniciar, dar un pulso, leer con signo, promediar n lecturas y tarar. En el PIC16F877A a 4 MHz el programa resta el offset, multiplica por un factor (peso de prueba de 1000 g sobre la lectura de calibración) y muestra el peso en la LCD. Un botón tara y otro calibra; los valores quedan en RAM y se sugiere guardarlos en EEPROM.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=4Qip3j4fVJ4" target="_blank" rel="noopener">&#9654; Ver el video completo (24:35)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1202.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A"></figure>
+    <ul class="materiales"><li>PIC16F877A</li><li>Módulo HX711</li><li>Celda de carga</li><li>LCD 16x2</li><li>Dos pulsadores (tarar y calibrar) y un LED</li><li>Peso de prueba conocido (1000 g)</li><li>MikroC PRO for PIC y Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · HX711</a><a href="#f2">2 · Librería</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El HX711</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El montaje</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El PIC16F877A lee el HX711, que va a la celda de carga; tiene una LCD, un LED y los pulsadores TARAR y CALIBRAR.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Cómo se lee</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>Cuando DOUT baja hay dato listo. Con 24 pulsos de reloj salen los 24 bits; con 1, 2 o 3 pulsos más se elige la siguiente lectura: canal A ganancia 128, canal B ganancia 32 o canal A ganancia 64.</p><div class="uno"><figure class="cap"><a href="img/104.webp" target="_blank"><img src="img/104.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Variables del programa</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>El programa principal define los pines de la LCD, los pulsadores, el LED, el offset, el factor y el texto para mostrar.</p><div class="uno"><figure class="cap"><a href="img/189.webp" target="_blank"><img src="img/189.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Pines y constantes</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=240" target="_blank" rel="noopener">&#9654; 4:00</a></div><p>DT y CLK en RB6 y RB7. offset_manual es lo que se lee sin peso, calibra es la lectura con el peso de prueba menos el offset, y el factor es prueba / calibra. En un PIC18 el reloj se maneja con LAT.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;hx711.h&quot;
+
+sbit hx711_dat at portB.b6;   // pin de datos del micro
+sbit hx711_ck  at portB.b7;   // pin de reloj
+sbit hx711_dat_dir at trisB.b6;
+sbit hx711_ck_dir  at trisB.b7;
+
+const float offset_manual = 293;   // offset, valor leído a 0
+const float calibra = 416.9 - offset_manual; // valor a la calibración menos el offset
+const float prueba = 1000.0;       // peso de prueba para calibración, gramos
+
+float factor = prueba / calibra;   // factor multiplicativo a lectura base
+signed long offset = offset_manual; // carga el offset manual al offset a usar</code></pre></div><div class="uno"><figure class="cap"><a href="img/273.webp" target="_blank"><img src="img/273.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Iniciar y dar un pulso</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=320" target="_blank" rel="noopener">&#9654; 5:20</a></div><p>hx711_init pone el reloj como salida en 0 y el dato como entrada. hx711_pulso sube el reloj, espera, lee el dato, baja el reloj y devuelve el bit.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern signed long offset;  // guarda el offset
+
+void hx711_init() {
+  hx711_ck_dir = 0;
+  hx711_dat_dir = 1;
+  hx711_ck = 0;     // saca cero por el reloj
+  Delay_ms(500);
+}
+
+char hx711_pulso() {
+  char lei;
+  hx711_ck = 1;     // saca uno por el reloj
+  Delay_us(1);
+  lei = hx711_dat;
+  hx711_ck = 0;     // saca cero por el reloj
+  Delay_us(1);
+  return lei;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/358.webp" target="_blank"><img src="img/358.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Leer 24 bits</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=420" target="_blank" rel="noopener">&#9654; 7:00</a></div><p>Se espera a que DT baje (esta espera bloquea), se dan 24 pulsos armando el dato del bit 23 al 0 y luego los pulsos de la ganancia.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>signed long hx711_lectura(unsigned char ganancia) {
+  signed int hx711_cont;
+  signed long hx711_dato = 0;
+  while (hx711_dat == 1);   // que no esté ocupado el módulo
+  // da los primeros 24 pulsos
+  for (hx711_cont = 23; hx711_cont &gt;= 0; hx711_cont--) {
+    if (hx711_pulso() == 1)
+      hx711_dato = hx711_dato + (1L &lt;&lt; hx711_cont);
+  }
+  Delay_us(100);
+  if (ganancia == 128) hx711_pulso();
+  else if (ganancia == 32) {
+    hx711_pulso(); Delay_us(100); hx711_pulso();
+  }
+  else if (ganancia == 64) {
+    hx711_pulso(); Delay_us(100); hx711_pulso(); Delay_us(100); hx711_pulso();
+  }
+  // verifica si es negativo
+  if ((hx711_dato &amp; 0x800000) != 0) {
+    hx711_dato = hx711_dato | 0xff000000;  // lo convierte a 32 bits con signo
+    return (-hx711_dato);  // se coloca - si no se quiere regresar valor negado
+  }
+  else return (hx711_dato);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/442.webp" target="_blank"><img src="img/442.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure><figure class="cap"><a href="img/526.webp" target="_blank"><img src="img/526.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Signo</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=580" target="_blank" rel="noopener">&#9654; 9:40</a></div><p>El dato viene en complemento a dos de 24 bits: si el bit 23 está en 1 se completa con 0xFF000000 para tener un long con signo. En el video se devuelve negado; se quita el signo menos si no se quiere así.</p><div class="uno"><figure class="cap"><a href="img/611.webp" target="_blank"><img src="img/611.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Promedio y tara</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=660" target="_blank" rel="noopener">&#9654; 11:00</a></div><p>hx711_promedio suma n lecturas con un retardo y divide. tarar guarda ese promedio como offset.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>signed long hx711_promedio(unsigned char veces, unsigned char ganancia) {
+  signed long prom = 0;
+  unsigned char cont;
+  for (cont = 0; cont &lt; veces; cont++) {
+    prom = prom + hx711_lectura(ganancia);
+    Delay_ms(100);
+  }
+  return (prom / cont);
+}
+
+void tarar(unsigned char veces, unsigned char ganancia) {
+  offset = hx711_promedio(veces, ganancia);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/695.webp" target="_blank"><img src="img/695.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa y prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Inicio</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=750" target="_blank" rel="noopener">&#9654; 12:30</a></div><p>Se configuran los pulsadores y el LED, se inicia la LCD y el HX711 y se muestra el offset. floattostr_ es una función propia para mostrar el número.</p><div class="uno"><figure class="cap"><a href="img/780.webp" target="_blank"><img src="img/780.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Botón de tara</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=840" target="_blank" rel="noopener">&#9654; 14:00</a></div><p>Si se presiona TARAR se toma el promedio de 10 lecturas con ganancia 128 como nuevo offset y se muestra.</p><div class="uno"><figure class="cap"><a href="img/864.webp" target="_blank"><img src="img/864.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Simulación</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=930" target="_blank" rel="noopener">&#9654; 15:30</a></div><p>En Proteus se ve el offset en la primera línea; al tarar cambia el valor.</p><div class="dos"><figure class="cap"><a href="img/949.webp" target="_blank"><img src="img/949.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure><figure class="cap"><a href="img/1033.webp" target="_blank"><img src="img/1033.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Calcular el peso</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=1090" target="_blank" rel="noopener">&#9654; 18:10</a></div><p>Peso = (lectura − offset)·factor; si sale negativo se muestra 0. Se borra el valor anterior y se escribe el nuevo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  if (sw_tarar == 0) {
+    led = 0;
+    tarar(10, 128);   // número de datos, a qué ganancia
+    floattostr_(offset, texto, 1);
+    Lcd_Out(1, 8, texto);  // muestra el offset
+  }
+  peso = hx711_lectura(128) - (float)offset;
+  peso = peso * factor;
+  if (peso &lt;= 0) peso = 0;
+  floattostr_(peso, texto, 1);
+  Lcd_Out(2, 10, &quot;      &quot;);  // borra
+  Lcd_Out(2, 10, texto);     // muestra el peso
+  led = !led;
+  Delay_ms(100);
+  // botón de calibrar: ver video
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1117.webp" target="_blank"><img src="img/1117.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Prueba de peso</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=1180" target="_blank" rel="noopener">&#9654; 19:40</a></div><p>Al cargar la celda la LCD muestra el peso en gramos.</p><div class="uno"><figure class="cap"><a href="img/1202.webp" target="_blank"><img src="img/1202.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.6</span><h3>Calibrar</h3><a class="min" href="https://youtu.be/4Qip3j4fVJ4?t=1270" target="_blank" rel="noopener">&#9654; 21:10</a></div><p>Con el peso de prueba se toman 50 muestras y se calcula el factor automáticamente. Los valores quedan en RAM; para no perderlos se pueden guardar en la EEPROM, que se explica en otro video del canal.</p><div class="dos"><figure class="cap"><a href="img/1286.webp" target="_blank"><img src="img/1286.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure><figure class="cap"><a href="img/1371.webp" target="_blank"><img src="img/1371.webp" alt="Balanza con celda de carga y HX711 en MikroC: librería, tara y calibración con PIC16F877A" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=4Qip3j4fVJ4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

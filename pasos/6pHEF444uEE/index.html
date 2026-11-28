@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Una librería en MikroC para el DFPlayer Mini por UART: arma la trama con checksum y ofrece funciones para pista, volumen y ecualizador; luego un PIC16F877A reproduce mensajes según la temperatura y dos pulsadores.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/6pHEF444uEE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz · Paso a paso">
+  <meta property="og:description" content="Una librería en MikroC para el DFPlayer Mini por UART: arma la trama con checksum y ofrece funciones para pista, volumen y ecualizador; luego un PIC16F877A reproduce mensajes según la temperatura y dos pulsadores.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/6pHEF444uEE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/6pHEF444uEE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1><span>DFPlayer Mini</span> con PIC</h1>
+    <p class="lead">El DFPlayer Mini se alimenta con 5 V; un parlante de 1 W va a SPK1 y SPK2, o DAC_R y DAC_L a un amplificador. Solo se usa el TX del PIC al RX del módulo, sin eco, a 9600 baudios. BUSY baja mientras suena. Cada comando es una trama 7E FF 06 comando 00 dato_alto dato_bajo checksum EF. La librería mp3_chino (.c y .h) define los comandos y tiene funciones para siguiente, previo, pista, volumen (0 a 30) y ecualizador. Los archivos de la SD empiezan por cuatro dígitos. El ejemplo, en un PIC16F877A a 4 MHz, da la bienvenida (pista 5), avisa temperatura alta o baja leyendo un LM35, y con dos pulsadores reproduce un mensaje o música.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=6pHEF444uEE" target="_blank" rel="noopener">&#9654; Ver el video completo (14:07)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/830.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz"></figure>
+    <ul class="materiales"><li>PIC16F877A</li><li>DFPlayer Mini y memoria micro SD</li><li>Parlante de 1 W o amplificador</li><li>Sensor LM35</li><li>Dos pulsadores, LED y resistencia de 220 Ω</li><li>MikroC PRO for PIC y Proteus (terminal virtual)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Módulo</a><a href="#f2">2 · Librería</a><a href="#f3">3 · Ejemplo</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El módulo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Pines</h3><a class="min" href="https://youtu.be/6pHEF444uEE?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se alimenta con 5 V. El parlante va a SPK1 y SPK2; para más potencia, DAC_R y DAC_L a un amplificador. BUSY se pone en bajo mientras reproduce.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Conexión al micro</h3><a class="min" href="https://youtu.be/6pHEF444uEE?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>Solo se conecta el TX del micro al RX del módulo; el módulo puede contestar, pero se trabaja sin eco. Los archivos de la SD deben empezar por un número de cuatro dígitos, de 0001 a 9999.</p><div class="uno"><figure class="cap"><a href="img/94.webp" target="_blank"><img src="img/94.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Simulación</h3><a class="min" href="https://youtu.be/6pHEF444uEE?t=140" target="_blank" rel="noopener">&#9654; 2:20</a></div><p>Proteus no tiene el DFPlayer, así que se ve la trama en una terminal virtual. El PIC16F877A tiene un LM35, dos pulsadores y un LED.</p><div class="uno"><figure class="cap"><a href="img/167.webp" target="_blank"><img src="img/167.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Trama y comandos</h3><a class="min" href="https://youtu.be/6pHEF444uEE?t=220" target="_blank" rel="noopener">&#9654; 3:40</a></div><p>La trama empieza en 0x7E, sigue la versión 0xFF, el largo 0x06, el comando, el eco, el parámetro de 16 bits, el checksum y termina en 0xEF.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;built_in.h&quot;
+const char inicio = 0x7E;
+const char fin = 0xEF;
+const char version = 0xFF;
+const char eco = 0;     // si se coloca 1 responde con eco
+const char largo = 0x06;
+unsigned int checksum;
+unsigned char comando;
+unsigned int parametro = 0;
+
+// comando
+#define next        0x01
+#define previus     0x02
+#define archivo     0x03  // de 0 a 2999
+#define volumen_sub 0x04
+#define volumen_baj 0x05
+#define volumen     0x06  // de 0 a 30
+#define equaliza    0x07</code></pre></div><div class="uno"><figure class="cap"><a href="img/241.webp" target="_blank"><img src="img/241.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Más comandos</h3><a class="min" href="https://youtu.be/6pHEF444uEE?t=290" target="_blank" rel="noopener">&#9654; 4:50</a></div><p>También hay comandos para modo de reproducción, pausa, carpeta, repetir, y consultas como estado, volumen o número de archivos en la SD.</p><div class="uno"><figure class="cap"><a href="img/315.webp" target="_blank"><img src="img/315.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Funciones</h3><a class="min" href="https://youtu.be/6pHEF444uEE?t=360" target="_blank" rel="noopener">&#9654; 6:00</a></div><p>Cada función pone el comando y el parámetro, calcula el checksum y manda la trama.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void mp3_previo() {
+  comando = previus;
+  calula_checksum();
+  manda_mp3();
+}
+
+void mp3_play_x(unsigned int cancion) {
+  comando = archivo;
+  parametro = cancion;
+  calula_checksum();
+  manda_mp3();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/388.webp" target="_blank"><img src="img/388.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El ejemplo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Pistas</h3><a class="min" href="https://youtu.be/6pHEF444uEE?t=440" target="_blank" rel="noopener">&#9654; 7:20</a></div><p>Se nombran las pistas: música 1, temperatura alta 2, temperatura baja 3, pulsador presionado 4 y bienvenida 5.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;mp3_chino.h&quot;
+#define musica 1
+#define temp_alta 2
+#define temp_baja 3
+#define suiche_pres 4
+#define bienvenida 5
+
+sbit sw  at RB0_bit;
+sbit sw1 at RB1_bit;
+sbit led at RC0_bit;
+
+unsigned int codigo;
+float temperatuta;</code></pre></div><div class="dos"><figure class="cap"><a href="img/462.webp" target="_blank"><img src="img/462.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz" loading="lazy"></a></figure><figure class="cap"><a href="img/683.webp" target="_blank"><img src="img/683.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Inicio</h3><a class="min" href="https://youtu.be/6pHEF444uEE?t=510" target="_blank" rel="noopener">&#9654; 8:30</a></div><p>Se configuran entradas y salidas, pull-up del puerto B, se inicializa el módulo y suena la bienvenida.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void main() {
+  ADCON1 = 0;          // todo análogo
+  TRISA0_bit = 1;      // entrada análoga
+  TRISB0_bit = 1;      // entrada pulsador1
+  TRISB1_bit = 1;      // entrada pulsador2
+  TRISC0_bit = 0;      // salida led
+  TRISC6_bit = 0;      // salida tx
+  TRISC7_bit = 1;      // entrada rx
+  NOT_RBPU_bit = 0;    // habilita pull up en portb
+  Delay_ms(500);
+  mp3_inicializa();    // manda comando de inicialización
+  Delay_ms(200);
+  mp3_play_x(bienvenida);
+  Delay_ms(1000);
+  while (1) {
+    // lectura del LM35: sobre 60 suena temp_alta, bajo 20 temp_baja (ver video)
+    // pulsador sw: mensaje suiche_pres a volumen 20
+    if (sw1 == 0) {
+      mp3_play_x(musica);   // en el video, a volumen 30
+      Delay_ms(2000);
+    }
+    led = !led;
+    Delay_ms(500);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/535.webp" target="_blank"><img src="img/535.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Trama en la terminal</h3><a class="min" href="https://youtu.be/6pHEF444uEE?t=590" target="_blank" rel="noopener">&#9654; 9:50</a></div><p>En la terminal virtual se ven las tramas que salen del PIC, empezando en 7E y terminando en EF.</p><div class="uno"><figure class="cap"><a href="img/609.webp" target="_blank"><img src="img/609.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Mensajes y música</h3><a class="min" href="https://youtu.be/6pHEF444uEE?t=740" target="_blank" rel="noopener">&#9654; 12:20</a></div><p>Según la temperatura suena el aviso de alta o baja; un pulsador reproduce un mensaje a volumen 20 y el otro la música a volumen 30.</p><div class="dos"><figure class="cap"><a href="img/756.webp" target="_blank"><img src="img/756.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz" loading="lazy"></a></figure><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Reproductor MP3 DFPlayer Mini con PIC en MikroC: librería, comandos y mensajes de voz" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=6pHEF444uEE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

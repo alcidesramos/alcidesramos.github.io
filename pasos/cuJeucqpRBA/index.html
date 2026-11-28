@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulación de robot seguidor de línea en Proteus, parte 2: robot Zumo con sensores digitales · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El robot Zumo de Proteus tiene seis sensores de línea digitales, un driver con dirección y PWM por motor, y brújula y giroscopio por I2C; se prueba con estados lógicos y se leen sus sensores con un PIC18F2550.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/cuJeucqpRBA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Simulación de robot seguidor de línea en Proteus, parte 2: robot Zumo con sensores digitales · Paso a paso">
+  <meta property="og:description" content="El robot Zumo de Proteus tiene seis sensores de línea digitales, un driver con dirección y PWM por motor, y brújula y giroscopio por I2C; se prueba con estados lógicos y se leen sus sensores con un PIC18F2550.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/cuJeucqpRBA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/cuJeucqpRBA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Robot <span>Zumo</span> en Proteus</h1>
+    <p class="lead">En la ayuda de Proteus, buscando line, aparece el robot sumo (el Zumo de Pololu) programado para Arduino con diagramas de flujo; se copia a un proyecto nuevo. Tiene el emisor de los LEDs infrarrojos, seis sensores de línea digitales (se miden por el tiempo de descarga de un capacitor, no se leen directo), un driver de motores con un pin de dirección y uno de PWM por motor, un parlante y un LSM303DLHC con brújula y acelerómetro por I2C. Con estados lógicos se prueba el giro y el avance. Con un PIC18F2550 a 20 MHz y un programa en MikroC hecho antes para sensores reflectivos, se leen los sensores y se ven en una terminal: unos 125 en blanco y más de 11000 en negro. Sirve para probar PID o lógica difusa.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=cuJeucqpRBA" target="_blank" rel="noopener">&#9654; Ver el video completo (8:02)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/290.webp" alt="Simulación de robot seguidor de línea en Proteus, parte 2: robot Zumo con sensores digitales"></figure>
+    <ul class="materiales"><li>Proteus 8 con el modelo ZUMO</li><li>PIC18F2550</li><li>Programa en MikroC para sensores reflectivos (video del canal)</li><li>Terminal virtual de Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Zumo</a><a href="#f2">2 · Sensores</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El robot Zumo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El ejemplo</h3><a class="min" href="https://youtu.be/cuJeucqpRBA?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El último ejemplo al buscar line es un robot sumo para Arduino hecho con diagramas de flujo. Se copia el robot para usarlo con cualquier micro.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Simulación de robot seguidor de línea en Proteus, parte 2: robot Zumo con sensores digitales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Los pines</h3><a class="min" href="https://youtu.be/cuJeucqpRBA?t=69" target="_blank" rel="noopener">&#9654; 1:09</a></div><p>Un pin habilita los LEDs infrarrojos (en las pruebas quedan siempre encendidos) y seis pines leen los sensores 0 a 5. Son digitales: tienen un capacitor y hay que medir su tiempo.</p><div class="uno"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Simulación de robot seguidor de línea en Proteus, parte 2: robot Zumo con sensores digitales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Motores</h3><a class="min" href="https://youtu.be/cuJeucqpRBA?t=137" target="_blank" rel="noopener">&#9654; 2:17</a></div><p>No es un puente H: cada motor tiene un pin de dirección y uno de velocidad por PWM. Con estados lógicos se prueba: iguales avanza o retrocede, distintos gira.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Simulación de robot seguidor de línea en Proteus, parte 2: robot Zumo con sensores digitales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Brújula y giroscopio</h3><a class="min" href="https://youtu.be/cuJeucqpRBA?t=204" target="_blank" rel="noopener">&#9654; 3:24</a></div><p>Tiene un LSM303DLHC por I2C. Proteus no trae estos sensores sueltos, así que el robot sirve para practicar con ellos. Este robot permite probar PID o lógica difusa.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>En la pista</h3><a class="min" href="https://youtu.be/cuJeucqpRBA?t=236" target="_blank" rel="noopener">&#9654; 3:56</a></div><p>Se carga una pista sin obstáculos, porque no tiene sonar, y el robot avanza o gira según los estados lógicos.</p><div class="uno"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Simulación de robot seguidor de línea en Proteus, parte 2: robot Zumo con sensores digitales" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Leer los sensores</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Con un PIC18F2550</h3><a class="min" href="https://youtu.be/cuJeucqpRBA?t=303" target="_blank" rel="noopener">&#9654; 5:03</a></div><p>Se conecta un PIC18F2550 a 20 MHz con un programa en MikroC hecho para sensores reflectivos (explicado en otro video). Se leen tres sensores y se mandan por serial a una terminal virtual.</p><div class="uno"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Simulación de robot seguidor de línea en Proteus, parte 2: robot Zumo con sensores digitales" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/cuJeucqpRBA?t=402" target="_blank" rel="noopener">&#9654; 6:42</a></div><p>Con el robot quieto, los sensores fuera de la línea dan unos 125 a 153; cuando un sensor entra al negro sube a unos 11000. Así se sabe dónde está la línea.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Para qué sirve</h3><a class="min" href="https://youtu.be/cuJeucqpRBA?t=434" target="_blank" rel="noopener">&#9654; 7:14</a></div><p>Con esto se pueden hacer robots simulados y concursos, cambiando velocidad y otros parámetros. El rendimiento depende del computador.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=cuJeucqpRBA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
