@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Otra versión de la clase 6: PWM básico con OC1 y OC2 del dsPIC33FJ32MC202 a 80 MHz con el oscilador interno. Una salida mueve un servo de −90 a 90 grados y la otra controla un motor DC por porcentaje.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/eQsgcdz9kzI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM · Paso a paso">
+  <meta property="og:description" content="Otra versión de la clase 6: PWM básico con OC1 y OC2 del dsPIC33FJ32MC202 a 80 MHz con el oscilador interno. Una salida mueve un servo de −90 a 90 grados y la otra controla un motor DC por porcentaje.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/eQsgcdz9kzI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/eQsgcdz9kzI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#dspic-xc16">&larr; Volver al curso</a>
+    <span class="etiqueta">// MPLAB XC16 para dsPIC · Paso a paso</span>
+    <h1>PWM básico con <span>output compare</span> en XC16</h1>
+    <p class="lead">Se arma el proyecto desde cero en MPLAB X con las librerías de PWM y de interrupciones, el oscilador interno con PLL a 80 MHz y el remapeo de OC1 y OC2 a RP2 y RP3. El Timer2 con prescaler 64 y PR2 de 12500 da los 50 Hz del servo. Se reutilizan las funciones del UART de la clase de serial, se crea map para pasar de ángulo a milisegundos y funciones de porcentaje para motor DC. Al final se muestra cómo sacar en Excel la ecuación del servo con una línea de tendencia y se hace el barrido completo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=eQsgcdz9kzI" target="_blank" rel="noopener">&#9654; Ver el video completo (17:21)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/977.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM"></figure>
+    <ul class="materiales"><li>dsPIC33FJ32MC202 con oscilador interno FRC de 7.37 MHz (80 MHz con PLL)</li><li>Servomotor y motor DC (o LED) en las salidas OC1 y OC2</li><li>MPLAB X con XC16</li><li>Proteus con osciloscopio, frecuencímetro y Virtual Terminal</li><li>Hoja de Excel para PR2, prescaler y la ecuación del servo</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Main</a><a href="#f3">3 · Servo</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto y librerías</h3><a class="min" href="https://youtu.be/eQsgcdz9kzI?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Se crea el proyecto para el dsPIC33FJ32MC202 y el .c principal. Se agregan la librería de interrupciones, ya usada antes, y la nueva de PWM.</p><div class="dos"><figure class="cap"><a href="img/83.webp" target="_blank"><img src="img/83.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Bits de configuración</h3><a class="min" href="https://youtu.be/eQsgcdz9kzI?t=166" target="_blank" rel="noopener">&#9654; 2:46</a></div><p>Oscilador interno con PLL, oscilador externo deshabilitado, OSC2 como pin de entrada/salida y configuración múltiple para remapear PWM y serial.</p><div class="uno"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Librería de PWM</h3><a class="min" href="https://youtu.be/eQsgcdz9kzI?t=199" target="_blank" rel="noopener">&#9654; 3:19</a></div><p>La hoja de Excel dice que para 50 Hz a 80 MHz sirve el prescaler 64 con PR2 de 12500. OCTSEL en 0 trabaja con el Timer2 y en 1 con el Timer3. El ciclo útil arranca en 6250, el 50 %.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;xc.h&quot;
+
+void pwm_init_basico()
+{
+//configuracion timer 2
+TMR2=0;
+PR2=12500;// para 50HZ = 20 ms manejo de servos
+//limpia el registro de configuracion
+T2CON=0;
+//preescalador  64
+T2CONbits.TCKPS=0B10;
+
+ T2CONbits.TON=1; // prende el timer 2
+
+//modulo pwm   oc1
+    OC1CON=OC2CON=0;
+    OC1CONbits.OCTSEL= OC2CONbits.OCTSEL=0;   //trabaja con timer2  sino timer 3
+
+   OC1RS=OC1R=OC2RS=OC2R=6250;      //registro ancho pulso
+
+    //lo habilita como PWM
+    // ...
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/296.webp" target="_blank"><img src="img/296.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Oscilador y remapeo</h3><a class="min" href="https://youtu.be/eQsgcdz9kzI?t=337" target="_blank" rel="noopener">&#9654; 5:37</a></div><p>Los valores del PLL para 80 MHz con el oscilador interno, ya explicados en el primer video. TX a RP0 y las dos salidas PWM a RP2 y RP3.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//VELOCIDAD= 4M*M/(N1*N2)= 4M*80/4=80M
+ CLKDIVbits.PLLPRE = 0;     // N1 = 2
+ CLKDIVbits.PLLPOST = 0;    // N2 = 2
+  PLLFBD=41; // selecciona  M=40;  siempre lo deseado menos 2;   CRISTAL INTERNO=7.37MHz
+
+ AD1PCFGL=0xffff;// todo digital
+ //puertos como salida
+TRISB=0x0;
+TRISA=0x0;
+LATB=0;
+// configuracion de remapeables
+PPSUnLock;// desbloquea configuracion de perifericos
+iPPSOutput(OUT_PIN_PPS_RP0,OUT_FN_PPS_U1TX);  // rp0 como salida a u1tx
+iPPSOutput(OUT_PIN_PPS_RP2,OUT_FN_PPS_OC1);   // rp2 como salida a pwm1
+iPPSOutput(OUT_PIN_PPS_RP3,OUT_FN_PPS_OC2);   // rp3 como salida a pwm2
+PPSLock;// bloquea configuracion periferico</code></pre></div><div class="uno"><figure class="cap"><a href="img/381.webp" target="_blank"><img src="img/381.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>UART y variables</h3><a class="min" href="https://youtu.be/eQsgcdz9kzI?t=371" target="_blank" rel="noopener">&#9654; 6:11</a></div><p>Se pegan las funciones del UART creadas en el video de comunicación serial y las variables del servo: se mueve de 1 a 2 ms; si su servo tiene otro rango, se cambia aquí.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const float ser_min=1.0; // tiempo minimo en milisegundo de movimiento del servo
+const float ser_max=2.0; // tiempo maximo en milisegundo de movimiento del servo
+signed char cuenta;
+
+float salida1, salida2; //salidas pwm
+
+float map(float x_in, float x1_, float y1_, float x2_, float y2_)
+{
+float pendiente;
+  pendiente=(y2_ - y1_) / (x2_ - x1_);
+  pendiente=pendiente*(x_in- x1_);
+  pendiente=pendiente+y1_;
+  return( pendiente);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/423.webp" target="_blank"><img src="img/423.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/466.webp" target="_blank"><img src="img/466.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Prueba a 50 %</h3><a class="min" href="https://youtu.be/eQsgcdz9kzI?t=438" target="_blank" rel="noopener">&#9654; 7:18</a></div><p>Solo con pwm_init_basico, ambas salidas dan 50 Hz con un ancho del 50 %.</p><div class="dos"><figure class="cap"><a href="img/509.webp" target="_blank"><img src="img/509.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/679.webp" target="_blank"><img src="img/679.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Servo y motor DC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Funciones de servo y porcentaje</h3><a class="min" href="https://youtu.be/eQsgcdz9kzI?t=505" target="_blank" rel="noopener">&#9654; 8:25</a></div><p>servo1 pasa el ángulo de −90 a 90 a milisegundos con map y lo divide entre los 20 ms del periodo. pwm2 da el porcentaje sobre PR2 para el motor DC.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void servo1(float angulo)
+{
+  angulo=map(angulo,-90.0,ser_min,90.0,ser_max);
+  OC1RS=angulo*(float)PR2/20.0;
+}
+
+void pwm1(float ancho)
+{
+  OC1RS=ancho*(float)PR2/100.0;
+}
+
+void servo2(float angulo)
+{
+  angulo=map(angulo,-90.0,ser_min,90.0,ser_max);
+  OC2RS=angulo*(float)PR2/20.0;
+}
+
+void pwm2(float ancho)
+{
+  OC2RS=ancho*(float)PR2/100.0;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/551.webp" target="_blank"><img src="img/551.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/594.webp" target="_blank"><img src="img/594.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Prueba con el osciloscopio</h3><a class="min" href="https://youtu.be/eQsgcdz9kzI?t=647" target="_blank" rel="noopener">&#9654; 10:47</a></div><p>El servo va a −90 grados con un pulso de 1 ms (una división) y el motor DC queda al 20 %.</p><div class="uno"><figure class="cap"><a href="img/722.webp" target="_blank"><img src="img/722.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Ecuación del servo en Excel</h3><a class="min" href="https://youtu.be/eQsgcdz9kzI?t=716" target="_blank" rel="noopener">&#9654; 11:56</a></div><p>Con prescaler 64, 1 ms son 625 cuentas y 2 ms son 1250. Se hace un gráfico de dispersión con esos dos puntos, se agrega la línea de tendencia y se muestra la ecuación. Se copia y se cambia la x por el ángulo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void servo1_ecu(float angulo)
+{
+  OC1RS=3.4722*angulo + 937.5;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/764.webp" target="_blank"><img src="img/764.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/807.webp" target="_blank"><img src="img/807.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/850.webp" target="_blank"><img src="img/850.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Programa completo</h3><a class="min" href="https://youtu.be/eQsgcdz9kzI?t=887" target="_blank" rel="noopener">&#9654; 14:47</a></div><p>El servo hace el barrido de −90 a 90 de 5 en 5 grados con la ecuación, cada 50 ms, y el motor DC cambia de porcentaje. Con un retardo extra se alcanza a ver el cambio en el osciloscopio.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>habilita();
+while (1)
+{
+   // servo1_ecu(0);
+   servo1(-90); // angulo  1ms
+
+   for (cuenta=-90;cuenta&lt;=90;cuenta+=5)
+   {
+   // servo1(cuenta);
+      servo1_ecu(cuenta);
+      __delay_ms(50);// velocidad paso a paso
+   }
+   pwm2(20);  //porcentaje
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/637.webp" target="_blank"><img src="img/637.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/892.webp" target="_blank"><img src="img/892.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/935.webp" target="_blank"><img src="img/935.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/977.webp" target="_blank"><img src="img/977.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1020.webp" target="_blank"><img src="img/1020.webp" alt="Curso de MPLAB XC16, clase 6 (versión 2): output compare como PWM" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=eQsgcdz9kzI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
