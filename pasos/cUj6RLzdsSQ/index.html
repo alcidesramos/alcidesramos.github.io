@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El proyecto de LabVIEW con PIC hecho en MikroC se pasa a XC8 con un PIC18F25K20: el micro envía temperatura y estado de un pulsador, y recibe por interrupción comandos para LEDs, giro del motor y PWM.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/cUj6RLzdsSQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="El proyecto de LabVIEW con PIC hecho en MikroC se pasa a XC8 con un PIC18F25K20: el micro envía temperatura y estado de un pulsador, y recibe por interrupción comandos para LEDs, giro del motor y PWM.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/cUj6RLzdsSQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/cUj6RLzdsSQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>PIC y <span>LabVIEW</span> full duplex en XC8</h1>
+    <p class="lead">Se pasa a MPLAB XC8 la comunicación full duplex con LabVIEW hecha en MikroC. Con el MCC se configura un PIC18F25K20: reloj, ECCP1 en PWM con el Timer2, la EUSART a 9600 con printf redirigido y el ADC para el LM35. La recepción va por interrupción: cada dato se guarda en la trama y, al llegar el carácter de fin, se desactiva la interrupción y se activa una bandera. En el ciclo principal se procesa la trama con strstr para encender LEDs, girar el motor a la derecha, a la izquierda o detenerlo, y con strtok y atoi se toma el valor del PWM. Luego se limpia la trama, se reactiva la interrupción, se envía la temperatura con sprintf y el estado del pulsador. En Proteus el panel de LabVIEW muestra la temperatura, el pulsador y controla LEDs y motor.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=cUj6RLzdsSQ" target="_blank" rel="noopener">&#9654; Ver el video completo (32:26)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1925.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC18F25K20</li><li>Sensor LM35</li><li>Motor DC con driver</li><li>LEDs y pulsador</li><li>MPLAB X con XC8 y MCC</li><li>LabVIEW con VISA</li><li>Proteus (COMPIM)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · MCC</a><a href="#f2">2 · Código</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Reloj</h3><a class="min" href="https://youtu.be/cUj6RLzdsSQ?t=209" target="_blank" rel="noopener">&#9654; 3:29</a></div><p>Proyecto para el PIC18F25K20 con XC8. En el System Module se configura el oscilador.</p><div class="uno"><figure class="cap"><a href="img/268.webp" target="_blank"><img src="img/268.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>PWM</h3><a class="min" href="https://youtu.be/cUj6RLzdsSQ?t=291" target="_blank" rel="noopener">&#9654; 4:51</a></div><p>El ECCP1 en modo PWM con el Timer2 para la velocidad del motor.</p><div class="dos"><figure class="cap"><a href="img/351.webp" target="_blank"><img src="img/351.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/434.webp" target="_blank"><img src="img/434.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>EUSART</h3><a class="min" href="https://youtu.be/cUj6RLzdsSQ?t=527" target="_blank" rel="noopener">&#9654; 8:47</a></div><p>La EUSART asíncrona a 9600, con la opción de redirigir STDIO para usar printf.</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Prueba de printf</h3><a class="min" href="https://youtu.be/cUj6RLzdsSQ?t=598" target="_blank" rel="noopener">&#9654; 9:58</a></div><p>Se compila un printf de prueba para verificar el puerto serial.</p><div class="uno"><figure class="cap"><a href="img/683.webp" target="_blank"><img src="img/683.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>ADC</h3><a class="min" href="https://youtu.be/cUj6RLzdsSQ?t=761" target="_blank" rel="noopener">&#9654; 12:41</a></div><p>El ADC para el LM35. La función ADC_GetConversion(canal) que genera el MCC selecciona el canal, convierte y devuelve el resultado.</p><div class="dos"><figure class="cap"><a href="img/765.webp" target="_blank"><img src="img/765.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/848.webp" target="_blank"><img src="img/848.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.6</span><h3>Leer temperatura</h3><a class="min" href="https://youtu.be/cUj6RLzdsSQ?t=903" target="_blank" rel="noopener">&#9654; 15:03</a></div><p>Se lee el canal y se envía con printf para comprobarlo.</p><div class="dos"><figure class="cap"><a href="img/931.webp" target="_blank"><img src="img/931.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1014.webp" target="_blank"><img src="img/1014.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Pasar el código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables y motor</h3><a class="min" href="https://youtu.be/cUj6RLzdsSQ?t=1044" target="_blank" rel="noopener">&#9654; 17:24</a></div><p>Se copian las variables y las funciones del motor de MikroC.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char procesa[30];
+unsigned int dato;
+
+// variables nuevas
+char datorx;
+char puntero = 0;
+char flag_rx = 0;
+
+// variables para leer análogo
+unsigned int codigo;
+float temperatura;
+
+char texto[20];   // para pasar de número a cadena
+
+// función para que gire a la derecha
+void m1derecha()
+{
+  m11 = 1;
+  m12 = 0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Procesar la trama</h3><a class="min" href="https://youtu.be/cUj6RLzdsSQ?t=1262" target="_blank" rel="noopener">&#9654; 21:02</a></div><p>strstr busca cada comando. Para el PWM, strtok toma el número entre = y /, atoi lo convierte y se escala de 0 a 100%.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>else if (strstr(trama, &quot;m1der&quot;))  m1derecha();
+else if (strstr(trama, &quot;m1izq&quot;))  m1izquierda();
+else if (strstr(trama, &quot;m1stop&quot;)) m1quieto();
+else if (strstr(trama, &quot;m1pwm=&quot;))
+{
+  strcpy(procesa, strtok(trama, &quot;=&quot;));  // inicia captura de tokens desde el =
+  strcpy(procesa, strtok(0, &quot;/&quot;));      // captura hasta el /
+  dato = atoi(procesa);                 // pasa la cadena a número
+  dato = dato * 623 / 100;              // escala la salida de 0 a 100% de PWM
+  EPWM1_LoadDutyValue(dato);            // aplica la velocidad al PWM
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1345.webp" target="_blank"><img src="img/1345.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1428.webp" target="_blank"><img src="img/1428.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Interrupción serial</h3><a class="min" href="https://youtu.be/cUj6RLzdsSQ?t=1428" target="_blank" rel="noopener">&#9654; 23:48</a></div><p>Cada dato se guarda en la trama. Si se pasa de 30 se reinicia; al llegar el fin de trama se desactiva la interrupción y se activa la bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void interrupt INTERRUPT_InterruptManager(void)
+{
+  if (RCIF == 1)
+  {
+    datorx = UART1_Read();      // lee el dato
+    trama[puntero] = datorx;    // lo almacena en la trama
+    puntero++;                  // incrementa el contador de trama
+    if (puntero &gt;= 30) puntero = 0;
+    if (datorx == &#x27;*&#x27;)          // si llega el fin de la trama
+    {
+      RCIE = 0;                 // deshabilita la interrupción
+      flag_rx = 1;              // activa la bandera de trama válida
+    }
+    RCIF = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1511.webp" target="_blank"><img src="img/1511.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Ciclo principal</h3><a class="min" href="https://youtu.be/cUj6RLzdsSQ?t=1594" target="_blank" rel="noopener">&#9654; 26:34</a></div><p>Se procesa la trama, se limpia y se reactiva la interrupción. Luego se envían la temperatura y el estado del pulsador.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (flag_rx == 1)
+{
+  procesarx();          // procesa la trama
+  puntero = 0;          // inicializa el conteo
+  memset(trama, 0, 30); // limpia la trama
+  flag_rx = 0;
+  RCIF = 0;             // limpia la bandera de la interrupción
+  RCIE = 1;             // habilita la interrupción serial
+}
+
+codigo = ADC_GetConversion(0);
+temperatura = codigo * 500.0 / 1023.0;   // calcula la temperatura
+sprintf(texto, &quot;temp=%.2f/&quot;, temperatura);
+printf(texto);
+
+if (suiche == 1) UART1_Write_Text(&quot;led=on/&quot;);
+else UART1_Write_Text(&quot;led=off/&quot;);
+
+led3 = ~led3;
+__delay_ms(50);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1677.webp" target="_blank"><img src="img/1677.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Con LabVIEW</h3><a class="min" href="https://youtu.be/cUj6RLzdsSQ?t=1759" target="_blank" rel="noopener">&#9654; 29:19</a></div><p>El panel muestra la temperatura y el pulsador, prende los LEDs, gira el motor a cada lado y cambia la velocidad.</p><div class="dos"><figure class="cap"><a href="img/1759.webp" target="_blank"><img src="img/1759.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1925.webp" target="_blank"><img src="img/1925.webp" alt="Comunicación full duplex entre PIC y LabVIEW con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=cUj6RLzdsSQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

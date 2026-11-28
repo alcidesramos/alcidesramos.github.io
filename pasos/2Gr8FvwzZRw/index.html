@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manejo de 8 servos con un PIC y MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="La librería de servos por interrupción del Timer1, hecha antes en MikroC, se pasa a MPLAB XC8 con un PIC16F1619: se definen los pines de los 8 servos, se inician los rangos de pulso y cada servo se mueve con su ángulo.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/2Gr8FvwzZRw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Manejo de 8 servos con un PIC y MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="La librería de servos por interrupción del Timer1, hecha antes en MikroC, se pasa a MPLAB XC8 con un PIC16F1619: se definen los pines de los 8 servos, se inician los rangos de pulso y cada servo se mueve con su ángulo.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/2Gr8FvwzZRw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/2Gr8FvwzZRw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>Ocho <span>servos</span> con XC8</h1>
+    <p class="lead">Un suscriptor pidió pasar a XC8 el manejo de varios servos que estaba en MikroC. La librería usa el Timer1: cada 2,5 ms interrumpe y atiende el pulso de un servo, de modo que los ocho se refrescan sin bloquear el programa. El proyecto se crea en MPLAB X con un PIC16F1619 y el MCC solo para el oscilador interno. En main.c se definen los pines (LATC0 a LATC5, LATB4 y LATB5) y sus registros TRIS, se incluye la librería, se llama a init_servos con el pulso mínimo y máximo en milisegundos y se habilitan las interrupciones. La función de interrupción solo llama a servos_interrupcion. Con servo_valor(número, ángulo) cada servo va de -90 a 90 grados, y con un for se hace un movimiento escalonado para que no sea brusco.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=2Gr8FvwzZRw" target="_blank" rel="noopener">&#9654; Ver el video completo (11:36)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/80.webp" alt="Manejo de 8 servos con un PIC y MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC16F1619</li><li>8 servomotores (MOTOR-PWMSERVO en Proteus)</li><li>MPLAB X con XC8 y MCC</li><li>Librería Servos_T1.h</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Programa</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La idea</h3><a class="min" href="https://youtu.be/2Gr8FvwzZRw?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se pasa a XC8 la librería de servos hecha en MikroC. El Timer1 interrumpe cada 2,5 ms para atender un servo a la vez.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Manejo de 8 servos con un PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>MCC</h3><a class="min" href="https://youtu.be/2Gr8FvwzZRw?t=146" target="_blank" rel="noopener">&#9654; 2:26</a></div><p>Proyecto con un PIC16F1619. En el MCC solo se configura el oscilador interno; lo demás lo maneja la librería.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Manejo de 8 servos con un PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Pines de los servos</h3><a class="min" href="https://youtu.be/2Gr8FvwzZRw?t=303" target="_blank" rel="noopener">&#9654; 5:03</a></div><p>Cada servo tiene su pin de salida y su registro de dirección. La librería usa estos nombres.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// PINES DE LOS SERVOS
+#define servo1 LATC0
+#define servo2 LATC1
+#define servo3 LATC2
+#define servo4 LATC3
+#define servo5 LATC4
+#define servo6 LATC5
+#define servo7 LATB4
+#define servo8 LATB5
+
+#define servo1_direction TRISC0
+#define servo2_direction TRISC1
+// ... hasta servo8_direction TRISB5
+
+#include &quot;Servos_T1.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Manejo de 8 servos con un PIC y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Iniciar</h3><a class="min" href="https://youtu.be/2Gr8FvwzZRw?t=437" target="_blank" rel="noopener">&#9654; 7:17</a></div><p>init_servos recibe el pulso mínimo y máximo en milisegundos (no más de 2,5 ms) y luego se habilitan las interrupciones globales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>init_servos(0.5, 2.5);  // inicia servos en los rangos mínimo y máximo
+GIE = 1;                // habilita interrupciones globales</code></pre></div><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Manejo de 8 servos con un PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Mover los servos</h3><a class="min" href="https://youtu.be/2Gr8FvwzZRw?t=500" target="_blank" rel="noopener">&#9654; 8:20</a></div><p>servo_valor(número, ángulo) recibe de -90 a 90 grados. Con un for se hace un barrido escalonado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>for (angulo = -90; angulo &lt;= 90; angulo = angulo + 10)
+{
+  servo_valor(2, angulo);
+  __delay_ms(200);
+}
+
+for (angulo = 90; angulo &gt;= -90; angulo = angulo - 10)
+{
+  servo_valor(3, angulo);
+  __delay_ms(200);
+}
+
+servo_valor(1, 0);
+servo_valor(4, 45);
+servo_valor(5, -45);
+servo_valor(6, 90);
+servo_valor(7, -90);
+servo_valor(8, 20);</code></pre></div><div class="uno"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Manejo de 8 servos con un PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Interrupción</h3><a class="min" href="https://youtu.be/2Gr8FvwzZRw?t=540" target="_blank" rel="noopener">&#9654; 9:00</a></div><p>La función de interrupción de XC8 solo llama a la de la librería.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void interrupt interrupcion(void)   // interrupt function
+{
+  servos_interrupcion();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Manejo de 8 servos con un PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>La librería</h3><a class="min" href="https://youtu.be/2Gr8FvwzZRw?t=574" target="_blank" rel="noopener">&#9654; 9:34</a></div><p>init_servos limita el máximo, calcula el paso por grado, pone los pines como salida y en bajo, y habilita la interrupción del Timer1.</p><div class="uno"><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Manejo de 8 servos con un PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/2Gr8FvwzZRw?t=644" target="_blank" rel="noopener">&#9654; 10:44</a></div><p>En Proteus cada servo va al ángulo indicado y los dos del for hacen el barrido.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=2Gr8FvwzZRw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

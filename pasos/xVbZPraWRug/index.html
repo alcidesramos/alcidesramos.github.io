@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alarma de posición con GPS y PIC en MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El programa de la alarma con GPS de MikroC se pasa a XC8 con un PIC16F1619: se lee la trama NMEA por la EUSART con una máquina de estados, se separan latitud y longitud con strtok y se muestran en un LCD con una librería externa.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/xVbZPraWRug/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Alarma de posición con GPS y PIC en MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="El programa de la alarma con GPS de MikroC se pasa a XC8 con un PIC16F1619: se lee la trama NMEA por la EUSART con una máquina de estados, se separan latitud y longitud con strtok y se muestran en un LCD con una librería externa.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/xVbZPraWRug/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/xVbZPraWRug/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>Alarma con <span>GPS</span> en XC8</h1>
+    <p class="lead">Se pasa a MPLAB XC8 la alarma de posición hecha en MikroC. Con el MCC se configura el PIC16F1619 con oscilador interno y la EUSART a 9600. Como XC8 no trae librería de LCD, se usa una externa (lcd.h): primero se definen los pines y luego se incluye. La captura de la trama del GPS se copia casi igual, cambiando la lectura del dato recibido: una máquina de estados espera la P, la G y el resto de la cabecera, y guarda la trama. Luego strtok separa los campos por comas; de la latitud se toman 2 dígitos de grados y el resto son minutos que se dividen entre 60, y si el hemisferio es S queda negativa; la longitud usa 3 dígitos y W la vuelve negativa. Con sprintf se arma el texto para el LCD y un LED indica la alarma. En XC8 la conversión a decimales resulta más exacta que en MikroC.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=xVbZPraWRug" target="_blank" rel="noopener">&#9654; Ver el video completo (14:55)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/475.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC16F1619</li><li>Módulo GPS (VGPS en Proteus)</li><li>LCD 16x2 (LM032L)</li><li>LED con resistencia de 220 Ω</li><li>MPLAB X con XC8 y MCC</li><li>Librería externa lcd.h</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · MCC</a><a href="#f2">2 · Código</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/xVbZPraWRug?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>Proyecto para el PIC16F1619 con XC8. Se recomienda ver antes el video de MikroC sobre cómo se captura la trama NMEA.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Reloj</h3><a class="min" href="https://youtu.be/xVbZPraWRug?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Oscilador interno en el System Module del MCC.</p><div class="dos"><figure class="cap"><a href="img/121.webp" target="_blank"><img src="img/121.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/172.webp" target="_blank"><img src="img/172.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>EUSART y pines</h3><a class="min" href="https://youtu.be/xVbZPraWRug?t=140" target="_blank" rel="noopener">&#9654; 2:20</a></div><p>La EUSART para el GPS y el LED en RB7 como salida.</p><div class="uno"><figure class="cap"><a href="img/222.webp" target="_blank"><img src="img/222.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Librería del LCD</h3><a class="min" href="https://youtu.be/xVbZPraWRug?t=215" target="_blank" rel="noopener">&#9654; 3:35</a></div><p>XC8 no trae librería de LCD, así que se usa una externa. Es importante definir primero los pines y después incluir la librería.</p><div class="uno"><figure class="cap"><a href="img/273.webp" target="_blank"><img src="img/273.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Todo digital</h3><a class="min" href="https://youtu.be/xVbZPraWRug?t=363" target="_blank" rel="noopener">&#9654; 6:03</a></div><p>Se ponen los ANSEL en 0, el LED y los pines del LCD como salida y se inicia el LCD.</p><div class="dos"><figure class="cap"><a href="img/324.webp" target="_blank"><img src="img/324.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/374.webp" target="_blank"><img src="img/374.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Capturar la trama</h3><a class="min" href="https://youtu.be/xVbZPraWRug?t=500" target="_blank" rel="noopener">&#9654; 8:20</a></div><p>Se copia la máquina de estados de MikroC. La lectura del dato cambia a la función de la EUSART o al registro RCREG.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (demora &lt;= 96667)
+{
+  demora++;
+  switch (estado_rec)
+  {
+    case cap_P:
+      if (RCIF == 1)             // si hay un dato recibido
+      {
+        dato_rx = UART_Read();   // lee el dato
+        trama_rx[contador_trama] = dato_rx;
+        if (dato_rx != &#x27;P&#x27;) contador_trama = 0;  // no fue el dato que interesa
+        else
+        {
+          contador_trama++;      // incrementa contador para próximo dato
+          estado_rec = cap_G;    // pasa al estado de capturar la G
+        }
+        RCIF = 0;
+      }
+      break;
+    case cap_G:
+      // ... igual para los demás caracteres de la cabecera
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/526.webp" target="_blank"><img src="img/526.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/576.webp" target="_blank"><img src="img/576.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Latitud y longitud</h3><a class="min" href="https://youtu.be/xVbZPraWRug?t=643" target="_blank" rel="noopener">&#9654; 10:43</a></div><p>Con strtok se toma cada campo. Los grados se separan de los minutos, que se pasan a grados dividiendo entre 60. S y W vuelven negativo el valor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>strncpy(c_grados, captura_rx, 2);          // captura los grados
+grados = atof(c_grados);                   // de cadena a flotante
+minutos = atof(&amp;captura_rx[2]) / 60.0;     // lo pasa a grados
+latitud = grados + minutos;
+
+strcpy(captura_rx, strtok(0, &quot;,&quot;));        // orientación o signo de la latitud
+if (captura_rx[0] == &#x27;S&#x27;) latitud = -latitud;
+
+// captura la longitud
+strcpy(captura_rx, strtok(0, &quot;,&quot;));
+memset(c_grados, 0, 10);                   // limpia los grados
+strncpy(c_grados, captura_rx, 3);          // 3 posiciones
+grados = atof(c_grados);
+minutos = atof(&amp;captura_rx[3]) / 60.0;
+longitud = grados + minutos;
+strcpy(captura_rx, strtok(0, &quot;,&quot;));
+if (captura_rx[0] == &#x27;W&#x27;) longitud = -longitud;</code></pre></div><div class="uno"><figure class="cap"><a href="img/678.webp" target="_blank"><img src="img/678.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Mostrar en el LCD</h3><a class="min" href="https://youtu.be/xVbZPraWRug?t=709" target="_blank" rel="noopener">&#9654; 11:49</a></div><p>Con sprintf se arma el texto y se escribe con las funciones de la librería externa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;%f&quot;, latitud);
+// borra el espacio a escribir
+Lcd_Set_Cursor(1, 6);
+Lcd_Write_String(&quot;          &quot;);
+Lcd_Set_Cursor(1, 6);
+Lcd_Write_String(texto);</code></pre></div><div class="uno"><figure class="cap"><a href="img/728.webp" target="_blank"><img src="img/728.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Simulación</h3><a class="min" href="https://youtu.be/xVbZPraWRug?t=776" target="_blank" rel="noopener">&#9654; 12:56</a></div><p>Falta un retardo antes del ciclo para que el GPS arranque. En Proteus el LCD muestra latitud y longitud, y el LED se prende al llegar a la zona programada.</p><div class="dos"><figure class="cap"><a href="img/475.webp" target="_blank"><img src="img/475.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/829.webp" target="_blank"><img src="img/829.webp" alt="Alarma de posición con GPS y PIC en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Más exacto</h3><a class="min" href="https://youtu.be/xVbZPraWRug?t=845" target="_blank" rel="noopener">&#9654; 14:05</a></div><p>En MikroC hubo que redondear los decimales; en XC8 la conversión resulta más exacta.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=xVbZPraWRug" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

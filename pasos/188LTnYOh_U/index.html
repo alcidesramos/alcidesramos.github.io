@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Internet de las cosas con ESP8266 y Ubidots usando PIC y MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El proyecto de Internet de las cosas con ESP8266 y Ubidots hecho en MikroC se pasa a XC8 con un PIC16F1619: el MCC configura reloj, ADC y EUSART, y el código se copia con pocos cambios en las funciones seriales.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/188LTnYOh_U/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Internet de las cosas con ESP8266 y Ubidots usando PIC y MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="El proyecto de Internet de las cosas con ESP8266 y Ubidots hecho en MikroC se pasa a XC8 con un PIC16F1619: el MCC configura reloj, ADC y EUSART, y el código se copia con pocos cambios en las funciones seriales.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/188LTnYOh_U/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/188LTnYOh_U/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>IoT con <span>ESP8266</span> y XC8</h1>
+    <p class="lead">Se toma el programa de MikroC que envía la temperatura de un LM35 y el estado de un pulsador a Ubidots por medio de un ESP8266 con comandos AT, y se pasa a MPLAB XC8. Con el MCC se configura el PIC16F1619 a 4 MHz con oscilador interno, el ADC y la EUSART a 115200 con los pines TX y RX. Las variables y funciones se copian casi iguales; lo que cambia es la parte serial: se crean funciones propias para enviar cadenas constantes y variables con EUSART_Write, se usa string.h, el ADC se lee con ADC_GetConversion y los retardos pasan de Delay_ms a __delay_ms. En Proteus, al cambiar la temperatura del LM35, el valor llega a la plataforma.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=188LTnYOh_U" target="_blank" rel="noopener">&#9654; Ver el video completo (15:20)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/20.webp" alt="Internet de las cosas con ESP8266 y Ubidots usando PIC y MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC16F1619</li><li>Módulo ESP8266</li><li>Sensor LM35</li><li>Pulsador en RB4</li><li>MPLAB X con XC8 y MCC</li><li>Cuenta en Ubidots</li><li>Proteus (COMPIM y Virtual Terminal)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · MCC</a><a href="#f2">2 · Código</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/188LTnYOh_U?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El PIC16F1619 con el LM35, el pulsador y el puerto serie hacia el ESP8266.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Internet de las cosas con ESP8266 y Ubidots usando PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Reloj</h3><a class="min" href="https://youtu.be/188LTnYOh_U?t=139" target="_blank" rel="noopener">&#9654; 2:19</a></div><p>4 MHz con oscilador interno, igual que en el proyecto de MikroC. Este micro llega a 32 MHz con PLL.</p><div class="uno"><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="Internet de las cosas con ESP8266 y Ubidots usando PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>ADC</h3><a class="min" href="https://youtu.be/188LTnYOh_U?t=205" target="_blank" rel="noopener">&#9654; 3:25</a></div><p>Se habilita el ADC y se elige el canal del LM35; el pulsador queda como entrada.</p><div class="uno"><figure class="cap"><a href="img/227.webp" target="_blank"><img src="img/227.webp" alt="Internet de las cosas con ESP8266 y Ubidots usando PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>EUSART</h3><a class="min" href="https://youtu.be/188LTnYOh_U?t=275" target="_blank" rel="noopener">&#9654; 4:35</a></div><p>La EUSART asíncrona a 115200 con transmisión y recepción, asignando los pines TX y RX en el Pin Manager.</p><div class="uno"><figure class="cap"><a href="img/279.webp" target="_blank"><img src="img/279.webp" alt="Internet de las cosas con ESP8266 y Ubidots usando PIC y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Pasar el código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables</h3><a class="min" href="https://youtu.be/188LTnYOh_U?t=344" target="_blank" rel="noopener">&#9654; 5:44</a></div><p>Se copian las variables del programa de MikroC y se agrega string.h para las funciones de cadenas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;mcc_generated_files/mcc.h&quot;
+#include &quot;string.h&quot;   // para poder usar funciones de cadenas
+
+#define suiche RB4     // ubicación del pulsador
+
+unsigned int codigo;
+float temperatura;
+
+char trama[150];
+char trama_largo[20];
+char captu[30];
+
+char led;
+int var_largo;          // largo de la trama</code></pre></div><div class="uno"><figure class="cap"><a href="img/589.webp" target="_blank"><img src="img/589.webp" alt="Internet de las cosas con ESP8266 y Ubidots usando PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>El programa original</h3><a class="min" href="https://youtu.be/188LTnYOh_U?t=410" target="_blank" rel="noopener">&#9654; 6:50</a></div><p>En MikroC había funciones para medir el largo de una cadena constante y enviarla por serial.</p><div class="uno"><figure class="cap"><a href="img/434.webp" target="_blank"><img src="img/434.webp" alt="Internet de las cosas con ESP8266 y Ubidots usando PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Funciones seriales</h3><a class="min" href="https://youtu.be/188LTnYOh_U?t=480" target="_blank" rel="noopener">&#9654; 8:00</a></div><p>En XC8 se escriben con EUSART_Write: una para cadenas variables, otra para constantes y una para un carácter.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void UART1_Write_Text(char *trama)
+{
+  while (*trama) EUSART_Write(*trama++);
+}
+
+void manda_serial_const(const char *trama)
+{
+  while (*trama) EUSART_Write(*trama++);
+}
+
+void UART1_Write(char txData)
+{
+  EUSART_Write(txData);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/486.webp" target="_blank"><img src="img/486.webp" alt="Internet de las cosas con ESP8266 y Ubidots usando PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Ciclo principal</h3><a class="min" href="https://youtu.be/188LTnYOh_U?t=690" target="_blank" rel="noopener">&#9654; 11:30</a></div><p>Se copia el while. Con reemplazar se cambia Delay_ms por __delay_ms. La conexión al servidor de Ubidots se hace con los mismos comandos AT; el nombre y clave de la red y el token van en el código de cada uno.</p><div class="uno"><figure class="cap"><a href="img/745.webp" target="_blank"><img src="img/745.webp" alt="Internet de las cosas con ESP8266 y Ubidots usando PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Leer el ADC</h3><a class="min" href="https://youtu.be/188LTnYOh_U?t=760" target="_blank" rel="noopener">&#9654; 12:40</a></div><p>La lectura análoga se hace con la función que genera el MCC, ADC_GetConversion(canal).</p><div class="uno"><figure class="cap"><a href="img/796.webp" target="_blank"><img src="img/796.webp" alt="Internet de las cosas con ESP8266 y Ubidots usando PIC y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Resultado</h3><a class="min" href="https://youtu.be/188LTnYOh_U?t=897" target="_blank" rel="noopener">&#9654; 14:57</a></div><p>Al cambiar la temperatura en el LM35 de Proteus, por ejemplo de 22 a 27 grados, el valor se actualiza en Ubidots.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=188LTnYOh_U" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

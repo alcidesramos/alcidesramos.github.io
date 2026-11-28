@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC12F1822 lee cuatro sensores SRF04 con un solo pin de disparo: el Timer1 mide el eco de cada uno y la distancia se envía por serial. Se pasa de MikroC a XC8 y se optimiza la memoria quitando printf.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/NPKM3wpBL2E/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="Un PIC12F1822 lee cuatro sensores SRF04 con un solo pin de disparo: el Timer1 mide el eco de cada uno y la distancia se envía por serial. Se pasa de MikroC a XC8 y se optimiza la memoria quitando printf.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/NPKM3wpBL2E/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/NPKM3wpBL2E/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>Varios <span>SRF04</span> con XC8</h1>
+    <p class="lead">El programa que se hizo en MikroC para leer varios sensores ultrasónicos se pasa a MPLAB XC8 con un PIC12F1822. Con el MCC se configuran el oscilador interno a 32 MHz con PLL, la EUSART a 9600 y los pines: uno de disparo común (RA5) y cuatro de eco. La función lee_distancia recibe el puerto y el pin: envía un pulso de 10 µs, limpia y arranca el Timer1 con prescalador 4, espera el flanco del eco con una función LEEBIT y devuelve -1 si el timer se desborda porque no hay sensor; si no, calcula la distancia con la frecuencia real. Como el micro solo tiene 2K de programa, printf y sprintf llenan la memoria, así que se usa una función propia para pasar de flotante a cadena y otra para enviar por serial, y el programa cabe.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=NPKM3wpBL2E" target="_blank" rel="noopener">&#9654; Ver el video completo (35:55)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1583.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC12F1822</li><li>4 sensores ultrasónicos SRF04</li><li>MPLAB X con XC8 y MCC</li><li>Proteus (Virtual Terminal)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · MCC</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El programa de MikroC</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se parte del programa de MikroC que mide con el Timer1 y tiene su propia función para pasar de flotante a cadena.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Bits de configuración</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=140" target="_blank" rel="noopener">&#9654; 2:20</a></div><p>En el System Module se revisan los registros de configuración: oscilador interno, watchdog, MCLR y protección.</p><div class="uno"><figure class="cap"><a href="img/204.webp" target="_blank"><img src="img/204.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Reloj a 32 MHz</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=358" target="_blank" rel="noopener">&#9654; 5:58</a></div><p>Oscilador interno de 8 MHz con PLL para trabajar a 32 MHz.</p><div class="uno"><figure class="cap"><a href="img/388.webp" target="_blank"><img src="img/388.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>EUSART</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=426" target="_blank" rel="noopener">&#9654; 7:06</a></div><p>La EUSART asíncrona a 9600 para enviar las distancias.</p><div class="uno"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Pines</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=840" target="_blank" rel="noopener">&#9654; 14:00</a></div><p>En el Pin Module se ponen los nombres: el pin de disparo como salida y los de eco como entradas digitales.</p><div class="uno"><figure class="cap"><a href="img/848.webp" target="_blank"><img src="img/848.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Definiciones</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=906" target="_blank" rel="noopener">&#9654; 15:06</a></div><p>Se guarda el reloj para calcular la frecuencia real del timer y se definen el pin de disparo y el número de bit de cada eco.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const unsigned char cristal = 32;   // reloj en MHz usado en el proyecto
+#define Frec_real (cristal/4.0)     // frecuencia de trabajo real
+
+#define disparo at LATA5_bit
+#define eco1 1
+#define eco2 2
+#define eco3 3
+#define eco4 4
+
+char texto[17];                   // para almacenar la cadena
+unsigned int contador = 0;        // valor del timer
+float distancia;</code></pre></div><div class="uno"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Leer un bit</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=971" target="_blank" rel="noopener">&#9654; 16:11</a></div><p>Una función recibe la dirección del puerto y el número de bit y devuelve si está en 1 o en 0. Así una sola función sirve para los cuatro sensores.</p><div class="uno"><figure class="cap"><a href="img/1032.webp" target="_blank"><img src="img/1032.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Medir la distancia</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=1123" target="_blank" rel="noopener">&#9654; 18:43</a></div><p>Pulso de disparo de 10 µs, se limpia y arranca el Timer1 y se espera el eco. Si el timer se desborda, no hay sensor y devuelve -1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float lee_distancia(char puerto, char pin)   // lee en el pin especificado
+{
+  float calculo;
+
+  // pulso de disparo de 10us
+  disparo1 = 1;
+  __delay_us(10);
+  disparo_SetLow();
+
+  // limpia el contador
+  TMR1ON = 0;   // timer quieto
+  TMR1L = 0;    // limpia parte baja
+  TMR1H = 0;    // limpia parte alta
+  TMR1IF = 0;   // limpia la bandera de desbordamiento
+  TMR1ON = 1;   // arranca el timer
+
+  while (LEEBIT(puerto, pin) == 0)
+  {
+    if (TMR1IF == 1)    // si no hay objeto se va a desbordar el timer
+    {
+      return (-1);      // si no hay sensor conectado retorna -1
+    }
+  }
+  // ... luego se mide el tiempo del eco y se calcula la distancia
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1123.webp" target="_blank"><img src="img/1123.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Timer1 y ciclo</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=1307" target="_blank" rel="noopener">&#9654; 21:47</a></div><p>Timer1 con prescalador 4. En el ciclo se lee cada sensor, se pasa a texto con 2 decimales y se envía.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>disparo1 = 0;   // inicia en cero el pin de disparo
+T1CON = 0;      // limpia registro del timer 1
+// prescalador en 4
+T1CKPS1 = 1;
+T1CKPS0 = 0;
+
+while (1)
+{
+  distancia = lee_distancia(&amp;PORTA, eco1);
+  floattostr_(distancia, texto, 2);   // 2 decimales
+  UART1_Write_Text(&quot;Dis1=&quot;);
+  UART1_Write_Text(texto);
+  UART1_Write(&#x27;\r&#x27;);                  // enter y final de línea
+  __delay_ms(50);
+  // ... igual para eco2, eco3 y eco4
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1307.webp" target="_blank"><img src="img/1307.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba y memoria</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Primer sensor</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=1399" target="_blank" rel="noopener">&#9654; 23:19</a></div><p>En Proteus el terminal muestra la distancia del primer sensor.</p><div class="uno"><figure class="cap"><a href="img/1399.webp" target="_blank"><img src="img/1399.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Timer en el MCC</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=1491" target="_blank" rel="noopener">&#9654; 24:51</a></div><p>El MCC también muestra el periodo del Timer1 con la configuración elegida.</p><div class="uno"><figure class="cap"><a href="img/1491.webp" target="_blank"><img src="img/1491.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Los cuatro sensores</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=1583" target="_blank" rel="noopener">&#9654; 26:23</a></div><p>Se repite la lectura para los cuatro ecos.</p><div class="dos"><figure class="cap"><a href="img/1583.webp" target="_blank"><img src="img/1583.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1675.webp" target="_blank"><img src="img/1675.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Memoria llena</h3><a class="min" href="https://youtu.be/NPKM3wpBL2E?t=1767" target="_blank" rel="noopener">&#9654; 29:27</a></div><p>Con printf el programa no cabe en los 2K del PIC12F1822. Se reemplaza por una función serial propia y por la conversión propia a cadena.</p><div class="uno"><figure class="cap"><a href="img/2043.webp" target="_blank"><img src="img/2043.webp" alt="Lectura de múltiples sensores ultrasónicos SRF04 con PIC12F1822 y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=NPKM3wpBL2E" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
