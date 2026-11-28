@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control de robot seguidor de línea velocista, parte 2: generación de pesos · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con los sensores normalizados a 0 y 1 se calcula un desvío con un sistema de pesos: cada sensor tiene un peso de −10 a 10 y el desvío es la suma de lectura por peso dividida entre la suma de lecturas.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/aHBGIq-UNtk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Control de robot seguidor de línea velocista, parte 2: generación de pesos · Paso a paso">
+  <meta property="og:description" content="Con los sensores normalizados a 0 y 1 se calcula un desvío con un sistema de pesos: cada sensor tiene un peso de −10 a 10 y el desvío es la suma de lectura por peso dividida entre la suma de lecturas.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/aHBGIq-UNtk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/aHBGIq-UNtk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Velocista: <span>sistema de pesos</span></h1>
+    <p class="lead">Para controlar el robot hace falta saber qué tan lejos está de la línea. A cada sensor se le asigna un peso, de −10 a 10 para seis sensores (−10, −5, −1, 1, 5, 10), sin repetir valores para que cada combinación dé un número distinto. El desvío es la suma de normalizado por peso sobre la suma de normalizados; en Excel se prueba la fórmula. Si todo está en negro (denominador de 5,8 o más) o todo en blanco (0,2 o menos), se devuelve 10 o −10 según el peso anterior, para recordar por dónde se salió el robot. Se usan rangos en lugar de igualdades por los decimales. El desvío va por serial y con él se harán controles P, PID o difusos.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=aHBGIq-UNtk" target="_blank" rel="noopener">&#9654; Ver el video completo (11:49)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/634.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos"></figure>
+    <ul class="materiales"><li>PIC18F25K50</li><li>Robot Zumo de Proteus</li><li>Programa de la parte 1</li><li>Excel para probar los pesos</li><li>MikroC PRO for PIC</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pesos</a><a href="#f2">2 · Código</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Los pesos</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué se necesita</h3><a class="min" href="https://youtu.be/aHBGIq-UNtk?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Ya se sabe si cada sensor está en la línea. Para un control hay que saber cuánto se aleja el robot: por ejemplo 10 muy a la derecha, 0 en el centro y −10 muy a la izquierda.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pesos en Excel</h3><a class="min" href="https://youtu.be/aHBGIq-UNtk?t=31" target="_blank" rel="noopener">&#9654; 0:31</a></div><p>Para seis sensores los pesos son −10, −5, −1, 1, 5 y 10 (para ocho se puede llegar a ±40). No deben repetirse para que cada combinación dé un valor distinto.</p><div class="dos"><figure class="cap"><a href="img/81.webp" target="_blank"><img src="img/81.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos" loading="lazy"></a></figure><figure class="cap"><a href="img/143.webp" target="_blank"><img src="img/143.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>La fórmula</h3><a class="min" href="https://youtu.be/aHBGIq-UNtk?t=131" target="_blank" rel="noopener">&#9654; 2:11</a></div><p>El desvío es la suma de cada lectura normalizada por su peso, dividida entre la suma de las lecturas. Con dos sensores centrales da 0; al alejarse da 1, 3, 5, 7,5 o 10.</p><div class="uno"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>En el programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Vector de pesos</h3><a class="min" href="https://youtu.be/aHBGIq-UNtk?t=197" target="_blank" rel="noopener">&#9654; 3:17</a></div><p>Se crean el vector de pesos y la variable peso_anterior, que recuerda si el robot se salió por la derecha o por la izquierda.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Calcular</h3><a class="min" href="https://youtu.be/aHBGIq-UNtk?t=263" target="_blank" rel="noopener">&#9654; 4:23</a></div><p>Numerador y denominador se suman en un for; se revisan los casos especiales y luego se divide.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float calcula_pesos() {
+  char cuenta;
+  float numerador = 0, denominador = 0;
+  float valor;
+  for (cuenta = 0; cuenta &lt; 6; cuenta++) {
+    numerador = normalizados[cuenta] * pesos[cuenta] + numerador;
+    denominador = normalizados[cuenta] + denominador;
+  }
+  // si es todo negro
+  if (denominador &gt;= 5.8) {  // indica que todo está en negro
+    if (peso_anterior &gt; 0) return (10.0);    // estaba muy a la derecha
+    else if (peso_anterior &lt; 0) return (-10.0); // estaba muy a la izquierda
+  }
+  // si es todo blanco
+  else if (denominador &lt;= 0.2) {  // se salió; evita errores de flotante
+    if (peso_anterior &gt; 0) return (10.0);
+    else if (peso_anterior &lt; 0) return (-10.0);
+  }
+  else
+    valor = numerador / denominador;
+  peso_anterior = valor;  // almacena el valor por si se llega a salir de la línea
+  return (valor);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/265.webp" target="_blank"><img src="img/265.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos" loading="lazy"></a></figure><figure class="cap"><a href="img/327.webp" target="_blank"><img src="img/327.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Casos especiales</h3><a class="min" href="https://youtu.be/aHBGIq-UNtk?t=299" target="_blank" rel="noopener">&#9654; 4:59</a></div><p>Con todo negro el denominador es 6; se compara con 5,8 por los decimales. Con todo blanco es 0; se compara con 0,2. En ambos casos se devuelve el extremo según el peso anterior.</p><div class="uno"><figure class="cap"><a href="img/388.webp" target="_blank"><img src="img/388.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Enviar el desvío</h3><a class="min" href="https://youtu.be/aHBGIq-UNtk?t=431" target="_blank" rel="noopener">&#9654; 7:11</a></div><p>Después de normalizar se calculan los pesos y se manda el desvío por serial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void manda_caculo_pesos() {
+  sprintf(texto, &quot;desvio=%.1f \r\n\r\n&quot;, calcula_pesos());
+  UART1_Write_Text(texto);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/204.webp" target="_blank"><img src="img/204.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Calibrar</h3><a class="min" href="https://youtu.be/aHBGIq-UNtk?t=496" target="_blank" rel="noopener">&#9654; 8:16</a></div><p>Se mueve el robot sobre la línea para calibrar. El LED indica cuándo terminó, útil si no hay terminal o módulo Bluetooth.</p><div class="dos"><figure class="cap"><a href="img/511.webp" target="_blank"><img src="img/511.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos" loading="lazy"></a></figure><figure class="cap"><a href="img/572.webp" target="_blank"><img src="img/572.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Ver el desvío</h3><a class="min" href="https://youtu.be/aHBGIq-UNtk?t=570" target="_blank" rel="noopener">&#9654; 9:30</a></div><p>Al mover el robot el desvío va de −10 a 10, con valores como ±5 o ±7,5 cuando hay dos sensores. Si se sale, queda en el extremo por donde salió. Con esto se hará el control en los siguientes videos.</p><div class="dos"><figure class="cap"><a href="img/634.webp" target="_blank"><img src="img/634.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos" loading="lazy"></a></figure><figure class="cap"><a href="img/695.webp" target="_blank"><img src="img/695.webp" alt="Control de robot seguidor de línea velocista, parte 2: generación de pesos" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=aHBGIq-UNtk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

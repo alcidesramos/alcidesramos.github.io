@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo leer los sensores de línea digitales del robot Zumo de Proteus con un PIC18F25K50: cargar el capacitor, medir con el Timer1 cuánto tarda en descargarse, calibrar máximos y mínimos y normalizar a 0 y 1.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/-mIl-ImOoXI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización · Paso a paso">
+  <meta property="og:description" content="Cómo leer los sensores de línea digitales del robot Zumo de Proteus con un PIC18F25K50: cargar el capacitor, medir con el Timer1 cuánto tarda en descargarse, calibrar máximos y mínimos y normalizar a 0 y 1.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/-mIl-ImOoXI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/-mIl-ImOoXI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Velocista: <span>leer sensores</span> digitales</h1>
+    <p class="lead">El robot Zumo de Proteus tiene seis sensores tipo QTR-RC: en lugar de una resistencia tienen un capacitor y se mide cuánto tarda en descargarse; sobre negro tarda más. El procedimiento es encender los LEDs, poner el pin como salida en 1, esperar 10 µs, pasarlo a entrada y medir el tiempo hasta que cae. Con un PIC18F25K50 a 4 MHz, el Timer1 se configura para unos 5 ms (TMR1H 236, TMR1L 120) y durante ese tiempo se guarda el valor del timer cuando cae cada sensor. Los valores se envían por serial. Luego se calibra moviendo el robot sobre la línea para hallar el máximo y el mínimo de cada sensor, y se normaliza: si la lectura supera el mínimo más la mitad del rango es 1, si no 0.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=-mIl-ImOoXI" target="_blank" rel="noopener">&#9654; Ver el video completo (28:54)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1715.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización"></figure>
+    <ul class="materiales"><li>PIC18F25K50</li><li>Robot Zumo de Proteus</li><li>Pulsador de arranque y LED</li><li>Terminal virtual</li><li>MikroC PRO for PIC (PWM, UART, sprintf)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Sensores</a><a href="#f2">2 · Timer1</a><a href="#f3">3 · Normalizar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Los sensores</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El robot</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=1" target="_blank" rel="noopener">&#9654; 0:01</a></div><p>Se usa el robot de Pololu que trae Proteus, con una regleta de seis sensores. Se hará con un PIC y MikroC, pero la idea sirve para otros micros.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Cómo se leen</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>Son sensores con capacitor: se mide el tiempo de descarga. Pololu indica encender los LEDs, poner el pin como salida en 1, esperar al menos 10 µs, pasarlo a entrada y medir cuánto tarda en caer.</p><div class="dos"><figure class="cap"><a href="img/94.webp" target="_blank"><img src="img/94.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure><figure class="cap"><a href="img/167.webp" target="_blank"><img src="img/167.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Tiempo de lectura</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=133" target="_blank" rel="noopener">&#9654; 2:13</a></div><p>La caída tarda unos 4 ms; se usarán 5 ms. Si el valor se acerca al máximo del timer, se sube a 6 ms.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Pines</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=266" target="_blank" rel="noopener">&#9654; 4:26</a></div><p>PIC18F25K50 a 4 MHz. Los motores llevan un pin de dirección y uno de PWM; los sensores pueden ir en cualquier pin. También hay LED, puerto serial y un pulsador de arranque.</p><div class="dos"><figure class="cap"><a href="img/315.webp" target="_blank"><img src="img/315.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure><figure class="cap"><a href="img/388.webp" target="_blank"><img src="img/388.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Definir sensores</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=397" target="_blank" rel="noopener">&#9654; 6:37</a></div><p>Cada sensor tiene un pin de salida (LAT), uno de entrada (PORT) y su TRIS, y una bandera que indica que ya se leyó. Así funciona con pines de distintos puertos.</p><div class="uno"><figure class="cap"><a href="img/462.webp" target="_blank"><img src="img/462.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Leer con el Timer1</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Calcular el timer</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=495" target="_blank" rel="noopener">&#9654; 8:15</a></div><p>Con una hoja de cálculo para 4 MHz y prescalador 1 se obtienen los valores del Timer1 para unos 5 ms: 236 y 120.</p><div class="uno"><figure class="cap"><a href="img/536.webp" target="_blank"><img src="img/536.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar el Timer1</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=561" target="_blank" rel="noopener">&#9654; 9:21</a></div><p>El timer queda apagado hasta que se necesita.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void config_timer1() {
+  T1CON = 0;
+  // 5 milisegundos
+  TMR1H = 236;
+  TMR1L = 120;
+  // prescalador uno
+  T1CKPS1_bit = 0;
+  T1CKPS0_bit = 0;
+  TMR1IF_bit = 0;
+  TMR1ON_bit = 0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Analizar los sensores</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=629" target="_blank" rel="noopener">&#9654; 10:29</a></div><p>Se encienden los LEDs, se sacan unos, se espera 10 µs, se pasan a entrada y se arranca el timer. Mientras no se desborda, cuando cae un sensor se guarda el valor del timer y se activa su bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void analizasensoresir() {
+  char cuenta1;
+  config_timer1();
+  leds = 1;          // enciende la regleta de los leds
+  config_salidas();
+  saca_uno();
+  Delay_us(10);
+  config_entradas();
+  TMR1ON_bit = 1;    // prende el timer
+  // limpia la lectura de los sensores
+  for (cuenta1 = 0; cuenta1 &lt;= 8; cuenta1++) lecturas[cuenta1] = 0;
+  banderas = 0;      // limpia las banderas de los sensores
+  while (TMR1IF_bit == 0) {
+    // ... igual para cada sensor
+    // detecta si ya cayó la señal del sensor6
+    if ((s6_in == 0) &amp;&amp; (flag_s6 == 0)) {
+      lecturas[5] = (unsigned int)TMR1H &lt;&lt; 8 | TMR1L;
+      flag_s6 = 1;
+    }
+  }  // fin del tiempo para leer los sensores
+  leds = 0;  // apaga la regleta para ahorrar batería
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/757.webp" target="_blank"><img src="img/757.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure><figure class="cap"><a href="img/831.webp" target="_blank"><img src="img/831.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Configuración</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=831" target="_blank" rel="noopener">&#9654; 13:51</a></div><p>Se agregan PWM, UART y sprintf. Todo digital, salidas de PWM, dirección de motores y LEDs, pulsador con pull-up interno, UART y PWM iniciados en 127.</p><div class="uno"><figure class="cap"><a href="img/904.webp" target="_blank"><img src="img/904.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Movimientos</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=969" target="_blank" rel="noopener">&#9654; 16:09</a></div><p>Se crean adelante, atrás, derecha e izquierda con su velocidad y se prueban. Luego el robot arranca quieto.</p><div class="uno"><figure class="cap"><a href="img/1052.webp" target="_blank"><img src="img/1052.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Ver las lecturas</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=1072" target="_blank" rel="noopener">&#9654; 17:52</a></div><p>En el while se leen los sensores y se mandan por serial. En blanco dan unos 60000 y en negro unos 61000: en negro el valor es mayor.</p><div class="uno"><figure class="cap"><a href="img/1125.webp" target="_blank"><img src="img/1125.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Calibrar y normalizar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Máximos y mínimos</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=1215" target="_blank" rel="noopener">&#9654; 20:15</a></div><p>Se guardan vectores de mínimos (que empiezan en 65535) y máximos (que empiezan en 0).</p><div class="uno"><figure class="cap"><a href="img/1273.webp" target="_blank"><img src="img/1273.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Calibrar</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=1284" target="_blank" rel="noopener">&#9654; 21:24</a></div><p>Durante 200 muestras se mueve el robot sobre la línea y se actualizan el máximo y el mínimo de cada sensor. El LED indica que terminó y se mandan los límites.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>for (cont = 0; cont &lt; 6; cont++) {
+  analizasensoresir();
+  if (lecturas[cont] &gt;= maximos[cont]) maximos[cont] = lecturas[cont];
+  if (lecturas[cont] &lt;= minimos[cont]) minimos[cont] = lecturas[cont];
+}
+// dentro de un ciclo de 200 muestras (ver video)
+led = 1;
+Delay_ms(500);
+led = 0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1347.webp" target="_blank"><img src="img/1347.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Al arrancar</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=1381" target="_blank" rel="noopener">&#9654; 23:01</a></div><p>La calibración va al inicio; después se mandan los límites y el robot espera a que se presione el pulsador.</p><div class="uno"><figure class="cap"><a href="img/1420.webp" target="_blank"><img src="img/1420.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Normalizar</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=1479" target="_blank" rel="noopener">&#9654; 24:39</a></div><p>Para cada sensor se calcula la mitad del rango; si la lectura supera el mínimo más esa mitad es 1, si no 0. Con línea blanca se invierten.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void normaliza() {
+  unsigned char cuenta;
+  float min_temp, max_temp;
+  float promedio;
+  for (cuenta = 0; cuenta &lt; 6; cuenta++) {
+    min_temp = minimos[cuenta];
+    max_temp = maximos[cuenta];
+    promedio = (max_temp - min_temp) / 2;
+    if (lecturas[cuenta] &gt;= (min_temp + promedio)) normalizados[cuenta] = 1;
+    else normalizados[cuenta] = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1568.webp" target="_blank"><img src="img/1568.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/-mIl-ImOoXI?t=1619" target="_blank" rel="noopener">&#9654; 26:59</a></div><p>Después de calibrar, la terminal muestra 1 en los sensores sobre la línea y 0 en los demás. En el siguiente video se calcula qué tan lejos está el robot de la línea.</p><div class="uno"><figure class="cap"><a href="img/1715.webp" target="_blank"><img src="img/1715.webp" alt="Control de robot seguidor de línea velocista, parte 1: lectura de sensores digitales y normalización" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=-mIl-ImOoXI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

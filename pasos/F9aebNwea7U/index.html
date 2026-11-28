@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC16F1824 maneja el robot tortuga de Proteus con tres sensores: se definen los pines, las funciones de cada motor con PWM y una lógica que gira a la izquierda o a la derecha según los sensores.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/F9aebNwea7U/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1 · Paso a paso">
+  <meta property="og:description" content="Un PIC16F1824 maneja el robot tortuga de Proteus con tres sensores: se definen los pines, las funciones de cada motor con PWM y una lógica que gira a la izquierda o a la derecha según los sensores.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/F9aebNwea7U/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/F9aebNwea7U/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Seguidor de línea <span>sencillo</span> con PIC</h1>
+    <p class="lead">El robot tortuga de Proteus tiene solo tres sensores, juntos y en el centro de gravedad, lo que no es ideal. Un PIC16F1824 a 8 MHz con oscilador interno tiene los pines justos: tres sensores, dos pines de dirección por motor y los dos PWM (CCP1 y CCP2). Se definen negro = 1 y blanco = 0, se escriben funciones para cada motor (adelante, atrás, quieto) y se combinan en adelante, atrás, derecha e izquierda con una velocidad. Si un motor no gira como se espera, se cambian los 0 y 1 de su función. La lógica revisa las ocho combinaciones de los sensores: con negro a un lado gira hacia ese lado a velocidad de giro, con el centro avanza a velocidad de línea y en blanco sigue adelante. Funciona, pero lento y oscilando, y la línea debe ser del ancho de un sensor.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=F9aebNwea7U" target="_blank" rel="noopener">&#9654; Ver el video completo (19:15)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1135.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1"></figure>
+    <ul class="materiales"><li>PIC16F1824</li><li>Robot tortuga (TURTLE) de Proteus</li><li>Paint para dibujar la pista</li><li>MikroC PRO for PIC (librería PWM)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pines</a><a href="#f2">2 · Probar</a><a href="#f3">3 · Lógica</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Montaje y pines</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El robot</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El robot tortuga de Proteus tiene tres sensores muy juntos y en el centro de gravedad. En la práctica conviene ponerlos más adelante para anticipar la línea.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El micro</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Se usa un PIC16F1824, que tiene los pines necesarios: tres sensores, dos pines por motor y los dos PWM, CCP1 (RC5) y CCP2. Los demás pines pueden ser cualquiera.</p><div class="uno"><figure class="cap"><a href="img/86.webp" target="_blank"><img src="img/86.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=136" target="_blank" rel="noopener">&#9654; 2:16</a></div><p>Proyecto en MikroC a 8 MHz con oscilador interno, sin reloj externo, para usar todos los pines.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Definir pines</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=176" target="_blank" rel="noopener">&#9654; 2:56</a></div><p>Negro vale 1 y blanco 0; si la pista es negra con línea blanca, se cambian estos dos valores. Sensores en RA2, RA4 y RA5 y el motor derecho en LATC0 y LATC1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define negro 1
+#define blanco 0
+
+// entrada de los 3 sensores CNY70
+#define SI RA2_bit   // sensor de la izquierda
+#define SC RA4_bit   // sensor del centro
+#define SD RA5_bit   // sensor de la derecha
+// configura pines
+#define SI_DIR TRISA2_bit
+#define SC_DIR TRISA4_bit
+#define SD_DIR TRISA5_bit
+
+// salida motor derecha
+#define MD1 LATC0_bit
+#define MD2 LATC1_bit
+#define MD1_DIR TRISC0_bit
+#define MD2_DIR TRISC1_bit</code></pre></div><div class="uno"><figure class="cap"><a href="img/217.webp" target="_blank"><img src="img/217.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Funciones de cada motor</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=240" target="_blank" rel="noopener">&#9654; 4:00</a></div><p>Cada motor tiene funciones para quieto, adelante y atrás. Si el motor gira al revés, solo se cambian los 0 y 1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// gira atrás motor derecha
+void md_atras() {
+  MD1 = 0;
+  MD2 = 1;
+}
+
+// motor izquierda quieto
+void mi_quieto() {
+  MI1 = 0;
+  MI2 = 0;
+}
+
+// motor izquierda gira adelante
+void mi_alante() {
+  MI1 = 0;
+  MI2 = 1;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/282.webp" target="_blank"><img src="img/282.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración y prueba</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Configurar el micro</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=316" target="_blank" rel="noopener">&#9654; 5:16</a></div><p>Oscilador interno a 8 MHz (con el PLL podría ir más rápido), todo digital, sensores como entrada y pines de motores como salida. El PWM arranca a baja frecuencia (250 Hz) con un ciclo útil de prueba.</p><div class="uno"><figure class="cap"><a href="img/348.webp" target="_blank"><img src="img/348.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Ver el PWM</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=382" target="_blank" rel="noopener">&#9654; 6:22</a></div><p>Antes de seguir, con un osciloscopio se comprueba que los dos pines de PWM generan la señal.</p><div class="uno"><figure class="cap"><a href="img/414.webp" target="_blank"><img src="img/414.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Probar los motores</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=450" target="_blank" rel="noopener">&#9654; 7:30</a></div><p>Se manda cada motor adelante o atrás y se mira si el robot avanza o gira hacia donde debe. Si no, se corrigen las funciones.</p><div class="uno"><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Movimientos agrupados</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=551" target="_blank" rel="noopener">&#9654; 9:11</a></div><p>Con las funciones de cada motor se hacen adelante, atrás, derecha e izquierda, cada una con su velocidad por PWM.</p><div class="uno"><figure class="cap"><a href="img/545.webp" target="_blank"><img src="img/545.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>La lógica</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Analizar los sensores</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=652" target="_blank" rel="noopener">&#9654; 10:52</a></div><p>Se definen una velocidad de línea y una de giro, un poco más lenta. Con negro a la izquierda gira a la izquierda, con negro a la derecha gira a la derecha, con el centro o todo blanco avanza.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void analiza_sensores() {
+  if      ((SI==negro)  &amp;&amp; (SC==negro)  &amp;&amp; (SD==negro))  izquierda(velo_giro);
+  else if ((SI==negro)  &amp;&amp; (SC==negro)  &amp;&amp; (SD==blanco)) izquierda(velo_giro);
+  else if ((SI==negro)  &amp;&amp; (SC==blanco) &amp;&amp; (SD==negro))  alante(velo_giro);  // imposible
+  else if ((SI==negro)  &amp;&amp; (SC==blanco) &amp;&amp; (SD==blanco)) izquierda(velo_giro);
+  else if ((SI==blanco) &amp;&amp; (SC==negro)  &amp;&amp; (SD==negro))  derecha(velo_giro);
+  else if ((SI==blanco) &amp;&amp; (SC==negro)  &amp;&amp; (SD==blanco)) alante(velo_linea);
+  else if ((SI==blanco) &amp;&amp; (SC==blanco) &amp;&amp; (SD==negro))  derecha(velo_giro);
+  else if ((SI==blanco) &amp;&amp; (SC==blanco) &amp;&amp; (SD==blanco)) alante(velo_linea);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/676.webp" target="_blank"><img src="img/676.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Pista</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=817" target="_blank" rel="noopener">&#9654; 13:37</a></div><p>En Paint se dibuja una elipse con un trazo del ancho de un sensor y se carga en el robot.</p><div class="uno"><figure class="cap"><a href="img/873.webp" target="_blank"><img src="img/873.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=885" target="_blank" rel="noopener">&#9654; 14:45</a></div><p>Se ubica el robot sobre la línea. Por tener los sensores en el centro, un retardo de 1 ms ayuda a que no se quede pegado. Sigue la línea, pero lento y oscilando.</p><div class="uno"><figure class="cap"><a href="img/1004.webp" target="_blank"><img src="img/1004.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Ajustar la velocidad</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=955" target="_blank" rel="noopener">&#9654; 15:55</a></div><p>Con 150 lo hace más rápido; con 200 se sale y se queda quieto. El valor adecuado depende de los motores y de la dinámica del robot.</p><div class="uno"><figure class="cap"><a href="img/1069.webp" target="_blank"><img src="img/1069.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Limitaciones</h3><a class="min" href="https://youtu.be/F9aebNwea7U?t=1088" target="_blank" rel="noopener">&#9654; 18:08</a></div><p>Con una línea más gruesa no funciona: con solo derecha e izquierda la línea debe tener el ancho de un sensor. En la parte 2 se mejora el control.</p><div class="uno"><figure class="cap"><a href="img/1135.webp" target="_blank"><img src="img/1135.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 1" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=F9aebNwea7U" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

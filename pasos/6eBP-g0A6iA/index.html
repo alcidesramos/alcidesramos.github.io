@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El evasor ahora cruza la pista de izquierda a derecha sin devolverse: el Timer0 cuenta el tiempo de avance y hace de encoder para girar unos 90 grados, y una máquina de estados decide hacia dónde ir.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/6eBP-g0A6iA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados · Paso a paso">
+  <meta property="og:description" content="El evasor ahora cruza la pista de izquierda a derecha sin devolverse: el Timer0 cuenta el tiempo de avance y hace de encoder para girar unos 90 grados, y una máquina de estados decide hacia dónde ir.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/6eBP-g0A6iA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/6eBP-g0A6iA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Evasor <span>mejorado</span> con máquina de estados</h1>
+    <p class="lead">Con Timer Calculator se genera el Timer0 a 10 ms. En la interrupción, si el carro gira, una variable rumbo sube o baja como un encoder; al llegar a 105 o −105 (cerca de 90 grados) se detiene el timer y se activa la bandera de giro. Si avanza, cuenta el tiempo hasta un límite (200 equivale a 2 s) y activa la bandera de tiempo. Así el programa no se bloquea. La máquina de estados tiene avante, babor, estribor, avante después de girar a la derecha y avante después de girar a la izquierda: si hay un obstáculo gira a la derecha; si al girar encuentra otro a 5 cm o menos, invierte el giro; después avanza un tiempo y se endereza. El robot llega al otro lado desde distintas posiciones; los valores se ajustan según los objetos y la pista.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=6eBP-g0A6iA" target="_blank" rel="noopener">&#9654; Ver el video completo (25:41)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1455.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados"></figure>
+    <ul class="materiales"><li>PIC18F25K50</li><li>Robot tortuga (TURTLE) de Proteus con sonar</li><li>Timer Calculator de MikroElektronika</li><li>Programa de la parte 1</li><li>MikroC PRO for PIC</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Timer</a><a href="#f2">2 · Interrupción</a><a href="#f3">3 · Estados</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Timer y variables</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La idea</h3><a class="min" href="https://youtu.be/6eBP-g0A6iA?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El carro debe arrancar a la izquierda y llegar a la derecha evitando los obstáculos, sin devolverse. Se usa un timer para medir cuánto avanza y como encoder para los giros.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Timer0 a 10 ms</h3><a class="min" href="https://youtu.be/6eBP-g0A6iA?t=37" target="_blank" rel="noopener">&#9654; 0:37</a></div><p>En Timer Calculator, con 4 MHz y Timer0, se piden 10 ms y se copia el código de inicio y la interrupción. Menos tiempo da más precisión, pero en simulación 10 ms basta.</p><div class="uno"><figure class="cap"><a href="img/85.webp" target="_blank"><img src="img/85.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Constantes</h3><a class="min" href="https://youtu.be/6eBP-g0A6iA?t=102" target="_blank" rel="noopener">&#9654; 1:42</a></div><p>Distancia mínima de 10 cm al frente y de 5 cm al girar; límites de giro de 105 y −105 (unos 90 grados, se ajustan) y límite de tiempo de 200 (2 s, cada unidad son 10 ms).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit disparo at LATB1_bit;
+#define eco 0
+
+#define dis_min 10    // objeto frente
+#define dis_min1 5    // objeto en giro
+
+#define limite_giro1 105    // posición a la derecha
+#define limite_giro2 -105   // posición a la izquierda
+
+#define limite_time 200  // factor de tiempo de movimiento adelante, factor de 10 ms
+
+#define car_D 0
+#define car_I 1
+#define car_A 2
+#define car_N 3</code></pre></div><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Estados y banderas</h3><a class="min" href="https://youtu.be/6eBP-g0A6iA?t=242" target="_blank" rel="noopener">&#9654; 4:02</a></div><p>La máquina de estados tiene avante, avance después de girar a la derecha o a la izquierda, babor y estribor. Rumbo es el encoder; hay banderas de giro, de tiempo, de dirección y de giro correcto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>enum estado_dir {avante, avante_time_d, avante_time_i, babor, estribor};
+char dir_estado = avante;  // variable estado actual
+
+signed long rumbo = 0, limite_giro = car_A;
+unsigned int limite_tiempo = 0;
+unsigned int tiempo = 0;
+
+char flag_giro = 0;     // detecta si giró lo requerido
+char flag_tiempo = 0;   // detecta si avanzó el tiempo requerido
+char flag_dir = 0;      // 0 = derecha, 1 = izquierda
+char flag_giro_ok = 0;  // detecta si el giro fue correcto</code></pre></div><div class="uno"><figure class="cap"><a href="img/411.webp" target="_blank"><img src="img/411.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La interrupción</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Encoder y tiempo</h3><a class="min" href="https://youtu.be/6eBP-g0A6iA?t=407" target="_blank" rel="noopener">&#9654; 6:47</a></div><p>Cada 10 ms: si el carro gira, rumbo sube o baja; al llegar al límite se apaga el timer y se activa flag_giro. Si avanza, cuenta el tiempo y al llegar al límite activa flag_tiempo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Interrupt() {
+  if (TMR0IF_bit) {
+    TMR0IF_bit = 0;
+    TMR0H = 0xD8;
+    TMR0L = 0xF0;
+    if (flag_dir != car_A) {  // si no está moviendo adelante
+      if (flag_dir == car_D) rumbo++;
+      else rumbo--;
+      if (rumbo == limite_giro) {
+        TMR0IE_bit = 0;  // deshabilita timer
+        flag_giro = 1;   // activa bandera que ya llegó al límite
+      }
+    }
+    else {  // si es movimiento adelante
+      tiempo++;
+      if (tiempo &gt;= limite_tiempo) {
+        TMR0IE_bit = 0;  // deshabilita timer
+        tiempo = 0;
+        flag_tiempo = 1;
+      }
+    }
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/477.webp" target="_blank"><img src="img/477.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure><figure class="cap"><a href="img/542.webp" target="_blank"><img src="img/542.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Prueba de tiempo</h3><a class="min" href="https://youtu.be/6eBP-g0A6iA?t=604" target="_blank" rel="noopener">&#9654; 10:04</a></div><p>Se manda adelante con un límite de 300 (3 s) y en el while se espera flag_tiempo para detenerlo. Mientras tanto el programa sigue leyendo el sonar: nada se bloquea.</p><div class="dos"><figure class="cap"><a href="img/672.webp" target="_blank"><img src="img/672.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure><figure class="cap"><a href="img/737.webp" target="_blank"><img src="img/737.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Prueba de giro</h3><a class="min" href="https://youtu.be/6eBP-g0A6iA?t=812" target="_blank" rel="noopener">&#9654; 13:32</a></div><p>Con un límite de giro de 105 el carro gira y se detiene cerca de 90 grados; con −105 gira a la izquierda. El número se ajusta hasta lograr el ángulo.</p><div class="uno"><figure class="cap"><a href="img/868.webp" target="_blank"><img src="img/868.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Máquina de estados</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Avante</h3><a class="min" href="https://youtu.be/6eBP-g0A6iA?t=946" target="_blank" rel="noopener">&#9654; 15:46</a></div><p>El carro avanza; si encuentra un obstáculo a la distancia mínima pasa a babor, fija el límite de giro a la derecha y arranca el timer.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sonar();
+switch (dir_estado) {
+  case avante:
+    adelante(100);  // va hacia adelante
+    // analiza si tiene obstáculos
+    if (distancia &lt;= dis_min) {
+      dir_estado = babor;
+      limite_giro = limite_giro1;
+      flag_dir = car_D;  // para que el encoder cuente a la derecha
+      InitTimer0();      // inicia el timer para calcular giro
+      flag_giro_ok = 0;
+      derecha(100);
+    }
+    break;
+  // ... demás estados (ver video)
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/998.webp" target="_blank"><img src="img/998.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Giro correcto</h3><a class="min" href="https://youtu.be/6eBP-g0A6iA?t=1050" target="_blank" rel="noopener">&#9654; 17:30</a></div><p>Mientras gira, si la distancia es de 30 cm o más el giro es correcto. Al terminar, si fue correcto, pasa a avanzar un tiempo para pasar el obstáculo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>case babor:
+  if (distancia &gt;= 30) flag_giro_ok = 1;  // detecta si es correcto girar en ese sentido
+  if (flag_giro == 1) {     // si ya terminó el giro
+    flag_giro = 0;
+    if (flag_giro_ok == 1) {  // y si es el correcto
+      dir_estado = avante_time_d;
+      limite_tiempo = limite_time;
+      flag_dir = car_A;  // para que el encoder cuente adelante
+      InitTimer0();      // inicia el timer
+      flag_tiempo = 0;   // limpia la bandera de tiempo
+      flag_giro = 0;
+      adelante(100);
+    }
+    // else: invierte el giro (ver video)
+  }</code></pre></div><div class="uno"><figure class="cap"><a href="img/1063.webp" target="_blank"><img src="img/1063.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Enderezar</h3><a class="min" href="https://youtu.be/6eBP-g0A6iA?t=1119" target="_blank" rel="noopener">&#9654; 18:39</a></div><p>Cumplido el tiempo después de girar a la derecha, gira a la izquierda hasta rumbo 0 para quedar recto y vuelve a avante.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Obstáculo al girar</h3><a class="min" href="https://youtu.be/6eBP-g0A6iA?t=1220" target="_blank" rel="noopener">&#9654; 20:20</a></div><p>Si al girar a la derecha aparece otro obstáculo, el giro no es correcto: gira a la izquierda (−105), avanza un tiempo y se endereza igual.</p><div class="uno"><figure class="cap"><a href="img/1324.webp" target="_blank"><img src="img/1324.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/6eBP-g0A6iA?t=1317" target="_blank" rel="noopener">&#9654; 21:57</a></div><p>Desde distintas posiciones el carro llega de izquierda a derecha sin devolverse. Los tiempos de avance y el giro se ajustan según el tamaño de los obstáculos.</p><div class="dos"><figure class="cap"><a href="img/1390.webp" target="_blank"><img src="img/1390.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure><figure class="cap"><a href="img/1455.webp" target="_blank"><img src="img/1455.webp" alt="Evasor de obstáculos mejorado en Proteus con PIC y MikroC, parte 2: timer y máquina de estados" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=6eBP-g0A6iA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

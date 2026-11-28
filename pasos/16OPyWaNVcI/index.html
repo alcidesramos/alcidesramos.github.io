@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 2: velocidad base más giro · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Los dos motores siempre avanzan a una velocidad base, y a un motor se le suma y al otro se le resta una velocidad de giro según los sensores; así el robot sigue mejor la línea.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/16OPyWaNVcI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 2: velocidad base más giro · Paso a paso">
+  <meta property="og:description" content="Los dos motores siempre avanzan a una velocidad base, y a un motor se le suma y al otro se le resta una velocidad de giro según los sensores; así el robot sigue mejor la línea.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/16OPyWaNVcI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/16OPyWaNVcI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Seguidor con <span>velocidad base</span> y giro</h1>
+    <p class="lead">En lugar de girar con un motor adelante y otro atrás, los dos motores van siempre hacia adelante a una velocidad base. Según los sensores se calcula una velocidad de giro positiva o negativa que se suma a un motor y se resta al otro, limitando cada PWM entre 0 y 255. La velocidad de giro no debe superar la base. La función alante recibe ahora un valor con signo y analiza_sensores solo asigna esa velocidad. Al subir la base y el giro a 80, 90 o 110 se ve cómo mejora el seguimiento hasta que el robot se sale; los valores reales dependen de los motores.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=16OPyWaNVcI" target="_blank" rel="noopener">&#9654; Ver el video completo (9:13)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/540.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 2: velocidad base más giro"></figure>
+    <ul class="materiales"><li>PIC16F1824</li><li>Robot tortuga (TURTLE) de Proteus</li><li>Programa de la parte 1</li><li>MikroC PRO for PIC</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Técnica</a><a href="#f2">2 · Código</a><a href="#f3">3 · Ajuste</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La técnica</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El problema</h3><a class="min" href="https://youtu.be/16OPyWaNVcI?t=1" target="_blank" rel="noopener">&#9654; 0:01</a></div><p>El robot de la parte 1 oscila mucho y falla con líneas gruesas. Se aplica otra técnica, recomendada para más de tres sensores, pero que también sirve aquí.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 2: velocidad base más giro" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Base más giro</h3><a class="min" href="https://youtu.be/16OPyWaNVcI?t=36" target="_blank" rel="noopener">&#9654; 0:36</a></div><p>Los motores siempre van adelante a una velocidad base; al derecho se le suma una velocidad de giro y al izquierdo se le resta, o al revés si es negativa. Ninguno pasa de 255 ni baja de 0.</p><div class="uno"><figure class="cap"><a href="img/85.webp" target="_blank"><img src="img/85.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 2: velocidad base más giro" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Dos velocidades</h3><a class="min" href="https://youtu.be/16OPyWaNVcI?t=107" target="_blank" rel="noopener">&#9654; 1:47</a></div><p>Se cambian las velocidades por velo_BASE y velo_giro; para empezar, 50 y 50. La de giro debe ser igual o menor que la base.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 2: velocidad base más giro" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Nueva función adelante</h3><a class="min" href="https://youtu.be/16OPyWaNVcI?t=172" target="_blank" rel="noopener">&#9654; 2:52</a></div><p>La velocidad ahora tiene signo: se suma a un motor, se resta al otro y se limitan los valores.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// carro avanza adelante
+void alante(signed int velo) {
+  signed int veld, veli;
+  veld = velo_BASE + velo;
+  veli = velo_BASE - velo;
+
+  if (veld &gt;= 255) veld = 255;
+  if (veld &lt;= 0) veld = 0;
+  if (veli &gt;= 255) veli = 255;
+  if (veli &lt;= 0) veli = 0;
+
+  PWM1_Set_Duty(veld);
+  PWM2_Set_Duty(veli);
+  md_alante();
+  mi_alante();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/215.webp" target="_blank"><img src="img/215.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 2: velocidad base más giro" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Analizar los sensores</h3><a class="min" href="https://youtu.be/16OPyWaNVcI?t=244" target="_blank" rel="noopener">&#9654; 4:04</a></div><p>Ya no se manda derecha o izquierda, solo el valor de la velocidad de giro con su signo. El signo de cada caso se ajusta según la pista.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void analiza_sensores() {
+  if      ((SI==negro)  &amp;&amp; (SC==negro)  &amp;&amp; (SD==negro))  velocidad = velo_giro;
+  else if ((SI==negro)  &amp;&amp; (SC==negro)  &amp;&amp; (SD==blanco)) velocidad = -velo_giro;
+  else if ((SI==negro)  &amp;&amp; (SC==blanco) &amp;&amp; (SD==negro))  velocidad = -velo_giro; // valor imposible
+  else if ((SI==negro)  &amp;&amp; (SC==blanco) &amp;&amp; (SD==blanco)) velocidad = -velo_giro;
+  else if ((SI==blanco) &amp;&amp; (SC==negro)  &amp;&amp; (SD==negro))  velocidad = velo_giro;
+  else if ((SI==blanco) &amp;&amp; (SC==negro)  &amp;&amp; (SD==blanco)) velocidad = 0;
+  else if ((SI==blanco) &amp;&amp; (SC==blanco) &amp;&amp; (SD==negro))  velocidad = velo_giro;
+  else if ((SI==blanco) &amp;&amp; (SC==blanco) &amp;&amp; (SD==blanco)) velocidad = 0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 2: velocidad base más giro" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Programa principal</h3><a class="min" href="https://youtu.be/16OPyWaNVcI?t=312" target="_blank" rel="noopener">&#9654; 5:12</a></div><p>En el while se analizan los sensores y se llama a alante con la velocidad calculada.</p><div class="uno"><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 2: velocidad base más giro" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Ajuste</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Prueba y sintonía</h3><a class="min" href="https://youtu.be/16OPyWaNVcI?t=346" target="_blank" rel="noopener">&#9654; 5:46</a></div><p>Sigue la línea un poco más rápido. Con 80 y 80 mejora; con 90 y 90 va bien; con 110 empieza a salirse. Todavía oscila porque solo hay tres sensores.</p><div class="uno"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Robot seguidor de línea sencillo en Proteus con PIC16F1824 y MikroC, parte 2: velocidad base más giro" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Mejoras posibles</h3><a class="min" href="https://youtu.be/16OPyWaNVcI?t=486" target="_blank" rel="noopener">&#9654; 8:06</a></div><p>Se podrían guardar los estados anteriores para detectar rectas y acelerar. Los valores reales dependen de los motores y la simulación depende del computador.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=16OPyWaNVcI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

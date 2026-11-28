@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con el robot tortuga de Proteus y su sonar se hace un evasor: el PIC mide la distancia con el Timer1 y, si hay un obstáculo a menos de 10 cm, retrocede y gira; si no, avanza.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/lh59JF_3q6I/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1 · Paso a paso">
+  <meta property="og:description" content="Con el robot tortuga de Proteus y su sonar se hace un evasor: el PIC mide la distancia con el Timer1 y, si hay un obstáculo a menos de 10 cm, retrocede y gira; si no, avanza.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/lh59JF_3q6I/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/lh59JF_3q6I/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Evasor de obstáculos <span>básico</span></h1>
+    <p class="lead">Se usa el sonar del robot tortuga con el servo fijo al centro (50 Hz, 1,5 ms). Un PIC18F25K50 a 4 MHz maneja los motores con PWM y mide el eco con el Timer1: se da un pulso de 10 µs al disparo, se mide el tiempo del eco y se divide entre 58 para tener centímetros. La distancia se muestra en una terminal virtual. El evasor básico retrocede, espera y gira a la derecha si hay algo a 10 cm o menos, y si no, avanza. No choca, pero no sabe a dónde va; en la parte 2 se le da más inteligencia.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=lh59JF_3q6I" target="_blank" rel="noopener">&#9654; Ver el video completo (13:03)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/765.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1"></figure>
+    <ul class="materiales"><li>PIC18F25K50</li><li>Robot tortuga (TURTLE) de Proteus con sonar</li><li>Generador de pulsos para el servo</li><li>Terminal virtual</li><li>MikroC PRO for PIC (PWM, UART, C_String y sprintf)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Preparar</a><a href="#f2">2 · Distancia</a><a href="#f3">3 · Evasor</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparación</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La idea</h3><a class="min" href="https://youtu.be/lh59JF_3q6I?t=1" target="_blank" rel="noopener">&#9654; 0:01</a></div><p>Los obstáculos son figuras rojas. Primero el robot solo los evita; en la parte 2 debe además cruzar de un lado al otro de la pista.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Sonar y servo</h3><a class="min" href="https://youtu.be/lh59JF_3q6I?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>Solo interesa el sensor ultrasónico. El servo se deja al centro con un generador de 50 Hz y pulso de 1,5 ms. El micro da el disparo y lee el eco, como en un SRF04.</p><div class="uno"><figure class="cap"><a href="img/88.webp" target="_blank"><img src="img/88.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/lh59JF_3q6I?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Proyecto en MikroC con un PIC18F25K50 a 4 MHz para que la simulación no sea tan lenta; en la realidad puede ir a 48 MHz.</p><div class="uno"><figure class="cap"><a href="img/155.webp" target="_blank"><img src="img/155.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Circuito</h3><a class="min" href="https://youtu.be/lh59JF_3q6I?t=170" target="_blank" rel="noopener">&#9654; 2:50</a></div><p>El micro tiene el disparo y el eco del sonar, los pines de los motores, un LED y la terminal virtual.</p><div class="uno"><figure class="cap"><a href="img/223.webp" target="_blank"><img src="img/223.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Funciones de los motores</h3><a class="min" href="https://youtu.be/lh59JF_3q6I?t=203" target="_blank" rel="noopener">&#9654; 3:23</a></div><p>Se copian los pines, las variables y las funciones para que el carro avance, retroceda, gire o se quede quieto, cada una con su velocidad.</p><div class="uno"><figure class="cap"><a href="img/291.webp" target="_blank"><img src="img/291.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.6</span><h3>Configuración</h3><a class="min" href="https://youtu.be/lh59JF_3q6I?t=314" target="_blank" rel="noopener">&#9654; 5:14</a></div><p>Se agregan las librerías PWM, UART y de texto. Todo digital, entradas y salidas, disparo en 0, UART a 9600 y los dos PWM.</p><div class="uno"><figure class="cap"><a href="img/359.webp" target="_blank"><img src="img/359.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.7</span><h3>Probar movimientos</h3><a class="min" href="https://youtu.be/lh59JF_3q6I?t=389" target="_blank" rel="noopener">&#9654; 6:29</a></div><p>Con adelante(200) o derecha(200) se comprueba que el robot se mueve como se espera.</p><div class="uno"><figure class="cap"><a href="img/426.webp" target="_blank"><img src="img/426.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Medir la distancia</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Leer el ultrasónico</h3><a class="min" href="https://youtu.be/lh59JF_3q6I?t=421" target="_blank" rel="noopener">&#9654; 7:01</a></div><p>Se da un pulso de 10 µs al disparo, se arranca el Timer1 y se mide el tiempo del eco. El tiempo en microsegundos dividido entre 58 da centímetros.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float lee_distancia(char *puerto, char pin) {  // lee en el pin especificado
+  float calculo;
+  // pulso de disparo de 10 us
+  disparo = 1;
+  Delay_us(10);
+  disparo = 0;
+  // limpia el contador
+  TMR1ON_bit = 0;  // timer quieto
+  TMR1L = 0;       // limpia parte baja
+  TMR1H = 0;       // limpia parte alta
+  TMR1IF_bit = 0;  // limpia la bandera de desbordamiento
+  TMR1ON_bit = 1;  // arranca el timer
+  // ... espera el eco en el pin indicado (ver video)
+  contador = (TMR1H &lt;&lt; 8) | TMR1L;  // arma el valor del timer
+  calculo = (float)contador * 1.0 / (Frec_real);  // 1.0 prescalador de 1
+  calculo = calculo / 58.0;
+  return (calculo);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/494.webp" target="_blank"><img src="img/494.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/562.webp" target="_blank"><img src="img/562.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Ver la distancia</h3><a class="min" href="https://youtu.be/lh59JF_3q6I?t=559" target="_blank" rel="noopener">&#9654; 9:19</a></div><p>La función sonar lee la distancia y la manda por serial cada medio segundo. Al acercar el robot a un obstáculo se ven valores como 4,2, 62 o 97 cm.</p><div class="uno"><figure class="cap"><a href="img/630.webp" target="_blank"><img src="img/630.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Evasor</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Algoritmo básico</h3><a class="min" href="https://youtu.be/lh59JF_3q6I?t=625" target="_blank" rel="noopener">&#9654; 10:25</a></div><p>Si la distancia es de 10 cm o menos, retrocede un poco y gira despacio a la derecha; si no, avanza. Los retardos se ajustan.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void basico() {
+  sonar();
+  if (distancia &lt;= 10) {
+    atras(100);
+    Delay_ms(50);
+    derecha(50);
+    Delay_ms(200);
+  }
+  else {
+    adelante(100);
+    Delay_ms(200);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/697.webp" target="_blank"><img src="img/697.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Prueba</h3><a class="min" href="https://youtu.be/lh59JF_3q6I?t=724" target="_blank" rel="noopener">&#9654; 12:04</a></div><p>El robot se mueve sin tocar los obstáculos ni salirse, pero puede devolverse: no sabe llegar al otro extremo. Eso se resuelve en la parte 2.</p><div class="uno"><figure class="cap"><a href="img/765.webp" target="_blank"><img src="img/765.webp" alt="Evasor de obstáculos básico en Proteus con PIC18F25K50 y MikroC, parte 1" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=lh59JF_3q6I" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
