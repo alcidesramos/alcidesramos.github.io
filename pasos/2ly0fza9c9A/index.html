@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Clase sobre el protocolo SPI con un PIC18F4550 en XC8, sin MCC: configuración del MSSP por registros, envío de datos, manejo del DAC MCP4922 de 12 bits, lectura del ADC y SPI por software.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/2ly0fza9c9A/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="Clase sobre el protocolo SPI con un PIC18F4550 en XC8, sin MCC: configuración del MSSP por registros, envío de datos, manejo del DAC MCP4922 de 12 bits, lectura del ADC y SPI por software.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/2ly0fza9c9A/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/2ly0fza9c9A/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1><span>SPI</span> y DAC MCP4922 en XC8</h1>
+    <p class="lead">Primero se explica el protocolo SPI: SDO, SDI, SCK y el habilitador CS, y la equivalencia con MOSI y MISO. Con un PIC18F4550 a 4 MHz se configura el MSSP directamente con los registros SSPSTAT y SSPCON1 (muestreo, flanco, polaridad del reloj y velocidad Fosc/16) y se envía un byte de prueba que se ve en el analizador de Proteus. Luego se maneja el DAC MCP4922: cada dato de 16 bits lleva el canal, la ganancia y el bit de apagado, y se envía en dos bytes con CS y LDAC. Se leen dos potenciómetros con el ADC (escalando de 10 a 12 bits) y se sacan por los dos canales del DAC. Al final se reemplaza el SPI del micro por uno hecho por software en RC0 y RC1.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=2ly0fza9c9A" target="_blank" rel="noopener">&#9654; Ver el video completo (54:27)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2800.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC18F4550</li><li>Cristal de 4 MHz</li><li>DAC MCP4922</li><li>2 potenciómetros</li><li>Voltímetros y analizador lógico de Proteus</li><li>MPLAB X con XC8</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Protocolo</a><a href="#f2">2 · Registros</a><a href="#f3">3 · DAC</a><a href="#f4">4 · ADC</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El protocolo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Cómo funciona SPI</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=31" target="_blank" rel="noopener">&#9654; 0:31</a></div><p>El maestro da el reloj (SCK). SDO del maestro va a SDI del esclavo y al revés; CS habilita al esclavo. MOSI va con MOSI y MISO con MISO.</p><div class="uno"><figure class="cap"><a href="img/131.webp" target="_blank"><img src="img/131.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pines del PIC18F4550</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=242" target="_blank" rel="noopener">&#9654; 4:02</a></div><p>SDI en RB0, SCK en RB1 y SDO en RC7. Como el micro es maestro, el CS lo pone cualquier pin.</p><div class="dos"><figure class="cap"><a href="img/242.webp" target="_blank"><img src="img/242.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/465.webp" target="_blank"><img src="img/465.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>MSSP por registros</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto sin MCC</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=359" target="_blank" rel="noopener">&#9654; 5:59</a></div><p>Se crea main_SPI3.c y los bits de configuración se generan con la ventana de MPLAB. RA0 y RA1 quedan como análogas.</p><div class="uno"><figure class="cap"><a href="img/576.webp" target="_blank"><img src="img/576.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>SSPSTAT y SSPCON1</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=661" target="_blank" rel="noopener">&#9654; 11:01</a></div><p>SMP elige dónde se muestrea el dato, CKE en qué flanco se transmite, CKP el estado de reposo del reloj y SSPM la velocidad.</p><div class="dos"><figure class="cap"><a href="img/687.webp" target="_blank"><img src="img/687.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/910.webp" target="_blank"><img src="img/910.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Configuración</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=960" target="_blank" rel="noopener">&#9654; 16:00</a></div><p>Se configuran los TRIS y el módulo. Se envía un byte de prueba y se espera a que BF indique que terminó.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>SSPSTAT = 0;
+SMP = 0;   // MUESTREA A LA MITAD DEL RELOJ
+CKE = 0;   // RECIBE CUANDO PASA DE REPOSO A ACTIVO EL RELOJ
+
+SSPCON1 = 0;
+SSPEN = 1; // HABILITA SPI
+CKP = 0;   // EL ESTADO DE REPOSO ES CERO
+SSPCON1bits.SSPM = 0B0010;  // VELOCIDAD DEL RELOJ ES CRISTAL /16
+
+cs1 = 0;
+SSPBUF = 0B10101010;
+while (BF == 0);   // mientras no transmitido
+dato_spi = SSPBUF;</code></pre></div><div class="dos"><figure class="cap"><a href="img/1132.webp" target="_blank"><img src="img/1132.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1243.webp" target="_blank"><img src="img/1243.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Función de envío</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=1461" target="_blank" rel="noopener">&#9654; 24:21</a></div><p>Se arma una función para escribir y leer un byte, y dos para poner a uno o a cero un bit de una variable.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define _XTAL_FREQ 4000000
+#define cs1  LATB3
+#define ldac LATB2
+
+void UNO(unsigned int *port, char bit1)
+{
+  *port |= (1 &lt;&lt; bit1);
+}
+
+void CERO(unsigned int *port, char bit1)
+{
+  *port &amp;= ~(1 &lt;&lt; bit1);
+}
+
+unsigned char spi_write(unsigned char spi_dat)
+{
+  SSPBUF = spi_dat;
+  while (BF == 0);
+  return (SSPBUF);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1354.webp" target="_blank"><img src="img/1354.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1466.webp" target="_blank"><img src="img/1466.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>DAC MCP4922</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=1655" target="_blank" rel="noopener">&#9654; 27:35</a></div><p>El MCP4922 recibe SCK, SDI, CS y LDAC. Sus dos salidas se miden con voltímetros.</p><div class="uno"><figure class="cap"><a href="img/1688.webp" target="_blank"><img src="img/1688.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>El dato de 16 bits</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=1867" target="_blank" rel="noopener">&#9654; 31:07</a></div><p>Los 4 bits altos son de configuración: el 15 elige el canal, el 13 la ganancia y el 12 debe ir en uno para no apagar la salida. Los 12 bajos son el dato.</p><div class="uno"><figure class="cap"><a href="img/1911.webp" target="_blank"><img src="img/1911.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>dac_write</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=2060" target="_blank" rel="noopener">&#9654; 34:20</a></div><p>Se ponen los bits de configuración, se separa el dato en dos bytes y se envían con CS en bajo. Luego un pulso en LDAC actualiza la salida.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void dac_write(unsigned int dat, char canal)
+{
+  unsigned char low_b, hig_b;
+
+  UNO(&amp;dat, 12);   // deja habilitado el shutdown
+  UNO(&amp;dat, 13);   // sin ganancia
+
+  if (canal == 2) UNO(&amp;dat, 15);   // saca por el canal b
+
+  low_b = dat &amp; 0x00FF;   // captura byte bajo
+  hig_b = dat &gt;&gt; 8;       // captura el byte alto
+
+  cs1 = 0;
+  spi_write(hig_b);
+  spi_write(low_b);
+  cs1 = 1;
+  ldac = 0;
+  __delay_us(100);
+  ldac = 1;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2133.webp" target="_blank"><img src="img/2133.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/2244.webp" target="_blank"><img src="img/2244.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>ADC y SPI por software</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Leer el ADC</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=2367" target="_blank" rel="noopener">&#9654; 39:27</a></div><p>El ADC se configura bit a bit, justificado a la derecha (ADFM en uno). La función de lectura elige el canal, espera la adquisición y arma el resultado.</p><p>Como el ADC es de 10 bits y el DAC de 12, el valor se multiplica por 4.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int ADC_GetConversion(char channel)
+{
+  // select the A/D channel
+  ADCON0bits.CHS = channel;
+  // Turn on the ADC module
+  ADCON0bits.ADON = 1;
+  // Acquisition time delay
+  __delay_us(5);
+  // Start the conversion
+  ADCON0bits.GO_nDONE = 1;
+  // Wait for the conversion to finish
+  while (ADCON0bits.GO_nDONE)
+  {
+  }
+  // Conversion finished, return the result
+  return ((unsigned int)((ADRESH &lt;&lt; 8) + ADRESL));
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2355.webp" target="_blank"><img src="img/2355.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/2467.webp" target="_blank"><img src="img/2467.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Dos potenciómetros</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=2760" target="_blank" rel="noopener">&#9654; 46:00</a></div><p>Cada potenciómetro controla uno de los canales del DAC.</p><div class="dos"><figure class="cap"><a href="img/2689.webp" target="_blank"><img src="img/2689.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/2800.webp" target="_blank"><img src="img/2800.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>SPI por software</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=2865" target="_blank" rel="noopener">&#9654; 47:45</a></div><p>El reloj va en RC0 y el dato en RC1. Por cada bit se mira el más alto, se rota el dato y se da un pulso de reloj. Así se liberan los pines del MSSP.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define spi_ck  LATC0
+#define spi_dat LATC1
+
+void spi_s_write(unsigned char dato_)
+{
+  unsigned char cont_s = 0;
+
+  for (cont_s = 0; cont_s &lt; 8; cont_s++)
+  {
+    if ((dato_ &amp; 0x80) != 0) spi_dat = 1;
+    else spi_dat = 0;
+    dato_ &lt;&lt;= 1;   //rota
+    //genera un pulso del reloj
+    spi_ck = 1;
+    __delay_us(10);
+    spi_ck = 0;
+    __delay_us(10);
+  }
+}
+
+// dac_write_s es igual a dac_write pero llama a spi_s_write</code></pre></div><div class="dos"><figure class="cap"><a href="img/2911.webp" target="_blank"><img src="img/2911.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/3023.webp" target="_blank"><img src="img/3023.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Prueba final</h3><a class="min" href="https://youtu.be/2ly0fza9c9A?t=3159" target="_blank" rel="noopener">&#9654; 52:39</a></div><p>El DAC funciona igual con el SPI por software.</p><div class="uno"><figure class="cap"><a href="img/3245.webp" target="_blank"><img src="img/3245.webp" alt="Principios del módulo SPI y manejo del DAC MCP4922 con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=2ly0fza9c9A" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

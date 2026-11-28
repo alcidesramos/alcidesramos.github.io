@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El generador de seno de 60 Hz hecho en MikroC se pasa a XC8 con un PIC16F1619: el CCP1 da el PWM, el Timer2 interrumpe 7200 veces por segundo y en cada interrupción carga el siguiente valor de una tabla de 120 muestras.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/-DfV0pcxzk8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="El generador de seno de 60 Hz hecho en MikroC se pasa a XC8 con un PIC16F1619: el CCP1 da el PWM, el Timer2 interrumpe 7200 veces por segundo y en cada interrupción carga el siguiente valor de una tabla de 120 muestras.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/-DfV0pcxzk8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/-DfV0pcxzk8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>Onda <span>seno</span> de 60 Hz por PWM</h1>
+    <p class="lead">La idea es sacar una seno de 60 Hz filtrando un PWM cuyo ciclo útil cambia según una tabla. Con 120 muestras por ciclo, la interrupción debe ocurrir 7200 veces por segundo. En el MCC se pone el oscilador externo de 20 MHz, el CCP1 en modo PWM sobre el Timer2 y la interrupción del Timer2; el cálculo de periodo y preescalador se revisa en Excel. La salida va a RC0. El vector con la onda viene de MATLAB y se declara en main.c; en tmr2.c se usa con extern. La rutina del Timer2 avanza el índice y carga el nuevo ciclo útil. El ciclo principal queda vacío. En Proteus la señal pasa por dos filtros RC, un LM358 y una etapa push-pull.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=-DfV0pcxzk8" target="_blank" rel="noopener">&#9654; Ver el video completo (13:01)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/721.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC16F1619</li><li>Cristal de 20 MHz</li><li>Filtros RC (2,7 kΩ y 100 nF)</li><li>LM358</li><li>Transistores 2N3904 y 2N3906</li><li>MPLAB X con XC8 y MCC</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · MCC</a><a href="#f2">2 · Código</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>MCC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>CCP1 en PWM</h3><a class="min" href="https://youtu.be/-DfV0pcxzk8?t=143" target="_blank" rel="noopener">&#9654; 2:23</a></div><p>Proyecto con el PIC16F1619 y oscilador HS de 20 MHz. El CCP1 se pone en modo PWM con el Timer2.</p><div class="uno"><figure class="cap"><a href="img/151.webp" target="_blank"><img src="img/151.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Timer2 e interrupción</h3><a class="min" href="https://youtu.be/-DfV0pcxzk8?t=175" target="_blank" rel="noopener">&#9654; 2:55</a></div><p>Se habilita la interrupción del Timer2 y se busca la frecuencia de 7200 Hz con el preescalador adecuado.</p><div class="uno"><figure class="cap"><a href="img/195.webp" target="_blank"><img src="img/195.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>El cálculo</h3><a class="min" href="https://youtu.be/-DfV0pcxzk8?t=209" target="_blank" rel="noopener">&#9654; 3:29</a></div><p>En Excel se comprueba el periodo, el valor de PR2 y la resolución del PWM para 7200 Hz.</p><div class="uno"><figure class="cap"><a href="img/239.webp" target="_blank"><img src="img/239.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Frecuencia y pin</h3><a class="min" href="https://youtu.be/-DfV0pcxzk8?t=276" target="_blank" rel="noopener">&#9654; 4:36</a></div><p>El CCP1 queda a 7200 Hz y la salida se asigna a RC0.</p><div class="dos"><figure class="cap"><a href="img/283.webp" target="_blank"><img src="img/283.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/327.webp" target="_blank"><img src="img/327.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables en main.c</h3><a class="min" href="https://youtu.be/-DfV0pcxzk8?t=377" target="_blank" rel="noopener">&#9654; 6:17</a></div><p>Se copian las variables de MikroC. El vector onda sale de MATLAB y tiene las 120 muestras del ciclo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// muestras: constante con las 120 muestras del ciclo
+unsigned int onda[] = {347, 366, 384, 402, 420, 438, 455, 473, 490, 506, /* ... */};
+unsigned int es, toca;</code></pre></div><div class="dos"><figure class="cap"><a href="img/371.webp" target="_blank"><img src="img/371.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Valor inicial</h3><a class="min" href="https://youtu.be/-DfV0pcxzk8?t=408" target="_blank" rel="noopener">&#9654; 6:48</a></div><p>Antes del ciclo se carga en el PWM el primer valor de la tabla. El while(1) queda vacío: todo se hace en la interrupción.</p><div class="dos"><figure class="cap"><a href="img/414.webp" target="_blank"><img src="img/414.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/458.webp" target="_blank"><img src="img/458.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Variables con extern</h3><a class="min" href="https://youtu.be/-DfV0pcxzk8?t=543" target="_blank" rel="noopener">&#9654; 9:03</a></div><p>La interrupción está en tmr2.c, otro archivo. Para usar las variables de main.c sin declararlas otra vez se usa extern.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// en tmr2.c
+extern const muestras;
+extern unsigned int onda[];
+extern unsigned int es, toca;</code></pre></div><div class="dos"><figure class="cap"><a href="img/634.webp" target="_blank"><img src="img/634.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/677.webp" target="_blank"><img src="img/677.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Rutina del Timer2</h3><a class="min" href="https://youtu.be/-DfV0pcxzk8?t=612" target="_blank" rel="noopener">&#9654; 10:12</a></div><p>En cada interrupción se avanza en la tabla y se carga el nuevo ciclo útil del PWM.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void TMR2_DefaultInterruptHandler(void)
+{
+  toca++;
+  if (toca &gt;= muestras - 1) toca = 0;
+  es = onda[toca];
+  // se carga es como ciclo útil del PWM
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/502.webp" target="_blank"><img src="img/502.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/546.webp" target="_blank"><img src="img/546.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Seno de 60 Hz</h3><a class="min" href="https://youtu.be/-DfV0pcxzk8?t=713" target="_blank" rel="noopener">&#9654; 11:53</a></div><p>Después de los filtros RC, el LM358 y el push-pull, el osciloscopio muestra la seno y el contador marca 60 Hz.</p><div class="dos"><figure class="cap"><a href="img/721.webp" target="_blank"><img src="img/721.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/765.webp" target="_blank"><img src="img/765.webp" alt="Generador de onda seno pura de 60 Hz por PWM con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=-DfV0pcxzk8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

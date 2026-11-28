@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teclado matricial 4x4 con varias teclas en MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El teclado matricial 4x4 hecho en MikroC se pasa a MPLAB XC8 con un PIC18F45K50: barrido de filas en el puerto D, tabla de teclas, LCD externo y una máquina de estados para escribir números de varias cifras.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/Ob45u70DIGE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Teclado matricial 4x4 con varias teclas en MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="El teclado matricial 4x4 hecho en MikroC se pasa a MPLAB XC8 con un PIC18F45K50: barrido de filas en el puerto D, tabla de teclas, LCD externo y una máquina de estados para escribir números de varias cifras.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/Ob45u70DIGE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Ob45u70DIGE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>Teclado <span>4x4</span> en XC8</h1>
+    <p class="lead">Se crea el proyecto en MPLAB X con un PIC18F45K50 y el MCC solo para el oscilador. El teclado va en el puerto D: la parte alta saca las filas y la parte baja lee las columnas. La función Keypad_Key_Press recorre las cuatro filas con un desplazamiento, cuenta en qué posición se detecta la tecla y devuelve el carácter desde una tabla. Con eso el LCD muestra la tecla pulsada. Después se pasa la versión que lee varias teclas: una máquina de estados guarda hasta cuatro dígitos y una pausa propia, miretardo, revisa el teclado cada milisegundo para no perder pulsaciones. Al final, con atoi, el texto se convierte en número.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Ob45u70DIGE" target="_blank" rel="noopener">&#9654; Ver el video completo (15:18)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/900.webp" alt="Teclado matricial 4x4 con varias teclas en MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC18F45K50</li><li>Teclado matricial 4x4</li><li>LCD 16x2</li><li>LEDs</li><li>MPLAB X con XC8 y MCC</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Una tecla</a><a href="#f3">3 · Varias teclas</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Oscilador en el MCC</h3><a class="min" href="https://youtu.be/Ob45u70DIGE?t=124" target="_blank" rel="noopener">&#9654; 2:04</a></div><p>Proyecto nuevo con el PIC18F45K50. En el MCC solo se configura el reloj del sistema.</p><div class="uno"><figure class="cap"><a href="img/124.webp" target="_blank"><img src="img/124.webp" alt="Teclado matricial 4x4 con varias teclas en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pines del LCD y LEDs</h3><a class="min" href="https://youtu.be/Ob45u70DIGE?t=279" target="_blank" rel="noopener">&#9654; 4:39</a></div><p>El LCD usa una librería externa (lcd.h). Antes de incluirla se definen sus pines en el puerto B y los LEDs de prueba.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define RS PORTBbits.RB7
+// ... EN, D4, D5, D6 en el puerto B
+#define D7 PORTBbits.RB2
+#include &quot;lcd.h&quot;
+
+#define led  LATC0
+#define led1 LATA0</code></pre></div><div class="uno"><figure class="cap"><a href="img/279.webp" target="_blank"><img src="img/279.webp" alt="Teclado matricial 4x4 con varias teclas en MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Leer una tecla</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Función del teclado</h3><a class="min" href="https://youtu.be/Ob45u70DIGE?t=331" target="_blank" rel="noopener">&#9654; 5:31</a></div><p>Se copia la función de MikroC y se adapta a XC8. La parte alta del puerto D son salidas (filas) y la parte baja entradas (columnas).</p><p>Por cada fila se pone un 1 y se revisan las cuatro columnas; tec cuenta la posición y al final se busca el carácter en la tabla.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Keypad_Init()
+{
+  TRISD = 0b00001111;   // inicia el puerto del teclado
+}
+
+unsigned char Keypad_Key_Press(void)
+{
+  const unsigned char keypad_deco[17] = { /* caracteres del teclado */ };
+  unsigned int tec = 0, fila;
+
+  for (fila = 0b00000001; fila &lt; 0b00010000; fila &lt;&lt;= 1)
+  {
+    LATD = fila &lt;&lt; 4;
+    if (PORTDbits.RD0 == 1) break; tec++;
+    if (PORTDbits.RD1 == 1) break; tec++;
+    if (PORTDbits.RD2 == 1) break; tec++;
+    if (PORTDbits.RD3 == 1) break; tec++;
+  }
+  PORTD = 0x00;
+  return keypad_deco[tec];
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/331.webp" target="_blank"><img src="img/331.webp" alt="Teclado matricial 4x4 con varias teclas en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/382.webp" target="_blank"><img src="img/382.webp" alt="Teclado matricial 4x4 con varias teclas en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Mostrar la tecla</h3><a class="min" href="https://youtu.be/Ob45u70DIGE?t=538" target="_blank" rel="noopener">&#9654; 8:58</a></div><p>En el ciclo principal, si hay tecla se escribe en la segunda línea del LCD.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>tecla = Keypad_Key_Press();
+if (tecla != 0)
+{
+  Lcd_Set_Cursor(2, 8);
+  Lcd_Write_Char(tecla);
+  __delay_ms(400);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/538.webp" target="_blank"><img src="img/538.webp" alt="Teclado matricial 4x4 con varias teclas en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/641.webp" target="_blank"><img src="img/641.webp" alt="Teclado matricial 4x4 con varias teclas en MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Varias teclas</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Máquina de estados</h3><a class="min" href="https://youtu.be/Ob45u70DIGE?t=693" target="_blank" rel="noopener">&#9654; 11:33</a></div><p>Para escribir números de varias cifras se usa una máquina de estados con un estado por dígito y uno de fin.</p><p>Se incluyen ctype.h y stdlib.h para isdigit y atoi.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &lt;ctype.h&gt;
+#include &lt;stdlib.h&gt;
+
+enum teclado_estado {n1, n2, n3, n4, en};</code></pre></div><div class="uno"><figure class="cap"><a href="img/693.webp" target="_blank"><img src="img/693.webp" alt="Teclado matricial 4x4 con varias teclas en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Pausa que lee el teclado</h3><a class="min" href="https://youtu.be/Ob45u70DIGE?t=745" target="_blank" rel="noopener">&#9654; 12:25</a></div><p>miretardo reemplaza a __delay_ms: espera de a 1 ms y en cada paso atiende el teclado, así no se pierden teclas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void miretardo(unsigned int valor)
+{
+  // repite valor veces:
+  //   __delay_ms(1);
+  //   teclado_estado();
+}
+// (el detalle se ve en el video)</code></pre></div><div class="dos"><figure class="cap"><a href="img/745.webp" target="_blank"><img src="img/745.webp" alt="Teclado matricial 4x4 con varias teclas en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/796.webp" target="_blank"><img src="img/796.webp" alt="Teclado matricial 4x4 con varias teclas en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/Ob45u70DIGE?t=848" target="_blank" rel="noopener">&#9654; 14:08</a></div><p>En Proteus el LCD muestra TECLADO y debajo el número que se va escribiendo.</p><div class="dos"><figure class="cap"><a href="img/848.webp" target="_blank"><img src="img/848.webp" alt="Teclado matricial 4x4 con varias teclas en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Teclado matricial 4x4 con varias teclas en MPLAB XC8" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Ob45u70DIGE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

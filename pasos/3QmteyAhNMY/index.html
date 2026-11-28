@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control de motores paso a paso con LabVIEW y MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El control de dos motores paso a paso desde LabVIEW, hecho en MikroC, se pasa a XC8 con un PIC16F1824: el Timer0 marca la velocidad, una unión reemplaza el acceso a bits de MikroC y la trama serial elige sentido, modo y pasos.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/3QmteyAhNMY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Control de motores paso a paso con LabVIEW y MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="El control de dos motores paso a paso desde LabVIEW, hecho en MikroC, se pasa a XC8 con un PIC16F1824: el Timer0 marca la velocidad, una unión reemplaza el acceso a bits de MikroC y la trama serial elige sentido, modo y pasos.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/3QmteyAhNMY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/3QmteyAhNMY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>Motores <span>paso a paso</span> con LabVIEW y XC8</h1>
+    <p class="lead">El PIC16F1824 maneja dos motores paso a paso de cuatro hilos: el motor 1 en RA0, RA1, RA2 y RA4 y el motor 2 en RC0 a RC3. Desde LabVIEW se envía por serial el sentido, la velocidad y si el motor gira continuo o un número de pasos. En el MCC se configuran los pines, el Timer0 con preescalador de 256 y la EUSART a 9600. El código de MikroC se copia casi igual; lo que cambia es el acceso a bits de la secuencia, que en XC8 se hace con una unión con campos de bits, y la interrupción, que se llama desde el archivo que genera el MCC. En el Timer0 cada motor suma un contador y da un paso cuando llega al valor de su velocidad.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=3QmteyAhNMY" target="_blank" rel="noopener">&#9654; Ver el video completo (22:11)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1310.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC16F1824</li><li>2 motores paso a paso con su driver</li><li>Comunicación serial (COMPIM en Proteus)</li><li>LabVIEW</li><li>MPLAB X con XC8 y MCC</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · MCC</a><a href="#f2">2 · Código</a><a href="#f3">3 · Interrupciones</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto y MCC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/3QmteyAhNMY?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>Dos motores paso a paso con sus drivers y la comunicación serial con el computador.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pines</h3><a class="min" href="https://youtu.be/3QmteyAhNMY?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>En el Pin Module quedan como salidas RA0, RA1, RA2, RA4 y RC0 a RC3, más RA5 para un LED que indica que el programa corre.</p><div class="uno"><figure class="cap"><a href="img/132.webp" target="_blank"><img src="img/132.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Timer0 y EUSART</h3><a class="min" href="https://youtu.be/3QmteyAhNMY?t=188" target="_blank" rel="noopener">&#9654; 3:08</a></div><p>El Timer0 con preescalador de 1:256 marca el tiempo de cada paso. La EUSART va a 9600 baudios con interrupción de recepción.</p><div class="uno"><figure class="cap"><a href="img/188.webp" target="_blank"><img src="img/188.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Pasar el código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pines y modos</h3><a class="min" href="https://youtu.be/3QmteyAhNMY?t=413" target="_blank" rel="noopener">&#9654; 6:53</a></div><p>Se definen los pines de cada motor y los valores de sentido y modo que llegan desde LabVIEW.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define m11 LATA0
+#define m12 LATA1
+#define m13 LATA2
+#define m14 LATA4
+
+#define m21 LATC0
+#define m22 LATC1
+#define m23 LATC2
+#define m24 LATC3
+
+#define derecha   1
+#define izquierda 2
+#define quieto    3</code></pre></div><div class="uno"><figure class="cap"><a href="img/413.webp" target="_blank"><img src="img/413.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/3QmteyAhNMY?t=469" target="_blank" rel="noopener">&#9654; 7:49</a></div><p>Se copian las variables de MikroC: velocidad de cada motor (0 a 255), pasos pedidos, pasos dados y la trama serial.</p><div class="dos"><figure class="cap"><a href="img/469.webp" target="_blank"><img src="img/469.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/525.webp" target="_blank"><img src="img/525.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Secuencia de pasos</h3><a class="min" href="https://youtu.be/3QmteyAhNMY?t=581" target="_blank" rel="noopener">&#9654; 9:41</a></div><p>La secuencia de paso completo se guarda en un arreglo de cuatro posiciones.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char codigo1[] = {0b1100, 0b0110, 0b0011, 0b1001};
+const char n_pasos = 4;</code></pre></div><div class="uno"><figure class="cap"><a href="img/581.webp" target="_blank"><img src="img/581.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Bits con una unión</h3><a class="min" href="https://youtu.be/3QmteyAhNMY?t=693" target="_blank" rel="noopener">&#9654; 11:33</a></div><p>MikroC permite leer un bit con .b0; XC8 no. Se crea una unión con campos de bits para sacar cada bit de la secuencia a su pin.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// typedef union char_ { ... } con un campo de bits por cada bit (ver video)
+
+void saca_secuencia1(void)
+{
+  pasos1++;
+  // m11 = bit 0 de codigo1[secuencia1], m12 = bit 1, ...
+}
+
+void izquierda1(void)
+{
+  secuencia1--;
+  if (secuencia1 &lt; 0) secuencia1 = n_pasos;
+  saca_secuencia1();
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/693.webp" target="_blank"><img src="img/693.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/749.webp" target="_blank"><img src="img/749.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Interrupciones</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Timer0</h3><a class="min" href="https://youtu.be/3QmteyAhNMY?t=973" target="_blank" rel="noopener">&#9654; 16:13</a></div><p>En cada desborde del Timer0 se suma el contador de cada motor. Cuando llega al valor de velocidad da un paso; en modo pasos se detiene al completar los pedidos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>velo1++;
+if (velo1 &gt;= 256 - velo_m1)
+{
+  velo1 = 0;
+  // da un paso según el sentido
+  // en modo pasos: si pasos1 &gt;= n_pasos1 el motor queda quieto
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/973.webp" target="_blank"><img src="img/973.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1030.webp" target="_blank"><img src="img/1030.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Desde el MCC</h3><a class="min" href="https://youtu.be/3QmteyAhNMY?t=1086" target="_blank" rel="noopener">&#9654; 18:06</a></div><p>La rutina propia mi_interrupcion() se declara extern y se llama desde INTERRUPT_InterruptManager en interrupt_manager.c.</p><div class="dos"><figure class="cap"><a href="img/1086.webp" target="_blank"><img src="img/1086.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1142.webp" target="_blank"><img src="img/1142.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Ciclo principal</h3><a class="min" href="https://youtu.be/3QmteyAhNMY?t=1254" target="_blank" rel="noopener">&#9654; 20:54</a></div><p>Cuando llega una trama completa se procesa, se limpia y se reactiva la recepción. El LED de RA5 parpadea cada 500 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>printf(&quot;INICIANDO&quot;);
+GIE = 1;
+
+while (1)
+{
+  if (flag_rx == 1)
+  {
+    procesarx();
+    puntero = 0;
+    memset(trama_rx, 0, 30);
+    flag_rx = 0;
+    RCIF = 0;
+    RCIE = 1;
+  }
+  LATA5 = ~LATA5;
+  __delay_ms(500);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1254.webp" target="_blank"><img src="img/1254.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Con LabVIEW</h3><a class="min" href="https://youtu.be/3QmteyAhNMY?t=1310" target="_blank" rel="noopener">&#9654; 21:50</a></div><p>El panel tiene un bloque por motor: sentido, velocidad, modo continuo o por pasos y número de pasos.</p><div class="uno"><figure class="cap"><a href="img/1310.webp" target="_blank"><img src="img/1310.webp" alt="Control de motores paso a paso con LabVIEW y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=3QmteyAhNMY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

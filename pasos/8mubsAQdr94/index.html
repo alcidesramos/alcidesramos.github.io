@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El datalogger hecho en MikroC se pasa a XC8 con un PIC18F25K50: lee la temperatura de un DS18B20 y la hora del DS1307 y lo guarda en una memoria SD con la librería FatFs.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/8mubsAQdr94/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="El datalogger hecho en MikroC se pasa a XC8 con un PIC18F25K50: lee la temperatura de un DS18B20 y la hora del DS1307 y lo guarda en una memoria SD con la librería FatFs.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/8mubsAQdr94/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/8mubsAQdr94/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>Datalogger con <span>SD</span> en XC8</h1>
+    <p class="lead">El circuito tiene un PIC18F25K50 a 20 MHz, un sensor DS18B20, un reloj DS1307, una memoria SD por SPI, un pulsador en RB7 y la salida serial. En el MCC se configura el oscilador, el MSSP1 como SPI maestro (al inicio a baja velocidad), la EUSART y los pines. Para la SD se usa la librería FatFs (ff.c y diskio.c) adaptada a XC8; para el DS1307 una librería con I2C por software en RC0 y RC1, y para el DS18B20 una librería OneWire en RA0. El programa monta la memoria, crea el archivo con las cabeceras y, mientras el pulsador esté sin oprimir, escribe cada dos segundos una línea con temperatura, hora y fecha. Al oprimirlo se cierra el archivo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=8mubsAQdr94" target="_blank" rel="noopener">&#9654; Ver el video completo (36:30)</a>
+      <a class="btn btn-sec" href="https://github.com/alcidesramos/archivos-youtube/raw/main/DATALOGGER_SD/sdcard_image.IMA" target="_blank" rel="noopener">Descargar archivos</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2170.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC18F25K50</li><li>Sensor DS18B20</li><li>Reloj DS1307</li><li>Memoria SD (imagen .mmc en Proteus)</li><li>Pulsador</li><li>MPLAB X con XC8 y MCC</li><li>Librería FatFs</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · MCC</a><a href="#f2">2 · SD</a><a href="#f3">3 · Sensores</a><a href="#f4">4 · Registro</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto y MCC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=108" target="_blank" rel="noopener">&#9654; 1:48</a></div><p>El sensor, el reloj y la memoria SD con su imagen de disco en Proteus. El pulsador sirve para cerrar el archivo.</p><div class="uno"><figure class="cap"><a href="img/113.webp" target="_blank"><img src="img/113.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Oscilador</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=176" target="_blank" rel="noopener">&#9654; 2:56</a></div><p>Proyecto con el PIC18F25K50. Las librerías se guardan en una carpeta aparte dentro del proyecto. En el MCC se pone el oscilador externo de 20 MHz.</p><div class="uno"><figure class="cap"><a href="img/207.webp" target="_blank"><img src="img/207.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>SPI para la SD</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=318" target="_blank" rel="noopener">&#9654; 5:18</a></div><p>El MSSP1 queda como SPI maestro con el reloj en Fosc/64 para iniciar la memoria; luego la librería sube la velocidad.</p><div class="uno"><figure class="cap"><a href="img/487.webp" target="_blank"><img src="img/487.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>El código de MikroC</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=394" target="_blank" rel="noopener">&#9654; 6:34</a></div><p>El programa original en MikroC sirve de guía: inicia el SPI, hace dos lecturas iniciales del DS18B20 y crea el archivo con cabeceras.</p><div class="uno"><figure class="cap"><a href="img/394.webp" target="_blank"><img src="img/394.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Memoria SD</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables de FatFs</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=1131" target="_blank" rel="noopener">&#9654; 18:51</a></div><p>Se incluyen las librerías y se crean el sistema de archivos, el archivo y la variable que cuenta lo escrito.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;Librerias/ds1307_SH.h&quot;
+
+//conexion del ds18b20
+#define OW_PORT PORTAbits.RA0
+#define OW_TRIS TRISA0
+#include &quot;Librerias/DS18B20.h&quot;
+
+FATFS sd_mem;        // nombre de la tarjeta
+FIL fila;            // variable para manejar un archivo, una por cada archivo
+unsigned int nada;   // variable para apuntar al escribir constantes
+
+float temperatura;
+char texto[50];
+unsigned int tempo;
+
+reloj ds1307;        // crea una estructura con el formato del reloj llamada ds1307</code></pre></div><div class="uno"><figure class="cap"><a href="img/1142.webp" target="_blank"><img src="img/1142.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Montar y crear el archivo</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=1230" target="_blank" rel="noopener">&#9654; 20:30</a></div><p>Se espera a que la memoria monte, se abre o crea el archivo y se escriben las cabeceras.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>printf(&quot;INICIANDO\r\n&quot;);
+//espera que este la memoria
+while (f_mount(&amp;sd_mem, &quot;0&quot;, 1) != FR_OK);
+printf(&quot;MEMORIA INICIADA\r\n&quot;);
+
+// abre o crea el archivo
+if (f_open(&amp;fila, &quot;0:datos4.txt&quot;, FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK)
+{
+  printf(&quot;ARCHIVO CREADO\r\n&quot;);
+  f_write(&amp;fila, &quot;TEMPE\t&quot;, 6, &amp;nada);     // Escribe Temperatura
+  f_write(&amp;fila, &quot;HORA\t\t&quot;, 6, &amp;nada);    // Escribe Hora
+  f_write(&amp;fila, &quot;FECHA\r\n&quot;, 7, &amp;nada);   // Escribe Fecha
+  f_close(&amp;fila);                           // cierra el archivo
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1235.webp" target="_blank"><img src="img/1235.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Pines</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=1329" target="_blank" rel="noopener">&#9654; 22:09</a></div><p>En el Pin Module quedan el SPI en RB0, RB1 y RB3, el CS de la SD en RB4 y el pulsador en RB7.</p><div class="uno"><figure class="cap"><a href="img/1329.webp" target="_blank"><img src="img/1329.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Primera prueba</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=1445" target="_blank" rel="noopener">&#9654; 24:05</a></div><p>En Proteus se abre la imagen de la memoria y el archivo ya tiene las cabeceras.</p><div class="uno"><figure class="cap"><a href="img/1609.webp" target="_blank"><img src="img/1609.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Reloj y sensor</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>DS1307 por I2C por software</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=1654" target="_blank" rel="noopener">&#9654; 27:34</a></div><p>El reloj usa I2C por software en RC0 (SCL) y RC1 (SDA). La librería se hizo porque XC8 no la trae.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//Software I2C connections
+#define Soft_I2C_Scl            PORTCbits.RC0
+#define Soft_I2C_Sda            PORTCbits.RC1
+#define Soft_I2C_Scl_Direction  TRISC0
+#define Soft_I2C_Sda_Direction  TRISC1
+// End Software I2C connections
+
+#include &quot;Librerias/ds1307_SH.h&quot;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1703.webp" target="_blank"><img src="img/1703.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Lectura del DS18B20</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=1753" target="_blank" rel="noopener">&#9654; 29:13</a></div><p>La función de lectura reinicia el bus, salta la dirección (0xCC) e inicia la conversión (0x44). Antes del ciclo se hacen lecturas iniciales para evitar el 85 del primer dato.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float ds18b20_read()
+{
+  unsigned int temp_;
+  float tempo__;
+  unsigned char t1_, t2_, td__;
+  float signo = 1.0;
+  float sensor_temp_;
+
+  Ow_Reset();          // Onewire reset signal
+  __delay_ms(18);
+  Ow_Write(0xCC);      // direcciona todos sensores
+  __delay_ms(1);
+  Ow_Write(0x44);      // inicia conversion
+  __delay_ms(150);
+  // ... lectura del scratchpad (ver video)
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1796.webp" target="_blank"><img src="img/1796.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Registro</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Escribir hora y fecha</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=1853" target="_blank" rel="noopener">&#9654; 30:53</a></div><p>Con sprintf se arma la hora y la fecha. Si el pulsador no está oprimido se escriben en el archivo y también se envían por serial.</p><p>Al oprimir el pulsador se cierra el archivo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//arma la trama de hora dando tab
+memset(texto, 0, 50);   //limpia la trama
+sprintf(texto, &quot;%02u:%02u:%02u\t&quot;, (unsigned int)ds1307._hora, (unsigned int)ds1307._minuto, (unsigned int)ds1307._segundo);
+printf(texto);
+if (PORTBbits.RB7 == 1) f_write(&amp;fila, &amp;texto, strlen(texto), &amp;nada);
+
+//arma trama de mes año y dia poniendo enter
+memset(texto, 0, 50);
+sprintf(texto, &quot;%02u/%02u/20%02u\r\n&quot;, (unsigned int)ds1307._fecha, (unsigned int)ds1307._mes, (unsigned int)ds1307._anho);
+if (PORTBbits.RB7 == 1) f_write(&amp;fila, &amp;texto, strlen(texto), &amp;nada);
+
+//lo manda serial
+printf(texto);
+
+if (PORTBbits.RB7 == 0)
+{
+  f_close(&amp;fila);   //cierra el archivo
+  printf(&quot;CERRADA\r\n&quot;);
+}
+__delay_ms(2000);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1890.webp" target="_blank"><img src="img/1890.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1983.webp" target="_blank"><img src="img/1983.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>string.h</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=2053" target="_blank" rel="noopener">&#9654; 34:13</a></div><p>Para strlen y memset se incluye string.h.</p><div class="uno"><figure class="cap"><a href="img/2077.webp" target="_blank"><img src="img/2077.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/8mubsAQdr94?t=2155" target="_blank" rel="noopener">&#9654; 35:55</a></div><p>El archivo datos4.txt queda con una línea por registro: temperatura, hora y fecha.</p><div class="uno"><figure class="cap"><a href="img/2170.webp" target="_blank"><img src="img/2170.webp" alt="Datalogger de temperatura con DS1307 y DS18B20 en MPLAB XC8" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=8mubsAQdr94" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
