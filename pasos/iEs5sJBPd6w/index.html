@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Microcontroladores Texas Instruments, clase 3: transmisión serial (hola mundo) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se habilita el SCI en HALCoGen a 9600 baudios, se prueba sciSendByte y se crean funciones propias para enviar textos constantes y variables por el puerto serial que la LaunchPad expone por USB.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/iEs5sJBPd6w/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Microcontroladores Texas Instruments, clase 3: transmisión serial (hola mundo) · Paso a paso">
+  <meta property="og:description" content="Se habilita el SCI en HALCoGen a 9600 baudios, se prueba sciSendByte y se crean funciones propias para enviar textos constantes y variables por el puerto serial que la LaunchPad expone por USB.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/iEs5sJBPd6w/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/iEs5sJBPd6w/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#texas">&larr; Volver al curso</a>
+    <span class="etiqueta">// Microcontroladores Texas Instruments · Paso a paso</span>
+    <h1>Texas Instruments: <span>puerto serial</span></h1>
+    <p class="lead">La tarjeta crea un puerto COM virtual por USB. En HALCoGen se habilitan los drivers GIO y SCI, se configura el SCI a 9600 baudios, 8 bits y un bit de parada. En Code Composer Studio se incluyen HL_gio.h y HL_sci.h, se inicializa con sciInit() y se envía un byte con sciSendByte. Como el driver solo trae funciones para bytes o bloques con largo, se hacen dos funciones propias que recorren la cadena con un puntero hasta el carácter nulo: una para constantes y otra para variables.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=iEs5sJBPd6w" target="_blank" rel="noopener">&#9654; Ver el video completo (14:10)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/697.webp" alt="Microcontroladores Texas Instruments, clase 3: transmisión serial (hola mundo)"></figure>
+    <ul class="materiales"><li>Tarjeta LaunchPad TMS570LC43x</li><li>HALCoGen y Code Composer Studio</li><li>Un terminal serial en el PC</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · SCI</a><a href="#f2">2 · Código</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>HALCoGen</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Habilitar GIO y SCI</h3><a class="min" href="https://youtu.be/iEs5sJBPd6w?t=37" target="_blank" rel="noopener">&#9654; 0:37</a></div><p>Proyecto nuevo (en el video «serial», en la carpeta hola_mundo). En Driver Enable se dejan GIO y SCI. El puerto B se configura igual que en la clase 1.</p><div class="uno"><figure class="cap"><a href="img/59.webp" target="_blank"><img src="img/59.webp" alt="Microcontroladores Texas Instruments, clase 3: transmisión serial (hola mundo)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Configurar el SCI</h3><a class="min" href="https://youtu.be/iEs5sJBPd6w?t=108" target="_blank" rel="noopener">&#9654; 1:48</a></div><p>En la pestaña del SCI se pone 9600 baudios, 8 bits de datos y un bit de parada. En el administrador de dispositivos se ve qué puerto COM creó la tarjeta. Se genera el código.</p><div class="uno"><figure class="cap"><a href="img/157.webp" target="_blank"><img src="img/157.webp" alt="Microcontroladores Texas Instruments, clase 3: transmisión serial (hola mundo)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto y librerías</h3><a class="min" href="https://youtu.be/iEs5sJBPd6w?t=177" target="_blank" rel="noopener">&#9654; 2:57</a></div><p>Se crea el proyecto en Code Composer Studio en la misma carpeta, se borra su main.c y se agrega la carpeta include en las opciones del compilador. En USER CODE se incluyen HL_gio.h y HL_sci.h y se pegan las funciones de retardo de la clase 1.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Enviar un byte</h3><a class="min" href="https://youtu.be/iEs5sJBPd6w?t=391" target="_blank" rel="noopener">&#9654; 6:31</a></div><p>Después de gioInit() se llama sciInit(). El driver trae sciSendByte(sciREG1, dato) para enviar un byte y otra función para enviar un bloque indicando el largo. Con sciSendByte(sciREG1, 'Q') se ve llegar la letra en el terminal.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Funciones para textos</h3><a class="min" href="https://youtu.be/iEs5sJBPd6w?t=541" target="_blank" rel="noopener">&#9654; 9:01</a></div><p>Para no tener que contar caracteres se hacen dos funciones: mientras el puntero no apunte al carácter nulo, envía el carácter y avanza. Una recibe constantes (const char *) y la otra variables (char *).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// transmisión serial de constantes
+void sci_send_text_const(const char *info)
+{
+  while (*info) sciSendByte(sciREG1, *info++);
+}
+
+// transmisión serial de variables
+void sci_send_text(char *info)
+{
+  while (*info) sciSendByte(sciREG1, *info++);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/746.webp" target="_blank"><img src="img/746.webp" alt="Microcontroladores Texas Instruments, clase 3: transmisión serial (hola mundo)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Hola mundo</h3><a class="min" href="https://youtu.be/iEs5sJBPd6w?t=639" target="_blank" rel="noopener">&#9654; 10:39</a></div><p>Antes del ciclo se envía «INICIANDO» y dentro del ciclo «HOLA MUNDO» con su retorno de carro y salto de línea, junto con el código de las clases anteriores.</p><p>Luego se mejoran las funciones para recibir también el puerto SCI por el que se envía, y así usarlas con cualquiera de los SCI del micro.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// versión con el puerto como parámetro
+void sci_send_text_const(sciBASE_t *sci, const char *info)
+{
+  while (*info) sciSendByte(sci, *info++);
+}
+
+int main(void)
+{
+  gioInit();
+  sciInit();
+  bool sw;
+
+  sci_send_text_const(sciREG1, &quot;INICIANDO\r\n&quot;);
+
+  while (1)
+  {
+    sci_send_text_const(sciREG1, &quot;HOLA MUNDO\r\n&quot;);
+    sw = gioGetBit(gioPORTB, 4);
+    if (sw == 1) gioSetBit(gioPORTB, 6, 1);
+    else         gioSetBit(gioPORTB, 6, 0);
+
+    gioToggleBit(gioPORTB, 7);
+    delay_ms(200);
+  }
+}</code></pre></div><p class="ojo">En el video el parámetro del puerto se declara uint32 y el compilador avisa que sciREG1 es de tipo sciBASE_t *. Por eso aquí se declara como sciBASE_t *sci, que evita la advertencia.</p><div class="uno"><figure class="cap"><a href="img/697.webp" target="_blank"><img src="img/697.webp" alt="Microcontroladores Texas Instruments, clase 3: transmisión serial (hola mundo)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=iEs5sJBPd6w" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

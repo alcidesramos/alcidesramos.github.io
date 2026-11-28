@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Microcontroladores Texas Instruments, clase 4: interrupción por flanco · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se configura en HALCoGen la interrupción por flanco de bajada del pulsador del pin 4 del puerto B, se habilita en el VIM y en Code Composer Studio se escribe la notificación que cambia un LED al instante, mientras el programa principal sigue con un proceso lento.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/5LsglFPrOII/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Microcontroladores Texas Instruments, clase 4: interrupción por flanco · Paso a paso">
+  <meta property="og:description" content="Se configura en HALCoGen la interrupción por flanco de bajada del pulsador del pin 4 del puerto B, se habilita en el VIM y en Code Composer Studio se escribe la notificación que cambia un LED al instante, mientras el programa principal sigue con un proceso lento.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/5LsglFPrOII/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/5LsglFPrOII/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#texas">&larr; Volver al curso</a>
+    <span class="etiqueta">// Microcontroladores Texas Instruments · Paso a paso</span>
+    <h1>Texas Instruments: <span>interrupción por flanco</span></h1>
+    <p class="lead">El programa principal envía «HOLA MUNDO» y cambia un LED cada 2 segundos. Con la interrupción, al presionar el pulsador el otro LED cambia de estado de inmediato, sin esperar al ciclo principal. En HALCoGen se habilitan GIO y SCI, se configura el pin 4 del puerto B con interrupción por flanco de bajada y baja prioridad, y se habilita el canal GIO de baja prioridad en el VIM. En el código se habilitan las interrupciones, la notificación del pin y se escribe gioNotification.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=5LsglFPrOII" target="_blank" rel="noopener">&#9654; Ver el video completo (11:25)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/536.webp" alt="Microcontroladores Texas Instruments, clase 4: interrupción por flanco"></figure>
+    <ul class="materiales"><li>Tarjeta LaunchPad TMS570LC43x</li><li>HALCoGen y Code Composer Studio</li><li>Funciones de retardo y de envío serial de las clases anteriores</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Configurar</a><a href="#f2">2 · Código</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>HALCoGen</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Interrupción del pin</h3><a class="min" href="https://youtu.be/5LsglFPrOII?t=36" target="_blank" rel="noopener">&#9654; 0:36</a></div><p>Proyecto nuevo (en el video «flanco») con GIO y SCI. En el puerto B, los pines 6 y 7 son salidas; en el pin 4 se habilita la interrupción por flanco de bajada (falling edge), con baja prioridad, porque el pulsador da 0 al presionarlo.</p><div class="uno"><figure class="cap"><a href="img/105.webp" target="_blank"><img src="img/105.webp" alt="Microcontroladores Texas Instruments, clase 4: interrupción por flanco" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Habilitar el canal en el VIM</h3><a class="min" href="https://youtu.be/5LsglFPrOII?t=101" target="_blank" rel="noopener">&#9654; 1:41</a></div><p>En la pestaña de interrupciones del micro (VIM) se habilita el canal de GIO de baja prioridad. El SCI se deja a 9600 baudios, 8 bits y un bit de parada, y se genera el código.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto y librerías</h3><a class="min" href="https://youtu.be/5LsglFPrOII?t=173" target="_blank" rel="noopener">&#9654; 2:53</a></div><p>Igual que antes: proyecto en Code Composer Studio en la misma carpeta, borrar su main.c y agregar la carpeta include. Se incluyen HL_gio.h, HL_sci.h y HL_sys_core.h, que declara _enable_interrupt_(); sin ese include el compilador lanza una advertencia.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Habilitar la interrupción</h3><a class="min" href="https://youtu.be/5LsglFPrOII?t=349" target="_blank" rel="noopener">&#9654; 5:49</a></div><p>Después de inicializar se habilitan las interrupciones globales y la notificación del pin 4 del puerto B. El ciclo principal es un proceso lento: envía «HOLA MUNDO» y cambia el LED del pin 7 cada 2 segundos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>int main(void)
+{
+  gioInit();
+  sciInit();
+  sci_send_text_const(sciREG1, &quot;INICIANDO\r\n&quot;);
+
+  _enable_interrupt_();
+  gioEnableNotification(gioPORTB, 4);
+
+  while (1)
+  {
+    sci_send_text_const(sciREG1, &quot;HOLA MUNDO\r\n&quot;);
+    gioToggleBit(gioPORTB, 7);
+    delay_ms(2000);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/536.webp" target="_blank"><img src="img/536.webp" alt="Microcontroladores Texas Instruments, clase 4: interrupción por flanco" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>La notificación</h3><a class="min" href="https://youtu.be/5LsglFPrOII?t=550" target="_blank" rel="noopener">&#9654; 9:10</a></div><p>HALCoGen crea la función gioNotification, que se llama cuando ocurre la interrupción. Se escribe en el archivo principal: cada flanco de bajada del pulsador cambia el LED del pin 6.</p><p>Al probar, el LED lento sigue su ritmo de 2 segundos y el otro cambia apenas se presiona el pulsador.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void gioNotification(gioPORT_t *port, uint32 bit)
+{
+  gioToggleBit(gioPORTB, 6);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/584.webp" target="_blank"><img src="img/584.webp" alt="Microcontroladores Texas Instruments, clase 4: interrupción por flanco" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=5LsglFPrOII" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Microcontroladores Texas Instruments, clase 5: interrupción por timer (RTI) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con el reloj de tiempo real (RTI) y su comparador 0 se genera una interrupción cada 150 ms que hace titilar un LED rápido, mientras el programa principal cambia otro LED cada 2 segundos.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/sOR5bphqe3o/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Microcontroladores Texas Instruments, clase 5: interrupción por timer (RTI) · Paso a paso">
+  <meta property="og:description" content="Con el reloj de tiempo real (RTI) y su comparador 0 se genera una interrupción cada 150 ms que hace titilar un LED rápido, mientras el programa principal cambia otro LED cada 2 segundos.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/sOR5bphqe3o/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/sOR5bphqe3o/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#texas">&larr; Volver al curso</a>
+    <span class="etiqueta">// Microcontroladores Texas Instruments · Paso a paso</span>
+    <h1>Texas Instruments: <span>interrupción por timer</span></h1>
+    <p class="lead">Se tienen dos procesos: uno lento en el ciclo principal (un LED cada 2 segundos) y uno rápido por interrupción. En HALCoGen se habilitan los drivers GIO y RTI, se habilita en el VIM la interrupción del comparador 0 del RTI y se ajusta su periodo a 150 ms. En Code Composer Studio se inicializa el RTI, se habilita su notificación y las interrupciones IRQ, se arranca el contador y se escribe rtiNotification.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=sOR5bphqe3o" target="_blank" rel="noopener">&#9654; Ver el video completo (7:36)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/130.webp" alt="Microcontroladores Texas Instruments, clase 5: interrupción por timer (RTI)"></figure>
+    <ul class="materiales"><li>Tarjeta LaunchPad TMS570LC43x</li><li>HALCoGen y Code Composer Studio</li><li>Funciones de retardo de la clase 1</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · RTI</a><a href="#f2">2 · Código</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>HALCoGen</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Driver RTI e interrupción</h3><a class="min" href="https://youtu.be/sOR5bphqe3o?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Proyecto nuevo (en el video «timer»). En Driver Enable se habilitan GIO y RTI (real time interrupt). En la pestaña del VIM se habilita la interrupción «RTI compare 0». Los pines 6 y 7 del puerto B quedan como salidas.</p><div class="uno"><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Microcontroladores Texas Instruments, clase 5: interrupción por timer (RTI)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Periodo del comparador</h3><a class="min" href="https://youtu.be/sOR5bphqe3o?t=129" target="_blank" rel="noopener">&#9654; 2:09</a></div><p>En la configuración del RTI, en el comparador 0, se cambia el periodo (por defecto 1 ms) a 150 ms. Cada vez que el contador llega a ese valor se genera la interrupción. Se genera el código.</p><div class="uno"><figure class="cap"><a href="img/130.webp" target="_blank"><img src="img/130.webp" alt="Microcontroladores Texas Instruments, clase 5: interrupción por timer (RTI)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto y librerías</h3><a class="min" href="https://youtu.be/sOR5bphqe3o?t=164" target="_blank" rel="noopener">&#9654; 2:44</a></div><p>Proyecto en Code Composer Studio en la misma carpeta, se borra su main.c y se agrega la carpeta include. Se incluyen HL_gio.h, HL_rti.h y HL_sys_core.h, y se pegan las funciones de retardo.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Arrancar el RTI</h3><a class="min" href="https://youtu.be/sOR5bphqe3o?t=292" target="_blank" rel="noopener">&#9654; 4:52</a></div><p>Se inicializan GIO y RTI, se habilita la notificación del comparador 0, se habilitan las interrupciones IRQ y se arranca el bloque de contador 0. El ciclo principal cambia el LED del pin 6 cada 2 segundos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>int main(void)
+{
+  gioInit();
+  rtiInit();
+  rtiEnableNotification(rtiREG1, rtiNOTIFICATION_COMPARE0); // habilita la interrupción del compare 0
+  _enable_IRQ_interrupt_();                                  // habilita IRQ
+  rtiStartCounter(rtiREG1, rtiCOUNTER_BLOCK0);               // arranca el contador 0
+
+  while (1)
+  {
+    gioToggleBit(gioPORTB, 6);
+    delay_ms(2000);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Microcontroladores Texas Instruments, clase 5: interrupción por timer (RTI)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>La notificación del timer</h3><a class="min" href="https://youtu.be/sOR5bphqe3o?t=358" target="_blank" rel="noopener">&#9654; 5:58</a></div><p>La función rtiNotification está declarada en HL_rti.h y la escribe el usuario. Ahí se cambia el otro LED, que queda titilando cada 150 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void rtiNotification(rtiBASE_t *rtiREG, uint32 notification)
+{
+  gioToggleBit(gioPORTB, 7);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/370.webp" target="_blank"><img src="img/370.webp" alt="Microcontroladores Texas Instruments, clase 5: interrupción por timer (RTI)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Prueba</h3><a class="min" href="https://youtu.be/sOR5bphqe3o?t=391" target="_blank" rel="noopener">&#9654; 6:31</a></div><p>En la tarjeta un LED titila rápido (150 ms) por interrupción y el otro lento (2 s) en el programa principal: dos procesos que parecen ocurrir al tiempo.</p><div class="uno"><figure class="cap"><a href="img/451.webp" target="_blank"><img src="img/451.webp" alt="Microcontroladores Texas Instruments, clase 5: interrupción por timer (RTI)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=sOR5bphqe3o" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
