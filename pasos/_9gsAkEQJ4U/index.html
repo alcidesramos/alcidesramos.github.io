@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manejo de una pantalla Nextion con PIC (MikroC) o Arduino · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se programa un PIC16F877A en MikroC, y luego un Arduino, para manejar la interfaz Nextion del video anterior: el micro envía temperatura y velocidad al termómetro y al velocímetro, y la pantalla le ordena encender un LED y cambiar el PWM de un motor.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/_9gsAkEQJ4U/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino · Paso a paso">
+  <meta property="og:description" content="Se programa un PIC16F877A en MikroC, y luego un Arduino, para manejar la interfaz Nextion del video anterior: el micro envía temperatura y velocidad al termómetro y al velocímetro, y la pantalla le ordena encender un LED y cambiar el PWM de un motor.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/_9gsAkEQJ4U/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/_9gsAkEQJ4U/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#nextion">&larr; Volver al curso</a>
+    <span class="etiqueta">// Pantallas HMI Nextion · Paso a paso</span>
+    <h1>Pantalla <span>Nextion</span> con PIC o Arduino</h1>
+    <p class="lead">La pantalla Nextion se comunica por el puerto serial y casi todo lo que envía o recibe termina con tres bytes 0xFF. Por eso el programa del micro guarda lo que llega en una trama hasta detectar FF FF FF, la decodifica con strstr y, en sentido contrario, envía órdenes de texto como pa1.te2.val=25 seguidas de FF FF FF. Como la aguja y la barra no usan la misma escala que el valor medido, se linealizan en Excel antes de enviarlas.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=_9gsAkEQJ4U" target="_blank" rel="noopener">&#9654; Ver el video completo (43:09)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2069.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino"></figure>
+    <ul class="materiales"><li>Nextion Editor con la interfaz de la parte 1</li><li>MikroC PRO for PIC y PIC16F877A (4 MHz)</li><li>Arduino IDE y Arduino UNO (versión alternativa)</li><li>Proteus con un puerto serial virtual (o una pantalla Nextion real)</li><li>Excel para linealizar</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Nextion</a><a href="#f2">2 · Linealizar</a><a href="#f3">3 · PIC</a><a href="#f4">4 · Arduino</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar la interfaz</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Repaso de la interfaz</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La página 0 tiene un velocímetro (aguja y valor digital), un pulsador que enciende o apaga un LED del micro y un botón para pasar de página. La página 1 tiene un termómetro análogo y digital, un LED que muestra el estado de un pulsador del micro y un slider que fija la velocidad del motor.</p><div class="dos"><figure class="cap"><a href="img/10.webp" target="_blank"><img src="img/10.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure><figure class="cap"><a href="img/83.webp" target="_blank"><img src="img/83.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Objetos globales</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=136" target="_blank" rel="noopener">&#9654; 2:16</a></div><p>Todo objeto que el micro va a cambiar debe quedar como global (vscope = global). Así el micro puede escribir «en la página 1, el objeto te2» sin importar qué página se esté mostrando.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Evento del pulsador</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=269" target="_blank" rel="noopener">&#9654; 4:29</a></div><p>En Touch Release del pulsador de dos estados se envía un texto distinto según su estado, seguido de los tres 0xFF que marcan el final de trama.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if(...)   // según el estado del pulsador
+{
+  print &quot;led1=on&quot;
+  printh ff ff ff
+}else
+{
+  print &quot;led1=off&quot;
+  printh ff ff ff
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/304.webp" target="_blank"><img src="img/304.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Evento del slider</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=341" target="_blank" rel="noopener">&#9654; 5:41</a></div><p>En Touch Move del slider se copia su valor al otro slider (para verlo enseguida) y se envía «pw1=» seguido del valor con get. Get manda 0x71, el valor en 4 bytes y FF FF FF: por eso en el micro el dato útil queda en la posición 5 de la trama. Como el PWM es de 8 bits, el slider va de 0 a 255.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sl2.val=sl1.val
+print &quot;pw1=&quot;
+get sl1.val</code></pre></div><div class="uno"><figure class="cap"><a href="img/377.webp" target="_blank"><img src="img/377.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Probar en el simulador</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=408" target="_blank" rel="noopener">&#9654; 6:48</a></div><p>Con Debug se ve abajo lo que enviaría la pantalla: al tocar el pulsador aparece led1=on con FF FF FF, y al mover el slider aparece pw1= con el valor. En la página 0 se configura bauds=9600 en Preinitialize.</p><div class="uno"><figure class="cap"><a href="img/451.webp" target="_blank"><img src="img/451.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Circuito y linealización</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Circuito en Proteus</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=542" target="_blank" rel="noopener">&#9654; 9:02</a></div><p>El PIC16F877A tiene el LED en RB0, el pulsador en RB1, un sensor de temperatura en AN0, un potenciómetro de velocidad en AN1 y el motor en la salida PWM (RC2). TX y RX van a un puerto serial virtual que se conecta con el simulador de Nextion (o a la pantalla real). Otro terminal virtual sirve solo para monitorear.</p><div class="uno"><figure class="cap"><a href="img/598.webp" target="_blank"><img src="img/598.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Linealizar la aguja y la barra</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=818" target="_blank" rel="noopener">&#9654; 13:38</a></div><p>El valor 0 de la aguja no coincide con el 0 del dibujo, así que se arma una tabla en Excel con el valor medido y el valor que debe recibir la pantalla para marcarlo bien. Se hace un gráfico de dispersión, se agrega la línea de tendencia y se muestran la ecuación y R² (0,99: casi una recta).</p><p>Termómetro: y = 0,8654x + 10,032. Velocímetro: como la aguja pasa por 360/0, se hacen dos tramos: por encima de 20, y = 3,152x − 65,949; hasta 20, y = 2,92x + 298,6.</p><div class="uno"><figure class="cap"><a href="img/966.webp" target="_blank"><img src="img/966.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa del PIC en MikroC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Interrupción serial</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=1288" target="_blank" rel="noopener">&#9654; 21:28</a></div><p>Cada dato que llega se guarda en la trama. Cuando ya hay más de tres datos y los tres últimos son 0xFF, la trama está completa: se activa la bandera y se pausan la recepción y las interrupciones para procesarla. Si llegan 30 datos sin el final de trama, se reinicia para que el micro no se trabe.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void interrupt() {
+  if (RCIF_bit == 1) {
+    dato = RCREG;
+    trama[cuenta] = dato;
+    if ((cuenta &gt; 3) &amp;&amp; ((unsigned char)trama[cuenta] == 0xff)
+        &amp;&amp; ((unsigned char)trama[cuenta-1] == 0xff)
+        &amp;&amp; ((unsigned char)trama[cuenta-2] == 0xff)) {
+      flag_rx = 1;      // llegó una trama completa
+      CREN_bit = 0;     // pausa la recepción
+      GIE_bit = 0;      // y las interrupciones
+    }
+    cuenta++;
+    if (cuenta &gt;= 30) { flag_rx = 0; cuenta = 0; }   // seguridad: sin FF FF FF en 30 datos
+    RCIF_bit = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1333.webp" target="_blank"><img src="img/1333.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Procesar la orden</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=1424" target="_blank" rel="noopener">&#9654; 23:44</a></div><p>procesa_rx busca en la trama el texto de cada orden con strstr: enciende o apaga el LED, o toma trama[5] como ciclo útil del PWM. Después limpia la trama y vuelve a habilitar la recepción. manda_serial_const envía cadenas constantes, como los tres 0xFF.</p><p>Para enviar números con decimales se usa una función floattostr_ que convierte un float a texto con la cantidad de decimales que se pida.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void procesa_rx() {
+  if (flag_rx == 1) {
+    if (strstr(trama, &quot;led1=on&quot;)) led = 1;
+    else if (strstr(trama, &quot;led1=off&quot;)) led = 0;
+    else if (strstr(trama, &quot;pw1=&quot;)) {
+      dato = trama[5];          // byte bajo del valor del slider
+      PWM1_Set_Duty(dato);
+    }
+    memset(trama, 0, 30);
+    cuenta = 0; flag_rx = 0;
+    RCIF_bit = 0; CREN_bit = 1; GIE_bit = 1;   // vuelve a recibir
+  }
+}
+
+void manda_serial_const(const char *info) {
+  while (*info) UART1_Write(*info++);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1480.webp" target="_blank"><img src="img/1480.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Programa principal</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=1618" target="_blank" rel="noopener">&#9654; 26:58</a></div><p>Se configuran entradas y salidas, la UART a 9600, la interrupción de recepción y el PWM. En el ciclo se leen los sensores y se envía cada valor con su orden: el valor digital de la temperatura, el valor linealizado para la barra, la aguja del velocímetro, el texto con dos decimales (entre comillas) y la imagen del LED según el pulsador (imagen 1 encendido, 2 apagado). Cada orden termina con FF FF FF.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void main() {
+  TRISA.B0 = 1; TRISA.B1 = 1;     // sensores en AN0 y AN1
+  TRISB.B0 = 0;                   // led
+  TRISB.B1 = 1;                   // pulsador
+  TRISC.B6 = 0; TRISC.B7 = 1;     // TX y RX
+  TRISC.B2 = 0;                   // salida PWM (CCP1)
+  ADCON1 = 0;
+  INTCON = 0b01000000;
+  UART1_Init(9600);
+  led = 0;
+  memset(trama, 0, 30);
+  RCIF_bit = 0; RCIE_bit = 1; GIE_bit = 1;
+  PWM1_Init(500); PWM1_Set_Duty(100); PWM1_Start();
+
+  while (1) {
+    codigo = ADC_Read(0); temperatura = codigo * 500.0 / 1023.0;
+    codigo = ADC_Read(1); velocidad = codigo * 100.0 / 1023.0;
+
+    sprinti(envia, &quot;pa1.te2.val=%d&quot;, (unsigned int)temperatura);   // valor digital
+    UART1_Write_Text(envia); manda_serial_const(&quot;\xFF\xFF\xFF&quot;);
+    temperatura = 0.8654 * temperatura + 10.032;                    // linealizado para la barra
+    sprinti(envia, &quot;pa1.te1.val=%d&quot;, (unsigned int)temperatura);
+    UART1_Write_Text(envia); manda_serial_const(&quot;\xFF\xFF\xFF&quot;);
+
+    if (velocidad &gt; 20) velocidad_grafica = 3.152 * velocidad - 65.949;
+    else                velocidad_grafica = 2.92 * velocidad + 298.6;
+    sprinti(envia, &quot;pa0.vel.val=%d&quot;, velocidad_grafica);            // aguja
+    UART1_Write_Text(envia); manda_serial_const(&quot;\xFF\xFF\xFF&quot;);
+
+    floattostr_(velocidad, envia, 2);                               // texto con 2 decimales
+    manda_serial_const(&quot;pa0.ve2.txt=\&quot;&quot;);
+    UART1_Write_Text(envia);
+    manda_serial_const(&quot;\&quot;&quot;);
+    manda_serial_const(&quot;\xFF\xFF\xFF&quot;);
+    Delay_ms(1);
+
+    if (pulsador == 1) manda_serial_const(&quot;pa1.led.pic=1&quot;);
+    else               manda_serial_const(&quot;pa1.led.pic=2&quot;);
+    manda_serial_const(&quot;\xFF\xFF\xFF&quot;);
+
+    procesa_rx();
+    Delay_ms(30);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1701.webp" target="_blank"><img src="img/1701.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Prueba</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=2025" target="_blank" rel="noopener">&#9654; 33:45</a></div><p>Al correr la simulación la temperatura y la velocidad aparecen en la pantalla; al mover el slider cambia el ancho de pulso del motor y el pulsador de la pantalla enciende el LED del micro.</p><div class="uno"><figure class="cap"><a href="img/2069.webp" target="_blank"><img src="img/2069.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Versión con Arduino</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Recepción con serialEvent</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=2160" target="_blank" rel="noopener">&#9654; 36:00</a></div><p>En Arduino la recepción se hace en serialEvent con la misma lógica de buscar FF FF FF. Es importante convertir el dato a unsigned char: si no, 0xFF se lee como −1 y la comparación nunca se cumple. procesa_rx usa digitalWrite para el LED y analogWrite para el PWM.</p><div class="uno"><figure class="cap"><a href="img/2289.webp" target="_blank"><img src="img/2289.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Ciclo principal</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=2427" target="_blank" rel="noopener">&#9654; 40:27</a></div><p>El loop es casi igual al del PIC: analogRead, sprintf y Serial.print de cada orden seguida de los tres 0xFF.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char led = 13;
+char pulsador = 2;
+// ... (pwm, trama[30], cuenta, flag_rx, envia, variables de medida)
+
+void serialEvent() {
+  while (Serial.available()) {
+    dato = (unsigned char)Serial.read();
+    trama[cuenta] = dato;
+    if ((cuenta &gt; 3) &amp;&amp; ((unsigned char)trama[cuenta] == 0xff)
+        &amp;&amp; ((unsigned char)trama[cuenta-1] == 0xff)
+        &amp;&amp; ((unsigned char)trama[cuenta-2] == 0xff))
+      flag_rx = 1;
+    cuenta++;
+    if (cuenta &gt;= 30) { memset(trama, 0, 30); cuenta = 0; }
+  }
+}
+
+void procesa_rx() {
+  if (flag_rx == 1) {
+    if (strstr(trama, &quot;led1=on&quot;)) digitalWrite(led, HIGH);
+    else if (strstr(trama, &quot;led1=off&quot;)) digitalWrite(led, LOW);
+    else if (strstr(trama, &quot;pw1=&quot;)) analogWrite(pwm, trama[5]);
+    memset(trama, 0, 30); cuenta = 0; flag_rx = 0;
+  }
+}
+
+void loop() {
+  codigo = analogRead(A0); temperatura = codigo * 5.0 * 100.0 / 1023.0;
+  codigo = analogRead(A1); velocidad = codigo * 100.0 / 1023.0;
+  sprintf(envia, &quot;pa1.te2.val=%d&quot;, (unsigned int)temperatura);
+  Serial.print(envia); Serial.print(&quot;\xFF\xFF\xFF&quot;);
+  // ... igual que en el PIC: te1 linealizado, pa0.vel, pa0.ve2.txt y pa1.led.pic
+  procesa_rx();
+  delay(30);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/2436.webp" target="_blank"><img src="img/2436.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Prueba en Proteus</h3><a class="min" href="https://youtu.be/_9gsAkEQJ4U?t=2498" target="_blank" rel="noopener">&#9654; 41:38</a></div><p>Con el Arduino en Proteus se cambia el slider (sube o baja la velocidad del motor), se enciende el LED desde la pantalla y se ven los valores del termómetro y del velocímetro.</p><div class="uno"><figure class="cap"><a href="img/2584.webp" target="_blank"><img src="img/2584.webp" alt="Manejo de una pantalla Nextion con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=_9gsAkEQJ4U" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
