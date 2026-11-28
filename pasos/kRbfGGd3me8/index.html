@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo mostrar variables numéricas en una LCD: las funciones ByteToStr, WordToStr, IntToStr, LongToStr y FloatToStr con el tamaño de vector que necesita cada una, una función propia para flotantes con decimales fijos, y sprinti, sprintl y sprintf para dar formato.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/kRbfGGd3me8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena · Paso a paso">
+  <meta property="og:description" content="Cómo mostrar variables numéricas en una LCD: las funciones ByteToStr, WordToStr, IntToStr, LongToStr y FloatToStr con el tamaño de vector que necesita cada una, una función propia para flotantes con decimales fijos, y sprinti, sprintl y sprintf para dar formato.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/kRbfGGd3me8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/kRbfGGd3me8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Convertir números a <span>texto</span> en MikroC</h1>
+    <p class="lead">Lección 18 del curso. La LCD solo muestra texto, así que los números hay que convertirlos a cadena. Con un PIC16F877A a 4 MHz y la LCD en el puerto C se prueban las funciones de la librería Conversions, cada una con su tipo de variable y el tamaño mínimo del vector de salida. FloatToStr_FixLen falla con números menores que uno, así que se usa una función propia, float_to_str_, que deja escoger los decimales. Por último se usa sprinti para dar formato a enteros y varias variables a la vez (una fecha), y se pasa a un PIC18F2550 para usar sprintf con flotantes.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=kRbfGGd3me8" target="_blank" rel="noopener">&#9654; Ver el video completo (36:21)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2060.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librerías Conversions y Sprinti/Sprintf)</li><li>Proteus con PIC16F877A y LCD 16x2 (LM044L)</li><li>PIC18F2550 para sprintf</li><li>Función float_to_str_ (txt, .h o paquete)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · Conversions</a><a href="#f3">3 · Flotantes</a><a href="#f4">4 · sprint</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Por qué convertir</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La LCD solo recibe texto</h3><a class="min" href="https://youtu.be/kRbfGGd3me8?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Un número como 23.456 guardado en una variable no se puede mandar directo con Lcd_Out: hay que convertirlo en una cadena de caracteres. Para eso MikroC trae la librería <b>Conversions</b>, que pasa números a texto.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El proyecto base</h3><a class="min" href="https://youtu.be/kRbfGGd3me8?t=180" target="_blank" rel="noopener">&#9654; 3:00</a></div><p>Se crea el proyecto con un PIC16F877A a 4 MHz y se toma la configuración de la LCD del ejemplo de la ayuda, cambiando los pines al puerto C (RC0 a RC5, con sus TRISC). Se escribe algo fijo para comprobar que la LCD funciona.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Librería Conversions</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Cada función y su vector</h3><a class="min" href="https://youtu.be/kRbfGGd3me8?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>Cada función sirve para un tipo de variable y necesita un vector de salida de un tamaño mínimo, contando el signo y el carácter nulo del final:</p><ul><li><b>ByteToStr</b>: char (0 a 255), vector de 4.</li><li><b>ShortToStr</b>: signed short (-128 a 127), vector de 4.</li><li><b>WordToStr</b>: unsigned int (0 a 65535), vector de 6.</li><li><b>IntToStr</b>: signed int (-32768 a 32767), vector de 7.</li><li><b>LongToStr</b>: signed long, vector de 12; <b>LongWordToStr</b>: unsigned long, vector de 11.</li><li><b>FloatToStr</b> y <b>FloatToStr_FixLen</b>: float, vector de 15.</li></ul><p class="ojo">Las versiones <b>...WithZeros</b> rellenan con ceros a la izquierda en vez de espacios.</p><div class="dos"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Contador con ByteToStr</h3><a class="min" href="https://youtu.be/kRbfGGd3me8?t=480" target="_blank" rel="noopener">&#9654; 8:00</a></div><p>Un for cuenta de 0 a 100, convierte la variable con ByteToStr y la muestra. El número sale alineado a la derecha y con espacios delante, porque el vector siempre tiene el mismo largo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char cuenta;
+char texto[4];
+
+while (1) {
+  for (cuenta = 0; cuenta &lt;= 100; cuenta++) {
+    ByteToStr(cuenta, texto);
+    Lcd_Out(1, 10, texto);
+    Delay_ms(80);
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Variables más grandes</h3><a class="min" href="https://youtu.be/kRbfGGd3me8?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>Si la variable pasa de 255 se cambia a unsigned int y se usa WordToStr con un vector de 6. Con enteros con signo, IntToStr con vector de 7.</p><div class="uno"><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Números con decimales</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>FloatToStr_FixLen</h3><a class="min" href="https://youtu.be/kRbfGGd3me8?t=740" target="_blank" rel="noopener">&#9654; 12:20</a></div><p>Para flotantes, FloatToStr_FixLen deja fijar el largo, pero con números menores que uno no muestra bien el valor, y eso es un problema si se miden voltajes pequeños.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float cuenta;
+char texto[15];
+
+for (cuenta = 12.56; cuenta &lt;= 16.80; cuenta = cuenta + 0.1) {
+  FloatToStr_FixLen(cuenta, texto, 6);
+  Lcd_Out(1, 10, texto);
+  Delay_ms(80);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Una función propia: float_to_str_</h3><a class="min" href="https://youtu.be/kRbfGGd3me8?t=860" target="_blank" rel="noopener">&#9654; 14:20</a></div><p>Para resolverlo se usa una función propia que recibe el número, el vector y la cantidad de decimales que se quieren. Funciona también con números menores que uno.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>for (cuenta = 0.156; cuenta &lt;= 16.80; cuenta = cuenta + 0.1) {
+  FloatToStr_(cuenta, texto, 3);   // 3 decimales
+  Lcd_Out(1, 10, texto);
+  Delay_ms(80);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/890.webp" target="_blank"><img src="img/890.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Tres formas de usarla</h3><a class="min" href="https://youtu.be/kRbfGGd3me8?t=960" target="_blank" rel="noopener">&#9654; 16:00</a></div><p>La función viene como texto para copiar en el programa, como un .h que se incluye con #include, o como paquete para instalar con el Package Manager (lección 17). Instalada, aparece en el Library Manager junto a las de MikroC.</p><p class="ojo">Active su librería solo en los proyectos que la usan, para no ocupar memoria de más.</p><div class="uno"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Dar formato con sprinti y sprintf</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>sprinti en el 16F</h3><a class="min" href="https://youtu.be/kRbfGGd3me8?t=1150" target="_blank" rel="noopener">&#9654; 19:10</a></div><p>En la ayuda de cada función se ve el tamaño del vector. Para dar formato, el 16F usa <b>sprinti</b> (enteros con signo) y <b>sprintl</b> (long). El formato <b>%03u</b> muestra el número con tres cifras rellenando con ceros.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprinti(texto, &quot;contador=%03u&quot;, cuenta);
+Lcd_Out(1, 1, texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1160.webp" target="_blank"><img src="img/1160.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Varias variables a la vez</h3><a class="min" href="https://youtu.be/kRbfGGd3me8?t=1400" target="_blank" rel="noopener">&#9654; 23:20</a></div><p>Con un solo sprinti se arma una fecha a partir de día, mes y año. Las variables deben ser unsigned int; si son char, se les hace un cast.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>dia = 23;  mes = 10;  ano = 18;
+sprinti(texto, &quot;fecha=%02u/%02u/20%02u&quot;,
+        (unsigned int)dia, (unsigned int)mes, (unsigned int)ano);
+Lcd_Out(3, 1, texto);</code></pre></div><p class="ojo">Si las variables no son enteras, sprinti muestra valores errados.</p><div class="dos"><figure class="cap"><a href="img/1460.webp" target="_blank"><img src="img/1460.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure><figure class="cap"><a href="img/1600.webp" target="_blank"><img src="img/1600.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure><figure class="cap"><a href="img/1680.webp" target="_blank"><img src="img/1680.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>sprintf con flotantes en el 18F2550</h3><a class="min" href="https://youtu.be/kRbfGGd3me8?t=1830" target="_blank" rel="noopener">&#9654; 30:30</a></div><p>sprintf permite flotantes, pero no cabe en el 16F877A. Se pasa el proyecto a un PIC18F2550: se ponen los pines digitales con ADCON1, se cambian los pines de la LCD y se usa un formato como <b>%5.2f</b> (cinco posiciones, dos decimales) o <b>%.3f</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;contador=%5.2f&quot;, cuenta);
+Lcd_Out(1, 1, texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/2000.webp" target="_blank"><img src="img/2000.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure><figure class="cap"><a href="img/2060.webp" target="_blank"><img src="img/2060.webp" alt="Curso MikroC PRO for PIC, lección 18: funciones de conversión a cadena" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=kRbfGGd3me8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

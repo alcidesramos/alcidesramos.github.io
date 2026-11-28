@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 20: ADC_Read frente a ADC_Get_Sample · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Video corto que compara la velocidad de ADC_Read y ADC_Get_Sample midiendo con un contador de frecuencia en Proteus, y explica qué necesita ADC_Get_Sample para funcionar.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/x7RYPm3Toow/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 20: ADC_Read frente a ADC_Get_Sample · Paso a paso">
+  <meta property="og:description" content="Video corto que compara la velocidad de ADC_Read y ADC_Get_Sample midiendo con un contador de frecuencia en Proteus, y explica qué necesita ADC_Get_Sample para funcionar.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/x7RYPm3Toow/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/x7RYPm3Toow/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1><span>ADC_Read</span> o ADC_Get_Sample</h1>
+    <p class="lead">Complemento de la lección 19. Con el PIC18F45K22 se cambia el estado de un pin en cada lectura del ADC y se mide la frecuencia en Proteus con un contador. Con ADC_Read se obtienen unos 1690 Hz y con ADC_Get_Sample unos 1780 Hz, porque esta no inicializa el módulo en cada lectura. A cambio, ADC_Get_Sample necesita ADC_Init antes del while y un pequeño retardo entre lecturas.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=x7RYPm3Toow" target="_blank" rel="noopener">&#9654; Ver el video completo (3:21)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/140.webp" alt="Curso MikroC PRO for PIC, lección 20: ADC_Read frente a ADC_Get_Sample"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librería ADC)</li><li>Proteus con PIC18F45K22 y contador de frecuencia (Counter Timer)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Medir</a><a href="#f2">2 · Get_Sample</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Medir la velocidad</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Un pin que cambia en cada lectura</h3><a class="min" href="https://youtu.be/x7RYPm3Toow?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se pone RD0 como salida y se invierte en cada vuelta del while, junto a las lecturas del ADC. En Proteus se conecta un contador de frecuencia (Counter Timer) a ese pin.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TRISD0_bit = 0;
+
+while (1) {
+  codigo = ADC_Read(0);
+  codigo = ADC_Read(10);
+  LATD0_bit = ~LATD0_bit;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Curso MikroC PRO for PIC, lección 20: ADC_Read frente a ADC_Get_Sample" loading="lazy"></a></figure><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Curso MikroC PRO for PIC, lección 20: ADC_Read frente a ADC_Get_Sample" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Resultado con ADC_Read</h3><a class="min" href="https://youtu.be/x7RYPm3Toow?t=90" target="_blank" rel="noopener">&#9654; 1:30</a></div><p>Con ADC_Read el pin cambia a unos <b>1690 Hz</b>. ADC_Read inicializa el módulo en cada llamada, y eso toma tiempo.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Curso MikroC PRO for PIC, lección 20: ADC_Read frente a ADC_Get_Sample" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>ADC_Get_Sample</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Qué necesita</h3><a class="min" href="https://youtu.be/x7RYPm3Toow?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>ADC_Get_Sample solo lee, así que el módulo se inicializa una vez con <b>ADC_Init()</b> antes del while. Además hay que dar un pequeño retardo entre lectura y lectura, de unos 10 µs.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADC_Init();
+
+while (1) {
+  codigo = ADC_Get_Sample(0);
+  Delay_us(10);
+  codigo = ADC_Get_Sample(10);
+  Delay_us(10);
+  LATD0_bit = ~LATD0_bit;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Curso MikroC PRO for PIC, lección 20: ADC_Read frente a ADC_Get_Sample" loading="lazy"></a></figure><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Curso MikroC PRO for PIC, lección 20: ADC_Read frente a ADC_Get_Sample" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/x7RYPm3Toow?t=160" target="_blank" rel="noopener">&#9654; 2:40</a></div><p>Ahora el pin cambia a unos <b>1780 Hz</b>: es un poco más rápido. Use ADC_Get_Sample cuando necesite leer más rápido, y ADC_Read cuando prefiera la sencillez.</p><div class="uno"><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Curso MikroC PRO for PIC, lección 20: ADC_Read frente a ADC_Get_Sample" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=x7RYPm3Toow" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Qué es la señal PWM y cómo escoger su frecuencia, cómo usar las funciones PWM de MikroC en un PIC16F877A y un proyecto completo que controla dos motores DC con un puente H L298: velocidad por potenciómetro y por botones, sentido de giro y datos en la LCD.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/Gczp_53FBmQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC · Paso a paso">
+  <meta property="og:description" content="Qué es la señal PWM y cómo escoger su frecuencia, cómo usar las funciones PWM de MikroC en un PIC16F877A y un proyecto completo que controla dos motores DC con un puente H L298: velocidad por potenciómetro y por botones, sentido de giro y datos en la LCD.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/Gczp_53FBmQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Gczp_53FBmQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Control de motores con <span>PWM</span></h1>
+    <p class="lead">Lección 21 del curso. La señal PWM tiene frecuencia fija y cambia el ancho del pulso positivo (ciclo útil), lo que cambia la energía que llega a la carga. Primero se ve en Proteus con un puente H L298 y dos generadores de pulso, y se explica cómo escoger la frecuencia según el motor. Luego, con un PIC16F877A a 4 MHz, se usan PWM1 y PWM2 (pines CCP1 en RC2 y CCP2 en RC1), con su frecuencia mínima según el cristal. Al final se arma un control de dos motores: el motor 1 sigue a un potenciómetro, el motor 2 sube y baja con botones, dos interruptores cambian el sentido de giro y la LCD muestra la velocidad en porcentaje y el giro.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Gczp_53FBmQ" target="_blank" rel="noopener">&#9654; Ver el video completo (52:39)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/3080.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librerías PWM, ADC, LCD)</li><li>Proteus con PIC16F877A, puente H L298, dos motores DC, potenciómetro, pulsadores, interruptores, LCD y osciloscopio</li><li>Función float_to_str_ de la lección 18</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Teoría</a><a href="#f2">2 · Frecuencia</a><a href="#f3">3 · Funciones</a><a href="#f4">4 · Proyecto</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La señal PWM</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Ancho de pulso</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Una señal PWM mantiene la frecuencia (por ejemplo 1 kHz, periodo de 1 ms) y cambia cuánto tiempo está en alto. Ese tiempo es el ciclo útil o ciclo de trabajo: con 0.5 ms en alto es el 50 %, con 0.9 ms el 90 %. Más ciclo útil es más energía para la carga.</p><ul><li>Control de velocidad de motores DC.</li><li>Control de luminosidad de LED y selección de color en LED RGB.</li><li>Inversores DC-AC y fuentes conmutadas.</li><li>Servomotores, comunicaciones y conversión digital a análogo.</li></ul><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Puente H L298</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=129" target="_blank" rel="noopener">&#9654; 2:09</a></div><p>El L298 maneja dos motores. IN1 e IN2 dan el sentido del motor 1, IN3 e IN4 el del motor 2, y la señal PWM entra por ENA y ENB. Si un enable está en 0 el motor queda deshabilitado. Para un solo motor más grande se pueden poner las salidas en paralelo.</p><div class="uno"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Probar con generadores de pulso</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=250" target="_blank" rel="noopener">&#9654; 4:10</a></div><p>En Proteus se pone un generador de pulsos en cada enable, de 0 a 5 V y a la misma frecuencia, uno con ancho de pulso de 10 % y otro mayor. El motor con más ancho de pulso gira más rápido.</p><div class="dos"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Escoger la frecuencia</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Ni muy lenta ni audible</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>Con un periodo muy lento el motor se prende y se apaga a saltos. Algunas frecuencias hacen que el motor suene o chille, y otras pueden entrar en resonancia con él. Lo ideal es estar por encima de unos 20 kHz, que el oído ya no escucha.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Frecuencia mínima por la bobina</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=463" target="_blank" rel="noopener">&#9654; 7:43</a></div><p>La bobina del motor tiene resistencia R e inductancia L, con constante de tiempo L/R. Para controlar en 255 pasos, el periodo máximo sale de <b>T = 5 · PWM_step · L/R</b>. Con R = 5 Ω y L = 10 µH, T = 2.55 ms, o sea unos 392 Hz como mínimo.</p><div class="uno"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Los pines y el cristal</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=595" target="_blank" rel="noopener">&#9654; 9:55</a></div><p>En el 16F877A, PWM1 sale por CCP1 (RC2) y PWM2 por CCP2 (RC1). Los dos usan el Timer2, así que trabajan a la misma frecuencia. La frecuencia mínima depende del cristal: con 4 MHz son 245 Hz y con 20 MHz son 1222 Hz. Si se pide menos, MikroC da error al compilar.</p><div class="dos"><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>PWM en MikroC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Configurar puertos</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=660" target="_blank" rel="noopener">&#9654; 11:00</a></div><p>Proyecto con PIC16F877A a 4 MHz (frecuencia baja para que Proteus no se ponga lento). AN0 queda análogo para el potenciómetro, el puerto B maneja el puente H y RC1 y RC2 son las salidas PWM.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0b1110;     // solo AN0 análogo
+TRISA = 0b11111111;  // entrada
+TRISB = 0;           // salida
+TRISB4_bit = 1;      // entradas
+TRISB5_bit = 1;
+// salidas PWM
+RC1_bit = 0;
+RC2_bit = 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Init, Set_Duty y Start</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=874" target="_blank" rel="noopener">&#9654; 14:34</a></div><p><b>PWMx_Init(frecuencia)</b> fija la frecuencia, <b>PWMx_Set_Duty(valor)</b> el ciclo útil de 0 a 255 (255 es el 100 % y 127 cerca del 50 %), y <b>PWMx_Start()</b> arranca la señal. También existe PWMx_Stop().</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PWM1_Init(245);      // frecuencia
+PWM2_Init(245);
+PWM1_Set_Duty(20);
+PWM2_Set_Duty(200);
+PWM1_Start();        // arranca PWM
+PWM2_Start();
+
+while (1) {
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure><figure class="cap"><a href="img/1220.webp" target="_blank"><img src="img/1220.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Sentido de giro</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=1282" target="_blank" rel="noopener">&#9654; 21:22</a></div><p>Se nombran los pines del puente H y se hace un procedimiento por cada sentido. Para cambiar el giro se invierten los dos pines del motor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit m11 at RB0_bit;
+sbit m12 at RB1_bit;
+sbit m21 at RB2_bit;
+sbit m22 at RB3_bit;
+
+void derecha1()   { m11 = 1; m12 = 0; }
+void izquierda1() { m11 = 0; m12 = 1; }
+
+while (1) {
+  derecha1();  izquierda2();
+  Delay_ms(5000);
+  derecha2();  izquierda1();
+  Delay_ms(5000);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Control de dos motores</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>LCD y potenciómetro</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=1425" target="_blank" rel="noopener">&#9654; 23:45</a></div><p>Se agregan la LCD en el puerto D, ADC_Init y los textos fijos: Ve1 y Ve2 para las velocidades y G1 y G2 para el giro.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Lcd_Out(1, 1, &quot;Ve1=&quot;);
+Lcd_Out(2, 1, &quot;Ve2=&quot;);
+Lcd_Out(1, 10, &quot;G1=&quot;);
+Lcd_Out(2, 10, &quot;G2=&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1700.webp" target="_blank"><img src="img/1700.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Motor 1 con el potenciómetro</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=1770" target="_blank" rel="noopener">&#9654; 29:30</a></div><p>El código del ADC (0 a 1023) se lleva a 0 a 255 con una regla de tres y se manda al PWM1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = ADC_Read(0);
+velo1 = codigo * 255.0 / 1023.0;
+PWM1_Set_Duty(velo1);</code></pre></div><p class="ojo">Escriba 255.0 y 1023.0. Con 255 y 1023 la operación se hace con enteros y el resultado da 0.</p><div class="dos"><figure class="cap"><a href="img/1880.webp" target="_blank"><img src="img/1880.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure><figure class="cap"><a href="img/2000.webp" target="_blank"><img src="img/2000.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Motor 2 con botones</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=1985" target="_blank" rel="noopener">&#9654; 33:05</a></div><p>Un botón sube y otro baja la velocidad en pasos de 10, limitada entre 0 y 255. La variable se declara con signo para que no se dé la vuelta al bajar de 0.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>signed int velo2 = 100;
+
+if (sube2 == 0) {
+  velo2 = velo2 + 10;
+  if (velo2 &gt;= 255) velo2 = 255;
+  PWM2_Set_Duty(velo2);
+  Delay_ms(250);
+}
+if (baja2 == 0) {
+  velo2 = velo2 - 10;
+  if (velo2 &lt;= 0) velo2 = 0;
+  PWM2_Set_Duty(velo2);
+  Delay_ms(250);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2150.webp" target="_blank"><img src="img/2150.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure><figure class="cap"><a href="img/2600.webp" target="_blank"><img src="img/2600.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Botones en el puerto B</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=2282" target="_blank" rel="noopener">&#9654; 38:02</a></div><p>En el puerto A los botones respondían mal, así que se pasan a RB6 y RB7 y se activan las resistencias pull-up del puerto B. El bit que las habilita es negado, así que se activan con 0.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit sube2 at RB6_bit;
+sbit baja2 at RB7_bit;
+
+OPTION_REG = 0;   // pull-ups del puerto B
+TRISB6_bit = 1;
+TRISB7_bit = 1;</code></pre></div><div class="uno"><figure class="cap"><a href="img/2450.webp" target="_blank"><img src="img/2450.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.5</span><h3>Giro con interruptores</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=2557" target="_blank" rel="noopener">&#9654; 42:37</a></div><p>Dos interruptores (giro1 y giro2) escogen el sentido de cada motor, y la LCD muestra D o I según el giro.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (giro1 == 0) {
+  derecha1();
+  Lcd_Chr(1, 13, &#x27;D&#x27;);
+}
+else {
+  izquierda1();
+  Lcd_Chr(1, 13, &#x27;I&#x27;);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2750.webp" target="_blank"><img src="img/2750.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure><figure class="cap"><a href="img/2960.webp" target="_blank"><img src="img/2960.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.6</span><h3>Velocidad en porcentaje</h3><a class="min" href="https://youtu.be/Gczp_53FBmQ?t=2830" target="_blank" rel="noopener">&#9654; 47:10</a></div><p>La velocidad se pasa a porcentaje (velo × 100 / 255.0) y se convierte a texto con la función float_to_str_ de la lección 18, con un decimal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char texto[20];
+
+floattostr_(velo1 * 100 / 255.0, texto, 1);
+Lcd_Out(1, 5, texto);
+floattostr_(velo2 * 100 / 255.0, texto, 1);
+Lcd_Out(2, 5, texto);</code></pre></div><div class="uno"><figure class="cap"><a href="img/3080.webp" target="_blank"><img src="img/3080.webp" alt="Curso MikroC PRO for PIC, lección 21: PWM y control de motores DC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Gczp_53FBmQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo funciona el ADC de 10 bits de los PIC, cómo se configuran los pines análogos en el 16F877A (ADCON1), el 16F887 (ANSEL y ANSELH) y el 18F45K22 (ANSELx), y cómo leer un potenciómetro y un sensor LM35 para mostrar voltaje y temperatura en la LCD.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/8wmurTYHVHs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC) · Paso a paso">
+  <meta property="og:description" content="Cómo funciona el ADC de 10 bits de los PIC, cómo se configuran los pines análogos en el 16F877A (ADCON1), el 16F887 (ANSEL y ANSELH) y el 18F45K22 (ANSELx), y cómo leer un potenciómetro y un sensor LM35 para mostrar voltaje y temperatura en la LCD.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/8wmurTYHVHs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/8wmurTYHVHs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Leer señales analógicas con el <span>ADC</span></h1>
+    <p class="lead">Lección 19 del curso. Primero la teoría: un ADC de 10 bits da códigos de 0 a 1023 y con 5 V de referencia cada código vale unos 4.887 mV; además, la señal debe muestrearse al menos al doble de su frecuencia (Nyquist). Leer un canal siempre lleva tres pasos: poner el pin como análogo, ponerlo como entrada y leerlo con ADC_Read. Se hace el ejemplo en un PIC16F877A con un potenciómetro y un LM35, mostrando el código, el voltaje y la temperatura, y después se pasa el mismo programa al PIC16F887 y al PIC18F45K22, que configuran los pines análogos de otra forma.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=8wmurTYHVHs" target="_blank" rel="noopener">&#9654; Ver el video completo (43:09)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1460.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librerías ADC, Conversions y Sprinti)</li><li>Proteus con PIC16F877A, PIC16F887 y PIC18F45K22</li><li>Potenciómetro, sensor LM35 y LCD 16x2</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Teoría</a><a href="#f2">2 · 16F877A</a><a href="#f3">3 · 887 y 45K22</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Teoría del ADC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Resolución de 10 bits</h3><a class="min" href="https://youtu.be/8wmurTYHVHs?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El ADC de los PIC es de 10 bits: hay 2<sup>10</sup> = 1024 códigos, de 0 a 1023. Con referencia de 0 a 5 V, cada código vale 5/1023 = <b>4.887 mV</b>. Así, 0 V da el código 0 y 5 V da 1023.</p><ul><li>El LM35 entrega 10 mV por cada grado: 20 mV son 2 °C.</li><li>Un sensor de 1 mV por grado no se notaría, porque es menor que la resolución.</li></ul><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Frecuencia de muestreo</h3><a class="min" href="https://youtu.be/8wmurTYHVHs?t=160" target="_blank" rel="noopener">&#9654; 2:40</a></div><p>Para reconstruir una señal hay que tomar suficientes muestras. Por el teorema de Nyquist, la frecuencia de muestreo debe ser al menos el doble de la frecuencia de la señal; con más muestras, la señal se ve más parecida a la original.</p><div class="uno"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>ADC en el 16F877A</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Los tres pasos</h3><a class="min" href="https://youtu.be/8wmurTYHVHs?t=320" target="_blank" rel="noopener">&#9654; 5:20</a></div><p>Para leer cualquier canal análogo:</p><ul><li>Configurar el pin como análogo.</li><li>Configurar el pin como entrada (TRIS en 1).</li><li>Leer el canal con <b>ADC_Read(canal)</b>, que devuelve un valor de 0 a 1023.</li></ul><div class="uno"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>ADCON1 y su tabla</h3><a class="min" href="https://youtu.be/8wmurTYHVHs?t=660" target="_blank" rel="noopener">&#9654; 11:00</a></div><p>En el 16F877A los pines análogos se escogen con los bits PCFG de ADCON1, según la tabla de la hoja de datos. Algunas combinaciones útiles:</p><ul><li><b>0b0110</b>: todo digital.</li><li><b>0b0000</b>: todo análogo.</li><li><b>0b1110</b>: solo AN0 análogo.</li><li><b>0b0100</b>: AN0, AN1 y AN3 análogos.</li></ul><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Mostrar el código en la LCD</h3><a class="min" href="https://youtu.be/8wmurTYHVHs?t=1000" target="_blank" rel="noopener">&#9654; 16:40</a></div><p>Se lee el canal 0 y se muestra el código con sprinti. La variable debe ser unsigned int.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int codigo;
+
+ADCON1 = 0b0100;   // AN0, AN1 y AN3 análogos
+TRISA0_bit = 1;
+TRISA1_bit = 1;
+
+while (1) {
+  codigo = ADC_Read(0);
+  sprinti(texto, &quot;Codigo=%4u&quot;, codigo);
+  Lcd_Out(1, 1, texto);
+  Delay_ms(100);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1040.webp" target="_blank"><img src="img/1040.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Voltaje y temperatura</h3><a class="min" href="https://youtu.be/8wmurTYHVHs?t=1180" target="_blank" rel="noopener">&#9654; 19:40</a></div><p>El código se pasa a voltaje multiplicando por 5.0 y dividiendo por 1023.0. Para el LM35, el voltaje se multiplica por 100 para tener grados. El flotante se convierte con la función float_to_str_ de la lección 18, y el símbolo de grado se escribe con Lcd_Chr_CP(223).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = ADC_Read(0);
+voltaje = codigo * 5.0 / 1023.0;
+floattostr_(voltaje, texto, 2);
+Lcd_Out(1, 1, &quot;volt=&quot;);
+Lcd_Out_CP(texto);
+Lcd_Chr_CP(&#x27;V&#x27;);
+
+codigo = ADC_Read(1);
+temperatura = codigo * 500.0 / 1023.0;
+floattostr_(temperatura, texto, 2);
+Lcd_Out(2, 1, &quot;temp=&quot;);
+Lcd_Out_CP(texto);
+Lcd_Chr_CP(223);   // símbolo de grado
+Lcd_Chr_CP(&#x27;C&#x27;);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure><figure class="cap"><a href="img/1320.webp" target="_blank"><img src="img/1320.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure><figure class="cap"><a href="img/1460.webp" target="_blank"><img src="img/1460.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Otros micros</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>PIC16F887: ANSEL y ANSELH</h3><a class="min" href="https://youtu.be/8wmurTYHVHs?t=1540" target="_blank" rel="noopener">&#9654; 25:40</a></div><p>El 16F887 no usa la tabla de ADCON1: cada canal tiene su bit. <b>ANSEL</b> maneja AN0 a AN7 y <b>ANSELH</b> AN8 a AN13; un 1 es análogo y un 0 digital. Por ejemplo, AN8 es ANSELH.B0. En el ejemplo el potenciómetro pasa a RA5 (AN4) y el LM35 a RB2 (AN8).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ANSEL  = 0;  ANSELH = 0;   // todo digital
+ANSEL.B4  = 1;   // AN4 en RA5
+ANSELH.B0 = 1;   // AN8 en RB2
+TRISA5_bit = 1;
+TRISB2_bit = 1;</code></pre></div><div class="dos"><figure class="cap"><a href="img/1600.webp" target="_blank"><img src="img/1600.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure><figure class="cap"><a href="img/1740.webp" target="_blank"><img src="img/1740.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure><figure class="cap"><a href="img/1880.webp" target="_blank"><img src="img/1880.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>PIC18F45K22: ANSELA a ANSELE</h3><a class="min" href="https://youtu.be/8wmurTYHVHs?t=2040" target="_blank" rel="noopener">&#9654; 34:00</a></div><p>El 18F45K22 tiene un registro por puerto, de <b>ANSELA</b> a <b>ANSELE</b>, y bits como ANSA0_bit o ANSB1_bit (que es AN10). Al tener más memoria, aquí sí se puede usar sprintf con flotantes, por ejemplo <b>"Volt=%5.3fV"</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ANSELA = 0; ANSELB = 0; ANSELC = 0;
+ANSELD = 0; ANSELE = 0;
+ANSA0_bit = 1;   // AN0
+ANSB1_bit = 1;   // AN10
+
+sprintf(texto, &quot;Volt=%5.3fV&quot;, voltaje);</code></pre></div><div class="dos"><figure class="cap"><a href="img/2020.webp" target="_blank"><img src="img/2020.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure><figure class="cap"><a href="img/2440.webp" target="_blank"><img src="img/2440.webp" alt="Curso MikroC PRO for PIC, lección 19: conversor análogo a digital (ADC)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=8wmurTYHVHs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
