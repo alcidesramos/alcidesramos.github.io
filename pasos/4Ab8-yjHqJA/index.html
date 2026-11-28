@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Primera parte del programador de PIC con Arduino: cómo sacar los 13 V de VPP desde 5 V con una fuente elevadora manejada por PWM a 62,5 kHz, cómo activar VPP con transistores, el problema de cambiar el Timer0 (delay se vuelve 64 veces más rápido) y las funciones para mandar comandos y datos ICSP.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/4Ab8-yjHqJA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP) · Paso a paso">
+  <meta property="og:description" content="Primera parte del programador de PIC con Arduino: cómo sacar los 13 V de VPP desde 5 V con una fuente elevadora manejada por PWM a 62,5 kHz, cómo activar VPP con transistores, el problema de cambiar el Timer0 (delay se vuelve 64 veces más rápido) y las funciones para mandar comandos y datos ICSP.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/4Ab8-yjHqJA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/4Ab8-yjHqJA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#arduino">&larr; Volver al curso</a>
+    <span class="etiqueta">// Arduino · Paso a paso</span>
+    <h1>Programador de <span>PIC</span> con Arduino</h1>
+    <p class="lead">Para programar un PIC por ICSP se necesitan VPP entre 12,5 y 14 V, 5 V, tierra, un pin de datos y uno de reloj. Con solo 5 V del Arduino se hace una fuente elevadora (boost) con una bobina, un transistor y dos zener de 6,8 V para fijar unos 13 V. La señal debe ser de más de 50 kHz, así que se sube la frecuencia del PWM del Timer0 a 62,5 kHz. Pero el Timer0 lo usa delay(): al cambiarlo los retardos se vuelven 64 veces más rápidos, y se corrige con una función propia. VPP se activa con un par de transistores (2N3904 y 2N3906). Después se arman las funciones para mandar comandos de 6 bits y datos de 14 bits según la hoja de programación del PIC16F84A y se hace una primera prueba.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=4Ab8-yjHqJA" target="_blank" rel="noopener">&#9654; Ver el video completo (28:30)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/119.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)"></figure>
+    <ul class="materiales"><li>Arduino Uno</li><li>Bobina de 330 a 680 µH</li><li>Transistores 2N3904 y 2N3906</li><li>Dos diodos zener de 6,8 V</li><li>Condensador y resistencias</li><li>Un PIC16F84A (para la prueba)</li><li>Proteus para simular</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Circuito</a><a href="#f2">2 · PWM</a><a href="#f3">3 · Código</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El hardware</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué necesita un PIC para programarse</h3><a class="min" href="https://youtu.be/4Ab8-yjHqJA?t=67" target="_blank" rel="noopener">&#9654; 1:07</a></div><p>Todos los PIC se programan con cinco pines: VPP (entre 12,5 y 14 V), 5 V, tierra, datos y reloj. Algunos tienen programación en bajo voltaje, pero viene desactivada y para activarla hay que programarlos primero con alto voltaje.</p><div class="uno"><figure class="cap"><a href="img/119.webp" target="_blank"><img src="img/119.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Activar VPP</h3><a class="min" href="https://youtu.be/4Ab8-yjHqJA?t=135" target="_blank" rel="noopener">&#9654; 2:15</a></div><p>Los 13 V no se pueden manejar directo con un pin del Arduino: se usa un arreglo de un 2N3904 y un 2N3906, de modo que con 5 V o 0 V en el pin se pone VPP en unos 13 V o en 0.</p><div class="uno"><figure class="cap"><a href="img/174.webp" target="_blank"><img src="img/174.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Fuente elevadora</h3><a class="min" href="https://youtu.be/4Ab8-yjHqJA?t=201" target="_blank" rel="noopener">&#9654; 3:21</a></div><p>Para sacar 13 V desde 5 V se usa una fuente conmutada tipo boost: una bobina, un transistor que conmuta con una señal pulsante de más de 50 kHz, un diodo y un condensador.</p><p>Si no se regula, el voltaje sigue subiendo (14, 15, 16 V…). Por eso se ponen dos zener de 6,8 V en serie, que son fáciles de conseguir, para fijar unos 13 V.</p><div class="dos"><figure class="cap"><a href="img/338.webp" target="_blank"><img src="img/338.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)" loading="lazy"></a></figure><figure class="cap"><a href="img/392.webp" target="_blank"><img src="img/392.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>La tarjeta</h3><a class="min" href="https://youtu.be/4Ab8-yjHqJA?t=503" target="_blank" rel="noopener">&#9654; 8:23</a></div><p>La bobina debe ser de 330 µH o más (aquí una de 680 µH, de las mismas que usa el PICkit 2). Este es el montaje real de la fuente.</p><div class="uno"><figure class="cap"><a href="img/502.webp" target="_blank"><img src="img/502.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La frecuencia del PWM</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Subir la frecuencia a 62,5 kHz</h3><a class="min" href="https://youtu.be/4Ab8-yjHqJA?t=569" target="_blank" rel="noopener">&#9654; 9:29</a></div><p>Con analogWrite el pin 5 da unos 976 Hz, muy poco para la fuente. Cambiando el preescalador del Timer0 sube a 62,5 kHz.</p><div class="uno"><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>El problema con delay()</h3><a class="min" href="https://youtu.be/4Ab8-yjHqJA?t=888" target="_blank" rel="noopener">&#9654; 14:48</a></div><p>El Timer0 también lo usan delay y millis. Con el cambio, el LED que debía titilar cada segundo se queda prendido: los retardos ahora van 64 veces más rápido. La solución es una función propia que multiplica el tiempo por 64.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void setup() {
+  pinMode(5,OUTPUT);
+  TCCR0B = TCCR0B &amp; B11111000 | B00000001;
+  analogWrite(5,127);
+  pinMode(13,OUTPUT);
+}
+
+void loop() {
+  digitalWrite(13,1);
+  delay_ms(1000);
+  digitalWrite(13,0);
+  delay_ms(1000);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1048.webp" target="_blank"><img src="img/1048.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El programa</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Pines y comandos</h3><a class="min" href="https://youtu.be/4Ab8-yjHqJA?t=1058" target="_blank" rel="noopener">&#9654; 17:38</a></div><p>Se definen los pines de datos, reloj y VPP, y los comandos de programación de 6 bits que trae la hoja de programación del PIC.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define dato_ 2  //rojo
+#define reloj_ 7 //gris
+#define vpp_ 4
+#define led 13
+
+// define comandos de programacion
+const char      load_conf=0b000000;
+const char      load_prog=0b000010;
+const char read_dat_prog=0b000100;
+const char        inc_dir=0b000110;
+const char begin_ere_prog=0b001000;
+const char     begin_prog=0b011000;
+const char   load_dat_dat=0b000011;
+const char   read_dat_dat=0b000101;
+const char  bulk_ere_prog=0b001001;
+const char   bulk_ere_dat=0b001011;
+
+void delay_ms(unsigned long ret)
+{
+  delay(ret*64);
+}
+
+void delay_us(unsigned long ret)
+{
+  delayMicroseconds(ret);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/939.webp" target="_blank"><img src="img/939.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)" loading="lazy"></a></figure><figure class="cap"><a href="img/1158.webp" target="_blank"><img src="img/1158.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Mandar comandos y datos</h3><a class="min" href="https://youtu.be/4Ab8-yjHqJA?t=1254" target="_blank" rel="noopener">&#9654; 20:54</a></div><p>Un comando son 6 bits. Un dato se manda con un bit de inicio en 0, los 14 bits del dato y un bit de parada. Cada bit se escribe con el reloj.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char lee_un_bit (unsigned int variable, char bit1)
+{
+  if ((variable &amp; (1 &lt;&lt; bit1))&gt;0) return (1);
+  else return (0);
+}
+
+void manda_comando(char coma)
+{
+  char cont;
+  for (cont=0;cont&lt;=5;cont++)
+  {
+    if (lee_un_bit(coma,cont)==0) write_bit(0);
+    else write_bit(1);
+  }
+}
+
+void manda_dato(unsigned int dat)
+{
+  signed char cont;
+  write_bit(0); //necesario
+  for (cont=0;cont&lt;=13;cont++)
+  {
+    if (lee_un_bit(dat,cont)==0) write_bit(0);
+    else write_bit(1);
+  }
+  // ... bit de parada
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1212.webp" target="_blank"><img src="img/1212.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Programar una palabra</h3><a class="min" href="https://youtu.be/4Ab8-yjHqJA?t=1352" target="_blank" rel="noopener">&#9654; 22:32</a></div><p>Para programar: se carga el dato con el comando de carga, se manda el comando de borrar y programar, se espera el tiempo de programación y se incrementa la dirección.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void programa_dato(unsigned int dato)
+{
+  inicio();
+  manda_comando(load_prog);
+  manda_dato(dato);
+  manda_comando(begin_ere_prog);
+  delay_ms(20);
+  manda_comando(inc_dir);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1376.webp" target="_blank"><img src="img/1376.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Primera prueba</h3><a class="min" href="https://youtu.be/4Ab8-yjHqJA?t=1450" target="_blank" rel="noopener">&#9654; 24:10</a></div><p>En el setup se configuran los pines, la frecuencia de 62,5 kHz, VPP en cero y el serial (que luego se comunicará con una aplicación en Delphi), y se programan dos palabras de prueba.</p><p>Al leer el PIC con otro programador aparecen 2815 y 2830 en las dos primeras posiciones: la escritura funciona. En la siguiente entrega se arma el programador completo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void setup()
+{
+  // pin PWM1
+  pinMode(5,OUTPUT);
+  pinMode(vpp_,OUTPUT);
+  pinMode(reloj_,OUTPUT);
+  pinMode(dato_,OUTPUT);
+  pinMode(led,OUTPUT);
+  pinMode(8,OUTPUT);
+
+  TCCR0B = TCCR0B &amp; B11111000 | B00000001; // coloca la frecuencia del pwm en 62500
+
+  vpp(0);// quita los 12 voltios de vpp poniendolo en cero
+  analogWrite(5,127); //crea una onda con ciclo util de 50%
+  digitalWrite(led,LOW);
+
+  Serial.begin(9600);
+  inicio();
+  programa_dato(0x2815);
+  programa_dato(0x2830);
+
+  resetpic();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1540.webp" target="_blank"><img src="img/1540.webp" alt="Arduino: diseño previo de un programador de PIC (VPP de 13 V con fuente elevadora y comandos ICSP)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=4Ab8-yjHqJA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
