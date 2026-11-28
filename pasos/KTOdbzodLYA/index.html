@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lector de tarjetas RFID RC522 con PIC y MikroC usando hash · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC18F2550 lee el código de tarjetas y llaveros RFID con el módulo RC522 por SPI por software, lo convierte en un número con hash y decide qué LED cambiar según la tarjeta.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/KTOdbzodLYA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Lector de tarjetas RFID RC522 con PIC y MikroC usando hash · Paso a paso">
+  <meta property="og:description" content="Un PIC18F2550 lee el código de tarjetas y llaveros RFID con el módulo RC522 por SPI por software, lo convierte en un número con hash y decide qué LED cambiar según la tarjeta.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/KTOdbzodLYA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/KTOdbzodLYA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Lector <span>RFID RC522</span> con PIC</h1>
+    <p class="lead">El RC522 se conecta por SPI y trabaja a 3.3 V. Se usa una librería de terceros con SPI por software, así que el módulo puede ir en cualquier pin. El código leído (UID) se pasa por el algoritmo hash FNV, igual que con los controles infrarrojos, para tener un solo número por tarjeta. Se leen los códigos por serial, se ponen en el programa y cada tarjeta cambia el estado de un LED.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=KTOdbzodLYA" target="_blank" rel="noopener">&#9654; Ver el video completo (16:26)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/970.webp" alt="Lector de tarjetas RFID RC522 con PIC y MikroC usando hash"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (Soft_SPI, UART, conversiones)</li><li>PIC18F2550 (tarjeta entrenadora con bootloader, 48 MHz)</li><li>Módulo RFID RC522 y tarjetas o llaveros</li><li>Librería RC522 (RC522.h)</li><li>LEDs en el puerto B</li><li>Terminal serial</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Preparar</a><a href="#f2">2 · Leer</a><a href="#f3">3 · Controlar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Módulo RC522</h3><a class="min" href="https://youtu.be/KTOdbzodLYA?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Pines: VCC (3.3 V), RST, GND, IRQ (no se usa), MISO, MOSI, SCK y SDA (selección del chip).</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Lector de tarjetas RFID RC522 con PIC y MikroC usando hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Tarjeta</h3><a class="min" href="https://youtu.be/KTOdbzodLYA?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>Se usa la tarjeta entrenadora con PIC18F2550, que se puede poner a 3.3 V con su jumper. El serial va a un conversor USB a serial.</p><div class="uno"><figure class="cap"><a href="img/106.webp" target="_blank"><img src="img/106.webp" alt="Lector de tarjetas RFID RC522 con PIC y MikroC usando hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/KTOdbzodLYA?t=163" target="_blank" rel="noopener">&#9654; 2:43</a></div><p>PIC18F2550 a 48 MHz con la configuración del bootloader. Todo digital, comparadores apagados, UART a 9600 y un mensaje de inicio.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0b1111;   // todo digital
+CMCON = 7;         // apaga el comparador
+TRISB = 0;
+TRISC = 0;
+TRISC.B7 = 1;      // entrada rx
+UART1_Init(9600);
+RCEN_bit = 1;      // recepcion continua
+UART1_Write_Text(&quot;Iniciando\r\n&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/279.webp" target="_blank"><img src="img/279.webp" alt="Lector de tarjetas RFID RC522 con PIC y MikroC usando hash" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Leer tarjetas</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pines del módulo</h3><a class="min" href="https://youtu.be/KTOdbzodLYA?t=366" target="_blank" rel="noopener">&#9654; 6:06</a></div><p>La librería usa SPI por software, así que se define en qué pines va cada señal. Se incluye RC522.h y se activa la librería Soft_SPI.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;RC522.h&quot;
+// conexion de modulo RFID usando SPI por software
+sbit MFRC522_CS  at LATA0_bit;   // SDA
+sbit MFRC522_Rst at LATA1_bit;   // RST
+sbit SoftSPI_SDO at LATA2_bit;   // MOSI
+sbit SoftSPI_CLK at LATA3_bit;   // SCK
+sbit SoftSPI_SDI at RA4_bit;     // MISO
+sbit MFRC522_CS_Direction  at TRISA0_bit;
+sbit MFRC522_Rst_Direction at TRISA1_bit;
+sbit SoftSPI_SDO_Direction at TRISA2_bit;
+sbit SoftSPI_CLK_Direction at TRISA3_bit;
+sbit SoftSPI_SDI_Direction at TRISA4_bit;
+
+char texto[10];
+char UID[10];            // almacena el buffer del codigo de rfid
+unsigned int TagType;    // almacena el tipo de tag</code></pre></div><div class="dos"><figure class="cap"><a href="img/365.webp" target="_blank"><img src="img/365.webp" alt="Lector de tarjetas RFID RC522 con PIC y MikroC usando hash" loading="lazy"></a></figure><figure class="cap"><a href="img/452.webp" target="_blank"><img src="img/452.webp" alt="Lector de tarjetas RFID RC522 con PIC y MikroC usando hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Detectar la tarjeta</h3><a class="min" href="https://youtu.be/KTOdbzodLYA?t=537" target="_blank" rel="noopener">&#9654; 8:57</a></div><p>Se inician el SPI y el módulo. MFRC522_isCard dice si hay una tarjeta cerca.</p><div class="uno"><figure class="cap"><a href="img/538.webp" target="_blank"><img src="img/538.webp" alt="Lector de tarjetas RFID RC522 con PIC y MikroC usando hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Código único</h3><a class="min" href="https://youtu.be/KTOdbzodLYA?t=638" target="_blank" rel="noopener">&#9654; 10:38</a></div><p>MFRC522_ReadCardSerial llena el buffer UID. Se aplica el hash FNV a sus 5 datos, se pasa a hexadecimal y se envía por serial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Soft_SPI_Init();    // inicia modulo SPI
+MFRC522_Init();     // inicializa la tarjeta
+while (1) {
+  if (MFRC522_isCard(&amp;TagType)) {
+    if (MFRC522_ReadCardSerial(&amp;UID)) {
+      codigo_rfid = Hash_algoritmo();
+      LongIntToHex(codigo_rfid, texto);
+      UART1_Write_Text(&quot;CODIGO_RFID=&quot;);
+      UART1_Write_Text(texto);
+      UART1_Write(&#x27;\r&#x27;);
+      UART1_Write(&#x27;\n&#x27;);
+    }
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/625.webp" target="_blank"><img src="img/625.webp" alt="Lector de tarjetas RFID RC522 con PIC y MikroC usando hash" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Controlar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Una acción por tarjeta</h3><a class="min" href="https://youtu.be/KTOdbzodLYA?t=776" target="_blank" rel="noopener">&#9654; 12:56</a></div><p>Con los códigos leídos se arma una cadena de if: cada tarjeta cambia un LED y envía su nombre. Se pueden agregar tantas tarjetas como se quiera para dar acceso.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (codigo_rfid == 0x00000000) {        // codigo de la tarjeta 1
+  led1 = ~led1;
+  UART1_Write_Text(&quot;TAG1\r\n&quot;);
+}
+else if (codigo_rfid == 0x00000000) {   // codigo de la tarjeta 2
+  led2 = ~led2;
+  UART1_Write_Text(&quot;TAG2\r\n&quot;);
+}
+// ... tarjetas 3 y 4
+codigo_rfid = 0;
+Delay_ms(2000);</code></pre></div><div class="uno"><figure class="cap"><a href="img/797.webp" target="_blank"><img src="img/797.webp" alt="Lector de tarjetas RFID RC522 con PIC y MikroC usando hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Prueba</h3><a class="min" href="https://youtu.be/KTOdbzodLYA?t=915" target="_blank" rel="noopener">&#9654; 15:15</a></div><p>Al acercar cada tarjeta o llavero el terminal muestra su código y su nombre, y se prende o apaga su LED.</p><div class="uno"><figure class="cap"><a href="img/970.webp" target="_blank"><img src="img/970.webp" alt="Lector de tarjetas RFID RC522 con PIC y MikroC usando hash" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=KTOdbzodLYA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

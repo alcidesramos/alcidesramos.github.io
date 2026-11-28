@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ubidots con SIM800, parte 3: recibir datos de la nube en el PIC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Última parte del proyecto con SIM800: el PIC pide a Ubidots el último valor de un switch y de un slider con una petición GET por variable, captura la respuesta y la convierte en número.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/cfNY4Pfp6GE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Ubidots con SIM800, parte 3: recibir datos de la nube en el PIC · Paso a paso">
+  <meta property="og:description" content="Última parte del proyecto con SIM800: el PIC pide a Ubidots el último valor de un switch y de un slider con una petición GET por variable, captura la respuesta y la convierte en número.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/cfNY4Pfp6GE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/cfNY4Pfp6GE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Recibir datos de <span>Ubidots</span> con SIM800</h1>
+    <p class="lead">En el tablero de Ubidots se agregan un switch y un slider (PWM). Para leerlos se hace una petición GET por cada variable, pidiendo solo el último valor (page_size=1). Ubidots responde con un texto largo; para no llenar la RAM, una máquina de estados en la interrupción serial guarda solo la parte que trae el valor. Luego strtok toma lo que hay entre los dos puntos y la coma y atof lo convierte. El ciclo completo envía datos y GPS y luego lee las variables.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=cfNY4Pfp6GE" target="_blank" rel="noopener">&#9654; Ver el video completo (21:56)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/485.webp" alt="Ubidots con SIM800, parte 3: recibir datos de la nube en el PIC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC18F2550</li><li>Módulo SIM800 con datos móviles</li><li>Cuenta de Ubidots con un dispositivo y variables</li><li>Programa de las partes 1 y 2</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Ubidots</a><a href="#f2">2 · PIC</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>En Ubidots</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Variables nuevas</h3><a class="min" href="https://youtu.be/cfNY4Pfp6GE?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>En el tablero se agrega un widget switch (variable suiche) y un slider (variable pwm, de 0 a 255). Son las variables que el micro va a leer.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Una petición por variable</h3><a class="min" href="https://youtu.be/cfNY4Pfp6GE?t=193" target="_blank" rel="noopener">&#9654; 3:13</a></div><p>Se pregunta con GET por el último valor de cada variable. La respuesta es larga, así que no se guarda completa: solo interesa el campo value.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>En el PIC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables</h3><a class="min" href="https://youtu.be/cfNY4Pfp6GE?t=296" target="_blank" rel="noopener">&#9654; 4:56</a></div><p>Se agregan variables para lo capturado y para los valores de suiche y pwm, y un nuevo estado inicial para la recepción de Ubidots.</p><div class="uno"><figure class="cap"><a href="img/369.webp" target="_blank"><img src="img/369.webp" alt="Ubidots con SIM800, parte 3: recibir datos de la nube en el PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Máquina de estados</h3><a class="min" href="https://youtu.be/cfNY4Pfp6GE?t=393" target="_blank" rel="noopener">&#9654; 6:33</a></div><p>La interrupción busca el texto del campo value; desde ahí guarda en trama_rx hasta el final del dato. Si un carácter no coincide vuelve al estado inicial.</p><div class="uno"><figure class="cap"><a href="img/485.webp" target="_blank"><img src="img/485.webp" alt="Ubidots con SIM800, parte 3: recibir datos de la nube en el PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Esperar la respuesta</h3><a class="min" href="https://youtu.be/cfNY4Pfp6GE?t=688" target="_blank" rel="noopener">&#9654; 11:28</a></div><p>Antes de pedir, el estado pasa a capturar, se limpia el buffer, se limpian errores de recepción y se habilita la interrupción. Una función espera hasta 6 segundos o hasta que llegue una respuesta válida.</p><div class="dos"><figure class="cap"><a href="img/718.webp" target="_blank"><img src="img/718.webp" alt="Ubidots con SIM800, parte 3: recibir datos de la nube en el PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/951.webp" target="_blank"><img src="img/951.webp" alt="Ubidots con SIM800, parte 3: recibir datos de la nube en el PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Pedir y convertir</h3><a class="min" href="https://youtu.be/cfNY4Pfp6GE?t=796" target="_blank" rel="noopener">&#9654; 13:16</a></div><p>Se abre el envío con AT+CIPSEND, se manda el GET, se cierra con Ctrl+Z (0x1A) y se espera la respuesta. Entre los dos puntos y la coma está el valor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// para recibir de ubidots
+tempo = manda_AT_COMANDO(&quot;AT+CIPSEND&quot;, &quot;&gt;&quot;, &quot;OK&quot;, 6000);
+Delay_ms(500);
+// pregunta por la variable deseada
+Uart1_write_text_const(&quot;GET /api/v1.6/devices/pruebas/suiche/values?page_size=1&amp;token=TU_TOKEN HTTP/1.1\r\nHost: things.ubidots.com\r\n\r\n&quot;);
+Delay_ms(4000);
+tempo = manda_AT_COMANDO(&quot;\x1A&quot;, &quot;SEND OK&quot;, &quot;ERROR&quot;, 6000);  // fin de envio
+// lee la respuesta
+tempo = tiempo_rec(6000);   // espera una respuesta valida
+// captura el valor de la variable   &quot;value&quot;: 0.0,
+strcpy(captu, strtok(trama_rx, &quot;:&quot;));   // inicia captura desde el :
+strcpy(captu, strtok(0, &quot;,&quot;));          // captura hasta la ,
+suiche_ubi = atof(captu);               // pasa la cadena a numero</code></pre></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Probar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Ciclo completo</h3><a class="min" href="https://youtu.be/cfNY4Pfp6GE?t=996" target="_blank" rel="noopener">&#9654; 16:36</a></div><p>El programa envía las variables y la posición GPS y después hace un GET por cada variable. Al cambiar el switch o el slider en Ubidots, el valor aparece en el micro en el siguiente ciclo.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Más opciones</h3><a class="min" href="https://youtu.be/cfNY4Pfp6GE?t=1193" target="_blank" rel="noopener">&#9654; 19:53</a></div><p>Con esto el proyecto envía y recibe datos de la nube por la red celular. Ubidots también tiene eventos que pueden mandar un correo o un SMS según el valor de una variable.</p><div class="uno"><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Ubidots con SIM800, parte 3: recibir datos de la nube en el PIC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=cfNY4Pfp6GE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

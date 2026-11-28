@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con un receptor VS1838, la interrupción externa y el Timer0 se mide el tiempo entre cada flanco de la señal de un control remoto. Esos tiempos se normalizan y se comparan para saber qué tecla se presionó.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/M_LPm0dNUXI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa · Paso a paso">
+  <meta property="og:description" content="Con un receptor VS1838, la interrupción externa y el Timer0 se mide el tiempo entre cada flanco de la señal de un control remoto. Esos tiempos se normalizan y se comparan para saber qué tecla se presionó.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/M_LPm0dNUXI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/M_LPm0dNUXI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Leer <span>cualquier control IR</span> con un PIC</h1>
+    <p class="lead">El receptor entrega la señal ya demodulada: pulsos de distinto ancho. Con el analizador lógico se ve que cada tecla es un tren de pulsos. El PIC (16F1824 a 16 MHz) interrumpe en cada flanco, alternando subida y bajada, y guarda el valor del Timer0; si el timer se desborda (unos 16 ms sin flancos) el código terminó. Con los tiempos por serial se ve que solo hay tres anchos (6, 10 y 22 cuentas aproximadamente), así que se normalizan a esos valores. Luego se comparan contra los códigos guardados en memoria de programa para prender LEDs. Al final se ve el problema de RAM y la idea del hash, que se usa en el video siguiente.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=M_LPm0dNUXI" target="_blank" rel="noopener">&#9654; Ver el video completo (53:24)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2084.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (UART y conversiones)</li><li>PIC16F1824 con oscilador interno a 16 MHz</li><li>Receptor IR VS1838 (o similar)</li><li>Cualquier control remoto</li><li>Tres LEDs en RC0, RC1 y RC2</li><li>Analizador lógico (opcional) y terminal serial (Hercules)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Señal</a><a href="#f2">2 · Capturar</a><a href="#f3">3 · Comparar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La señal IR</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Receptor</h3><a class="min" href="https://youtu.be/M_LPm0dNUXI?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El VS1838 tiene tres pines: salida, tierra y 5 V. Entrega la señal sin la portadora, lista para el micro. La salida está en alto y baja con cada pulso.</p><div class="dos"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure><figure class="cap"><a href="img/167.webp" target="_blank"><img src="img/167.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Ver el código</h3><a class="min" href="https://youtu.be/M_LPm0dNUXI?t=399" target="_blank" rel="noopener">&#9654; 6:39</a></div><p>Con un analizador lógico se ve que cada tecla manda un tren de pulsos de distinto ancho. La idea es medir el tiempo de cada pulso y de cada espacio.</p><div class="uno"><figure class="cap"><a href="img/441.webp" target="_blank"><img src="img/441.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Timer0</h3><a class="min" href="https://youtu.be/M_LPm0dNUXI?t=499" target="_blank" rel="noopener">&#9654; 8:19</a></div><p>Con 16 MHz y preescalador 256 el Timer0 se desborda a unos 16 ms, más que cualquier pulso. Ese desborde indica que el código terminó.</p><div class="uno"><figure class="cap"><a href="img/578.webp" target="_blank"><img src="img/578.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Capturar los tiempos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Configuración</h3><a class="min" href="https://youtu.be/M_LPm0dNUXI?t=796" target="_blank" rel="noopener">&#9654; 13:16</a></div><p>Se inicia el UART, se envía INICIANDO y se habilita la interrupción INT por flanco de bajada, más la global.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>UART1_Init(19200);
+LATA = 0;
+UART1_Write_Text(&quot;INICIANDO\r\n&quot;);
+// configura el timer cero para medir tiempo mas de 16ms
+OPTION_REG = 0;   // preescalador asignado al timer
+PS2_bit = 1;      // preescalador 256
+PS1_bit = 1;
+PS0_bit = 1;
+// habilitamos interrupcion
+INTEDG_bit = 0;   // flanco de bajada
+INTF_bit = 0;     // limpia la bandera
+INTE_bit = 1;     // habilita la interrupcion por flanco
+GIE_bit = 1;      // autoriza todas las interrupciones</code></pre></div><div class="dos"><figure class="cap"><a href="img/852.webp" target="_blank"><img src="img/852.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure><figure class="cap"><a href="img/1263.webp" target="_blank"><img src="img/1263.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Contar flancos</h3><a class="min" href="https://youtu.be/M_LPm0dNUXI?t=994" target="_blank" rel="noopener">&#9654; 16:34</a></div><p>En cada flanco se cambia el flanco a detectar. Primero solo se cuentan los flancos para saber cuántos datos tiene un código.</p><div class="dos"><figure class="cap"><a href="img/989.webp" target="_blank"><img src="img/989.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure><figure class="cap"><a href="img/1126.webp" target="_blank"><img src="img/1126.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Guardar tiempos</h3><a class="min" href="https://youtu.be/M_LPm0dNUXI?t=1402" target="_blank" rel="noopener">&#9654; 23:22</a></div><p>Se omite la primera interrupción (el timer ya venía corriendo). En las siguientes se guarda el Timer0 en el arreglo tiempo y se reinicia. Si el timer se desborda, el código terminó: se activa flag_codigo y se deshabilita la interrupción hasta procesarlo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Interrupcion() iv 0x0004 ics ICS_AUTO {
+  if (INTF_bit == 1) {
+    if (flag_codigo == 0) {           // el analisis se hace solo
+      if (cuenta != 0) {              // omite el primer dato
+        timer_aux = TMR0;             // captura el valor del timer
+        TMR0 = 0;                     // resetea el timer para otra lectura
+        tiempo[cuenta-1] = timer_aux; // carga un buffer con los datos
+      }
+      cuenta++;
+      INTEDG_bit = ~INTEDG_bit;       // cambia el flanco a detectar
+      if (TMR0IF_bit == 1) {          // mas de 16 ms: fin del codigo
+        flag_codigo = 1;
+        INTE_bit = 0;                 // deshabilita la interrupcion
+      }
+    }
+  }
+  // ... limpia banderas
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1400.webp" target="_blank"><img src="img/1400.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure><figure class="cap"><a href="img/1537.webp" target="_blank"><img src="img/1537.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Ver los tiempos</h3><a class="min" href="https://youtu.be/M_LPm0dNUXI?t=1928" target="_blank" rel="noopener">&#9654; 32:08</a></div><p>En el programa principal, cuando hay código, se envía por serial el número de datos y cada tiempo separado por comas. Luego se limpian las variables y se habilita otra vez la interrupción.</p><div class="dos"><figure class="cap"><a href="img/1810.webp" target="_blank"><img src="img/1810.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure><figure class="cap"><a href="img/2084.webp" target="_blank"><img src="img/2084.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Normalizar y comparar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Tres anchos</h3><a class="min" href="https://youtu.be/M_LPm0dNUXI?t=2034" target="_blank" rel="noopener">&#9654; 33:54</a></div><p>Los tiempos de varias lecturas de la misma tecla varían un poco, pero siempre rondan tres valores. Cada tiempo se cambia por el valor más cercano, con un margen (paso) para cada uno.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void normaliza() {
+  for (cont = 0; cont &lt; cuenta-1; cont++) {
+    if ((tiempo[cont] &gt;= cod1-paso1) &amp;&amp; (tiempo[cont] &lt;= cod1+paso1)) tiempo[cont] = cod1;
+    else if ((tiempo[cont] &gt;= cod2-paso2) &amp;&amp; (tiempo[cont] &lt;= cod2+paso2)) tiempo[cont] = cod2;
+    else if ((tiempo[cont] &gt;= cod3-paso3) &amp;&amp; (tiempo[cont] &lt;= cod3+paso3)) tiempo[cont] = cod3;
+    else tiempo[cont] = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/2221.webp" target="_blank"><img src="img/2221.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Guardar los códigos</h3><a class="min" href="https://youtu.be/M_LPm0dNUXI?t=2439" target="_blank" rel="noopener">&#9654; 40:39</a></div><p>Se presiona cada tecla, se copia el arreglo normalizado y se pega en el programa como codigo1, codigo2 y codigo3. Los LEDs van en RC0, RC1 y RC2.</p><div class="dos"><figure class="cap"><a href="img/2495.webp" target="_blank"><img src="img/2495.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure><figure class="cap"><a href="img/2769.webp" target="_blank"><img src="img/2769.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Falta RAM</h3><a class="min" href="https://youtu.be/M_LPm0dNUXI?t=2755" target="_blank" rel="noopener">&#9654; 45:55</a></div><p>Si los arreglos se declaran sin const, el compilador los pone en RAM y sale el error Not enough RAM. Con const quedan en la memoria de programa.</p><div class="uno"><figure class="cap"><a href="img/2906.webp" target="_blank"><img src="img/2906.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Comparar y probar</h3><a class="min" href="https://youtu.be/M_LPm0dNUXI?t=2856" target="_blank" rel="noopener">&#9654; 47:36</a></div><p>Se compara el arreglo leído con cada código guardado; si coincide se cambia el estado del LED y se envía el comando. El reloj es el oscilador interno a 16 MHz.</p><div class="uno"><figure class="cap"><a href="img/3043.webp" target="_blank"><img src="img/3043.webp" alt="Detectar cualquier código infrarrojo (IR) con PIC y MikroC: clase completa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Lo que sigue</h3><a class="min" href="https://youtu.be/M_LPm0dNUXI?t=3171" target="_blank" rel="noopener">&#9654; 52:51</a></div><p>Guardar arreglos de 60 o 70 datos por tecla gasta memoria. En el siguiente video se reemplaza por un código único con el algoritmo hash FNV.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=M_LPm0dNUXI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

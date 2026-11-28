@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Decodificador automático de códigos IR con el método hash (FNV) en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="En vez de guardar un arreglo largo por cada tecla, los tiempos del código IR se convierten en un solo número de 32 bits con el algoritmo hash FNV. Además la normalización se vuelve automática.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/wZMCQB1k5MI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Decodificador automático de códigos IR con el método hash (FNV) en MikroC · Paso a paso">
+  <meta property="og:description" content="En vez de guardar un arreglo largo por cada tecla, los tiempos del código IR se convierten en un solo número de 32 bits con el algoritmo hash FNV. Además la normalización se vuelve automática.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/wZMCQB1k5MI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/wZMCQB1k5MI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Códigos IR con <span>hash</span></h1>
+    <p class="lead">Es la continuación de la clase de detección IR. FNV parte de un valor base y, por cada dato, multiplica el acumulado por un número primo y hace XOR con el dato. Cualquier secuencia distinta da un número distinto y la misma secuencia da siempre el mismo. Así cada tecla queda como un unsigned long y se libera memoria. Luego se cambia la normalización: en vez de conocer los anchos (6, 10, 22), se compara cada tiempo con el siguiente y se guarda 0, 1 o 2. Con eso sirve cualquier control sin analizarlo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=wZMCQB1k5MI" target="_blank" rel="noopener">&#9654; Ver el video completo (21:44)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1280.webp" alt="Decodificador automático de códigos IR con el método hash (FNV) en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC16F1824 a 16 MHz</li><li>Receptor IR VS1838</li><li>Cualquier control remoto</li><li>Terminal serial (Hercules)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Hash</a><a href="#f2">2 · Usar</a><a href="#f3">3 · Automático</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Hash FNV</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La idea</h3><a class="min" href="https://youtu.be/wZMCQB1k5MI?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Antes cada tecla era un arreglo de más de 60 datos normalizados. El hash convierte toda la secuencia en un número único y repetible de 32 bits.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Decodificador automático de códigos IR con el método hash (FNV) en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Constantes y función</h3><a class="min" href="https://youtu.be/wZMCQB1k5MI?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>El primo y la base de FNV de 32 bits están definidos por sus autores. La función recorre los tiempos guardados.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define FNV_PRIME 16777619
+#define FNV_BASIS 2166136261
+
+unsigned long codigo_ir;   // almacena el codigo unico
+
+unsigned long hash_algoritmo() {
+  unsigned long hash_acum = FNV_BASIS;
+  for (cont = 0; cont &lt; cuenta; cont++) {
+    hash_acum = (hash_acum * FNV_PRIME) ^ tiempo[cont];
+  }
+  return hash_acum;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/939.webp" target="_blank"><img src="img/939.webp" alt="Decodificador automático de códigos IR con el método hash (FNV) en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Mostrar el código</h3><a class="min" href="https://youtu.be/wZMCQB1k5MI?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>Después de normalizar, codigo_ir = hash_algoritmo(). Se pasa a hexadecimal con LongIntToHex y se envía por serial. Cada tecla da un número distinto y siempre el mismo.</p><div class="dos"><figure class="cap"><a href="img/144.webp" target="_blank"><img src="img/144.webp" alt="Decodificador automático de códigos IR con el método hash (FNV) en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/257.webp" target="_blank"><img src="img/257.webp" alt="Decodificador automático de códigos IR con el método hash (FNV) en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/371.webp" target="_blank"><img src="img/371.webp" alt="Decodificador automático de códigos IR con el método hash (FNV) en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Usar los códigos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Comparar</h3><a class="min" href="https://youtu.be/wZMCQB1k5MI?t=368" target="_blank" rel="noopener">&#9654; 6:08</a></div><p>Se copia el código de cada tecla y se compara con if. Ya no hacen falta los arreglos y la memoria de datos queda más libre.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (codigo_ir == 0x00000000) {        // codigo de la tecla 1
+  led1 = ~led1;
+  UART1_Write_Text(&quot;COMANDO1&quot;);
+}
+else if (codigo_ir == 0x00000000) {   // codigo de la tecla 2
+  led2 = ~led2;
+  UART1_Write_Text(&quot;COMANDO2&quot;);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1053.webp" target="_blank"><img src="img/1053.webp" alt="Decodificador automático de códigos IR con el método hash (FNV) en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/wZMCQB1k5MI?t=479" target="_blank" rel="noopener">&#9654; 7:59</a></div><p>Los LEDs van en LATC0 a LATC2. Se mantienen cuenta, el arreglo tiempo y la bandera flag_codigo de la clase anterior.</p><div class="uno"><figure class="cap"><a href="img/712.webp" target="_blank"><img src="img/712.webp" alt="Decodificador automático de códigos IR con el método hash (FNV) en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Normalización automática</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Comparar con el siguiente</h3><a class="min" href="https://youtu.be/wZMCQB1k5MI?t=609" target="_blank" rel="noopener">&#9654; 10:09</a></div><p>La nueva función compara cada tiempo con el siguiente: si están dentro de un rango (alrededor de 0.8) son iguales; si no, se marca cuál es mayor. Se guarda 0, 1 o 2. Así no hay que conocer los anchos del control.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Dos datos más</h3><a class="min" href="https://youtu.be/wZMCQB1k5MI?t=712" target="_blank" rel="noopener">&#9654; 11:52</a></div><p>Con este método el arreglo debe tener dos posiciones más que el número de datos leídos. Después de procesar se limpia el buffer para que no quede un código anterior.</p><div class="uno"><figure class="cap"><a href="img/825.webp" target="_blank"><img src="img/825.webp" alt="Decodificador automático de códigos IR con el método hash (FNV) en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/wZMCQB1k5MI?t=778" target="_blank" rel="noopener">&#9654; 12:58</a></div><p>Se leen otra vez los códigos de cada tecla (se verifica que salgan dos veces iguales), se pegan en el programa y el control prende y apaga los LEDs. Se quitan los mensajes de prueba.</p><div class="uno"><figure class="cap"><a href="img/1280.webp" target="_blank"><img src="img/1280.webp" alt="Decodificador automático de códigos IR con el método hash (FNV) en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Aplicación</h3><a class="min" href="https://youtu.be/wZMCQB1k5MI?t=1222" target="_blank" rel="noopener">&#9654; 20:22</a></div><p>Con cualquier control, incluso el del televisor y con teclas que no se usan, se puede prender la luz o un ventilador.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=wZMCQB1k5MI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

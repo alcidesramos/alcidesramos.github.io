@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comunicación full dúplex entre PIC y MyOpenLab · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="MyOpenLab, un programa libre parecido a LabVIEW, recibe del PIC temperatura, voltaje y dos pulsadores, y le envía la velocidad de dos motores y el estado de dos LEDs por el puerto serial.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/EgjW-q1Wi78/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Comunicación full dúplex entre PIC y MyOpenLab · Paso a paso">
+  <meta property="og:description" content="MyOpenLab, un programa libre parecido a LabVIEW, recibe del PIC temperatura, voltaje y dos pulsadores, y le envía la velocidad de dos motores y el estado de dos LEDs por el puerto serial.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/EgjW-q1Wi78/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/EgjW-q1Wi78/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>PIC y <span>MyOpenLab</span> en full dúplex</h1>
+    <p class="lead">En MyOpenLab se arma un circuito de bloques (panel de circuito) y un panel frontal con indicadores y controles. Para enviar, un generador de pulsos marca el tiempo y se concatenan los valores en una cadena que sale por RS232. Para recibir, se toma la cadena del puerto, se revisa su largo y se extraen las posiciones de cada dato. En el PIC18F2550 se arma la trama con sprintf y, para recibir, una máquina de estados en la interrupción serial guarda los datos entre = y *; luego strtok separa los valores.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=EgjW-q1Wi78" target="_blank" rel="noopener">&#9654; Ver el video completo (38:35)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2290.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab"></figure>
+    <ul class="materiales"><li>MyOpenLab (software libre)</li><li>MikroC PRO for PIC (UART, ADC, PWM, C_String, C_Stdlib)</li><li>PIC18F2550</li><li>Proteus con LM35, potenciómetro, pulsadores, LEDs y COMPIM</li><li>Puertos serial virtuales y Hercules para probar</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · MyOpenLab</a><a href="#f2">2 · Recibir</a><a href="#f3">3 · PIC</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>MyOpenLab</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se crea un proyecto y un archivo. Tiene panel de circuito (la programación) y panel frontal (lo que ve el usuario).</p><div class="uno"><figure class="cap"><a href="img/163.webp" target="_blank"><img src="img/163.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Enviar por serial</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=170" target="_blank" rel="noopener">&#9654; 2:50</a></div><p>En Interfaces está RS232: se elige el puerto y cuándo enviar. Un generador de pulsos de Utilidades da el tiempo de envío (por ejemplo, cada 200 ms) y una constante de texto es lo que se manda. Con Hercules se comprueba que llega.</p><div class="uno"><figure class="cap"><a href="img/296.webp" target="_blank"><img src="img/296.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Controles</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=407" target="_blank" rel="noopener">&#9654; 6:47</a></div><p>En el panel frontal se ponen dos deslizadores para los motores y dos pulsadores para los LEDs.</p><div class="uno"><figure class="cap"><a href="img/429.webp" target="_blank"><img src="img/429.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Armar la trama</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=505" target="_blank" rel="noopener">&#9654; 8:25</a></div><p>Los valores se pasan a texto y se concatenan con separadores. La trama empieza con = y termina con * para que el micro la reconozca.</p><div class="uno"><figure class="cap"><a href="img/562.webp" target="_blank"><img src="img/562.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Recibir en MyOpenLab</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Validar la trama</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=775" target="_blank" rel="noopener">&#9654; 12:55</a></div><p>La cadena que llega se guarda en una variable. Solo se procesa si su largo es mayor o igual al esperado, para evitar datos incompletos.</p><div class="uno"><figure class="cap"><a href="img/828.webp" target="_blank"><img src="img/828.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Extraer datos</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=907" target="_blank" rel="noopener">&#9654; 15:07</a></div><p>Con la función de subcadena se toman las posiciones de cada dato: la temperatura, el voltaje y los dos pulsadores. Se convierten a número y van a un termómetro, un medidor de 0 a 5 V y dos LEDs.</p><div class="uno"><figure class="cap"><a href="img/1094.webp" target="_blank"><img src="img/1094.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa del PIC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Configuración</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=1206" target="_blank" rel="noopener">&#9654; 20:06</a></div><p>Entradas para los pulsadores, RC7 para RX, UART a 9600 y dos PWM para los motores.</p><div class="uno"><figure class="cap"><a href="img/1359.webp" target="_blank"><img src="img/1359.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Enviar</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=1377" target="_blank" rel="noopener">&#9654; 22:57</a></div><p>Se lee la temperatura (LM35) y el voltaje, se leen los pulsadores y sprintf arma la trama con formato fijo para que las posiciones no cambien.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>voltaje = codigo*5.0/1023.0;
+Delay_us(100);
+if (pul1 == 0) led1_0 = 1; else led1_0 = 0;
+if (pul2 == 0) led2_0 = 1; else led2_0 = 0;
+// arma la trama
+sprintf(trama_tx, &quot;/%5.1f/%3.1f/%u/%u/*&quot;, temperatura, voltaje, led1_0, led2_0);
+UART1_Write_Text(trama_tx);
+Delay_ms(100);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1492.webp" target="_blank"><img src="img/1492.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba de envío</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=1576" target="_blank" rel="noopener">&#9654; 26:16</a></div><p>En Proteus con el COMPIM, MyOpenLab muestra la temperatura, el voltaje y los pulsadores.</p><div class="uno"><figure class="cap"><a href="img/1625.webp" target="_blank"><img src="img/1625.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Interrupción serial</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=1708" target="_blank" rel="noopener">&#9654; 28:28</a></div><p>Se habilitan la interrupción de recepción, la de periféricos y la global. Antes se limpian errores apagando y prendiendo CREN, muy útil cuando llegan datos todo el tiempo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>INTCON = 0b01000000;
+RCIF_bit = 0;
+RCIE_bit = 1;   // habilita interrupcion de recepcion
+CREN_bit = 0;   // limpia errores en el buffer de recepcion
+CREN_bit = 1;   // habilita recepcion continua
+GIE_bit = 1;    // autoriza las interrupciones</code></pre></div><div class="uno"><figure class="cap"><a href="img/1758.webp" target="_blank"><img src="img/1758.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Máquina de estados</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=1841" target="_blank" rel="noopener">&#9654; 30:41</a></div><p>En CAP_I se espera el =; en CAP_N se guarda cada dato hasta el *, con un límite de 40 caracteres. Al llegar el * se avisa con una bandera y se vuelve al primer estado.</p><div class="uno"><figure class="cap"><a href="img/1891.webp" target="_blank"><img src="img/1891.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.6</span><h3>Procesar</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=1973" target="_blank" rel="noopener">&#9654; 32:53</a></div><p>strtok toma lo que está después del = y luego cada valor hasta /. atoi lo pasa a número y se escala de 0-100 a 0-255 para el PWM. Lo mismo para el segundo motor y los LEDs.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void procesarx() {
+  unsigned int dato_procesado;
+  strcpy(captura_rx, strtok(trama_rx, &quot;=&quot;));  // inicia captura de tokens
+  strcpy(captura_rx, strtok(0, &quot;/&quot;));         // captura el primer dato
+  dato_procesado = atoi(captura_rx);          // pasa la cadena a numero
+  dato_procesado = dato_procesado*255/100;    // escala a 0-255
+  PWM1_Set_Duty(dato_procesado);              // aplica la velocidad
+  // ... siguiente dato para PWM2 y los leds
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/2024.webp" target="_blank"><img src="img/2024.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.7</span><h3>Después de procesar</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=2103" target="_blank" rel="noopener">&#9654; 35:03</a></div><p>Se limpia la trama, se reinicia el puntero, se limpian errores y se habilita otra vez la interrupción serial.</p><div class="uno"><figure class="cap"><a href="img/2157.webp" target="_blank"><img src="img/2157.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.8</span><h3>Prueba completa</h3><a class="min" href="https://youtu.be/EgjW-q1Wi78?t=2239" target="_blank" rel="noopener">&#9654; 37:19</a></div><p>Al mover los deslizadores cambian los PWM y los pulsadores de MyOpenLab prenden los LEDs, mientras se sigue viendo la temperatura y el voltaje.</p><div class="uno"><figure class="cap"><a href="img/2290.webp" target="_blank"><img src="img/2290.webp" alt="Comunicación full dúplex entre PIC y MyOpenLab" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=EgjW-q1Wi78" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
