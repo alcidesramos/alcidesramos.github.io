@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leer señales de ±10 V de un PLC con un microcontrolador PIC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con solo tres resistencias y una fuente de 5 V se lleva una señal de -10 a 10 V, como la de un PLC o un variador, al rango de 0 a 5 V del ADC. Un PIC12F1822 la lee y la reproduce en PWM.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/QQ9a0iKAZ58/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Leer señales de ±10 V de un PLC con un microcontrolador PIC · Paso a paso">
+  <meta property="og:description" content="Con solo tres resistencias y una fuente de 5 V se lleva una señal de -10 a 10 V, como la de un PLC o un variador, al rango de 0 a 5 V del ADC. Un PIC12F1822 la lee y la reproduce en PWM.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/QQ9a0iKAZ58/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/QQ9a0iKAZ58/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Leer señales de <span>±10 V</span> con un PIC</h1>
+    <p class="lead">Muchos circuitos para adaptar señales de ±10 V usan operacionales, restadores y fuente dual. Aquí basta un divisor con tres resistencias: la entrada pasa por 10k, una de 5k va a +5 V y otra de 10k va a tierra. Sumando las corrientes en el nodo se obtiene Vout = (Vin + 10) / 4, así que -10 V da 0 V y +10 V da 5 V. Un zener 1N4733A protege la entrada. En Proteus se comprueba con un potenciómetro y voltímetros, y luego un PIC12F1822 a 4 MHz lee el canal AN0 y saca el valor por PWM, dividido entre 4 para pasar de 10 a 8 bits, para verlo en el osciloscopio.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=QQ9a0iKAZ58" target="_blank" rel="noopener">&#9654; Ver el video completo (10:20)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/339.webp" alt="Leer señales de ±10 V de un PLC con un microcontrolador PIC"></figure>
+    <ul class="materiales"><li>PIC12F1822</li><li>Resistencias de 10k, 5k y 10k</li><li>Zener 1N4733A (5,1 V)</li><li>Fuente de 5 V</li><li>Potenciómetro para simular la señal del PLC</li><li>MikroC PRO for PIC (ADC y PWM)</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Circuito</a><a href="#f2">2 · Programa</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El circuito</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El problema</h3><a class="min" href="https://youtu.be/QQ9a0iKAZ58?t=1" target="_blank" rel="noopener">&#9654; 0:01</a></div><p>Un PLC o un variador de frecuencia manejan señales de -10 a 10 V, pero el micro solo acepta de 0 a 5 V. No hace falta un operacional ni fuente dual.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Leer señales de ±10 V de un PLC con un microcontrolador PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Tres resistencias</h3><a class="min" href="https://youtu.be/QQ9a0iKAZ58?t=68" target="_blank" rel="noopener">&#9654; 1:08</a></div><p>La señal entra por R1 de 10k al nodo, R2 de 5k va a +5 V y R3 de 10k va a tierra. El nodo es la salida hacia el micro.</p><div class="dos"><figure class="cap"><a href="img/73.webp" target="_blank"><img src="img/73.webp" alt="Leer señales de ±10 V de un PLC con un microcontrolador PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/126.webp" target="_blank"><img src="img/126.webp" alt="Leer señales de ±10 V de un PLC con un microcontrolador PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Cálculo</h3><a class="min" href="https://youtu.be/QQ9a0iKAZ58?t=133" target="_blank" rel="noopener">&#9654; 2:13</a></div><p>Por la ley de corrientes, I1 + I2 = I3. Despejando queda Vout = (Vin + 10) / 4: con -10 V sale 0 V y con 10 V salen 5 V.</p><div class="dos"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Leer señales de ±10 V de un PLC con un microcontrolador PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/233.webp" target="_blank"><img src="img/233.webp" alt="Leer señales de ±10 V de un PLC con un microcontrolador PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Simulación</h3><a class="min" href="https://youtu.be/QQ9a0iKAZ58?t=264" target="_blank" rel="noopener">&#9654; 4:24</a></div><p>Moviendo el potenciómetro de 10 a -10 V la salida va de 5 a 0 V. Al pasar por cero en la entrada, la salida queda en 2,5 V.</p><div class="uno"><figure class="cap"><a href="img/286.webp" target="_blank"><img src="img/286.webp" alt="Leer señales de ±10 V de un PLC con un microcontrolador PIC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Lectura con el PIC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Circuito con el micro</h3><a class="min" href="https://youtu.be/QQ9a0iKAZ58?t=331" target="_blank" rel="noopener">&#9654; 5:31</a></div><p>La salida del divisor va a AN0 de un PIC12F1822 y la salida PWM a un osciloscopio.</p><div class="uno"><figure class="cap"><a href="img/339.webp" target="_blank"><img src="img/339.webp" alt="Leer señales de ±10 V de un PLC con un microcontrolador PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Programa</h3><a class="min" href="https://youtu.be/QQ9a0iKAZ58?t=400" target="_blank" rel="noopener">&#9654; 6:40</a></div><p>Micro a 4 MHz. Se inicia el ADC, solo AN0 es análogo y el valor leído se pasa al PWM corrido dos bits a la derecha, es decir dividido entre 4.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void main()
+{
+  TRISA0_bit = 1;   // entrada análoga
+  TRISA2_bit = 0;   // salida PWM
+
+  ADC_Init();       // inicia el ADC
+
+  // todo digital
+  ANSELA = 0;
+  ANS0_bit = 1;     // análogo AN0
+
+  PWM1_Init(250);
+  PWM1_Set_Duty(0);
+  PWM1_Start();
+  while (1)
+  {
+    PWM1_Set_Duty(ADC_Get_Sample(0) &gt;&gt; 2);  // lee el ADC y divide entre 4
+    Delay_ms(50);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/552.webp" target="_blank"><img src="img/552.webp" alt="Leer señales de ±10 V de un PLC con un microcontrolador PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/QQ9a0iKAZ58?t=535" target="_blank" rel="noopener">&#9654; 8:55</a></div><p>Con 10 V en la entrada el PWM está al 100% y baja hasta 0 al llegar a -10 V. El zener protege la entrada del micro.</p><div class="uno"><figure class="cap"><a href="img/605.webp" target="_blank"><img src="img/605.webp" alt="Leer señales de ±10 V de un PLC con un microcontrolador PIC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=QQ9a0iKAZ58" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con GLCD Font Creator se crean fuentes a gusto, se exportan como vectores para MikroC y se adapta la librería del SSD1306 para escribir textos y caracteres con varias fuentes. Al final se agregan funciones de desplazamiento.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/Aa-DucNGQZk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC · Paso a paso">
+  <meta property="og:description" content="Con GLCD Font Creator se crean fuentes a gusto, se exportan como vectores para MikroC y se adapta la librería del SSD1306 para escribir textos y caracteres con varias fuentes. Al final se agregan funciones de desplazamiento.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/Aa-DucNGQZk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Aa-DucNGQZk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Fuentes propias en <span>OLED SSD1306</span></h1>
+    <p class="lead">La librería del video anterior de la OLED SSD1306 solo traía una letra pequeña. Para usar otras, se abre GLCD Font Creator, se crea una fuente nueva a partir de una del computador (por ejemplo Tahoma 10x11 del carácter 32 al 127), se quitan los espacios sobrantes a los lados y se exporta para mikroC como un vector. Ese formato no está ordenado como lo espera la librería, así que se cambian las funciones de escritura: OLED_print_text y OLED_print_char reciben ahora la fuente que se quiere usar. Se agrega una segunda fuente más grande y luego las funciones de desplazamiento del SSD1306 a la derecha, a la izquierda y en diagonal, por rango de páginas. El ejemplo final mueve un texto mientras un contador sigue actualizándose en otra parte de la pantalla.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Aa-DucNGQZk" target="_blank" rel="noopener">&#9654; Ver el video completo (23:18)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1380.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC"></figure>
+    <ul class="materiales"><li>PIC18F2550</li><li>Pantalla OLED SSD1306 128x64 I2C</li><li>Resistencias de pull-up de 4k7 en SDA y SCL</li><li>GLCD Font Creator</li><li>MikroC PRO for PIC (I2C)</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Fuente</a><a href="#f2">2 · Librería</a><a href="#f3">3 · Scroll</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Crear la fuente</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Punto de partida</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=1" target="_blank" rel="noopener">&#9654; 0:01</a></div><p>La OLED de 128x64 por I2C con el PIC18F2550, del video anterior. La librería solo traía una letra.</p><div class="uno"><figure class="cap"><a href="img/79.webp" target="_blank"><img src="img/79.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Código anterior</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=70" target="_blank" rel="noopener">&#9654; 1:10</a></div><p>El programa anterior escribía textos e imágenes con la librería del SSD1306.</p><div class="uno"><figure class="cap"><a href="img/138.webp" target="_blank"><img src="img/138.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>GLCD Font Creator</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=138" target="_blank" rel="noopener">&#9654; 2:18</a></div><p>Se crea una fuente nueva a partir de una del computador, eligiendo tamaño y el rango de caracteres, por ejemplo del 32 al 127.</p><div class="dos"><figure class="cap"><a href="img/197.webp" target="_blank"><img src="img/197.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/257.webp" target="_blank"><img src="img/257.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Quitar espacios</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=203" target="_blank" rel="noopener">&#9654; 3:23</a></div><p>La herramienta permite quitar columnas vacías a la derecha y a la izquierda para que los caracteres queden más juntos.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Exportar</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=274" target="_blank" rel="noopener">&#9654; 4:34</a></div><p>Se exporta para mikroC y se copia el vector al archivo de fuentes.</p><div class="dos"><figure class="cap"><a href="img/375.webp" target="_blank"><img src="img/375.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/434.webp" target="_blank"><img src="img/434.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Adaptar la librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Formato del vector</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=340" target="_blank" rel="noopener">&#9654; 5:40</a></div><p>Cada carácter empieza con su ancho y luego los bytes de cada columna. No viene en el orden que usaba la librería, así que hay que cambiar las funciones de escritura.</p><div class="uno"><figure class="cap"><a href="img/493.webp" target="_blank"><img src="img/493.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Nuevas funciones</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=539" target="_blank" rel="noopener">&#9654; 8:59</a></div><p>Se reemplazan los archivos de la librería por los nuevos y se escribe con la fuente como parámetro.</p><div class="uno"><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Primera prueba</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=772" target="_blank" rel="noopener">&#9654; 12:52</a></div><p>Ya aparece el texto con la fuente nueva.</p><div class="uno"><figure class="cap"><a href="img/789.webp" target="_blank"><img src="img/789.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Otra fuente</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=844" target="_blank" rel="noopener">&#9654; 14:04</a></div><p>Se crea una segunda fuente más grande y se agrega al mismo archivo.</p><div class="uno"><figure class="cap"><a href="img/907.webp" target="_blank"><img src="img/907.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Texto y carácter</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=915" target="_blank" rel="noopener">&#9654; 15:15</a></div><p>OLED_print_text escribe una cadena y OLED_print_char un solo carácter, cada uno con la fuente que se le pase.</p><div class="uno"><figure class="cap"><a href="img/1084.webp" target="_blank"><img src="img/1084.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Desplazamiento</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Funciones de scroll</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=980" target="_blank" rel="noopener">&#9654; 16:20</a></div><p>Se agregan las funciones del SSD1306 para desplazar a la derecha, a la izquierda y en diagonal, indicando la página de inicio y la final.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>OLED_init();
+OLED_print_text(0, 0, &quot;HOLA&quot;, &amp;font1);
+OLED_print_char(6, 3, &#x27;A&#x27;, &amp;font2);
+
+OLED_scroll_der(0, 5);
+Delay_ms(2000);
+OLED_scroll_izq(0, 5);
+Delay_ms(2000);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1025.webp" target="_blank"><img src="img/1025.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Prueba</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=1113" target="_blank" rel="noopener">&#9654; 18:33</a></div><p>El texto se mueve un tiempo hacia un lado y luego hacia el otro.</p><div class="dos"><figure class="cap"><a href="img/1143.webp" target="_blank"><img src="img/1143.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1203.webp" target="_blank"><img src="img/1203.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Contador</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=1255" target="_blank" rel="noopener">&#9654; 20:55</a></div><p>En el ciclo se escribe un contador con sprintf. La pantalla puede seguir rotando mientras el conteo se actualiza.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  sprintf(texto, &quot;%3d&quot;, cuenta++);
+  OLED_print_text(5, 6, texto, &amp;font1);
+  Delay_ms(100);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1262.webp" target="_blank"><img src="img/1262.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Resultado</h3><a class="min" href="https://youtu.be/Aa-DucNGQZk?t=1323" target="_blank" rel="noopener">&#9654; 22:03</a></div><p>La pantalla muestra varias fuentes, texto desplazándose y el contador.</p><div class="dos"><figure class="cap"><a href="img/1321.webp" target="_blank"><img src="img/1321.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="Personalizar letras en pantalla OLED SSD1306 y desplazar caracteres con MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Aa-DucNGQZk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

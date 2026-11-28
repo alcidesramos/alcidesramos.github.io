@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Decodificador automático de códigos IR con método hash, simulación en Proteus · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El método hash convierte la trama de cualquier control remoto en un número, sin conocer su protocolo. Se simula en Proteus con el control virtual: el PIC muestra el código de cada tecla por serial y prende un LED para cada comando.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/PMSUpy6P0yk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Decodificador automático de códigos IR con método hash, simulación en Proteus · Paso a paso">
+  <meta property="og:description" content="El método hash convierte la trama de cualquier control remoto en un número, sin conocer su protocolo. Se simula en Proteus con el control virtual: el PIC muestra el código de cada tecla por serial y prende un LED para cada comando.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/PMSUpy6P0yk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/PMSUpy6P0yk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Decodificador IR por <span>hash</span> en Proteus</h1>
+    <p class="lead">En un video anterior el decodificador por hash se mostró con hardware real. Aquí se simula en Proteus: un PIC16F1824 recibe el receptor IR en la interrupción externa por flanco de bajada y mide los tiempos con el Timer0 (prescalador para unos 16 ms). Con los tiempos se normaliza la trama y una función hash la convierte en un número de 32 bits, sin importar el protocolo del control. El código se envía por la UART como texto hexadecimal. Después se copian los códigos de las teclas elegidas al programa y cada uno cambia el estado de un LED y escribe COMANDO1, COMANDO2 o COMANDO3. En la simulación hay detalles que no son iguales a la realidad, como LEDs que quedan prendidos.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=PMSUpy6P0yk" target="_blank" rel="noopener">&#9654; Ver el video completo (8:28)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/495.webp" alt="Decodificador automático de códigos IR con método hash, simulación en Proteus"></figure>
+    <ul class="materiales"><li>PIC16F1824</li><li>Control remoto virtual IRX_KEYS de Proteus</li><li>Tres LEDs con resistencias de 220 Ω</li><li>Virtual Terminal</li><li>MikroC PRO for PIC (UART y Conversions)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Montaje</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Montaje</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito</h3><a class="min" href="https://youtu.be/PMSUpy6P0yk?t=69" target="_blank" rel="noopener">&#9654; 1:09</a></div><p>El PIC16F1824 con tres LEDs, el terminal virtual y el receptor IR en el pin de la interrupción externa.</p><div class="uno"><figure class="cap"><a href="img/106.webp" target="_blank"><img src="img/106.webp" alt="Decodificador automático de códigos IR con método hash, simulación en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Arranque</h3><a class="min" href="https://youtu.be/PMSUpy6P0yk?t=139" target="_blank" rel="noopener">&#9654; 2:19</a></div><p>Al iniciar, el micro envía INICIANDO por la UART.</p><div class="uno"><figure class="cap"><a href="img/236.webp" target="_blank"><img src="img/236.webp" alt="Decodificador automático de códigos IR con método hash, simulación en Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Timer e interrupción</h3><a class="min" href="https://youtu.be/PMSUpy6P0yk?t=205" target="_blank" rel="noopener">&#9654; 3:25</a></div><p>El Timer0 mide tiempos de hasta unos 16 ms y la interrupción externa se activa por flanco de bajada.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// configura el timer cero para medir tiempos de 16 ms
+OPTION_REG = 0;   // prescalador asignado al timer 0
+// selecciona el prescalador para 16 ms
+PS2_bit = 1;
+PS1_bit = 1;
+PS0_bit = 1;
+
+UART1_Write_Text(&quot;INICIANDO\r\n&quot;);
+LATC = 0;
+
+// habilitamos interrupción
+INTCON = 0b01000000;
+INTEDG_bit = 0;   // por flanco de bajada
+INTF_bit = 0;     // limpia la bandera de interrupción
+INTE_bit = 1;     // habilita la interrupción por flanco
+
+GIE_bit = 1;      // autoriza todas las interrupciones</code></pre></div><div class="dos"><figure class="cap"><a href="img/279.webp" target="_blank"><img src="img/279.webp" alt="Decodificador automático de códigos IR con método hash, simulación en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/322.webp" target="_blank"><img src="img/322.webp" alt="Decodificador automático de códigos IR con método hash, simulación en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Código hash</h3><a class="min" href="https://youtu.be/PMSUpy6P0yk?t=344" target="_blank" rel="noopener">&#9654; 5:44</a></div><p>Cuando llega una trama completa se normaliza, se calcula el hash y se envía en hexadecimal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  if (flag_codigo == 1)
+  {
+    normaliza();
+    codigo_ir = Hash_algoritmo();
+    LongIntToHex(codigo_ir, texto);
+    UART1_Write_Text(&quot;CODIGO_IR=&quot;);
+    UART1_Write_Text(texto);
+    UART1_Write(&#x27;\r&#x27;);
+    UART1_Write(&#x27;\n&#x27;);
+    // ... aquí se comparan los códigos
+  }
+}</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Leer las teclas</h3><a class="min" href="https://youtu.be/PMSUpy6P0yk?t=365" target="_blank" rel="noopener">&#9654; 6:05</a></div><p>Con el control virtual se presiona cada tecla y en el terminal aparece su código.</p><div class="dos"><figure class="cap"><a href="img/365.webp" target="_blank"><img src="img/365.webp" alt="Decodificador automático de códigos IR con método hash, simulación en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/409.webp" target="_blank"><img src="img/409.webp" alt="Decodificador automático de códigos IR con método hash, simulación en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Asignar comandos</h3><a class="min" href="https://youtu.be/PMSUpy6P0yk?t=408" target="_blank" rel="noopener">&#9654; 6:48</a></div><p>Se copian los códigos de las teclas al programa. Cada uno cambia un LED y escribe el comando. Use los códigos que su control muestre en el terminal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (codigo_ir == 0xAAAAAAAA)        // código de la tecla 1
+{
+  led1 = ~led1;
+  UART1_Write_Text(&quot;COMANDO1&quot;);
+}
+else if (codigo_ir == 0xBBBBBBBB)   // código de la tecla 2
+{
+  led2 = ~led2;
+  UART1_Write_Text(&quot;COMANDO2&quot;);
+}
+else if (codigo_ir == 0xCCCCCCCC)   // código de la tecla 3
+{
+  // led3 y COMANDO3
+}</code></pre></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Comandos</h3><a class="min" href="https://youtu.be/PMSUpy6P0yk?t=476" target="_blank" rel="noopener">&#9654; 7:56</a></div><p>Cada tecla aprendida prende o apaga su LED y el terminal muestra el comando.</p><div class="uno"><figure class="cap"><a href="img/495.webp" target="_blank"><img src="img/495.webp" alt="Decodificador automático de códigos IR con método hash, simulación en Proteus" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=PMSUpy6P0yk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

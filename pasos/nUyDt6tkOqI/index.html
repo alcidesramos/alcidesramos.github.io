@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Driver para válvula proporcional con microcontrolador usando ingeniería inversa · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Una experiencia real: los drivers importados de unas válvulas proporcionales se dañaban y tardaban en llegar. Se midieron sus señales, se diseñó un hardware propio con un micro y se ajustaron ecuaciones para reemplazarlos.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/nUyDt6tkOqI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Driver para válvula proporcional con microcontrolador usando ingeniería inversa · Paso a paso">
+  <meta property="og:description" content="Una experiencia real: los drivers importados de unas válvulas proporcionales se dañaban y tardaban en llegar. Se midieron sus señales, se diseñó un hardware propio con un micro y se ajustaron ecuaciones para reemplazarlos.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/nUyDt6tkOqI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/nUyDt6tkOqI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Driver de <span>válvula proporcional</span></h1>
+    <p class="lead">Una empresa tenía válvulas proporcionales cuyos drivers se dañaban seguido y traerlos importados tardaba mucho. La solución fue ingeniería inversa: medir qué señales entrega el driver original (con un osciloscopio se ve un PWM a unos 143 Hz), entender qué espera la válvula y diseñar un hardware propio con un microcontrolador. Se tomaron datos de entrada y salida, se graficaron en Excel y con las líneas de tendencia se sacaron ecuaciones que se meten en el programa para pasar de lo que llega a lo que necesita la válvula. Después se probó en el banco y se instaló en la máquina. El mensaje: con un micro, sabiendo leer y generar señales, se pueden crear soluciones propias que no se encuentran hechas.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=nUyDt6tkOqI" target="_blank" rel="noopener">&#9654; Ver el video completo (7:14)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/125.webp" alt="Driver para válvula proporcional con microcontrolador usando ingeniería inversa"></figure>
+    <ul class="materiales"><li>Válvula proporcional y su driver original</li><li>Osciloscopio (para medir las señales)</li><li>Fuente de laboratorio</li><li>Tarjeta propia con microcontrolador</li><li>Excel para ajustar las ecuaciones</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Problema</a><a href="#f2">2 · Solución</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El problema</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La válvula</h3><a class="min" href="https://youtu.be/nUyDt6tkOqI?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Una válvula proporcional de una máquina industrial. Sus drivers importados se dañaban y el reemplazo tardaba.</p><div class="uno"><figure class="cap"><a href="img/15.webp" target="_blank"><img src="img/15.webp" alt="Driver para válvula proporcional con microcontrolador usando ingeniería inversa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Ingeniería inversa</h3><a class="min" href="https://youtu.be/nUyDt6tkOqI?t=68" target="_blank" rel="noopener">&#9654; 1:08</a></div><p>Para hacer un driver propio primero hay que saber qué hace el original: qué recibe y qué le entrega a la válvula.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Medir las señales</h3><a class="min" href="https://youtu.be/nUyDt6tkOqI?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Con el osciloscopio se ve que el driver entrega un PWM, aquí cerca de 143 Hz, que cambia según la señal de mando.</p><div class="uno"><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="Driver para válvula proporcional con microcontrolador usando ingeniería inversa" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La solución</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Hardware propio</h3><a class="min" href="https://youtu.be/nUyDt6tkOqI?t=133" target="_blank" rel="noopener">&#9654; 2:13</a></div><p>Con la idea clara se diseña una tarjeta con un micro y su etapa de potencia, y se prueba en el banco con fuentes de laboratorio.</p><div class="uno"><figure class="cap"><a href="img/162.webp" target="_blank"><img src="img/162.webp" alt="Driver para válvula proporcional con microcontrolador usando ingeniería inversa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>En la máquina</h3><a class="min" href="https://youtu.be/nUyDt6tkOqI?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>La tarjeta se conecta a la máquina donde trabajan las válvulas.</p><div class="uno"><figure class="cap"><a href="img/236.webp" target="_blank"><img src="img/236.webp" alt="Driver para válvula proporcional con microcontrolador usando ingeniería inversa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Programa propio</h3><a class="min" href="https://youtu.be/nUyDt6tkOqI?t=263" target="_blank" rel="noopener">&#9654; 4:23</a></div><p>Este código no se encuentra hecho: hay que crearlo, y además es propiedad intelectual de quien lo desarrolla.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Ecuaciones</h3><a class="min" href="https://youtu.be/nUyDt6tkOqI?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>Con los datos medidos se hacen gráficas en Excel y se sacan las ecuaciones de las líneas de tendencia. Esas ecuaciones van en el programa del micro.</p><div class="uno"><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="Driver para válvula proporcional con microcontrolador usando ingeniería inversa" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Conclusión</h3><a class="min" href="https://youtu.be/nUyDt6tkOqI?t=395" target="_blank" rel="noopener">&#9654; 6:35</a></div><p>Conociendo un micro y cómo leer y generar señales se puede reemplazar un equipo importado con un desarrollo propio.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=nUyDt6tkOqI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

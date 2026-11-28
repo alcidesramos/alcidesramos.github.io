@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leer temperaturas positivas y negativas con un LM35 y fuente simple · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Dos diodos en la pata de tierra del LM35 lo elevan sobre 0 V, así puede entregar temperaturas bajo cero sin fuente negativa. El PIC lee las dos patas, las resta y muestra la temperatura con signo en un LCD.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/x5MjKUfiiK4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Leer temperaturas positivas y negativas con un LM35 y fuente simple · Paso a paso">
+  <meta property="og:description" content="Dos diodos en la pata de tierra del LM35 lo elevan sobre 0 V, así puede entregar temperaturas bajo cero sin fuente negativa. El PIC lee las dos patas, las resta y muestra la temperatura con signo en un LCD.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/x5MjKUfiiK4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/x5MjKUfiiK4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>LM35 con temperaturas <span>negativas</span></h1>
+    <p class="lead">Para que el LM35 mida bajo cero normalmente se alimenta con una fuente negativa. Con una fuente simple se ponen dos diodos 1N4148 en serie entre la pata de tierra del sensor y la tierra del circuito, y una resistencia de 10k de la salida a tierra. Así la referencia del sensor queda unos voltios arriba y su salida puede quedar por debajo de esa referencia. El PIC16F873A a 4 MHz lee la salida en AN0 y la referencia en AN1; la resta, con signo, multiplicada por 500/1023 da la temperatura en grados, positiva o negativa, que se muestra en el LCD con un decimal.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=x5MjKUfiiK4" target="_blank" rel="noopener">&#9654; Ver el video completo (7:04)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/410.webp" alt="Leer temperaturas positivas y negativas con un LM35 y fuente simple"></figure>
+    <ul class="materiales"><li>Sensor LM35</li><li>Dos diodos 1N4148</li><li>Resistencia de 10k</li><li>PIC16F873A a 4 MHz</li><li>LCD 16x2</li><li>MikroC PRO for PIC (ADC, LCD y Conversions)</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Circuito</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El circuito</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Diodos en la tierra</h3><a class="min" href="https://youtu.be/x5MjKUfiiK4?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La pata de tierra del LM35 va a tierra a través de dos diodos 1N4148 en serie, y la salida lleva una resistencia de 10k a tierra.</p><div class="uno"><figure class="cap"><a href="img/15.webp" target="_blank"><img src="img/15.webp" alt="Leer temperaturas positivas y negativas con un LM35 y fuente simple" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Medir las dos patas</h3><a class="min" href="https://youtu.be/x5MjKUfiiK4?t=51" target="_blank" rel="noopener">&#9654; 0:51</a></div><p>La temperatura es la diferencia entre la salida y la pata de referencia, así que el micro lee las dos.</p><div class="uno"><figure class="cap"><a href="img/51.webp" target="_blank"><img src="img/51.webp" alt="Leer temperaturas positivas y negativas con un LM35 y fuente simple" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/x5MjKUfiiK4?t=136" target="_blank" rel="noopener">&#9654; 2:16</a></div><p>Proyecto a 4 MHz con las librerías ADC, LCD y Conversions.</p><div class="uno"><figure class="cap"><a href="img/159.webp" target="_blank"><img src="img/159.webp" alt="Leer temperaturas positivas y negativas con un LM35 y fuente simple" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Variables y LCD</h3><a class="min" href="https://youtu.be/x5MjKUfiiK4?t=195" target="_blank" rel="noopener">&#9654; 3:15</a></div><p>La variable del código va con signo para poder tener valores negativos. El LCD va en el puerto B.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>signed int codigo;
+float temperatura;
+char texto[30];
+
+// LCD module connections
+sbit LCD_RS at RB0_bit;
+sbit LCD_EN at RB1_bit;
+sbit LCD_D4 at RB2_bit;
+sbit LCD_D5 at RB3_bit;
+sbit LCD_D6 at RB4_bit;
+sbit LCD_D7 at RB5_bit;
+// ... y las sbit _Direction en TRISB0..TRISB5</code></pre></div><div class="uno"><figure class="cap"><a href="img/195.webp" target="_blank"><img src="img/195.webp" alt="Leer temperaturas positivas y negativas con un LM35 y fuente simple" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Inicio</h3><a class="min" href="https://youtu.be/x5MjKUfiiK4?t=230" target="_blank" rel="noopener">&#9654; 3:50</a></div><p>RA0 y RA1 como entradas análogas, se inicia el ADC y el LCD con el texto TEMPERATURA=.</p><div class="uno"><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Leer temperaturas positivas y negativas con un LM35 y fuente simple" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Restar los canales</h3><a class="min" href="https://youtu.be/x5MjKUfiiK4?t=272" target="_blank" rel="noopener">&#9654; 4:32</a></div><p>Se resta la referencia de la salida y se pasa a grados. La temperatura se muestra con el signo de grados y la letra C.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  codigo = ADC_Read(0) - ADC_Read(1);        // resta los dos canales
+  temperatura = codigo * 500.0 / 1023.0;     // fórmula para pasar a grados
+  FloatToStr_(temperatura, texto, 1);
+  Lcd_Out(2, 7, &quot;         &quot;);                // borra la línea
+  Lcd_Out(2, 7, texto);                      // escribe la temperatura
+  Lcd_Chr_CP(223);                           // signo grados
+  Lcd_Chr_CP(&#x27;C&#x27;);                           // celsius
+  Delay_ms(500);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/302.webp" target="_blank"><img src="img/302.webp" alt="Leer temperaturas positivas y negativas con un LM35 y fuente simple" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Un decimal</h3><a class="min" href="https://youtu.be/x5MjKUfiiK4?t=345" target="_blank" rel="noopener">&#9654; 5:45</a></div><p>La función FloatToStr_ del video deja la temperatura con un solo decimal.</p><div class="uno"><figure class="cap"><a href="img/374.webp" target="_blank"><img src="img/374.webp" alt="Leer temperaturas positivas y negativas con un LM35 y fuente simple" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/x5MjKUfiiK4?t=379" target="_blank" rel="noopener">&#9654; 6:19</a></div><p>El LCD muestra valores positivos como 17,1 °C y negativos como -2,0 °C, con un LM35 y una fuente simple.</p><div class="uno"><figure class="cap"><a href="img/410.webp" target="_blank"><img src="img/410.webp" alt="Leer temperaturas positivas y negativas con un LM35 y fuente simple" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=x5MjKUfiiK4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
