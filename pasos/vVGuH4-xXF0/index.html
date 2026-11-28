@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tips para programar PIC nuevos con el PICkit 2 y el PICkit 3, y actualizar su firmware · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo hacer que el PICkit 2 y el PICkit 3 reconozcan PIC más nuevos: actualizar el archivo de dispositivos, y para dsPIC modernos pasar el PICkit 3 a modo MPLAB y programar desde MPLAB X o MPLAB IPE.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/vVGuH4-xXF0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Tips para programar PIC nuevos con el PICkit 2 y el PICkit 3, y actualizar su firmware · Paso a paso">
+  <meta property="og:description" content="Cómo hacer que el PICkit 2 y el PICkit 3 reconozcan PIC más nuevos: actualizar el archivo de dispositivos, y para dsPIC modernos pasar el PICkit 3 a modo MPLAB y programar desde MPLAB X o MPLAB IPE.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/vVGuH4-xXF0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/vVGuH4-xXF0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Más PIC con el <span>PICkit 2 y 3</span></h1>
+    <p class="lead">Los programas del PICkit 2 y del PICkit 3 leen la lista de micros de un archivo PK2DeviceFile.dat. Si se reemplaza por uno actualizado (hay un editor y un foro donde descargarlo), aparecen micros como el PIC16F1824. Para micros más modernos, como el dsPIC33EP512MU810, el programa del PICkit 3 no sirve: en Tools se pasa a modo MPLAB y se programa desde MPLAB X (con XC8, XC16) o, si el código se hizo en MikroC o CCS, con MPLAB IPE cargando el .hex. Ambos actualizan el firmware solos. Se puede volver al modo anterior cargando el sistema operativo del PICkit 3 sin interrumpir el proceso.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=vVGuH4-xXF0" target="_blank" rel="noopener">&#9654; Ver el video completo (13:32)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/650.webp" alt="Tips para programar PIC nuevos con el PICkit 2 y el PICkit 3, y actualizar su firmware"></figure>
+    <ul class="materiales"><li>PICkit 2 o PICkit 3</li><li>Archivo PK2DeviceFile.dat actualizado</li><li>Programa PICkit 3 Programmer</li><li>MPLAB X y MPLAB IPE</li><li>Tarjeta con el micro a programar</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Lista</a><a href="#f2">2 · Modo MPLAB</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Archivo de dispositivos</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El problema</h3><a class="min" href="https://youtu.be/vVGuH4-xXF0?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El programa del PICkit tiene una lista de micros en el archivo PK2DeviceFile.dat. Si el micro no está, no lo reconoce, como pasa con un PIC16F1824 de montaje superficial.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Tips para programar PIC nuevos con el PICkit 2 y el PICkit 3, y actualizar su firmware" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Actualizarlo</h3><a class="min" href="https://youtu.be/vVGuH4-xXF0?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>Se descarga el archivo actualizado del foro de Microchip y se pega en la carpeta de instalación del PICkit 2 o del PICkit 3, reemplazando el viejo. El editor del archivo es opcional, solo sirve para ver la lista.</p><div class="uno"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Tips para programar PIC nuevos con el PICkit 2 y el PICkit 3, y actualizar su firmware" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/vVGuH4-xXF0?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>Con el archivo nuevo el PICkit 3 reconoce el PIC16F1824 y lo puede leer y programar.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Tips para programar PIC nuevos con el PICkit 2 y el PICkit 3, y actualizar su firmware" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Micros más modernos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Modo MPLAB</h3><a class="min" href="https://youtu.be/vVGuH4-xXF0?t=268" target="_blank" rel="noopener">&#9654; 4:28</a></div><p>Un dsPIC33EP512MU810 no se programa con el programa básico. En Tools se elige pasar a modo MPLAB; desde ahí el PICkit 3 se usa con MPLAB X o MPLAB IPE.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Desde MPLAB X</h3><a class="min" href="https://youtu.be/vVGuH4-xXF0?t=336" target="_blank" rel="noopener">&#9654; 5:36</a></div><p>Se crea el proyecto para el micro, se elige el PICkit 3 y se compila con XC16. Al programar, MPLAB descarga el firmware nuevo y luego graba. Debe detectar el ID del micro; si no, hay una mala conexión o el micro está dañado.</p><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Tips para programar PIC nuevos con el PICkit 2 y el PICkit 3, y actualizar su firmware" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Desde MPLAB IPE</h3><a class="min" href="https://youtu.be/vVGuH4-xXF0?t=502" target="_blank" rel="noopener">&#9654; 8:22</a></div><p>Si el programa se hizo en MikroC o CCS, se usa MPLAB IPE, que se instala con MPLAB X: se escribe el micro, se elige el PICkit 3, se conecta, se carga el .hex y se programa.</p><div class="uno"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Tips para programar PIC nuevos con el PICkit 2 y el PICkit 3, y actualizar su firmware" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Volver al modo anterior</h3><a class="min" href="https://youtu.be/vVGuH4-xXF0?t=602" target="_blank" rel="noopener">&#9654; 10:02</a></div><p>En el programa del PICkit 3, Tools, se carga el sistema operativo desde su carpeta. No se debe interrumpir porque se puede dañar el programador. En modo MPLAB, el IPE puede no conectar hasta que actualiza el firmware.</p><div class="dos"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Tips para programar PIC nuevos con el PICkit 2 y el PICkit 3, y actualizar su firmware" loading="lazy"></a></figure><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Tips para programar PIC nuevos con el PICkit 2 y el PICkit 3, y actualizar su firmware" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=vVGuH4-xXF0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un dsPIC33FJ32MC202 recibe la trama de LabVIEW, la separa con strtok y mueve dos servos (timón y variador del motor) y dos LEDs. Luego el cable serial se cambia por dos XBee.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/H_2Kxf2Jjtk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC · Paso a paso">
+  <meta property="og:description" content="Un dsPIC33FJ32MC202 recibe la trama de LabVIEW, la separa con strtok y mueve dos servos (timón y variador del motor) y dos LEDs. Luego el cable serial se cambia por dos XBee.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/H_2Kxf2Jjtk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/H_2Kxf2Jjtk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Buque por radio con <span>dsPIC y XBee</span></h1>
+    <p class="lead">El dsPIC trabaja a 80 MHz con el oscilador interno y PLL (con el interno de 7.37 MHz PLLFBD es 41; con cristal de 4 MHz, 78). El UART y los PWM se remapean a los pines que se quieran. La interrupción del UART usa una máquina de estados que espera I, N, I y luego guarda todo hasta el *, con un límite de 50 datos; entonces activa una bandera. procesa_rx1 separa con strtok la dirección, la velocidad y los dos LEDs. La dirección va directo al servo 1 y la velocidad (0 a 100) se escala a 0 a 90 para el variador. En XCTU se configuran los XBee serie 1 con el mismo canal y red, y sus direcciones de origen y destino cruzadas.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=H_2Kxf2Jjtk" target="_blank" rel="noopener">&#9654; Ver el video completo (24:26)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1108.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC"></figure>
+    <ul class="materiales"><li>MikroC PRO for dsPIC</li><li>dsPIC33FJ32MC202</li><li>Dos servos (o servo y variador de motor brushless)</li><li>Dos LEDs</li><li>Dos módulos XBee serie 1 y XCTU</li><li>LabVIEW con el programa de las partes 1 y 2</li><li>Proteus con COMPIM y puerto virtual</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · dsPIC</a><a href="#f2">2 · Recibir</a><a href="#f3">3 · XBee</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar el dsPIC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La trama</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Llega INI=/DIR/VEL/L1/L2/*: el micro debe reconocer el inicio, el final y sacar los cuatro valores.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=134" target="_blank" rel="noopener">&#9654; 2:14</a></div><p>dsPIC33FJ32MC202 a 80 MHz. Oscilador interno rápido con PLL, primario deshabilitado y la opción de múltiples reconfiguraciones de pines.</p><div class="uno"><figure class="cap"><a href="img/196.webp" target="_blank"><img src="img/196.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Librerías y variables</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=237" target="_blank" rel="noopener">&#9654; 3:57</a></div><p>Se agregan las librerías propias de interrupciones, PWM y la del UART con trama. Se declaran la trama, la bandera y los LEDs.</p><div class="uno"><figure class="cap"><a href="img/279.webp" target="_blank"><img src="img/279.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Servos</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=337" target="_blank" rel="noopener">&#9654; 5:37</a></div><p>Cada servo convierte el ángulo en el valor del registro del PWM con la ecuación explicada en el video de PWM.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit led1 at RB0_bit;
+sbit led2 at RB1_bit;
+
+float serv1, serv2;
+
+void servo1(float angulo)
+{
+  OC1RS = 3.4722*angulo + 937.5;
+}
+
+void servo2(float angulo)
+{
+  OC2RS = 3.4722*angulo + 937.5;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/362.webp" target="_blank"><img src="img/362.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Remapear pines</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=416" target="_blank" rel="noopener">&#9654; 6:56</a></div><p>Todo digital, puertos como salida y con PPS_Mapping el UART en RP13 y RP14 y los PWM en RP2 y RP3.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>AD1PCFGL = 0xFFFF;   //1=digital 0=analogo
+TRISA = 0;           //todo salida A
+TRISB = 0;           //salida todo B
+//REMAPEAMOS SALIDA SERIAL
+PPS_Mapping(13, _OUTPUT, _U1TX);
+PPS_Mapping(14, _INPUT, _U1RX);
+//REMAPEO PWM
+PPS_Mapping(2, _OUTPUT, _OC1);
+PPS_Mapping(3, _OUTPUT, _OC2);
+pwm_init_basico();</code></pre></div><div class="uno"><figure class="cap"><a href="img/445.webp" target="_blank"><img src="img/445.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Recibir la trama</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Máquina de estados</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=487" target="_blank" rel="noopener">&#9654; 8:07</a></div><p>En la interrupción del UART se espera la I, luego la N, luego la I; si algo no coincide se vuelve al inicio. En el estado final se guarda todo hasta el *, y entonces se activa flag_rx1. Si pasan 50 datos sin *, se reinicia.</p><div class="dos"><figure class="cap"><a href="img/528.webp" target="_blank"><img src="img/528.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure><figure class="cap"><a href="img/611.webp" target="_blank"><img src="img/611.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Probar la recepción</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=659" target="_blank" rel="noopener">&#9654; 10:59</a></div><p>En el ciclo, si hay trama se reenvía por serial, se limpia y se habilita otra vez la interrupción. Con un puerto virtual entre LabVIEW y Proteus se ve llegar la trama.</p><div class="dos"><figure class="cap"><a href="img/694.webp" target="_blank"><img src="img/694.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure><figure class="cap"><a href="img/776.webp" target="_blank"><img src="img/776.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Sacar los valores</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=796" target="_blank" rel="noopener">&#9654; 13:16</a></div><p>Con strtok se separa cada campo por /. La dirección y la velocidad se convierten con atof y los LEDs con atoi. Para más datos, se copia y pega otra captura.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void procesa_rx1()
+{
+  // INI=/DIR/VEL/L1/L2/*
+  strcpy(Captura_rx1, strtok(Trama_rx1, &quot;/&quot;));  //inicia captura de tokens desde el /
+  strcpy(Captura_rx1, strtok(0, &quot;/&quot;));          //captura hasta el 1 dato
+  serv1 = atof(Captura_rx1);
+  strcpy(Captura_rx1, strtok(0, &quot;/&quot;));          //captura hasta el 1 dato
+  serv2 = atof(Captura_rx1);
+  strcpy(Captura_rx1, strtok(0, &quot;/&quot;));
+  led1 = atoi(Captura_rx1);
+  strcpy(Captura_rx1, strtok(0, &quot;/&quot;));
+  led2 = atoi(Captura_rx1);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/859.webp" target="_blank"><img src="img/859.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Mover los servos</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=927" target="_blank" rel="noopener">&#9654; 15:27</a></div><p>servo1 recibe la dirección. La velocidad (0 a 100) se multiplica por 90.0 y se divide entre 100 para llevarla de 0 a 90 grados, que el variador entiende como de quieto a máxima velocidad.</p><div class="uno"><figure class="cap"><a href="img/942.webp" target="_blank"><img src="img/942.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Oscilador interno</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=995" target="_blank" rel="noopener">&#9654; 16:35</a></div><p>Si no responde, revisar el PLL: con el oscilador interno de 7.37 MHz el multiplicador es 41 para llegar a 80 MHz; con cristal de 4 MHz sería 78.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>CLKDIVbits.PLLPRE = 0;    // N1 = 2
+CLKDIVbits.PLLPOST = 0;   // N2 = 2
+PLLFBD = 41;              // con oscilador interno de 7.37 MHz (78 con cristal de 4 MHz)</code></pre></div><div class="uno"><figure class="cap"><a href="img/1025.webp" target="_blank"><img src="img/1025.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Funcionando</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=1067" target="_blank" rel="noopener">&#9654; 17:47</a></div><p>Al mover el joystick se mueven los dos servos y los botones prenden los LEDs, todo al mismo tiempo.</p><div class="uno"><figure class="cap"><a href="img/1108.webp" target="_blank"><img src="img/1108.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Por radio con XBee</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>XCTU</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=1136" target="_blank" rel="noopener">&#9654; 18:56</a></div><p>Se recomiendan los XBee serie 1 o serie 3, que tienen menos retardo que los serie 2. En XCTU se buscan los módulos en sus puertos.</p><div class="uno"><figure class="cap"><a href="img/1274.webp" target="_blank"><img src="img/1274.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configuración</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=1271" target="_blank" rel="noopener">&#9654; 21:11</a></div><p>Los dos deben tener el mismo canal y la misma red (PAN ID). Cada uno tiene su dirección y transmite a la del otro, para que nadie más maneje el buque. Se bajan a 9600 baudios para la simulación.</p><div class="uno"><figure class="cap"><a href="img/1357.webp" target="_blank"><img src="img/1357.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba real</h3><a class="min" href="https://youtu.be/H_2Kxf2Jjtk?t=1406" target="_blank" rel="noopener">&#9654; 23:26</a></div><p>LabVIEW envía por el XBee del computador y el del buque entrega la trama al dsPIC: el control mueve la dirección, la velocidad y las luces de forma inalámbrica.</p><div class="uno"><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="Control USB con LabVIEW y XBee para manejar un buque a escala, parte 3: recibir en un dsPIC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=H_2Kxf2Jjtk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

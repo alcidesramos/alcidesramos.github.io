@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con las funciones Input Device Control de LabVIEW se lee un control de juegos USB, se escalan sus ejes para la velocidad y el timón de un buque y se usan sus botones para luces.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/PwZoVnuykaQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick · Paso a paso">
+  <meta property="og:description" content="Con las funciones Input Device Control de LabVIEW se lee un control de juegos USB, se escalan sus ejes para la velocidad y el timón de un buque y se usan sus botones para luces.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/PwZoVnuykaQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/PwZoVnuykaQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Leer un <span>control USB</span> en LabVIEW</h1>
+    <p class="lead">Query Input Devices dice cuántos controles hay; se inicializa el joystick con su índice (0), se lee dentro de un while con Acquire Input Data y al salir se cierra y se limpian los errores. Los ejes van de -32768 a 32767 y los botones son booleanos. Se usan el eje X de rotación para la dirección, el eje Z para la velocidad y los botones 1 y 3 para dos luces. Con una gráfica de dispersión en Excel se saca la ecuación lineal de cada eje: la dirección queda de -90 a 90 grados y la velocidad de 0 a 100 %. Las ecuaciones se ponen en nodos de fórmula. En la parte 2 esto se convierte en una trama serial.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=PwZoVnuykaQ" target="_blank" rel="noopener">&#9654; Ver el video completo (17:20)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1020.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick"></figure>
+    <ul class="materiales"><li>LabVIEW (Input Device Control)</li><li>Control de juegos USB</li><li>Excel para calcular las ecuaciones</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Leer</a><a href="#f2">2 · Mandos</a><a href="#f3">3 · Escalar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Leer el control</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La idea</h3><a class="min" href="https://youtu.be/PwZoVnuykaQ?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Con un control USB en el computador se manejará un buque: velocidad, timón y luces. Primero se lee el control en LabVIEW.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Buscar el control</h3><a class="min" href="https://youtu.be/PwZoVnuykaQ?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>En Connectivity, Input Device Control, Query Input Devices muestra los controles conectados, sus botones y ejes. Si hay varios, cada uno tiene un índice.</p><div class="uno"><figure class="cap"><a href="img/111.webp" target="_blank"><img src="img/111.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Inicializar y leer</h3><a class="min" href="https://youtu.be/PwZoVnuykaQ?t=99" target="_blank" rel="noopener">&#9654; 1:39</a></div><p>Initialize Joystick con el índice (0) va antes del while. Dentro, Acquire Input Data lee los datos. Al salir se cierra el dispositivo y se limpian los errores.</p><div class="uno"><figure class="cap"><a href="img/202.webp" target="_blank"><img src="img/202.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Ver los datos</h3><a class="min" href="https://youtu.be/PwZoVnuykaQ?t=239" target="_blank" rel="noopener">&#9654; 3:59</a></div><p>Con indicadores se ve que los ejes van de -32768 a 32767, los botones son verdadero o falso y la cruceta da 0, 90, 180 o 270.</p><div class="uno"><figure class="cap"><a href="img/293.webp" target="_blank"><img src="img/293.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Elegir los mandos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Desempacar por nombre</h3><a class="min" href="https://youtu.be/PwZoVnuykaQ?t=339" target="_blank" rel="noopener">&#9654; 5:39</a></div><p>Con Unbundle By Name se sacan solo los datos que interesan: el eje X de rotación (dirección), el eje Z (velocidad) y los botones 1 y 3.</p><div class="dos"><figure class="cap"><a href="img/384.webp" target="_blank"><img src="img/384.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick" loading="lazy"></a></figure><figure class="cap"><a href="img/475.webp" target="_blank"><img src="img/475.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Luces</h3><a class="min" href="https://youtu.be/PwZoVnuykaQ?t=506" target="_blank" rel="noopener">&#9654; 8:26</a></div><p>Dos LEDs, ROJO y VERDE, con el color de apagado oscuro, se conectan a los botones.</p><div class="uno"><figure class="cap"><a href="img/565.webp" target="_blank"><img src="img/565.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Indicadores</h3><a class="min" href="https://youtu.be/PwZoVnuykaQ?t=618" target="_blank" rel="noopener">&#9654; 10:18</a></div><p>Un medidor de 0 a 100 % para la velocidad y una perilla de -90 a 90 para la dirección del timón.</p><div class="uno"><figure class="cap"><a href="img/656.webp" target="_blank"><img src="img/656.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Escalar los ejes</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Ecuación de la dirección</h3><a class="min" href="https://youtu.be/PwZoVnuykaQ?t=723" target="_blank" rel="noopener">&#9654; 12:03</a></div><p>En Excel se ponen los extremos (-32768 → -90 y 32767 → 90), se hace una gráfica de dispersión y se agrega la línea de tendencia con su ecuación.</p><div class="uno"><figure class="cap"><a href="img/747.webp" target="_blank"><img src="img/747.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Nodo de fórmula</h3><a class="min" href="https://youtu.be/PwZoVnuykaQ?t=791" target="_blank" rel="noopener">&#9654; 13:11</a></div><p>La ecuación se pone en un Formula Node con la entrada x y la salida a la perilla. Según el sistema, el decimal es punto o coma, y la multiplicación lleva *.</p><div class="uno"><figure class="cap"><a href="img/838.webp" target="_blank"><img src="img/838.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Velocidad</h3><a class="min" href="https://youtu.be/PwZoVnuykaQ?t=895" target="_blank" rel="noopener">&#9654; 14:55</a></div><p>El eje Z va de 0 a 32640; se escala a 0 a 100 % con otra ecuación igual.</p><div class="uno"><figure class="cap"><a href="img/929.webp" target="_blank"><img src="img/929.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Prueba</h3><a class="min" href="https://youtu.be/PwZoVnuykaQ?t=1001" target="_blank" rel="noopener">&#9654; 16:41</a></div><p>Al mover el control cambian la velocidad, el timón y las luces. En la práctica conviene una zona muerta en el centro.</p><div class="uno"><figure class="cap"><a href="img/1020.webp" target="_blank"><img src="img/1020.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 1: leer el joystick" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=PwZoVnuykaQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con un pin común y cuatro filas, cada par de LEDs en antiparalelo se prende según la polaridad; poner los pines como entrada los apaga. El pin de reset sirve como entrada para cambiar el efecto, leído con el Timer1.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/RskpSM5nduw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629 · Paso a paso">
+  <meta property="og:description" content="Con un pin común y cuatro filas, cada par de LEDs en antiparalelo se prende según la polaridad; poner los pines como entrada los apaga. El pin de reset sirve como entrada para cambiar el efecto, leído con el Timer1.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/RskpSM5nduw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/RskpSM5nduw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>8 LEDs con <span>5 pines</span> de un PIC</h1>
+    <p class="lead">Un PIC12F629 tiene cinco pines de entrada y salida y el de reset. Los 8 LEDs van en parejas entre el común (GP0) y cada fila (GP1, GP2, GP4, GP5): común en 1 y fila en 0 prende uno, y al revés prende el otro. Para apagar todo, los pines se ponen como entrada. Se escriben funciones para cada LED, para prender 4 bajos o 4 altos (con cuidado de la corriente del común) y para apagar. Los efectos se eligen con un switch. El pulsador está en GP3 (MCLR deshabilitado), que no tiene interrupción, así que se revisa cada 200 ms con la interrupción del Timer1 configurada con Timer Calculator.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=RskpSM5nduw" target="_blank" rel="noopener">&#9654; Ver el video completo (12:05)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/705.webp" alt="Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC12F629 (o PIC12F1822) con oscilador interno a 4 MHz</li><li>8 LEDs y 4 resistencias de 1 kΩ</li><li>Pulsador con pull-up en GP3</li><li>Proteus para la simulación</li><li>Timer Calculator (opcional)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Circuito</a><a href="#f2">2 · Funciones</a><a href="#f3">3 · Efectos</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El truco</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>LEDs en antiparalelo</h3><a class="min" href="https://youtu.be/RskpSM5nduw?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Cada fila tiene dos LEDs en sentidos opuestos hacia el común. Con común en 1 y fila en 0 prende uno; con común en 0 y fila en 1, el otro. Con los pines como entrada todo se apaga.</p><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629" loading="lazy"></a></figure><figure class="cap"><a href="img/145.webp" target="_blank"><img src="img/145.webp" alt="Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/RskpSM5nduw?t=162" target="_blank" rel="noopener">&#9654; 2:42</a></div><p>PIC12F629 a 4 MHz con oscilador interno, GP4 y GP5 como entrada y salida, power-up activo y MCLR deshabilitado para usar GP3 como entrada del pulsador. Un PIC12F1822 cuesta parecido y tiene el doble de memoria.</p><div class="uno"><figure class="cap"><a href="img/207.webp" target="_blank"><img src="img/207.webp" alt="Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Funciones</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Entradas y salidas</h3><a class="min" href="https://youtu.be/RskpSM5nduw?t=227" target="_blank" rel="noopener">&#9654; 3:47</a></div><p>Funciones in_ y out_ para el común y cada fila, más in_todo y out_todo.</p><div class="uno"><figure class="cap"><a href="img/269.webp" target="_blank"><img src="img/269.webp" alt="Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Prender un LED</h3><a class="min" href="https://youtu.be/RskpSM5nduw?t=291" target="_blank" rel="noopener">&#9654; 4:51</a></div><p>Primero todo como entrada (apaga lo anterior), luego el común y la fila como salida con la polaridad del LED. Para prender 4 a la vez, toda la corriente pasa por el común: mejor subir las resistencias o prenderlos uno por uno rápido.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//prende 4 led parte baja
+void prende_4_bajo(unsigned int tiempo)
+{
+  in_todo();
+  out_todo();
+  comun = 1;
+  f1 = 0;
+  f2 = 0;
+  f3 = 0;
+  f4 = 0;
+  VDelay_ms(tiempo);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/331.webp" target="_blank"><img src="img/331.webp" alt="Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Probar</h3><a class="min" href="https://youtu.be/RskpSM5nduw?t=356" target="_blank" rel="noopener">&#9654; 5:56</a></div><p>Se apaga el comparador (CMCON = 7) y se prueba prendiendo el LED 1, el 2 y el 7 en secuencia.</p><div class="uno"><figure class="cap"><a href="img/394.webp" target="_blank"><img src="img/394.webp" alt="Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Efectos</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>switch de efectos</h3><a class="min" href="https://youtu.be/RskpSM5nduw?t=422" target="_blank" rel="noopener">&#9654; 7:02</a></div><p>Cada caso es un efecto: izquierda a derecha, derecha a izquierda más rápido, ida y vuelta, 4 y 4, y un destello de cada LED tres veces.</p><div class="uno"><figure class="cap"><a href="img/456.webp" target="_blank"><img src="img/456.webp" alt="Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Leer el pulsador</h3><a class="min" href="https://youtu.be/RskpSM5nduw?t=487" target="_blank" rel="noopener">&#9654; 8:07</a></div><p>GP3 no tiene interrupción, así que se usa el Timer1 cada 200 ms (configuración de Timer Calculator). Si el pulsador está presionado se detiene el timer, se pasa al siguiente efecto con un antirrebote y se vuelve a arrancar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void InitTimer1(){
+  T1CON      = 0x11;
+  TMR1IF_bit = 0;
+  TMR1H      = 0x3C;
+  TMR1L      = 0xB0;
+  TMR1IE_bit = 1;
+  INTCON     = 0xC0;
+}
+
+void Interrupt(){
+  if (TMR1IF_bit){
+    TMR1H = 0x3C;
+    TMR1L = 0xB0;
+    if (sw == 0)
+    {
+      TMR1ON_bit = 0;   //para el timer, para evitar mas interrupciones
+      efecto++;
+      // retardo antirebote con Delay_ms
+      TMR1ON_bit = 1;
+    }
+    if (efecto &gt;= n_efectos) efecto = 0;   //limite de numero de efectos
+    TMR1IF_bit = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/RskpSM5nduw?t=625" target="_blank" rel="noopener">&#9654; 10:25</a></div><p>Al presionar, el efecto actual termina y empieza el siguiente. Así se manejan 8 LEDs y un pulsador con un micro de 8 pines.</p><div class="dos"><figure class="cap"><a href="img/643.webp" target="_blank"><img src="img/643.webp" alt="Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629" loading="lazy"></a></figure><figure class="cap"><a href="img/705.webp" target="_blank"><img src="img/705.webp" alt="Manejar 8 LEDs con cambio de secuencia usando 5 pines de un PIC12F629" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=RskpSM5nduw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

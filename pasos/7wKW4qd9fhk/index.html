@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control USB con LabVIEW para manejar un buque a escala, parte 2: armar y enviar la trama serial · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Los datos del control USB se convierten en una trama INI=/dirección/velocidad/led1/led2/* que LabVIEW envía por serial a intervalos fijos, lista para mandarla por radio a un microcontrolador.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/7wKW4qd9fhk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Control USB con LabVIEW para manejar un buque a escala, parte 2: armar y enviar la trama serial · Paso a paso">
+  <meta property="og:description" content="Los datos del control USB se convierten en una trama INI=/dirección/velocidad/led1/led2/* que LabVIEW envía por serial a intervalos fijos, lista para mandarla por radio a un microcontrolador.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/7wKW4qd9fhk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/7wKW4qd9fhk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Del joystick a una <span>trama serial</span></h1>
+    <p class="lead">La trama tiene inicio (INI=), datos separados por / y final (*), para que el receptor no la confunda. Se configura VISA con el puerto y el carácter de terminación desactivado. Un Wait Until Next ms Multiple mantiene un periodo de envío constante (50 a 100 ms según el micro). Los números se pasan a texto con Number To Fractional String (sin usar el punto decimal del sistema) y los botones con un Select que da 1 o 0. Todo se une con Concatenate Strings y se envía con VISA Write. Con un puerto virtual y Hercules se ve la trama cambiar al mover el control.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=7wKW4qd9fhk" target="_blank" rel="noopener">&#9654; Ver el video completo (14:48)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/715.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 2: armar y enviar la trama serial"></figure>
+    <ul class="materiales"><li>LabVIEW con NI-VISA</li><li>Control USB (parte 1)</li><li>Puerto serial virtual (VSPE)</li><li>Terminal serial (Hercules)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Trama</a><a href="#f2">2 · Armar</a><a href="#f3">3 · Probar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La trama</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Formato</h3><a class="min" href="https://youtu.be/7wKW4qd9fhk?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>INI=/ al inicio, cada dato terminado en / y un * al final. Ejemplo: INI=/-90/50/1/0/*. El micro debe separar cada valor.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 2: armar y enviar la trama serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Puerto serial</h3><a class="min" href="https://youtu.be/7wKW4qd9fhk?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>Se crea un puerto virtual con VSPE. En LabVIEW, VISA Configure Serial Port con el puerto, 9600 baudios y el carácter de terminación en falso.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Periodo constante</h3><a class="min" href="https://youtu.be/7wKW4qd9fhk?t=166" target="_blank" rel="noopener">&#9654; 2:46</a></div><p>Wait Until Next ms Multiple espera hasta el siguiente múltiplo del tiempo, así el envío es regular aunque el ciclo tarde distinto. Con un PIC16 o PIC18, 50 a 100 ms; con un dsPIC o un ARM puede ser más rápido.</p><div class="uno"><figure class="cap"><a href="img/252.webp" target="_blank"><img src="img/252.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 2: armar y enviar la trama serial" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Armar la cadena</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>VISA Write</h3><a class="min" href="https://youtu.be/7wKW4qd9fhk?t=268" target="_blank" rel="noopener">&#9654; 4:28</a></div><p>VISA Write va dentro del ciclo y VISA Close afuera. Lo que se escribe tiene que ser texto.</p><div class="uno"><figure class="cap"><a href="img/406.webp" target="_blank"><img src="img/406.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 2: armar y enviar la trama serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Números a texto</h3><a class="min" href="https://youtu.be/7wKW4qd9fhk?t=307" target="_blank" rel="noopener">&#9654; 5:07</a></div><p>Number To Fractional String con un decimal y use system decimal point en falso, para que siempre salga con punto.</p><div class="uno"><figure class="cap"><a href="img/484.webp" target="_blank"><img src="img/484.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 2: armar y enviar la trama serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Botones a texto</h3><a class="min" href="https://youtu.be/7wKW4qd9fhk?t=407" target="_blank" rel="noopener">&#9654; 6:47</a></div><p>Un Select da "1" si el botón está presionado y "0" si no.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Concatenar</h3><a class="min" href="https://youtu.be/7wKW4qd9fhk?t=482" target="_blank" rel="noopener">&#9654; 8:02</a></div><p>Concatenate Strings une INI=/, dirección, /, velocidad, /, led1, /, led2, / y *.</p><div class="dos"><figure class="cap"><a href="img/561.webp" target="_blank"><img src="img/561.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 2: armar y enviar la trama serial" loading="lazy"></a></figure><figure class="cap"><a href="img/638.webp" target="_blank"><img src="img/638.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 2: armar y enviar la trama serial" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Probar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Ver la trama</h3><a class="min" href="https://youtu.be/7wKW4qd9fhk?t=655" target="_blank" rel="noopener">&#9654; 10:55</a></div><p>Con un indicador se ve la trama cambiar al mover el control y presionar los botones.</p><div class="uno"><figure class="cap"><a href="img/715.webp" target="_blank"><img src="img/715.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 2: armar y enviar la trama serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>En la terminal</h3><a class="min" href="https://youtu.be/7wKW4qd9fhk?t=758" target="_blank" rel="noopener">&#9654; 12:38</a></div><p>Hercules en el otro puerto virtual recibe la trama continuamente. Esto es lo que le llegará al microcontrolador, que es la parte 3.</p><div class="uno"><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Control USB con LabVIEW para manejar un buque a escala, parte 2: armar y enviar la trama serial" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=7wKW4qd9fhk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
