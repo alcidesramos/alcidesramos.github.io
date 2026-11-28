@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El mismo ejercicio de timers de la clase 2 de MikroC, ahora en MPLAB X con XC16: un LED con el Timer1 cada 100 ms y otro con Timer2 y Timer3 unidos en 32 bits cada 2 segundos, con el dsPIC33FJ32MC202 a 80 MHz.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/n4GmqLU3Qqw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones · Paso a paso">
+  <meta property="og:description" content="El mismo ejercicio de timers de la clase 2 de MikroC, ahora en MPLAB X con XC16: un LED con el Timer1 cada 100 ms y otro con Timer2 y Timer3 unidos en 32 bits cada 2 segundos, con el dsPIC33FJ32MC202 a 80 MHz.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/n4GmqLU3Qqw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/n4GmqLU3Qqw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#dspic-xc16">&larr; Volver al curso</a>
+    <span class="etiqueta">// MPLAB XC16 para dsPIC · Paso a paso</span>
+    <h1>Timers de 16 y <span>32 bits</span> con XC16</h1>
+    <p class="lead">Se crea el proyecto en MPLAB X para el dsPIC33FJ32MC202 con cristal de 4 MHz y PLL a 80 MHz, y se generan los bits de configuración. El serial se abre con OpenUART1; como putsUART1 a veces falla según la versión, se hace una función propia que escribe byte a byte y espera a que el buffer quede libre. El Timer1 se configura con OpenTimer1 (prescaler 64, PR de 62500) para 100 ms, y la interrupción se habilita a mano con banderas y prioridad. Para 2 segundos se unen Timer2 y Timer3 en 32 bits; como la librería de XC16 no deja hacerlo bien, se configura por registros.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=n4GmqLU3Qqw" target="_blank" rel="noopener">&#9654; Ver el video completo (24:03)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1425.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones"></figure>
+    <ul class="materiales"><li>dsPIC33FJ32MC202 con cristal de 4 MHz (80 MHz con PLL)</li><li>3 LEDs</li><li>MPLAB X con XC16</li><li>Proteus con Virtual Terminal</li><li>Hojas de Excel para baudios y timers</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Timer1</a><a href="#f3">3 · 32 bits</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto y serial</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto en MPLAB X</h3><a class="min" href="https://youtu.be/n4GmqLU3Qqw?t=38" target="_blank" rel="noopener">&#9654; 0:38</a></div><p>Se crea el proyecto para el dsPIC33FJ32MC202 con XC16 y el archivo .c principal. En los bits de configuración se elige oscilador primario XT con PLL y configuración múltiple de remapeo; se genera el código y se pega.</p><div class="uno"><figure class="cap"><a href="img/142.webp" target="_blank"><img src="img/142.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Librerías y FCY</h3><a class="min" href="https://youtu.be/n4GmqLU3Qqw?t=224" target="_blank" rel="noopener">&#9654; 3:44</a></div><p>Para los retardos se define FCY en 80 MHz y se incluyen las librerías de XC16: libpic30, uart, pps y timer. Los LEDs de los timers son RB14 y RB15.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &lt;xc.h&gt;
+
+// las dos siguientes son necesarias para poder utilizar los delay
+#define FCY 80000000UL // frecuencia del reloj
+
+#define led1 _LATB14 //timer 1 de 16 bits
+#define led2 _LATB15 // timers 32 32 bits
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;ctype.h&gt;
+#include &lt;string.h&gt;
+#include &quot;libpic30.h&quot;
+
+#include&lt;uart.h&gt;
+#include &quot;pps.h&quot;// incluye libreria de pines remapeables
+#include &lt;timer.h&gt;
+
+// registro para configurar el puerto serial
+unsigned int config1=0,config2=0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/264.webp" target="_blank"><img src="img/264.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Remapeo y UART</h3><a class="min" href="https://youtu.be/n4GmqLU3Qqw?t=322" target="_blank" rel="noopener">&#9654; 5:22</a></div><p>Se remapea solo el TX a RP0 y se configura el UART con config1 y config2. El último valor de OpenUART1, 259, sale de la hoja de Excel para 9600 baudios a 80 MHz.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//puertos como salida
+TRISB=0x0;
+LATB=0;
+// configuracion de remapeables
+PPSUnLock;// desbloquea configuracion de perifericos
+iPPSOutput(OUT_PIN_PPS_RP0,OUT_FN_PPS_U1TX);
+PPSLock;// bloquea configuracion periferico
+
+//ahora si configura el puerto serial
+config1= UART_EN &amp; UART_IDLE_CON &amp; UART_IrDA_DISABLE &amp; UART_MODE_SIMPLEX &amp;
+         UART_UEN_00 &amp; UART_DIS_WAKE &amp; UART_DIS_LOOPBACK &amp; UART_DIS_ABAUD &amp;
+         UART_BRGH_SIXTEEN &amp; UART_NO_PAR_8BIT &amp; UART_1STOPBIT;
+config2= UART_INT_TX_BUF_EMPTY &amp; UART_TX_ENABLE &amp; UART_INT_RX_3_4_FUL &amp;
+         UART_ADR_DETECT_DIS &amp; UART_RX_OVERRUN_CLEAR &amp; UART_IrDA_POL_INV_ZERO &amp;
+         UART_SYNC_BREAK_DISABLED;
+OpenUART1 (config1, config2, 259);// se se saca de excel consume menos recursos</code></pre></div><div class="dos"><figure class="cap"><a href="img/325.webp" target="_blank"><img src="img/325.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/387.webp" target="_blank"><img src="img/387.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Función propia para textos</h3><a class="min" href="https://youtu.be/n4GmqLU3Qqw?t=487" target="_blank" rel="noopener">&#9654; 8:07</a></div><p>putsUART1 a veces no manda bien la cadena. Se hace Uart1_write_text_const, que escribe byte a byte y espera a que el buffer de transmisión quede libre.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Uart1_write_text_const(const char *info)
+{
+ while(*info)
+ {
+    WriteUART1(*info++);
+    while (_UTXBF==1);//espera que se envie el dato
+ }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/448.webp" target="_blank"><img src="img/448.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/509.webp" target="_blank"><img src="img/509.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>LED del programa principal</h3><a class="min" href="https://youtu.be/n4GmqLU3Qqw?t=655" target="_blank" rel="noopener">&#9654; 10:55</a></div><p>El while cambia el LED de RB13 cada segundo y manda FUNCIONANDO por el serial.</p><div class="uno"><figure class="cap"><a href="img/692.webp" target="_blank"><img src="img/692.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Timer1 a 100 ms</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>OpenTimer1</h3><a class="min" href="https://youtu.be/n4GmqLU3Qqw?t=724" target="_blank" rel="noopener">&#9654; 12:04</a></div><p>XC16 trae funciones para los timers. Con la hoja de Excel, 100 ms a 80 MHz piden prescaler 64 y PR de 62500.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//retardo 100ms
+OpenTimer1(T1_ON &amp; T1_GATE_OFF &amp;T1_PS_1_64 &amp; T1_SOURCE_INT , 62500);</code></pre></div><div class="dos"><figure class="cap"><a href="img/753.webp" target="_blank"><img src="img/753.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/1181.webp" target="_blank"><img src="img/1181.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Habilitar interrupciones</h3><a class="min" href="https://youtu.be/n4GmqLU3Qqw?t=862" target="_blank" rel="noopener">&#9654; 14:22</a></div><p>Se da prioridad 3, se limpia la bandera y se habilita la interrupción del Timer1. La función habilita baja la prioridad de la CPU a 0 para que entren todas las de prioridad mayor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void habilita()
+{
+ //nivel de prioridad interrupcion CPU //0 habilita interrupciones
+ _IPL3=0;
+ INTCON1bits.NSTDIS=0; //PARA PODER HACER EL CAMBIO DEBE STAR EN CERO HABILITADO EL ANIDAMIENTO
+ _IPL2=0;
+ _IPL1=0;
+ _IPL0=0;
+ _NSTDIS=0; //HABILITA ANINAMIENTO INTERRUPCIONES
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/936.webp" target="_blank"><img src="img/936.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Rutina del Timer1</h3><a class="min" href="https://youtu.be/n4GmqLU3Qqw?t=967" target="_blank" rel="noopener">&#9654; 16:07</a></div><p>La interrupción se declara con __attribute__ y auto_psv. Cambia led1 y limpia la bandera: el LED parpadea cada 100 ms mientras el principal lo hace cada segundo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void __attribute__((__interrupt__,__auto_psv__)) _T1Interrupt(void)
+{
+    TMR1=0;
+    led1=!led1;
+    _T1IF=0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/997.webp" target="_blank"><img src="img/997.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Prioridad en OpenTimer1</h3><a class="min" href="https://youtu.be/n4GmqLU3Qqw?t=1030" target="_blank" rel="noopener">&#9654; 17:10</a></div><p>Habilitar la interrupción desde OpenTimer1 no funcionó; sí funciona darle la prioridad ahí con T1_INT_PRIOR_3 y habilitar la interrupción a mano.</p><div class="dos"><figure class="cap"><a href="img/1058.webp" target="_blank"><img src="img/1058.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/1303.webp" target="_blank"><img src="img/1303.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Timer de 32 bits</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Librería limitada</h3><a class="min" href="https://youtu.be/n4GmqLU3Qqw?t=1133" target="_blank" rel="noopener">&#9654; 18:53</a></div><p>Para 2 segundos ningún prescaler de 16 bits sirve. Se unen Timer2 y Timer3, pero la función de XC16 para eso es muy pobre, así que se configura por registros, como en MikroC.</p><div class="uno"><figure class="cap"><a href="img/814.webp" target="_blank"><img src="img/814.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configuración por registros</h3><a class="min" href="https://youtu.be/n4GmqLU3Qqw?t=1234" target="_blank" rel="noopener">&#9654; 20:34</a></div><p>Con prescaler 1, la hoja da PR3 = 1220 (parte alta) y PR2 = 46080 (parte baja). El prescaler y el encendido van en el Timer2 con el bit T32; la interrupción la da el Timer3.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//configuracion timer 32
+TMR3=0;
+TMR2=0;
+PR3=1220;
+PR2=46080;
+T2CON=0;
+//preescalador 1
+T2CONbits.TCKPS1=0;
+T2CONbits.TCKPS0=0;
+//INTERRUPCION CON TIMER 3
+//prioridad timer3
+_T3IP2=0;
+_T3IP1=1;
+_T3IP0=0;
+//INICIO CON TIMER 2
+T2CONbits.T32= 1; //trabaja a 32 bits
+T2CONbits.TON=1;//prende el Timer
+
+SetPriorityIntT1(3);
+SetPriorityIntT3(3);
+_T1IF=0;
+_T1IE=1;
+_T3IF=0;
+_T3IE=1;
+habilita();//hABULITA INTERPCIONES</code></pre></div><div class="uno"><figure class="cap"><a href="img/875.webp" target="_blank"><img src="img/875.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba final</h3><a class="min" href="https://youtu.be/n4GmqLU3Qqw?t=1371" target="_blank" rel="noopener">&#9654; 22:51</a></div><p>La rutina _T3Interrupt limpia los dos timers y cambia led2. En Proteus un LED va cada 100 ms, otro cada 2 segundos y el principal cada segundo.</p><div class="uno"><figure class="cap"><a href="img/1425.webp" target="_blank"><img src="img/1425.webp" alt="Curso de MPLAB XC16, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=n4GmqLU3Qqw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con XC16 se usan los tres timers del dsPIC33FJ32MC202 con TGATE para medir tres anchos de pulso al mismo tiempo: el del Timer1 en su pin fijo y los otros dos remapeados.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/nVF_b1Fxd2s/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez · Paso a paso">
+  <meta property="og:description" content="Con XC16 se usan los tres timers del dsPIC33FJ32MC202 con TGATE para medir tres anchos de pulso al mismo tiempo: el del Timer1 en su pin fijo y los otros dos remapeados.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/nVF_b1Fxd2s/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/nVF_b1Fxd2s/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#dspic-xc16">&larr; Volver al curso</a>
+    <span class="etiqueta">// MPLAB XC16 para dsPIC · Paso a paso</span>
+    <h1>Medir <span>anchos de pulso</span> con XC16</h1>
+    <p class="lead">Es la versión en XC16 de la clase 3 de MikroC. Se quitan las configuraciones de 32 bits y los tres timers se abren con T_GATE_ON, prescaler 8 y PR de 10000, para medir pulsos de hasta 2 ms. En cada interrupción se guarda la cuenta y se pone el timer en cero, y en el main se pasa a milisegundos. Hay dos detalles propios de XC16: hay que habilitar a mano las interrupciones del Timer2 y Timer3, y el pps.h no define IN_FN_PPS_T3CK para este micro, así que se usa directamente RPINR3bits.T3CKR.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=nVF_b1Fxd2s" target="_blank" rel="noopener">&#9654; Ver el video completo (13:42)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/805.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez"></figure>
+    <ul class="materiales"><li>dsPIC33FJ32MC202 a 80 MHz</li><li>Generadores de pulso en Proteus (10, 50 y 90 %)</li><li>Interruptores de selección</li><li>MPLAB X con XC16</li><li>Proteus con Virtual Terminal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Montaje</a><a href="#f2">2 · Código</a><a href="#f3">3 · Remapeo</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Montaje</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Entradas de los timers</h3><a class="min" href="https://youtu.be/nVF_b1Fxd2s?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El Timer1 lee por T1CK, que es fijo. T2CK y T3CK son remapeables: se conectan a RB3 y RB5. Las señales son de 1 ms de periodo con 10, 50 y 90 %.</p><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/66.webp" target="_blank"><img src="img/66.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Prescaler 8</h3><a class="min" href="https://youtu.be/nVF_b1Fxd2s?t=106" target="_blank" rel="noopener">&#9654; 1:46</a></div><p>Se activa el gate de cada timer. Para medir hasta 2 ms la hoja de Excel deja usar prescaler 64 con 1250 o prescaler 8 con 10000; se elige el de 8 por resolución.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>OpenTimer1(T1_ON &amp; T1_GATE_ON &amp;T1_PS_1_8 &amp; T1_SOURCE_INT &amp; T1_INT_PRIOR_3, 10000);
+OpenTimer2(T2_ON &amp; T2_GATE_ON &amp;T2_PS_1_8 &amp; T2_SOURCE_INT &amp; T2_INT_PRIOR_3, 10000);
+OpenTimer3(T3_ON &amp; T3_GATE_ON &amp;T3_PS_1_8 &amp; T3_SOURCE_INT &amp; T3_INT_PRIOR_3, 10000);</code></pre></div><div class="dos"><figure class="cap"><a href="img/112.webp" target="_blank"><img src="img/112.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/159.webp" target="_blank"><img src="img/159.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Interrupciones</h3><a class="min" href="https://youtu.be/nVF_b1Fxd2s?t=208" target="_blank" rel="noopener">&#9654; 3:28</a></div><p>En cada interrupción se guarda la cuenta del timer antes de ponerlo en cero, y se limpia la bandera. Hay una rutina por timer.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void __attribute__((__interrupt__,__auto_psv__)) _T1Interrupt(void)
+{
+    pwm_in1=TMR1;
+    TMR1=0;
+    _T1IF=0;// LIMPIA BANDERA
+}
+// ... _T2Interrupt con pwm_in2/TMR2 y _T3Interrupt con pwm_in3/TMR3</code></pre></div><div class="dos"><figure class="cap"><a href="img/205.webp" target="_blank"><img src="img/205.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/251.webp" target="_blank"><img src="img/251.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Variables y cálculo</h3><a class="min" href="https://youtu.be/nVF_b1Fxd2s?t=311" target="_blank" rel="noopener">&#9654; 5:11</a></div><p>La cuenta por el prescaler, dividida entre 40 MHz (la mitad de 80), da el ancho; por mil queda en milisegundos y se manda con sprintf.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int pwm_in1,pwm_in2,pwm_in3;
+float ancho1,ancho2,ancho3;
+char texto[50];
+
+#define prescalador 8 // prescalador a usar
+
+// en el while:
+// ancho1=(pwm_in1*prescalador)/40e6; ancho1=ancho1*1000.0;
+// sprintf(texto, ...) y Uart1_write_text(texto)</code></pre></div><div class="dos"><figure class="cap"><a href="img/297.webp" target="_blank"><img src="img/297.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/343.webp" target="_blank"><img src="img/343.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Primera medida</h3><a class="min" href="https://youtu.be/nVF_b1Fxd2s?t=441" target="_blank" rel="noopener">&#9654; 7:21</a></div><p>Con el Timer1 ya se lee 0,1, 0,5 o 0,9 ms según la señal elegida.</p><div class="uno"><figure class="cap"><a href="img/389.webp" target="_blank"><img src="img/389.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Timer2 y Timer3</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Remapear T2CK</h3><a class="min" href="https://youtu.be/nVF_b1Fxd2s?t=474" target="_blank" rel="noopener">&#9654; 7:54</a></div><p>La entrada del Timer2 se remapea a RP3 con iPPSInput.</p><div class="dos"><figure class="cap"><a href="img/482.webp" target="_blank"><img src="img/482.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/528.webp" target="_blank"><img src="img/528.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Habilitar las interrupciones</h3><a class="min" href="https://youtu.be/nVF_b1Fxd2s?t=543" target="_blank" rel="noopener">&#9654; 9:03</a></div><p>El Timer2 no medía: faltaba limpiar la bandera y habilitar su interrupción, y lo mismo para el Timer3.</p><div class="uno"><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>T3CK no definido</h3><a class="min" href="https://youtu.be/nVF_b1Fxd2s?t=616" target="_blank" rel="noopener">&#9654; 10:16</a></div><p>IN_FN_PPS_T3CK da error porque pps.h no lo define para este micro. Buscando en el archivo se ve que corresponde a RPINR3bits.T3CKR, y se usa eso directo. La entrada va en RP5, no en RP3.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>PPSUnLock;// desbloquea configuracion de perifericos
+iPPSOutput(OUT_PIN_PPS_RP0,OUT_FN_PPS_U1TX);
+iPPSInput(IN_FN_PPS_T2CK,IN_PIN_PPS_RP3); // con figuraRP3 como entrada timer2
+iPPSInput(RPINR3bits.T3CKR,IN_PIN_PPS_RP5); // con figuraRP5 como entrada timer3
+PPSLock;// bloquea configuracion periferico</code></pre></div><div class="dos"><figure class="cap"><a href="img/666.webp" target="_blank"><img src="img/666.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/759.webp" target="_blank"><img src="img/759.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Tres anchos a la vez</h3><a class="min" href="https://youtu.be/nVF_b1Fxd2s?t=752" target="_blank" rel="noopener">&#9654; 12:32</a></div><p>Corregido además un error en la interrupción 3 (leía otro timer), el terminal muestra 0,1, 0,5 y 0,9 ms al mismo tiempo.</p><div class="dos"><figure class="cap"><a href="img/713.webp" target="_blank"><img src="img/713.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/805.webp" target="_blank"><img src="img/805.webp" alt="Curso de MPLAB XC16, clase 3: timers para leer varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=nVF_b1Fxd2s" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Lo mismo de la clase 6, un servo por ángulo y un motor DC por porcentaje, pero con el módulo PWM de motor control del dsPIC33FJ32MC202, en modo independiente y a 50 Hz.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/kpjc0n-c8wk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM · Paso a paso">
+  <meta property="og:description" content="Lo mismo de la clase 6, un servo por ángulo y un motor DC por porcentaje, pero con el módulo PWM de motor control del dsPIC33FJ32MC202, en modo independiente y a 50 Hz.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/kpjc0n-c8wk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/kpjc0n-c8wk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#dspic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// MikroC para dsPIC · Paso a paso</span>
+    <h1>PWM de <span>motor control</span> en dsPIC</h1>
+    <p class="lead">El dsPIC33FJ32MC202 trae un módulo PWM para control de motores con tres pares de salidas (PWM1H/L). En este micro el ciclo útil es uno por par: el pin H y el L de un par solo pueden ir iguales, invertidos (complementarios) o desfasados. Se configura la base de tiempo con P1TPER = 12499 y prescaler 64 para 50 Hz, modo continuo ascendente, salidas independientes y actualización inmediata del ciclo útil. Se prueba el modo complementario, útil para inversores, y luego se copian las funciones de servo y PWM de la clase anterior usando P1DC1 y P1DC2, que cuentan al doble de resolución.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=kpjc0n-c8wk" target="_blank" rel="noopener">&#9654; Ver el video completo (22:06)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1026.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM"></figure>
+    <ul class="materiales"><li>dsPIC33FJ32MC202 a 80 MHz</li><li>Servomotores y motor DC (simulados)</li><li>MikroC PRO for dsPIC</li><li>Proteus con osciloscopio y frecuencímetro</li><li>Hoja de Excel para PWM de motor control</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Módulo</a><a href="#f2">2 · Configuración</a><a href="#f3">3 · Servo</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El módulo motor control</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Punto de partida</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=1" target="_blank" rel="noopener">&#9654; 0:01</a></div><p>Se parte del programa de la clase 6, que movía un servo y cambiaba un PWM. Ahora se hará lo mismo con el módulo de motor control.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pares de salidas</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=67" target="_blank" rel="noopener">&#9654; 1:07</a></div><p>Los pines PWM1H1/L1, H2/L2 y H3/L3 vienen por pares para manejar tres motores. Se conectan el osciloscopio y un servo nuevo a esos pines.</p><div class="dos"><figure class="cap"><a href="img/76.webp" target="_blank"><img src="img/76.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/132.webp" target="_blank"><img src="img/132.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Un ciclo útil por par</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>El manual indica que en esta familia el ciclo útil es para el par completo: los dos pines solo pueden ir iguales, invertidos o desfasados. Por eso se usa un pin por par.</p><div class="uno"><figure class="cap"><a href="img/411.webp" target="_blank"><img src="img/411.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Librería CONFIG_PWM_F</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=229" target="_blank" rel="noopener">&#9654; 3:49</a></div><p>Se agrega la librería al proyecto. Pone los pines RB12 a RB15 como salida y limpia P1TCON. El periodo va en P1TPER, que es de 15 bits.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;CONFIG_PWM_F.h&quot;
+
+void pwm_fast_init()
+{
+  //salida pines PWM
+  TRISB12_bit=0;
+  TRISB13_bit=0;
+  TRISB14_bit=0;
+  TRISB15_bit=0;
+
+  P1TCON=0;  //limpia todos los bits
+  P1TPER=12499;  //carga el periodo;
+  P1TCONbits.PTEN=1; //Habilita el timer
+  P1TCONbits.PTOPS=0B0000; // POSTPRESCALADOR DE SALIDA EN CERO 0-16 =0</code></pre></div><div class="uno"><figure class="cap"><a href="img/299.webp" target="_blank"><img src="img/299.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Cálculo del periodo</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=329" target="_blank" rel="noopener">&#9654; 5:29</a></div><p>En la hoja de Excel de motor control se pone 80 MHz y 50 Hz. Solo cumple el prescaler 64, con P1TPER = 12499.</p><div class="uno"><figure class="cap"><a href="img/355.webp" target="_blank"><img src="img/355.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Modo y salidas</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=399" target="_blank" rel="noopener">&#9654; 6:39</a></div><p>Prescaler 64, modo continuo ascendente, pares en modo independiente y salidas L1 y L2 habilitadas como PWM. Las salidas H quedan libres como pines normales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>  //PREESCALDOR EN 64
+  P1TCONbits.PTCKPS=0B11; // PREESCALSOR DE ENTRRADA 1 =64
+  //SE PUEDEN OPTENER LA MITAD DE LA FREUENCIA SI ESTA EN MODO UP/DOWN
+  P1TCONbits.PTMOD=0B00; // OPERA EN MODO CONTINUO  CONTADOR ASCENDENTE
+
+  //MODO DE OPERACION DEL MODULO PWM
+  PWM1CON1=0;
+  PMOD1_bit=1; //PWM1x1 EN MODO INDEPENDIENTE
+  PMOD2_bit=1; // PWM1x2 EN MODO INDEPENDIENTE
+  PEN1L_bit=1; // HABILITA SALIDA PWM1L1 COMO PWM
+  // PEN1H_bit=1; // HABILITA SALIDA PWM1H1 COMO PWM
+  PEN2L_bit=1; // HABILITA SALIDA PWM1L2 COMO PWM
+  //PEN2H_bit=1; // HABILITA SALIDA PWM1H2 COMO PWM</code></pre></div><div class="uno"><figure class="cap"><a href="img/467.webp" target="_blank"><img src="img/467.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Ciclo útil</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=498" target="_blank" rel="noopener">&#9654; 8:18</a></div><p>El ciclo útil se actualiza de inmediato y los pines quedan a cargo del módulo. Con Excel, 1 ms da 1249 y 10 ms (50 %) da 12499. Los tiempos muertos y fallas no se configuran por ahora.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>  // SEGUNDO REGISTRO DE CONFIGURACION
+  PWM1CON2=0;
+  PWM1CON2bits.IUE=1; // ACTUALIZA LOS CICLO UTIL DE INEMDIATO
+  //LOS PINES PWM LOS CONTOLA EL MODULO PWM
+  POVD1L_bit=1;
+  POVD1H_bit=1;
+  POVD2L_bit=1;
+  POVD2H_bit=1;
+  // POR EL MOMENTO NO SE CONFIGRAN LOS REGISTOS DE TIEMPO MUERTO NI DE FALLAS
+  // CARGA EL CICLO UTIL;
+  P1DC1=1249;
+  P1DC2=12449; //CICLO UTIL AL 50%
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/523.webp" target="_blank"><img src="img/523.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/579.webp" target="_blank"><img src="img/579.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Primera prueba</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=597" target="_blank" rel="noopener">&#9654; 9:57</a></div><p>Se llama pwm_fast_init y se deja un while(1) vacío. El osciloscopio muestra cada par con señales iguales: una de 1 ms y otra de 10 ms.</p><div class="uno"><figure class="cap"><a href="img/635.webp" target="_blank"><img src="img/635.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Modo complementario</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=631" target="_blank" rel="noopener">&#9654; 10:31</a></div><p>Con PMOD en 0 el par queda complementario: cuando un pin sube el otro baja. Sirve para conmutar MOSFET en inversores de DC a AC. Luego se vuelve al modo independiente.</p><div class="dos"><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/746.webp" target="_blank"><img src="img/746.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Servo y motor</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Funciones nuevas</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=794" target="_blank" rel="noopener">&#9654; 13:14</a></div><p>Se copian las funciones de la clase 6 como servo3, servo3_ecu y pwm3 (y las 4 para el segundo par). Ahora se escribe en P1DC1, que cuenta al doble, por eso aparece el factor 2.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void servo3(float angulo)
+{
+  angulo=map(angulo,-90.0,ser_min,90.0,ser_max);
+  PDC1=angulo*(float)P1TPER*2.0/20.0;
+}
+
+void servo3_ecu(float angulo)
+{
+  PDC1= 6.9444*angulo + 1874.0;
+}
+
+void pwm3(float ancho)
+{
+  PDC1=ancho*(float)P1TPER*2.0/100.0;
+}
+// ... servo4, servo4_ecu y pwm4 con PDC2</code></pre></div><div class="dos"><figure class="cap"><a href="img/802.webp" target="_blank"><img src="img/802.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/858.webp" target="_blank"><img src="img/858.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Probar servo y motor</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=956" target="_blank" rel="noopener">&#9654; 15:56</a></div><p>Con el while vacío, el servo 3 va a 90° y el PWM 4 al 90 %. El frecuencímetro confirma 50 Hz.</p><div class="dos"><figure class="cap"><a href="img/914.webp" target="_blank"><img src="img/914.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/970.webp" target="_blank"><img src="img/970.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1026.webp" target="_blank"><img src="img/1026.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Modo arriba y abajo</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=1058" target="_blank" rel="noopener">&#9654; 17:38</a></div><p>Si PTMOD se pone en modo ascendente y descendente, la frecuencia baja a la mitad. Es otra forma de tener frecuencias bajas, pero cambia la fórmula.</p><div class="uno"><figure class="cap"><a href="img/1082.webp" target="_blank"><img src="img/1082.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Los dos módulos a la vez</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=1092" target="_blank" rel="noopener">&#9654; 18:12</a></div><p>El while mueve dos servos igual, uno con output compare y otro con motor control, y baja los PWM al terminar cada barrido.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  PWM2(90); //90 %
+  PWM4(90); //90 %
+  for (cuenta=-90;cuenta&lt;=90;cuenta+=5)
+  {
+  // servo1(cuenta);
+  servo1_ecu(cuenta);
+  servo3_ecu(cuenta);
+  Delay_ms(50);
+  }
+  // ... baja el porcentaje de PWM2 y PWM4
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1137.webp" target="_blank"><img src="img/1137.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1193.webp" target="_blank"><img src="img/1193.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Tiempo muerto</h3><a class="min" href="https://youtu.be/kpjc0n-c8wk?t=1257" target="_blank" rel="noopener">&#9654; 20:57</a></div><p>El módulo también tiene control de tiempo muerto: un retardo entre que una salida baja y la otra sube para que los MOSFET no conduzcan a la vez. Es clave en convertidores DC-DC e inversores.</p><div class="uno"><figure class="cap"><a href="img/1305.webp" target="_blank"><img src="img/1305.webp" alt="Curso de MikroC para dsPIC, clase 7: módulo motor control como PWM" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=kpjc0n-c8wk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

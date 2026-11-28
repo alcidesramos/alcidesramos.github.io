@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con los dos módulos output compare del dsPIC33FJ32MC202 se generan señales PWM de 50 Hz por hardware, sin interrupciones, para manejar un servo por ángulo y un motor DC por porcentaje.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/GMfT48GuV8s/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM · Paso a paso">
+  <meta property="og:description" content="Con los dos módulos output compare del dsPIC33FJ32MC202 se generan señales PWM de 50 Hz por hardware, sin interrupciones, para manejar un servo por ángulo y un motor DC por porcentaje.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/GMfT48GuV8s/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/GMfT48GuV8s/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#dspic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// MikroC para dsPIC · Paso a paso</span>
+    <h1><span>PWM</span> con output compare en dsPIC</h1>
+    <p class="lead">En un PIC o en Arduino, mover servos suele hacerse con interrupciones de timer, y eso carga el programa. El dsPIC lo hace por hardware con el módulo output compare en modo PWM, y puede bajar a 50 Hz sin cambiar el cristal. Se usa el oscilador interno de 7,37 MHz con PLL para llegar a 80 MHz, se remapean OC1 y OC2 a RP2 y RP3, y el Timer2 con prescaler 64 y PR2 = 12500 da el periodo de 20 ms. Luego se hacen funciones para mover el servo en grados (con un mapeo lineal o con la ecuación sacada en Excel) y para dar el ancho en porcentaje.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=GMfT48GuV8s" target="_blank" rel="noopener">&#9654; Ver el video completo (30:41)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1272.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM"></figure>
+    <ul class="materiales"><li>dsPIC33FJ32MC202 con oscilador interno y PLL a 80 MHz</li><li>Servomotor y motor DC (simulados)</li><li>Capacitor de 10 µF en VCAP</li><li>MikroC PRO for dsPIC</li><li>Proteus con osciloscopio y frecuencímetro</li><li>Hoja de Excel para PWM</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · PWM</a><a href="#f3">3 · Servo</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto y reloj</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Pines de output compare</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=37" target="_blank" rel="noopener">&#9654; 0:37</a></div><p>Este micro tiene pines de motor control (PWM1H/L) y dos módulos output compare, OC1 y OC2. En esta clase se usa el PWM normal por output compare.</p><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/98.webp" target="_blank"><img src="img/98.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Oscilador interno</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=141" target="_blank" rel="noopener">&#9654; 2:21</a></div><p>El proyecto se configura a 80 MHz con el oscilador interno y el PLL, sin cristal. Se deja activa la configuración múltiple del remapeo para poder mover el PWM y el serial.</p><div class="uno"><figure class="cap"><a href="img/177.webp" target="_blank"><img src="img/177.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>VCAP y AVDD</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=243" target="_blank" rel="noopener">&#9654; 4:03</a></div><p>En el montaje real hay que conectar AVDD y AVSS y poner un capacitor de 10 µF, mejor de tantalio, en VCAP; sin eso el micro no arranca. El oscilador interno es de 7,37 MHz.</p><div class="uno"><figure class="cap"><a href="img/255.webp" target="_blank"><img src="img/255.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Librería de interrupciones</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=308" target="_blank" rel="noopener">&#9654; 5:08</a></div><p>Se agrega Config_Interrupcion, que limpia las trampas del núcleo (falla de oscilador, error de dirección, pila y matemático) y trae las funciones para habilitar y deshabilitar interrupciones.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//procedimientos y funcionesinterrupciones
+void osciladorInt() org 0x06
+{
+OSCFAIL_bit=0;
+}
+
+void direccionInt() org 0x08
+{
+ADDRERR_bit=0;
+}
+
+void pilaInt() org 0x0A
+{
+STKERR_bit=0;
+}
+
+void aritmetrico() org 0x0C
+{
+MATHERR_bit=0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/333.webp" target="_blank"><img src="img/333.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Reloj, puertos y remapeo</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=377" target="_blank" rel="noopener">&#9654; 6:17</a></div><p>El main ajusta el PLL para el oscilador interno, deja todo digital y remapea el serial a RP0/RP1 y las salidas OC1 y OC2 a RP2 y RP3. En Proteus sale INICIANDO.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>CLKDIVbits.PLLPRE = 0;   // N1 = 2
+CLKDIVbits.PLLPOST = 0;  // N2 = 2
+PLLFBD=41; // selecciona M=40; siempre lo deseado menos 2;  CRISTAL INTERNO
+
+//INICIALIZA PINES DIGITALES
+AD1PCFGL = 0xFFFF;
+//puertos como ENTRADAS
+TRISA=0XFFFF;
+TRISB=0XFFFF;
+
+Unlock_IOLOCK();
+// UART1
+PPS_Mapping(0,_OUTPUT,_U1TX);
+PPS_Mapping(1,_INPUT,_U1RX);
+//REMAPEO PWM
+PPS_Mapping(2,_OUTPUT,_OC1);
+PPS_Mapping(3,_OUTPUT,_OC2);
+Lock_IOLOCK();
+
+UART1_Init(9600);
+UART1_Write_Text(&quot;INICIANDO\r\n&quot;);</code></pre></div><div class="dos"><figure class="cap"><a href="img/411.webp" target="_blank"><img src="img/411.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/490.webp" target="_blank"><img src="img/490.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar el PWM</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Registro OCxCON</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=549" target="_blank" rel="noopener">&#9654; 9:09</a></div><p>En el manual de referencia, los bits OCM en 110 ponen el módulo en PWM sin protección de fallas. OCTSEL elige el timer: 0 para Timer2 y 1 para Timer3.</p><div class="uno"><figure class="cap"><a href="img/568.webp" target="_blank"><img src="img/568.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>50 Hz con el Timer2</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=650" target="_blank" rel="noopener">&#9654; 10:50</a></div><p>En la hoja de Excel, para 50 Hz a 80 MHz sirven los prescaler 8 y 64. Con 64 el PR2 es 12500; con 8 sería mayor y daría más resolución.</p><div class="uno"><figure class="cap"><a href="img/724.webp" target="_blank"><img src="img/724.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>pwm_init_basico</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=750" target="_blank" rel="noopener">&#9654; 12:30</a></div><p>La librería CONFIG_PWM_B configura el Timer2 y los dos módulos. Para arrancar se carga la mitad del periodo, 6250, que da 50 % de ciclo útil.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void pwm_init_basico()
+{
+//configuracion timer 2
+TMR2=0;
+PR2=12500; // para 50HZ = 20 ms manejo de servos
+//limpia el registro de configuracion
+T2CON=0;
+//preescalador 64
+T2CONbits.TCKPS=0B10;
+T2CONbits.TON=1; // prende el timer 2
+//configuración
+//modulo pwm  oc1
+OC1CON=OC2CON=0;
+OC1CONbits.OCTSEL= OC2CONbits.OCTSEL=0; //trabaja con timer2 sino timer 1
+// ... OC1R/OC1RS y OC2R/OC2RS en 6250 (50 %)
+// ... OCM = 110: PWM sin protección de fallas
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/803.webp" target="_blank"><img src="img/803.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Señal por hardware</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=924" target="_blank" rel="noopener">&#9654; 15:24</a></div><p>Se llama pwm_init_basico antes del while y el while queda vacío. Aun así el osciloscopio muestra las dos señales y el frecuencímetro marca 50 Hz: todo lo hace el hardware.</p><div class="uno"><figure class="cap"><a href="img/959.webp" target="_blank"><img src="img/959.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Servo y motor</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Ancho fijo para el servo</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=1066" target="_blank" rel="noopener">&#9654; 17:46</a></div><p>Con prescaler 64, 1,5 ms equivalen a unos 938 pasos. Primero se calculó mal (1250) y el pulso no daba; al corregir, el servo queda en el centro.</p><div class="dos"><figure class="cap"><a href="img/1037.webp" target="_blank"><img src="img/1037.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1116.webp" target="_blank"><img src="img/1116.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Mapeo de ángulo a tiempo</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=1293" target="_blank" rel="noopener">&#9654; 21:33</a></div><p>Se definen el rango del servo (1 a 2 ms, como los de Proteus) y una función map de línea recta. servo1 pasa el ángulo de -90 a 90 a milisegundos y lo convierte a cuentas de OC1RS; pwm1 recibe un porcentaje.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const float ser_min=1.0; // tiempo minimo en milisegundo de movimiento del servo
+const float ser_max=2.0;
+signed char cuenta;
+
+float map(float x_in, float x1_, float y1_, float x2_, float y2_)
+{
+float pendiente;
+  pendiente=(y2_ - y1_) / (x2_ - x1_);
+  pendiente=pendiente*(x_in- x1_);
+  pendiente=pendiente+y1_;
+  return( pendiente);
+}
+
+void servo1(float angulo)
+{
+  angulo=map(angulo,-90.0,ser_min,90.0,ser_max);
+  OC1RS=angulo*(float)PR2/20.0;
+}
+
+void pwm1(float ancho)
+{
+  OC1RS=ancho*(float)PR2/100.0;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1585.webp" target="_blank"><img src="img/1585.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1350.webp" target="_blank"><img src="img/1350.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Probar servo y motor</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=1393" target="_blank" rel="noopener">&#9654; 23:13</a></div><p>servo1(90) da 2 ms y pwm2(80) deja la otra salida al 80 %. En el osciloscopio se ven las dos señales.</p><div class="dos"><figure class="cap"><a href="img/1429.webp" target="_blank"><img src="img/1429.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1272.webp" target="_blank"><img src="img/1272.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Barrido del servo</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=1500" target="_blank" rel="noopener">&#9654; 25:00</a></div><p>Un for mueve el servo de -90 a 90 grados de 5 en 5, con 50 ms entre pasos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>servo1_ecu(-90);
+for (cuenta=-90;cuenta&lt;=90;cuenta+=5)
+{
+servo1_ecu(cuenta);
+Delay_ms(50);
+}
+pwm2(80);
+Delay_ms(1000);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1507.webp" target="_blank"><img src="img/1507.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Ecuación desde Excel</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=1603" target="_blank" rel="noopener">&#9654; 26:43</a></div><p>En Excel se ponen -90° = 625 y 90° = 1250, se grafica, se agrega una línea de tendencia y se muestra la ecuación. Esa recta reemplaza el mapeo en una sola línea, más rápida.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void servo1_ecu(float angulo)
+{
+  OC1RS=3.4722*angulo + 937.5;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1742.webp" target="_blank"><img src="img/1742.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1663.webp" target="_blank"><img src="img/1663.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.6</span><h3>Resultado</h3><a class="min" href="https://youtu.be/GMfT48GuV8s?t=1772" target="_blank" rel="noopener">&#9654; 29:32</a></div><p>El servo va de un extremo al otro con servo1_ecu y la otra salida sigue al 80 %. Todo por hardware y a 50 Hz, ideal para servos y para motores DC con buen torque.</p><div class="uno"><figure class="cap"><a href="img/1820.webp" target="_blank"><img src="img/1820.webp" alt="Curso de MikroC para dsPIC, clase 6: módulo output compare como PWM" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=GMfT48GuV8s" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Sobre el programa de la clase 3 en XC16 se leen tres sensores ultrasónicos a la vez: prescaler 64 para medir hasta 50 ms, un pulso de disparo y la distancia en centímetros.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/QsB7GNphThs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo · Paso a paso">
+  <meta property="og:description" content="Sobre el programa de la clase 3 en XC16 se leen tres sensores ultrasónicos a la vez: prescaler 64 para medir hasta 50 ms, un pulso de disparo y la distancia en centímetros.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/QsB7GNphThs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/QsB7GNphThs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#dspic-xc16">&larr; Volver al curso</a>
+    <span class="etiqueta">// MPLAB XC16 para dsPIC · Paso a paso</span>
+    <h1>Sensores <span>HC-SR04</span> a la vez con XC16</h1>
+    <p class="lead">Los sensores miden hasta 4 metros, y el eco de ida y vuelta tarda unos 23 ms, así que se mide hasta 50 ms. Para eso la hoja de Excel da prescaler 64 con PR de 31250. Se cambia la ecuación para pasar el tiempo a distancia (58 µs por centímetro), se agrega el pin de disparo y se declaran como entrada los pines de los ecos, un detalle que en simulación funcionaba sin hacerlo pero en el circuito real no.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=QsB7GNphThs" target="_blank" rel="noopener">&#9654; Ver el video completo (5:45)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/306.webp" alt="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo"></figure>
+    <ul class="materiales"><li>dsPIC33FJ32MC202 a 80 MHz</li><li>3 sensores ultrasónicos HC-SR04 o SRF04</li><li>MPLAB X con XC16</li><li>Proteus con Virtual Terminal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Cambios</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Cambios</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Tiempo máximo</h3><a class="min" href="https://youtu.be/QsB7GNphThs?t=1" target="_blank" rel="noopener">&#9654; 0:01</a></div><p>Con 4 metros de alcance el eco no pasa de unos 23 ms. Se mide hasta 50 ms: en la hoja solo cumple el prescaler 64 con PR de 31250.</p><div class="dos"><figure class="cap"><a href="img/15.webp" target="_blank"><img src="img/15.webp" alt="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo" loading="lazy"></a></figure><figure class="cap"><a href="img/44.webp" target="_blank"><img src="img/44.webp" alt="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Timers a 50 ms</h3><a class="min" href="https://youtu.be/QsB7GNphThs?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>En los tres OpenTimer se cambia el prescaler a 64 y el periodo a 31250, y el define del prescaler pasa a 64.</p><div class="dos"><figure class="cap"><a href="img/73.webp" target="_blank"><img src="img/73.webp" alt="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo" loading="lazy"></a></figure><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Distancia y disparo</h3><a class="min" href="https://youtu.be/QsB7GNphThs?t=69" target="_blank" rel="noopener">&#9654; 1:09</a></div><p>El sensor se dispara con un pulso de 10 µs. La distancia es el ancho dividido entre 58 µs por centímetro.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while(1)
+{
+LATBbits.LATB13=!LATBbits.LATB13;
+__delay_ms(200);
+disparo=0;
+__delay_us(10);
+disparo=1;
+
+ ancho1=((float)pwm_in1*(float)prescalador)/40e6;  //  40 es la velocidad de operacion/2
+ //para pasarlo a distancia
+ dis1=ancho1/58e-6;
+ // ... igual para dis2 y dis3
+
+ sprintf(texto,&quot;dis1=%.1fcm   dis2=%.1fcm   dis3=%.1fcm\r\n&quot;, dis1,dis2,dis3);
+ Uart1_write_text(texto);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/102.webp" target="_blank"><img src="img/102.webp" alt="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo" loading="lazy"></a></figure><figure class="cap"><a href="img/131.webp" target="_blank"><img src="img/131.webp" alt="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Pin de disparo</h3><a class="min" href="https://youtu.be/QsB7GNphThs?t=187" target="_blank" rel="noopener">&#9654; 3:07</a></div><p>Se define el pin de disparo en el puerto A junto con los LEDs.</p><div class="dos"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo" loading="lazy"></a></figure><figure class="cap"><a href="img/248.webp" target="_blank"><img src="img/248.webp" alt="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Ecos como entrada</h3><a class="min" href="https://youtu.be/QsB7GNphThs?t=219" target="_blank" rel="noopener">&#9654; 3:39</a></div><p>En la clase 3 faltó poner como entrada los pines de las señales. En Proteus funcionaba igual, pero en el circuito real no. Se deja el puerto como salida y luego se ponen en 1 los TRIS de los ecos.</p><div class="uno"><figure class="cap"><a href="img/277.webp" target="_blank"><img src="img/277.webp" alt="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.6</span><h3>Prueba</h3><a class="min" href="https://youtu.be/QsB7GNphThs?t=290" target="_blank" rel="noopener">&#9654; 4:50</a></div><p>El terminal muestra las tres distancias, y cambian al mover cada sensor. En la próxima clase se hace lo mismo con el módulo input capture, que es más eficiente.</p><div class="dos"><figure class="cap"><a href="img/306.webp" target="_blank"><img src="img/306.webp" alt="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo" loading="lazy"></a></figure><figure class="cap"><a href="img/335.webp" target="_blank"><img src="img/335.webp" alt="Curso de MPLAB XC16, clase 4: lectura de sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=QsB7GNphThs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
