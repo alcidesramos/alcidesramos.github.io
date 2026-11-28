@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arduino como programador de PIC, versión 1.0 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un programador de PIC hecho con un Arduino y una tarjeta sencilla que genera el voltaje de programación, con un programa de PC que detecta el micro, carga el .hex y se integra a MikroC para programar desde el compilador.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/EqzTapbVg4o/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Arduino como programador de PIC, versión 1.0 · Paso a paso">
+  <meta property="og:description" content="Un programador de PIC hecho con un Arduino y una tarjeta sencilla que genera el voltaje de programación, con un programa de PC que detecta el micro, carga el .hex y se integra a MikroC para programar desde el compilador.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/EqzTapbVg4o/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/EqzTapbVg4o/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Usar un <span>Arduino</span> para programar PIC</h1>
+    <p class="lead">Primera versión de un programador de PIC propio. La idea no es programar el PIC con Arduino, sino usar el Arduino para pasarle el .hex al micro, pensando en estudiantes que ya tienen un Arduino y no un programador. Una pequeña tarjeta eleva el voltaje para la entrada VPP/MCLR, con opción de 9 V o 13 V según el micro. Se explica por qué cada familia de PIC se programa distinto (comandos de borrado, cantidad de palabras por escritura y palabras de configuración), y se muestra el programa de PC: autodetecta el micro, abre el .hex, lo programa y se puede llamar desde las herramientas de MikroC.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=EqzTapbVg4o" target="_blank" rel="noopener">&#9654; Ver el video completo (21:29)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1010.webp" alt="Arduino como programador de PIC, versión 1.0"></figure>
+    <ul class="materiales"><li>Arduino UNO</li><li>Tarjeta de voltaje de programación: bobina, transistores 2N3904, diodo 1N4148, condensadores y zeners</li><li>Programa de PC del programador</li><li>PIC16F84, PIC12F1822, PIC16F887, PIC16F877A u otros soportados</li><li>MikroC PRO for PIC</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Hardware</a><a href="#f2">2 · Algoritmos</a><a href="#f3">3 · Software</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El hardware</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La idea</h3><a class="min" href="https://youtu.be/EqzTapbVg4o?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El programa de PC manda el .hex por el puerto serial al Arduino, y el Arduino lo escribe en el PIC por ICSP (PGC, PGD y MCLR/VPP). Así un estudiante que ya tiene un Arduino puede programar PIC sin comprar un programador.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Elevar el voltaje de VPP</h3><a class="min" href="https://youtu.be/EqzTapbVg4o?t=67" target="_blank" rel="noopener">&#9654; 1:07</a></div><p>Para entrar en modo de programación, el pin MCLR/VPP necesita un voltaje más alto que VDD. La tarjeta lo genera con un elevador: el Arduino conmuta un transistor 2N3904 sobre una bobina, el diodo 1N4148 carga un condensador y unos zeners limitan el voltaje. Otro transistor aplica o quita ese voltaje al pin VPP.</p><div class="dos"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>9 V o 13 V</h3><a class="min" href="https://youtu.be/EqzTapbVg4o?t=526" target="_blank" rel="noopener">&#9654; 8:46</a></div><p>Cada micro pide un voltaje de programación distinto: los antiguos necesitan unos 13 V y algunos nuevos, como el 12F1822, máximo unos 9 V. Con un puente en la tarjeta se escoge el voltaje. Hay que revisar en la hoja de datos de programación cuánto acepta cada micro antes de conectarlo.</p><p class="ojo">Un voltaje de VPP mayor al que soporta el micro lo puede dañar. Revise la especificación VIHH en la hoja de datos de programación.</p><div class="uno"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Cada familia es distinta</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Borrado y escritura</h3><a class="min" href="https://youtu.be/EqzTapbVg4o?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>Cada familia tiene su especificación de programación. En el 16F84 hay que mandar una secuencia de comandos para borrar; en los micros más nuevos basta un comando. Al escribir, unas familias cargan las palabras de una en una, otras de 4 en 4 y otras de 8 en 8.</p><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Palabras de configuración</h3><a class="min" href="https://youtu.be/EqzTapbVg4o?t=329" target="_blank" rel="noopener">&#9654; 5:29</a></div><p>El 16F877A tiene una sola palabra de configuración, pero otros tienen dos y con bits no implementados que se leen como 0 o como 1. Si no se tiene en cuenta, la verificación falla. Hay que leer la especificación de cada micro, programarlo y probar hasta que funcione.</p><div class="dos"><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El programa de PC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Autodetectar el micro</h3><a class="min" href="https://youtu.be/EqzTapbVg4o?t=667" target="_blank" rel="noopener">&#9654; 11:07</a></div><p>Con <b>Config serial</b> se escoge el puerto del Arduino. El botón <b>Autodetecta</b> lee el ID del micro: si no hay micro da 0, y si lo reconoce muestra su nombre (por ejemplo un 16F84 o un 12F1822). Si un micro no está soportado, avisa que no se detecta.</p><div class="dos"><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure><figure class="cap"><a href="img/660.webp" target="_blank"><img src="img/660.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure><figure class="cap"><a href="img/730.webp" target="_blank"><img src="img/730.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Programar un .hex</h3><a class="min" href="https://youtu.be/EqzTapbVg4o?t=871" target="_blank" rel="noopener">&#9654; 14:31</a></div><p>Se abre el .hex con <b>Archivo &gt; Abrir</b>, se ven los datos y se pulsa <b>Programar</b>. En el ejemplo, un 16F887 queda con un programa que hace parpadear el puerto B.</p><div class="dos"><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure><figure class="cap"><a href="img/1010.webp" target="_blank"><img src="img/1010.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Programar desde MikroC</h3><a class="min" href="https://youtu.be/EqzTapbVg4o?t=1009" target="_blank" rel="noopener">&#9654; 16:49</a></div><p>En <b>Tools &gt; Options &gt; Tools</b> de MikroC se agrega el ejecutable del programador con un atajo. Al compilar y pulsar ese atajo, el programa recibe el .hex, programa el micro y se cierra. El .hex puede venir de MikroC, CCS, XC8 o cualquier compilador.</p><div class="dos"><figure class="cap"><a href="img/1150.webp" target="_blank"><img src="img/1150.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure><figure class="cap"><a href="img/1220.webp" target="_blank"><img src="img/1220.webp" alt="Arduino como programador de PIC, versión 1.0" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=EqzTapbVg4o" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

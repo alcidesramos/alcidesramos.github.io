@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Lo básico del puerto serial (trama, baudios, niveles RS232 y TTL) y cómo mandar voltaje y temperatura desde un PIC16F877A y un PIC18F2550, con una función propia para enviar constantes que ahorra memoria y sprintf para mandar todo en una línea.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/_UrQR_rWySk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART · Paso a paso">
+  <meta property="og:description" content="Lo básico del puerto serial (trama, baudios, niveles RS232 y TTL) y cómo mandar voltaje y temperatura desde un PIC16F877A y un PIC18F2550, con una función propia para enviar constantes que ahorra memoria y sprintf para mandar todo en una línea.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/_UrQR_rWySk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/_UrQR_rWySk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Tips para transmitir por <span>UART</span></h1>
+    <p class="lead">Lección 27 del curso. Primero se explica la trama serial: bit de inicio, 8 bits de datos, paridad opcional y bit de parada, y por qué la velocidad se mide en baudios. Luego, con un PIC16F877A a 8 MHz, se inicializa el UART a 9600 baudios y se envían a un Virtual Terminal el voltaje de un potenciómetro y la temperatura de un LM35, terminando cada línea con \r\n. Se muestra que UART1_Write_Text recibe un puntero a variable, así que para textos fijos conviene una función con const char que gasta menos RAM. Por último se pasa el programa a un PIC18F2550, donde sprintf deja mandar flotantes en una línea, y se envían los datos a un programa del PC por un puerto serial virtual.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=_UrQR_rWySk" target="_blank" rel="noopener">&#9654; Ver el video completo (29:35)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1740.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librerías UART, ADC, Sprinti/Sprintf)</li><li>Proteus con PIC16F877A, PIC18F2550, potenciómetro, LM35, Virtual Terminal y COMPIM</li><li>Programa de puertos seriales virtuales y una terminal como Hercules</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Teoría</a><a href="#f2">2 · 16F877A</a><a href="#f3">3 · Constantes</a><a href="#f4">4 · 18F2550</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El puerto serial</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La trama</h3><a class="min" href="https://youtu.be/_UrQR_rWySk?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Cada dato viaja en una trama: un bit de inicio (start), 8 bits de datos, un bit de paridad opcional que cuenta los unos, y un bit de parada (stop) que puede durar 1, 1.5 o 2 bits. Lo más común es 1 start, 8 datos y 1 stop: 10 bits como mínimo. Como la trama varía, la velocidad se mide en baudios y no en bytes por segundo.</p><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>RS232 y TTL</h3><a class="min" href="https://youtu.be/_UrQR_rWySk?t=199" target="_blank" rel="noopener">&#9654; 3:19</a></div><p>El RS232 del PC trabaja con +12 V y -12 V, y antes se necesitaba un MAX232 para hablar con el micro. En el PIC los pines son <b>RC6 (TX)</b> y <b>RC7 (RX)</b> y trabajan a niveles del micro (5 V o 3.3 V).</p><div class="uno"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>UART en el 16F877A</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Iniciar y enviar</h3><a class="min" href="https://youtu.be/_UrQR_rWySk?t=266" target="_blank" rel="noopener">&#9654; 4:26</a></div><p>Proyecto con un PIC16F877A a 8 MHz con Power-up Timer. Se inicia el UART con la velocidad, <b>UART1_Write</b> manda un carácter y <b>UART1_Write_Text</b> manda un texto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TRISC6_bit = 0;   // salida TX
+TRISC7_bit = 1;   // entrada RX
+UART1_Init(9600);
+UART1_Write_Text(&quot;INICIANDO\r\n&quot;);</code></pre></div><div class="dos"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure><figure class="cap"><a href="img/350.webp" target="_blank"><img src="img/350.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Virtual Terminal</h3><a class="min" href="https://youtu.be/_UrQR_rWySk?t=401" target="_blank" rel="noopener">&#9654; 6:41</a></div><p>En Proteus se pone un Virtual Terminal cruzado: TX del micro con RX del terminal. Se le pone la misma velocidad, 9600; si no coinciden la velocidad o el cristal, salen caracteres raros.</p><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Saltos de línea</h3><a class="min" href="https://youtu.be/_UrQR_rWySk?t=535" target="_blank" rel="noopener">&#9654; 8:55</a></div><p>Para que cada dato quede en una línea nueva se termina el texto con <b>\r\n</b> (retorno de carro y nueva línea).</p><div class="uno"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Voltaje y temperatura</h3><a class="min" href="https://youtu.be/_UrQR_rWySk?t=601" target="_blank" rel="noopener">&#9654; 10:01</a></div><p>Se configuran AN0 y AN1 como análogos con ADCON1 (lección 19). El voltaje se convierte con float_to_str_ y se manda por partes; la temperatura entera se arma en una línea con sprinti.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0b0100;   // 3 análogos en el 16F877A
+TRISA0_bit = 1;
+TRISA1_bit = 1;
+
+codigo = ADC_Read(0);
+voltaje = codigo * 5.0 / 1023.0;
+floattostr_(voltaje, texto, 2);
+UART1_Write_Text(&quot;Voltaje=&quot;);
+UART1_Write_Text(texto);
+UART1_Write_Text(&quot; V\r\n&quot;);
+
+codigo = ADC_Read(1);
+temperatura = codigo * 500.0 / 1023.0;
+sprinti(texto, &quot;Temperatura=%u \r\n&quot;, temperatura);
+UART1_Write_Text(texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Ahorrar memoria</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Write_Text usa un puntero a variable</h3><a class="min" href="https://youtu.be/_UrQR_rWySk?t=1066" target="_blank" rel="noopener">&#9654; 17:46</a></div><p>En la ayuda se ve que UART1_Write_Text recibe un <b>char *</b>, un puntero a variable. Si se le pasa un texto fijo, el compilador lo copia a RAM, gasta más memoria y en los 16F con bancos puede causar errores.</p><div class="uno"><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Una función para constantes</h3><a class="min" href="https://youtu.be/_UrQR_rWySk?t=1129" target="_blank" rel="noopener">&#9654; 18:49</a></div><p>Para textos fijos se usa una función que recibe un puntero a constante y manda carácter por carácter. Así el texto se queda en la memoria de programa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Uart1_write_text_const(const char *info)
+{
+  while (*info) UART1_Write(*info++);
+}
+
+Uart1_write_text_const(&quot;Voltaje=&quot;);
+UART1_Write_Text(texto);   // variable
+Uart1_write_text_const(&quot; V\r\n&quot;);</code></pre></div><p class="ojo">Use la función con const para textos fijos y UART1_Write_Text para variables. Compare el uso de memoria en View &gt; Statistics.</p><div class="dos"><figure class="cap"><a href="img/1150.webp" target="_blank"><img src="img/1150.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure><figure class="cap"><a href="img/1220.webp" target="_blank"><img src="img/1220.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure><figure class="cap"><a href="img/1260.webp" target="_blank"><img src="img/1260.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>UART en el 18F2550</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Cambiar de micro</h3><a class="min" href="https://youtu.be/_UrQR_rWySk?t=1327" target="_blank" rel="noopener">&#9654; 22:07</a></div><p>El programa pasa al PIC18F2550 cambiando ADCON1 a 0b1101 para tener AN0 y AN1 análogos. Los 18F tienen memoria lineal, sin bancos, y dan menos problemas con Write_Text, pero se recomienda la función con const por buena costumbre.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0b1101;   // 2 análogos en el 18F2550</code></pre></div><div class="uno"><figure class="cap"><a href="img/1340.webp" target="_blank"><img src="img/1340.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>sprintf con flotantes</h3><a class="min" href="https://youtu.be/_UrQR_rWySk?t=1464" target="_blank" rel="noopener">&#9654; 24:24</a></div><p>En los 18F, sprintf acepta flotantes, así que cada dato se arma y se manda en una línea. En un 16F solo hay sprinti para enteros.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;Voltaje=%4.2f V\r\n&quot;, voltaje);
+UART1_Write_Text(texto);
+
+codigo = ADC_Read(1);
+temperatura = codigo * 500.0 / 1023.0;
+sprintf(texto, &quot;Temperatura=%4.1f \r\n&quot;, temperatura);
+UART1_Write_Text(texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1450.webp" target="_blank"><img src="img/1450.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure><figure class="cap"><a href="img/1500.webp" target="_blank"><img src="img/1500.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure><figure class="cap"><a href="img/1620.webp" target="_blank"><img src="img/1620.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Enviar al PC</h3><a class="min" href="https://youtu.be/_UrQR_rWySk?t=1659" target="_blank" rel="noopener">&#9654; 27:39</a></div><p>Para recibir los datos en un programa del PC se usa el componente <b>COMPIM</b> de Proteus con el puerto COM y 9600 baudios. Para simular se crea un par de puertos seriales virtuales con un emulador y se abre el otro puerto en una terminal como Hercules. Desde ahí se pueden graficar en LabVIEW u otro programa.</p><div class="dos"><figure class="cap"><a href="img/1700.webp" target="_blank"><img src="img/1700.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure><figure class="cap"><a href="img/1740.webp" target="_blank"><img src="img/1740.webp" alt="Curso MikroC PRO for PIC, lección 27: tips para la transmisión serial UART" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=_UrQR_rWySk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

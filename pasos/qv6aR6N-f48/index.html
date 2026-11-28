@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo se configuran el oscilador, el PLL y los divisores del PIC18F2550/4550 para trabajar a 48 MHz con un cristal de 8 MHz, y cómo el PIC18F25K50/45K50 llega a 48 MHz con su oscilador interno, sin cristal.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/qv6aR6N-f48/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB · Paso a paso">
+  <meta property="og:description" content="Cómo se configuran el oscilador, el PLL y los divisores del PIC18F2550/4550 para trabajar a 48 MHz con un cristal de 8 MHz, y cómo el PIC18F25K50/45K50 llega a 48 MHz con su oscilador interno, sin cristal.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/qv6aR6N-f48/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/qv6aR6N-f48/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Configurar el reloj de los PIC con <span>USB</span></h1>
+    <p class="lead">Lección 26 del curso, a pedido de un suscriptor. Con un programa sencillo que manda "hola mundo" por el puerto serial cada segundo, se recorre el diagrama de reloj del PIC18F2550 en la hoja de datos y las opciones de Edit Project en MikroC: oscilador HS, divisor del cristal, PLL de 96 MHz, postscaler del CPU y reloj del USB. Si la frecuencia del proyecto no coincide con la real, el serial muestra caracteres raros. Luego se compara con el PIC18F25K50, que puede trabajar a 48 MHz con el oscilador interno y alimentar el USB sin cristal.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=qv6aR6N-f48" target="_blank" rel="noopener">&#9654; Ver el video completo (15:27)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/520.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (Edit Project, librería UART)</li><li>Proteus con PIC18F2550 y Virtual Terminal</li><li>Hojas de datos del PIC18F2550 y del PIC18F25K50</li><li>Cristal de 8 MHz</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Sin PLL</a><a href="#f2">2 · PLL 48 MHz</a><a href="#f3">3 · 18F25K50</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>PIC18F2550 sin PLL</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El programa de prueba</h3><a class="min" href="https://youtu.be/qv6aR6N-f48?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>Un PIC18F2550 manda "hola mundo" por el UART cada segundo a un Virtual Terminal de Proteus. Lo que interesa es la configuración del reloj: si no está bien sincronizada, en el terminal salen caracteres raros.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void main() {
+  UART1_Init(9600);
+  while (1) {
+    UART1_Write_Text(&quot;hola mundo\r\n&quot;);
+    Delay_ms(1000);
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Oscilador HS y el postscaler</h3><a class="min" href="https://youtu.be/qv6aR6N-f48?t=68" target="_blank" rel="noopener">&#9654; 1:08</a></div><p>En <b>Project &gt; Edit Project</b> se escoge <b>HS oscillator</b> para el cristal de 8 MHz. En el diagrama de reloj, sin PLL el cristal pasa por un divisor de 1, 2, 3 o 4 antes de llegar al CPU (System Clock Postscaler).</p><div class="dos"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Si se divide, cambia la frecuencia</h3><a class="min" href="https://youtu.be/qv6aR6N-f48?t=235" target="_blank" rel="noopener">&#9654; 3:55</a></div><p>Si el postscaler divide entre 2, el micro trabaja realmente a 4 MHz aunque el cristal sea de 8, y así hay que indicarlo en la frecuencia del proyecto. Lo recomendable es dejarlo en 1 para tener la máxima velocidad.</p><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Oscilador interno</h3><a class="min" href="https://youtu.be/qv6aR6N-f48?t=337" target="_blank" rel="noopener">&#9654; 5:37</a></div><p>El micro también puede trabajar con su oscilador interno, sin cristal, y esa frecuencia se puede usar para el CPU. No sirve para el USB.</p><div class="uno"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>PIC18F2550 a 48 MHz</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>El PLL de 96 MHz</h3><a class="min" href="https://youtu.be/qv6aR6N-f48?t=373" target="_blank" rel="noopener">&#9654; 6:13</a></div><p>El USB 2.0 de este micro necesita 48 MHz. El PLL solo acepta 4 MHz de entrada y entrega 96 MHz, por eso el cristal se divide primero con el PLL Prescaler: con un cristal de 8 MHz se divide entre 2. Luego los 96 MHz se dividen entre 2 para el USB y para el CPU.</p><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>La configuración en MikroC</h3><a class="min" href="https://youtu.be/qv6aR6N-f48?t=509" target="_blank" rel="noopener">&#9654; 8:29</a></div><p>Con un cristal de 8 MHz:</p><ul><li>PLL Prescaler Selection: <b>Divide by 2 (8 MHz oscillator input)</b>.</li><li>System Clock Postscaler: <b>96 MHz PLL Src /2</b>.</li><li>USB Clock Selection: <b>from the 96 MHz PLL divided by 2</b>.</li><li>Oscillator Selection: <b>HS oscillator, PLL enabled (HSPLL)</b>.</li><li>MCU Clock Frequency: <b>48 MHz</b>.</li></ul><div class="dos"><figure class="cap"><a href="img/560.webp" target="_blank"><img src="img/560.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Cuidado con Proteus</h3><a class="min" href="https://youtu.be/qv6aR6N-f48?t=612" target="_blank" rel="noopener">&#9654; 10:12</a></div><p>Proteus no simula bien el PLL a 48 MHz para los periféricos en estos micros, así que en la simulación el serial sale con caracteres raros. En el micro físico sí funciona. Si se deja el CPU en HS sin PLL, el USB puede seguir a 48 MHz desde el PLL.</p><p class="ojo">Una configuración con PLL que falla en Proteus no significa que esté mal: pruébela en el micro físico.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>PIC18F25K50 sin cristal</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Diagrama de reloj</h3><a class="min" href="https://youtu.be/qv6aR6N-f48?t=716" target="_blank" rel="noopener">&#9654; 11:56</a></div><p>El 18F25K50 tiene un oscilador interno de 16 MHz con buena precisión y un PLL de 3x o 4x. Su desventaja es que el PLL tiene menos opciones de división, así que con algunos cristales hay que hacer más cálculos. Su gran ventaja es que el CPU y el USB pueden trabajar a 48 MHz sin cristal.</p><div class="dos"><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure><figure class="cap"><a href="img/790.webp" target="_blank"><img src="img/790.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configurarlo a 48 MHz</h3><a class="min" href="https://youtu.be/qv6aR6N-f48?t=821" target="_blank" rel="noopener">&#9654; 13:41</a></div><p>En Edit Project se habilita el PLL, se deja el CPU sin división, se escoge el oscilador interno y la frecuencia de 48 MHz. Basta alimentar el micro y conectar el cable USB.</p><ul><li>PLL Enable: <b>Enabled</b>.</li><li>CPU System Clock Postscaler: <b>no divide</b>.</li><li>Oscillator Selection: <b>Internal oscillator</b>.</li><li>MCU Clock Frequency: <b>48 MHz</b>.</li></ul><div class="dos"><figure class="cap"><a href="img/830.webp" target="_blank"><img src="img/830.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure><figure class="cap"><a href="img/870.webp" target="_blank"><img src="img/870.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Curso MikroC PRO for PIC, lección 26: configuración del reloj en micros con USB" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=qv6aR6N-f48" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
