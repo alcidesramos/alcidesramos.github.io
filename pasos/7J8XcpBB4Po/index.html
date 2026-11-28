@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Internet de las cosas con Arduino, ESP8266 y Ubidots: monitorear temperatura y un pulsador · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Versión Arduino del monitoreo por internet: el Arduino lee un LM35 y un interruptor, arma una trama JSON y la envía a Ubidots con comandos AT a un módulo ESP8266, donde se ve la temperatura en un indicador y el estado del interruptor.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/7J8XcpBB4Po/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Internet de las cosas con Arduino, ESP8266 y Ubidots: monitorear temperatura y un pulsador · Paso a paso">
+  <meta property="og:description" content="Versión Arduino del monitoreo por internet: el Arduino lee un LM35 y un interruptor, arma una trama JSON y la envía a Ubidots con comandos AT a un módulo ESP8266, donde se ve la temperatura en un indicador y el estado del interruptor.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/7J8XcpBB4Po/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/7J8XcpBB4Po/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#arduino">&larr; Volver al curso</a>
+    <span class="etiqueta">// Arduino · Paso a paso</span>
+    <h1>Arduino a <span>Ubidots</span> con el ESP8266</h1>
+    <p class="lead">Es la versión para Arduino de un proyecto hecho antes con PIC. Un sensor de temperatura en A0 y un interruptor en el pin 2 se leen en el loop. En el setup se configura el ESP8266 con comandos AT: sin eco, modo estación, IP fija, conexión a la red WiFi y conexión TCP a things.ubidots.com por el puerto 80. En cada vuelta se arma la trama {"temperatura": ..., "led": ...} con sprintf, se calcula su largo y se envía un POST HTTP con AT+CIPSEND. En el tablero de Ubidots se ven los cambios cuando se mueve la temperatura o el interruptor en Proteus.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=7J8XcpBB4Po" target="_blank" rel="noopener">&#9654; Ver el video completo (5:01)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/270.webp" alt="Internet de las cosas con Arduino, ESP8266 y Ubidots: monitorear temperatura y un pulsador"></figure>
+    <ul class="materiales"><li>Arduino Uno</li><li>Módulo WiFi ESP8266 (comandos AT)</li><li>Sensor de temperatura LM35 en A0</li><li>Interruptor en el pin 2</li><li>Cuenta de Ubidots con un dispositivo y dos variables</li><li>Proteus para la simulación</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Ubidots</a><a href="#f2">2 · Código</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El tablero</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Variables en Ubidots</h3><a class="min" href="https://youtu.be/7J8XcpBB4Po?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>En Ubidots se crea un dispositivo (en el video, «micasa») con dos variables: temperatura, que se muestra con un indicador, y led, que muestra si el interruptor está abierto o cerrado.</p><p>Conviene ver primero el video de la versión con PIC, donde se armó la interfaz en Ubidots.</p><div class="uno"><figure class="cap"><a href="img/10.webp" target="_blank"><img src="img/10.webp" alt="Internet de las cosas con Arduino, ESP8266 y Ubidots: monitorear temperatura y un pulsador" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables y función para enviar</h3><a class="min" href="https://youtu.be/7J8XcpBB4Po?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Antes del setup se declaran el pin del interruptor, las tramas y una función que envía cualquier texto al ESP8266: primero AT+CIPSEND con el canal y el largo, y luego el texto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define suiche 2
+unsigned int codigo;
+float temperatura;
+char trama[150];
+char trama_largo[20];
+char captu[30];
+char led = &#x27;0&#x27;;
+int var_largo;
+
+void manda_esp8266(const char *info)
+{
+  unsigned int largo;
+  Serial.print(&quot;AT+CIPSEND=4,&quot;);   // canal 4
+  largo = strlen(info);              // largo de la trama
+  sprintf(captu, &quot;%u&quot;, largo);
+  Serial.print(captu);
+  Serial.print(&quot;\r\n&quot;);
+  delay(100);                        // espera antes de enviar
+  Serial.print(info);
+}</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar el ESP8266 en el setup</h3><a class="min" href="https://youtu.be/7J8XcpBB4Po?t=97" target="_blank" rel="noopener">&#9654; 1:37</a></div><p>Se configuran el puerto serial y el interruptor, y se mandan los comandos AT: sin eco, modo estación, IP fija con puerta de enlace y máscara, conexión a la red WiFi, múltiples conexiones y conexión TCP con Ubidots por el puerto 80.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void setup()
+{
+  Serial.begin(115200);
+  pinMode(suiche, INPUT);
+
+  Serial.print(&quot;ATE0\r\n&quot;);        // sin eco
+  delay(200);
+  Serial.print(&quot;AT+CWMODE=1\r\n&quot;);  // se conecta a una red existente
+  delay(200);
+  Serial.print(&quot;AT+CWDHCP=1,0\r\n&quot;); // deshabilita DHCP para IP manual
+  delay(300);
+  // IP, puerta de enlace y máscara de tu red
+  Serial.print(&quot;AT+CIPSTA=\&quot;192.168.1.117\&quot;,\&quot;192.168.1.1\&quot;,\&quot;255.255.255.0\&quot;\r\n&quot;);
+  delay(300);
+  Serial.print(&quot;AT+CWJAP=\&quot;TU_RED\&quot;,\&quot;TU_CLAVE\&quot;\r\n&quot;); // red WiFi
+  delay(6000);
+  Serial.print(&quot;AT+CIPMUX=1\r\n&quot;);  // acepta múltiples conexiones
+  delay(200);
+  Serial.print(&quot;AT+CIFSR\r\n&quot;);     // mira qué IP tiene el módulo
+  delay(1000);
+  // se conecta a Ubidots
+  Serial.write(&quot;AT+CIPSTART=4,\&quot;TCP\&quot;,\&quot;things.ubidots.com\&quot;,80\r\n&quot;);
+  delay(3000);
+}</code></pre></div><p class="ojo">En el código de ejemplo van marcadores (TU_RED, TU_CLAVE, TU_TOKEN, la IP): pon los de tu red y tu cuenta de Ubidots y no publiques tu token ni la clave de tu WiFi.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Armar y enviar la trama</h3><a class="min" href="https://youtu.be/7J8XcpBB4Po?t=169" target="_blank" rel="noopener">&#9654; 2:49</a></div><p>En el loop se lee la temperatura (10 mV/°C: código × 500/1023) y el interruptor. sprintf de Arduino no imprime decimales, por eso la temperatura se envía como entero.</p><p>Se envía la cabecera del POST, luego el largo de la trama y luego la trama con las variables.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void loop()
+{
+  // lee la temperatura
+  codigo = analogRead(0);
+  temperatura = codigo * 500.0 / 1023.0;
+  if (digitalRead(suiche) == 0) led = &#x27;0&#x27;; else led = &#x27;1&#x27;;
+
+  // limpia las tramas
+  memset(trama_largo, 20, 0);
+  memset(trama, 150, 0);
+  // arma la trama de variables
+  sprintf(trama, &quot;{\&quot;temperatura\&quot;: %u ,\&quot;led\&quot;: %c}\n&quot;, (int)temperatura, led);
+  // calcula el largo y lo pasa a cadena con dos fin de línea
+  var_largo = strlen(trama) - 1;
+  sprintf(trama_largo, &quot;%u\n\n&quot;, var_largo);
+
+  // envío a Ubidots: dispositivo y token de tu cuenta
+  manda_esp8266(&quot;POST /api/v1.6/devices/micasa/?token=TU_TOKEN HTTP/1.1\nHost: things.ubidots.com\nContent-Type: application/json\nContent-Length: &quot;);
+  delay(1000);
+  manda_esp8266(trama_largo);   // manda el largo de la trama
+  delay(500);
+  manda_esp8266(trama);         // manda las variables
+  delay(500);
+}</code></pre></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Simulación en Proteus</h3><a class="min" href="https://youtu.be/7J8XcpBB4Po?t=240" target="_blank" rel="noopener">&#9654; 4:00</a></div><p>En Proteus el Arduino se conecta al ESP8266 real por un puerto COM (COMPIM) a 115200. En el terminal se ven los comandos y las respuestas; cuando el módulo se conecta empieza a enviar.</p><div class="uno"><figure class="cap"><a href="img/244.webp" target="_blank"><img src="img/244.webp" alt="Internet de las cosas con Arduino, ESP8266 y Ubidots: monitorear temperatura y un pulsador" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Ver los cambios en Ubidots</h3><a class="min" href="https://youtu.be/7J8XcpBB4Po?t=240" target="_blank" rel="noopener">&#9654; 4:00</a></div><p>Con 33 °C el tablero muestra 33 y el indicador del interruptor en ABIERTO. Al bajar la temperatura a 16 °C y cambiar el interruptor en Proteus, después de unos segundos Ubidots muestra 16 y CERRADO.</p><div class="dos"><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Internet de las cosas con Arduino, ESP8266 y Ubidots: monitorear temperatura y un pulsador" loading="lazy"></a></figure><figure class="cap"><a href="img/296.webp" target="_blank"><img src="img/296.webp" alt="Internet de las cosas con Arduino, ESP8266 y Ubidots: monitorear temperatura y un pulsador" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=7J8XcpBB4Po" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

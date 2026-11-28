@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arduino y ESP8266: monitoreo y control por internet con Ubidots · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Al programa que enviaba temperatura a Ubidots se le agrega el control: el Arduino pregunta por HTTP el valor de una variable del tablero, lo extrae de la respuesta y prende o apaga un LED en el pin 13. Se adapta el código hecho antes para PIC.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/hWpmDe2n-MY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Arduino y ESP8266: monitoreo y control por internet con Ubidots · Paso a paso">
+  <meta property="og:description" content="Al programa que enviaba temperatura a Ubidots se le agrega el control: el Arduino pregunta por HTTP el valor de una variable del tablero, lo extrae de la respuesta y prende o apaga un LED en el pin 13. Se adapta el código hecho antes para PIC.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/hWpmDe2n-MY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/hWpmDe2n-MY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#arduino">&larr; Volver al curso</a>
+    <span class="etiqueta">// Arduino · Paso a paso</span>
+    <h1>Monitoreo y <span>control</span> con Ubidots</h1>
+    <p class="lead">Sobre el programa de monitoreo con ESP8266 y Ubidots se agrega una salida: un LED en el pin 13 que se controla desde un botón del tablero. Se reutiliza la rutina de lectura de la versión con PIC, cambiando lo que no existe en Arduino: UART1_Data_Ready pasa a Serial.available(), UART1_Read a Serial.read(), y la bandera RCIF no se limpia porque Arduino maneja el búfer solo. Después del POST con las variables se envía un GET por la última lectura de la variable, se recorta el valor con strtok y atof y se decide el estado del LED.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=hWpmDe2n-MY" target="_blank" rel="noopener">&#9654; Ver el video completo (7:14)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/10.webp" alt="Arduino y ESP8266: monitoreo y control por internet con Ubidots"></figure>
+    <ul class="materiales"><li>Arduino Uno</li><li>Módulo ESP8266 (comandos AT)</li><li>LM35 en A0 y un interruptor</li><li>LED en el pin 13</li><li>Cuenta de Ubidots con un botón (variable «luces»)</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Adaptar</a><a href="#f2">2 · Control</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Pasar el código del PIC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/hWpmDe2n-MY?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Es el mismo montaje del video anterior (sensor, interruptor y ESP8266 por COMPIM) con un LED en el pin 13, que se configura como salida en el setup.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define suiche 2
+#define led_out 13
+// ...
+pinMode(led_out, OUTPUT);</code></pre></div><div class="uno"><figure class="cap"><a href="img/10.webp" target="_blank"><img src="img/10.webp" alt="Arduino y ESP8266: monitoreo y control por internet con Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Leer la respuesta: de PIC a Arduino</h3><a class="min" href="https://youtu.be/hWpmDe2n-MY?t=135" target="_blank" rel="noopener">&#9654; 2:15</a></div><p>La rutina lee_trama() espera los caracteres de la respuesta con una máquina de estados y un contador de espera. Se copia del programa en PIC y con Buscar y reemplazar se cambian las funciones del UART por las de Arduino.</p><p>La línea RCIF_bit=0 (limpiar la bandera de recepción) se borra: en Arduino no existe porque el búfer serial se maneja solo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>contador_trama = 0;
+estado_rec = cap_l;
+while (demora &lt;= 66667)
+{
+  demora++;
+  switch (estado_rec)
+  {
+  case cap_l:
+    if (Serial.available())        // si hay un dato recibido
+    {
+      dato_rx = Serial.read();     // lee el dato
+      trama_rx[contador_trama] = dato_rx;
+      if (dato_rx != &#x27;l&#x27;) contador_trama = 0; // no es el dato que interesa
+      else
+      {
+        contador_trama++;
+        estado_rec = cap_u;        // pasa a capturar la u
+      }
+    }
+    break;
+  case cap_u:
+    // ...
+  }
+}</code></pre></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Preguntar y actuar</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>GET de la variable y prender el LED</h3><a class="min" href="https://youtu.be/hWpmDe2n-MY?t=306" target="_blank" rel="noopener">&#9654; 5:06</a></div><p>Después de enviar las variables, se pide a Ubidots el último valor de la variable del botón. De la respuesta se toma lo que hay entre «:» y «}», se convierte a número con atof y con digitalWrite se prende o apaga el LED.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// pregunta por la variable deseada
+manda_esp8266(&quot;GET /api/v1.6/devices/micasa/luces/values?page_size=1&amp;token=TU_TOKEN HTTP/1.1\nHost: things.ubidots.com\n\n&quot;);
+// lee la respuesta
+lee_trama();
+// captura el valor:   value&quot;: 0.0}
+strcpy(captu, strtok(trama_rx, &quot;:&quot;));
+strcpy(captu, strtok(0, &quot;}&quot;));
+valor_rx = atof(captu);   // pasa la cadena a número
+if (valor_rx == 1.0) digitalWrite(led_out, 1);
+else digitalWrite(led_out, 0);
+delay(200);</code></pre></div><p class="ojo">Pon el nombre de tu dispositivo, tu variable y tu token de Ubidots; el token no se publica.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Prueba</h3><a class="min" href="https://youtu.be/hWpmDe2n-MY?t=371" target="_blank" rel="noopener">&#9654; 6:11</a></div><p>Con el programa en Proteus, la temperatura se ve en Ubidots y al presionar el botón del tablero el LED del pin 13 se prende en la siguiente consulta; al soltarlo se apaga. Con pocos cambios el código hecho para PIC queda funcionando en Arduino.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=hWpmDe2n-MY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
