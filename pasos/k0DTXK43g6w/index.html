@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC18F2550 maneja a la vez el cruce por cero (INT0), el disparo del triac (Timer0) y la recepción serial desde LabVIEW, mientras el programa principal lee la temperatura y un pulsador.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/k0DTXK43g6w/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial · Paso a paso">
+  <meta property="og:description" content="Un PIC18F2550 maneja a la vez el cruce por cero (INT0), el disparo del triac (Timer0) y la recepción serial desde LabVIEW, mientras el programa principal lee la temperatura y un pulsador.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/k0DTXK43g6w/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/k0DTXK43g6w/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Tres interrupciones: <span>cruce por cero, timer y serial</span></h1>
+    <p class="lead">El proyecto controla la potencia de una carga AC desde LabVIEW y a la vez monitorea temperatura y un pulsador. Todo se hace con interrupciones: la de flanco detecta el cruce por cero y arranca el Timer0 con el tiempo calculado; la del Timer0 da el pulso al triac y se apaga; la serial arma la trama que llega y avisa al programa principal con una bandera. Una ecuación sacada en Excel convierte el porcentaje pedido en el valor del timer.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=k0DTXK43g6w" target="_blank" rel="noopener">&#9654; Ver el video completo (27:18)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1610.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC18F2550 a 20 MHz</li><li>Detector de cruce por cero con optoacoplador y triac</li><li>Sensor LM35 y pulsador</li><li>Proteus con COMPIM y puerto virtual</li><li>LabVIEW</li><li>Excel</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · Main</a><a href="#f3">3 · Interrupciones</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La idea</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué hace el proyecto</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>Desde LabVIEW se ve la temperatura y el estado de un pulsador, se prende un LED y se elige la potencia de la carga AC. El reto es el cruce por cero sin bloquear el micro, así que todo se hace por interrupciones.</p><p>Para esto se recomienda un PIC18: en un PIC16 también se puede, pero la memoria queda justa.</p><div class="uno"><figure class="cap"><a href="img/123.webp" target="_blank"><img src="img/123.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Programa principal</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=160" target="_blank" rel="noopener">&#9654; 2:40</a></div><p>El main configura el puerto serial y las tres interrupciones. En el ciclo revisa si llegó una trama, decide el disparo (menos de 5 % apaga, más de 90 % prende del todo, en medio aplica la ecuación) y envía la temperatura y el pulsador.</p><div class="uno"><figure class="cap"><a href="img/216.webp" target="_blank"><img src="img/216.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Las tres interrupciones</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=257" target="_blank" rel="noopener">&#9654; 4:17</a></div><p>Flanco: en cada cruce por cero carga el Timer0 y activa su interrupción. Timer0: da el pulso de disparo y se desactiva. Serial: guarda datos hasta el asterisco de fin de trama y activa una bandera. Cada una debe ser muy corta.</p><div class="uno"><figure class="cap"><a href="img/309.webp" target="_blank"><img src="img/309.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto y variables</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=402" target="_blank" rel="noopener">&#9654; 6:42</a></div><p>Proyecto nuevo con el PIC18F2550 a 20 MHz (oscilador HS). Conviene un cristal de 10 MHz o más para que las interrupciones no se vuelvan lentas.</p><p>Variables: el pulsador en RB1, el pulso de disparo en LATC1, calculo (valor para el timer), dispara (porcentaje 0-100), la temperatura y las tramas de envío y recepción.</p><div class="uno"><figure class="cap"><a href="img/495.webp" target="_blank"><img src="img/495.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Procesar la trama</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=545" target="_blank" rel="noopener">&#9654; 9:05</a></div><p>Se activan las librerías de conversiones, C_String, C_Stdlib y UART. procesarx busca en la trama si trae el LED o el porcentaje de disparo y lo pasa a número.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void procesarx() {
+  if (strstr(trama_rx, &quot;led=&quot;)) {
+    if (strstr(trama_rx, &quot;on&quot;)) led = 1;
+    else led = 0;
+  }
+  else if (strstr(trama_rx, &quot;pul=&quot;)) {
+    strcpy(procesa, strtok(trama_rx, &quot;=&quot;));
+    strcpy(procesa, strtok(0, &quot;/&quot;));
+    dispara = atoi(procesa);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/588.webp" target="_blank"><img src="img/588.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Entradas, salidas y serial</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=646" target="_blank" rel="noopener">&#9654; 10:46</a></div><p>Se configura el canal análogo, la entrada del cruce por cero, el pulsador, el LED, la salida de disparo y los pines TX y RX. El puerto serial arranca a 9600 baudios.</p><div class="uno"><figure class="cap"><a href="img/681.webp" target="_blank"><img src="img/681.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Flanco y Timer0</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=712" target="_blank" rel="noopener">&#9654; 11:52</a></div><p>La interrupción INT0 se configura por flanco de subida. El Timer0 trabaja en 8 bits con prescaler 256: a 20 MHz alcanza unos 13 ms, más que los 8.33 ms de un semiciclo.</p><p>Su interrupción queda apagada: la prende el cruce por cero. Al final se habilitan las interrupciones globales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>INT0IF_bit = 0;     // limpia bandera
+INTEDG0_bit = 1;    // flanco de subida
+INT0IE_bit = 1;     // habilita INT0
+
+TMR0ON_bit = 1;     // habilita el timer 0
+T08BIT_bit = 1;     // timer de 8 bits
+T0CS_bit = 0;       // cuenta con el reloj
+PSA_bit = 0;        // usa prescaler
+T0PS2_bit = 1; T0PS1_bit = 1; T0PS0_bit = 1;  // 256
+
+GIE_bit = 1;</code></pre></div><div class="dos"><figure class="cap"><a href="img/774.webp" target="_blank"><img src="img/774.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure><figure class="cap"><a href="img/866.webp" target="_blank"><img src="img/866.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Decidir el disparo</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=884" target="_blank" rel="noopener">&#9654; 14:44</a></div><p>Si el porcentaje es menor que 5 se apaga la interrupción de flanco y la carga. Si es mayor que 90 se apaga la interrupción y se deja la carga prendida. En medio se calcula el valor del timer y se habilita la interrupción de flanco.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (dispara &lt; 5) {
+  INT0IE_bit = 0;   // deshabilita interrupcion por flanco
+  pulso = 0;        // apaga la carga
+}
+else if (dispara &gt; 90) {
+  INT0IE_bit = 0;
+  pulso = 1;
+}
+else {
+  calculo = -1.6266 * dispara + 256.1;
+  INT0IF_bit = 0;
+  INT0IE_bit = 1;   // habilita interrupcion por flanco
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/959.webp" target="_blank"><img src="img/959.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>La ecuación en Excel</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=982" target="_blank" rel="noopener">&#9654; 16:22</a></div><p>Con el cristal y el prescaler se calcula, para varios porcentajes entre 5 y 90, el tiempo de disparo y el valor del timer. Con esos puntos se hace una gráfica de dispersión y se agrega una línea de tendencia que da la ecuación.</p><div class="uno"><figure class="cap"><a href="img/1052.webp" target="_blank"><img src="img/1052.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.7</span><h3>Enviar a LabVIEW</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=1150" target="_blank" rel="noopener">&#9654; 19:10</a></div><p>Después se arma la trama con la temperatura y el estado del pulsador y se envía. Un retardo de 50 ms es suficiente.</p><div class="uno"><figure class="cap"><a href="img/1145.webp" target="_blank"><img src="img/1145.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Interrupciones</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Un solo vector</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=1185" target="_blank" rel="noopener">&#9654; 19:45</a></div><p>En los PIC16 y PIC18 todas las interrupciones llegan a la misma función. Hay que revisar la bandera de cada una para saber cuál ocurrió. La más crítica, el cruce por cero, se revisa primero.</p><div class="uno"><figure class="cap"><a href="img/1238.webp" target="_blank"><img src="img/1238.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Cruce por cero y serial</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=1261" target="_blank" rel="noopener">&#9654; 21:01</a></div><p>En el cruce por cero se apaga el pulso, se carga el Timer0 con el valor calculado y se habilita su interrupción. En la serial se guarda el dato; si llega el asterisco se activa la bandera para el main.</p><p>Si hay un error de recepción se apaga y prende de nuevo la recepción (CREN) para limpiarlo; si no, el micro se puede bloquear.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (INT0IF_bit == 1) {
+  pulso = 0;
+  TMR0L = calculo;   // tiempo a temporizar
+  TMR0IF_bit = 0;
+  TMR0IE_bit = 1;    // activa interrupcion del timer 0
+  INT0IF_bit = 0;
+}
+if (RCIF_bit == 1) {
+  datorx = UART1_Read();
+  trama_rx[puntero] = datorx;
+  puntero++;
+  if (puntero &gt;= 30) puntero = 0;
+  if (datorx == &#x27;*&#x27;) {
+    RCIE_bit = 0;
+    flag_rx = 1;     // trama valida
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1331.webp" target="_blank"><img src="img/1331.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Timer0: el disparo</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=1392" target="_blank" rel="noopener">&#9654; 23:12</a></div><p>Cuando el Timer0 se desborda se da un pulso de 10 µs al triac y se desactiva su interrupción hasta el próximo cruce. El triac se apaga solo cuando la señal vuelve a cero.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (TMR0IF_bit == 1) {
+  pulso = 1;
+  Delay_us(10);
+  pulso = 0;
+  TMR0IF_bit = 0;
+  TMR0IE_bit = 0;   // deshabilita interrupcion del timer
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1424.webp" target="_blank"><img src="img/1424.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>COMPIM y puerto virtual</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=1495" target="_blank" rel="noopener">&#9654; 24:55</a></div><p>En Proteus el COMPIM se conecta a un puerto virtual a 9600 baudios para hablar con LabVIEW.</p><div class="uno"><figure class="cap"><a href="img/1517.webp" target="_blank"><img src="img/1517.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Todo funcionando</h3><a class="min" href="https://youtu.be/k0DTXK43g6w?t=1528" target="_blank" rel="noopener">&#9654; 25:28</a></div><p>La temperatura y el pulsador se ven en tiempo real, el LED se prende y apaga, y el disparo se corre en el osciloscopio según el porcentaje. Por encima de 90 % queda prendido y por debajo de 5 % apagado.</p><div class="uno"><figure class="cap"><a href="img/1610.webp" target="_blank"><img src="img/1610.webp" alt="Múltiples interrupciones en PIC con MikroC: cruce por cero, disparo de triac y serial" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=k0DTXK43g6w" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

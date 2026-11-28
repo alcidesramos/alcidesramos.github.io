@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESP8266: monitoreo y control con Ubidots, PIC y MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se pasa al PIC18F25K50 y además de enviar datos a Ubidots se leen dos controles: un switch que prende un LED y un slider que fija el voltaje del DAC. La respuesta se filtra con una máquina de estados con tiempo límite.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/ZhE3z-Py8fw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="ESP8266: monitoreo y control con Ubidots, PIC y MikroC · Paso a paso">
+  <meta property="og:description" content="Se pasa al PIC18F25K50 y además de enviar datos a Ubidots se leen dos controles: un switch que prende un LED y un slider que fija el voltaje del DAC. La respuesta se filtra con una máquina de estados con tiempo límite.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/ZhE3z-Py8fw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/ZhE3z-Py8fw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Monitoreo y control con <span>Ubidots</span></h1>
+    <p class="lead">Continuación del monitoreo con Ubidots. Primero se cambia al PIC18F25K50, que usa registros ANSEL. En Ubidots se agregan las variables luces y nivel con un switch y un slider. El PIC pide el último valor de cada una con un GET, y una máquina de estados busca en la respuesta el campo value; si no llega nada en unos 2 segundos se sale. El valor de luces prende un LED y el de nivel se lleva al DAC de 5 bits con funciones generadas en MPLAB X. Al final se crea un evento que manda un correo si la temperatura pasa de 30.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=ZhE3z-Py8fw" target="_blank" rel="noopener">&#9654; Ver el video completo (34:57)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1981.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC18F25K50</li><li>Módulo ESP8266</li><li>Sensor LM35, switch y LED</li><li>Cuenta de Ubidots</li><li>Hercules</li><li>MPLAB X con MCC (para el DAC)</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Micro</a><a href="#f2">2 · Ubidots</a><a href="#f3">3 · Estados</a><a href="#f4">4 · Control</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Cambio de micro</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>PIC18F25K50</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>Reemplaza al 18F2550: puede usar USB con el oscilador interno, trae un DAC de 5 bits y es más económico. En MikroC basta con cambiar el micro en Edit Project.</p><div class="dos"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/119.webp" target="_blank"><img src="img/119.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Registros ANSEL</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=166" target="_blank" rel="noopener">&#9654; 2:46</a></div><p>En este micro la parte análoga se configura por puerto con ANSELA, ANSELB y ANSELC. Se ponen en 0 (todo digital) y solo AN0 en 1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ANSELA = 0;
+ANSELB = 0;
+ANSELC = 0;
+ANSELA.b0 = 1;   // AN0 analogo</code></pre></div><div class="uno"><figure class="cap"><a href="img/207.webp" target="_blank"><img src="img/207.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Sigue funcionando</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=240" target="_blank" rel="noopener">&#9654; 4:00</a></div><p>Con ese cambio el monitoreo del video anterior funciona igual.</p><div class="uno"><figure class="cap"><a href="img/296.webp" target="_blank"><img src="img/296.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Controles en Ubidots</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables nuevas</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=306" target="_blank" rel="noopener">&#9654; 5:06</a></div><p>En el device micasa se agregan luces (para prender algo en la casa) y nivel (el valor para el DAC).</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Switch y slider</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=342" target="_blank" rel="noopener">&#9654; 5:42</a></div><p>En el tablero se agrega un control tipo switch para luces y un slider para nivel, de 0 a 5.</p><div class="uno"><figure class="cap"><a href="img/385.webp" target="_blank"><img src="img/385.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Leer una variable</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=407" target="_blank" rel="noopener">&#9654; 6:47</a></div><p>Para leer el último valor se envía un GET con el device, la variable y el token. Probándolo en Hercules, la respuesta trae mucho texto, pero lo que importa es el campo value, por ejemplo value: 1.0.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>GET /api/v1.6/devices/micasa/luces/values?page_size=1&amp;token=TU_TOKEN HTTP/1.1
+Host: things.ubidots.com</code></pre></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Máquina de estados</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Variables</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=606" target="_blank" rel="noopener">&#9654; 10:06</a></div><p>El LED de salida, los estados (capturar l, u, e, comillas y esperar el final), el valor recibido, la trama de 50 caracteres, el contador y la variable demora para salir si no hay respuesta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>enum estados_ {cap_l, cap_u, cap_e, cap_co, esp_final};
+char estado_rec = cap_l;
+float valor_rx;
+char trama_rx[50];
+char contador_trama = 0;
+unsigned long demora = 0;   // para salir de la lectura</code></pre></div><div class="dos"><figure class="cap"><a href="img/651.webp" target="_blank"><img src="img/651.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Primer estado</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=777" target="_blank" rel="noopener">&#9654; 12:57</a></div><p>Se limpia todo, incluso los errores de recepción. En el primer estado se guarda el dato solo si es la l; si no, se vuelve a empezar. No se usan interrupciones: se espera la respuesta un tiempo máximo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>memset(trama_rx, 0, 50);
+demora = 0;
+contador_trama = 0;
+estado_rec = cap_l;
+RCIF_bit = 0;
+CREN_bit = 0;   // borra errores de recepcion
+CREN_bit = 1;
+while (demora &lt; 66667) {
+  demora++;
+  switch (estado_rec) {
+    case cap_l:
+      if (RCIF_bit == 1) {
+        dato_rx = UART1_Read();
+        trama_rx[contador_trama] = dato_rx;
+        if (dato_rx != &#x27;l&#x27;) contador_trama = 0;
+        else {
+          contador_trama++;
+          estado_rec = cap_u;
+        }
+        RCIF_bit = 0;
+      }
+      break;
+    // ... cap_u, cap_e, cap_co y esp_final
+  }
+}
+return 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/828.webp" target="_blank"><img src="img/828.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/917.webp" target="_blank"><img src="img/917.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Medir el tiempo con el debugger</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=944" target="_blank" rel="noopener">&#9654; 15:44</a></div><p>Con el debugger de MikroC y el Watch Clock se mide cuánto tarda el ciclo: con 10000 vueltas son unos 300 ms. Con una regla de tres, para 2 segundos hacen falta unas 66667 vueltas.</p><div class="dos"><figure class="cap"><a href="img/1094.webp" target="_blank"><img src="img/1094.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1183.webp" target="_blank"><img src="img/1183.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Resto de estados</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=1210" target="_blank" rel="noopener">&#9654; 20:10</a></div><p>Si llega la u pasa a esperar la e, luego las comillas, y después guarda todo hasta la llave de cierre. Si un dato no es el esperado vuelve al principio. Al llegar la llave retorna 1 sin esperar más; si se acaba el tiempo retorna 0, que sirve para saber que no hay conexión.</p><div class="uno"><figure class="cap"><a href="img/1272.webp" target="_blank"><img src="img/1272.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Control</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Prender el LED</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=1414" target="_blank" rel="noopener">&#9654; 23:34</a></div><p>Se pide la variable luces, se lee la respuesta y con strtok se toma lo que está entre los dos puntos y la llave. Si vale 1.0 se prende el LED.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>lee_trama();
+strcpy(captu, strtok(trama_rx, &quot;:&quot;));
+strcpy(captu, strtok(0, &quot;}&quot;));
+valor_rx = atof(captu);
+if (valor_rx == 1.0) led_out = 1; else led_out = 0;
+Delay_ms(200);</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Salida y retardo</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=1521" target="_blank" rel="noopener">&#9654; 25:21</a></div><p>Faltaba poner RB7 como salida. Además, con el micro lento hace falta un retardo de unos 200 ms entre peticiones para que responda bien.</p><div class="uno"><figure class="cap"><a href="img/1538.webp" target="_blank"><img src="img/1538.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Pedir el nivel</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=1699" target="_blank" rel="noopener">&#9654; 28:19</a></div><p>Igual que con luces, pero con la variable nivel. El valor se lleva al DAC.</p><div class="uno"><figure class="cap"><a href="img/1715.webp" target="_blank"><img src="img/1715.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>DAC con MPLAB X</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=1733" target="_blank" rel="noopener">&#9654; 28:53</a></div><p>MikroC no trae librería del DAC para este micro. Se crea un proyecto en MPLAB X, se configura el DAC de 5 bits con MCC y se generan las funciones. Se copian a MikroC cambiando el tipo uint8_t por char.</p><p>Se inicializa el DAC antes del while. Como es de 5 bits (0 a 31), la salida es valor × 31 / 5.</p><div class="uno"><figure class="cap"><a href="img/1893.webp" target="_blank"><img src="img/1893.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=1941" target="_blank" rel="noopener">&#9654; 32:21</a></div><p>Desde el tablero se prende y apaga el LED y al mover el slider a 4 el voltaje del DAC sube a casi 4 V.</p><div class="uno"><figure class="cap"><a href="img/1981.webp" target="_blank"><img src="img/1981.webp" alt="ESP8266: monitoreo y control con Ubidots, PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.6</span><h3>Evento por correo</h3><a class="min" href="https://youtu.be/ZhE3z-Py8fw?t=1975" target="_blank" rel="noopener">&#9654; 32:55</a></div><p>En Ubidots se crea un evento: si la temperatura es mayor o igual a 30 se envía un correo (o SMS) con un mensaje. Al subir la temperatura en la simulación llega el aviso.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=ZhE3z-Py8fw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

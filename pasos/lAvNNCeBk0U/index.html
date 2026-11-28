@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con Visual GLCD se diseña la pantalla (una imagen y la temperatura en un botón), se genera el proyecto de MikroC y se le agrega la lectura del LM35.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/lAvNNCeBk0U/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD · Paso a paso">
+  <meta property="og:description" content="Con Visual GLCD se diseña la pantalla (una imagen y la temperatura en un botón), se genera el proyecto de MikroC y se le agrega la lectura del LM35.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/lAvNNCeBk0U/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/lAvNNCeBk0U/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>GLCD 128x64 con <span>Visual GLCD</span></h1>
+    <p class="lead">Una GLCD de 128x64 se maneja por puntos y permite imágenes y textos. Visual GLCD, de Mikroelektronika, genera el código para MikroC: se configura el micro, el controlador KS0108 y los pines, se dibuja la interfaz y se exporta. Luego en MikroC se lee el sensor, se pasa la temperatura a texto y se redibuja el botón que la muestra.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=lAvNNCeBk0U" target="_blank" rel="noopener">&#9654; Ver el video completo (24:04)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1093.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Visual GLCD</li><li>PIC18 a 20 MHz</li><li>GLCD 128x64 con KS0108</li><li>Sensor LM35</li><li>Proteus</li><li>Una imagen monocromática (bmp)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Visual GLCD</a><a href="#f2">2 · Diseño</a><a href="#f3">3 · Código</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configurar Visual GLCD</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El objetivo</h3><a class="min" href="https://youtu.be/lAvNNCeBk0U?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Mostrar la temperatura y un dibujo en una pantalla gráfica de 128x64 de dos colores.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto nuevo</h3><a class="min" href="https://youtu.be/lAvNNCeBk0U?t=68" target="_blank" rel="noopener">&#9654; 1:08</a></div><p>Visual GLCD abre MikroC por su cuenta. Se crea un proyecto con un patrón de hardware Custom y el compilador MikroC PRO for PIC.</p><div class="uno"><figure class="cap"><a href="img/112.webp" target="_blank"><img src="img/112.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Micro y display</h3><a class="min" href="https://youtu.be/lAvNNCeBk0U?t=134" target="_blank" rel="noopener">&#9654; 2:14</a></div><p>Se elige el micro, la frecuencia de 20 MHz y el controlador KS0108 de 128x64.</p><div class="uno"><figure class="cap"><a href="img/194.webp" target="_blank"><img src="img/194.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Pines</h3><a class="min" href="https://youtu.be/lAvNNCeBk0U?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>En la pestaña GLCD se pone el puerto de datos y cada pin de control (CS1, CS2, RS, RW, EN, RST) según el circuito de Proteus, con su dirección TRIS.</p><div class="uno"><figure class="cap"><a href="img/275.webp" target="_blank"><img src="img/275.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Hola mundo</h3><a class="min" href="https://youtu.be/lAvNNCeBk0U?t=377" target="_blank" rel="noopener">&#9654; 6:17</a></div><p>Para probar se pone una etiqueta con un texto y se da play: genera el código y abre MikroC.</p><div class="uno"><figure class="cap"><a href="img/439.webp" target="_blank"><img src="img/439.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.6</span><h3>Error de ANSEL</h3><a class="min" href="https://youtu.be/lAvNNCeBk0U?t=492" target="_blank" rel="noopener">&#9654; 8:12</a></div><p>El código generado trae líneas de ANSEL que este micro no tiene. Se borran y compila. Conviene exportar el proyecto a una carpeta propia para no perderlo.</p><div class="dos"><figure class="cap"><a href="img/521.webp" target="_blank"><img src="img/521.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure><figure class="cap"><a href="img/602.webp" target="_blank"><img src="img/602.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Diseñar la pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Imagen</h3><a class="min" href="https://youtu.be/lAvNNCeBk0U?t=667" target="_blank" rel="noopener">&#9654; 11:07</a></div><p>Se busca una imagen en blanco y negro, se redimensiona a 128 de ancho y 50 de alto (para dejar espacio abajo) y se guarda como bmp monocromático. Se agrega con el objeto imagen.</p><div class="uno"><figure class="cap"><a href="img/848.webp" target="_blank"><img src="img/848.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Etiqueta y botón</h3><a class="min" href="https://youtu.be/lAvNNCeBk0U?t=802" target="_blank" rel="noopener">&#9654; 13:22</a></div><p>Abajo va una etiqueta con la palabra temperatura y un botón redondeado para el valor. Se usa un botón porque al redibujarlo borra lo anterior; con una etiqueta habría que borrar a mano. Se le da un nombre al botón.</p><div class="uno"><figure class="cap"><a href="img/1011.webp" target="_blank"><img src="img/1011.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Código</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Variables</h3><a class="min" href="https://youtu.be/lAvNNCeBk0U?t=1163" target="_blank" rel="noopener">&#9654; 19:23</a></div><p>En el main generado se agregan el código del ADC, la temperatura y un texto de 20 posiciones. Se activan las librerías ADC, C_String y conversiones.</p><div class="uno"><figure class="cap"><a href="img/1175.webp" target="_blank"><img src="img/1175.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Leer el LM35</h3><a class="min" href="https://youtu.be/lAvNNCeBk0U?t=1200" target="_blank" rel="noopener">&#9654; 20:00</a></div><p>Se pone RA0 como entrada análoga, se lee el canal y se convierte a grados.</p><div class="uno"><figure class="cap"><a href="img/1256.webp" target="_blank"><img src="img/1256.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>A texto</h3><a class="min" href="https://youtu.be/lAvNNCeBk0U?t=1270" target="_blank" rel="noopener">&#9654; 21:10</a></div><p>Con sprintf se pasa la temperatura a texto con dos decimales. Ese texto se copia en el Caption del botón y se vuelve a dibujar el botón redondeado cada 2 segundos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int codigo;
+float temperatura;
+char texto[20];
+
+while (1) {
+  codigo = ADC_Read(0);
+  temperatura = codigo * 500.0 / 1023.0;
+  sprintf(texto, &quot;%.2f&quot;, temperatura);
+  // copiar texto al Caption del boton y redibujarlo
+  Delay_ms(2000);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1338.webp" target="_blank"><img src="img/1338.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>En Proteus</h3><a class="min" href="https://youtu.be/lAvNNCeBk0U?t=1412" target="_blank" rel="noopener">&#9654; 23:32</a></div><p>La pantalla muestra la imagen y la temperatura, que cambia al mover el LM35.</p><div class="uno"><figure class="cap"><a href="img/1093.webp" target="_blank"><img src="img/1093.webp" alt="Pantalla GLCD 128x64 con PIC, MikroC y Visual GLCD" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=lAvNNCeBk0U" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

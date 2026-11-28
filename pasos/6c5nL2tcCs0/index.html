@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tres métodos para leer un encoder de cuadratura en PIC con MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se leen las señales A y B de un encoder con un PIC16F873A de tres formas: en el ciclo principal, con una interrupción de timer cada 5 ms y con la interrupción de flanco cambiando de flanco en cada lectura.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/6c5nL2tcCs0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Tres métodos para leer un encoder de cuadratura en PIC con MikroC · Paso a paso">
+  <meta property="og:description" content="Se leen las señales A y B de un encoder con un PIC16F873A de tres formas: en el ciclo principal, con una interrupción de timer cada 5 ms y con la interrupción de flanco cambiando de flanco en cada lectura.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/6c5nL2tcCs0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/6c5nL2tcCs0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Leer un <span>encoder de cuadratura</span></h1>
+    <p class="lead">Un encoder de cuadratura da dos señales desfasadas, A y B. Comparando la lectura actual con la anterior se sabe el sentido de giro y se cuentan los pasos. Primero se hace en el while (sirve, pero se pierden pasos si hay retardos), luego con una interrupción de timer cada 5 ms y por último con la interrupción por flanco en RB0, alternando subida y bajada: la forma más precisa.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=6c5nL2tcCs0" target="_blank" rel="noopener">&#9654; Ver el video completo (23:10)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1365.webp" alt="Tres métodos para leer un encoder de cuadratura en PIC con MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC16F873A a 4 MHz</li><li>Motor DC con encoder y driver L293D</li><li>LCD 16x2</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Teoría</a><a href="#f2">2 · While</a><a href="#f3">3 · Timer</a><a href="#f4">4 · Flancos</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Cómo funciona</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Señales A y B</h3><a class="min" href="https://youtu.be/6c5nL2tcCs0?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>El encoder entrega dos señales cuadradas. Según cuál va adelante se sabe si gira a la derecha o a la izquierda, y cada cambio es un paso. Se usan en motores, robots y perillas digitales.</p><div class="uno"><figure class="cap"><a href="img/109.webp" target="_blank"><img src="img/109.webp" alt="Tres métodos para leer un encoder de cuadratura en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Actual y anterior</h3><a class="min" href="https://youtu.be/6c5nL2tcCs0?t=101" target="_blank" rel="noopener">&#9654; 1:41</a></div><p>Se toma la lectura anterior (2 bits), se corre dos posiciones a la izquierda y se le agrega la actual. El número de 4 bits que resulta dice el sentido: hay cuatro combinaciones para cada lado.</p><div class="uno"><figure class="cap"><a href="img/187.webp" target="_blank"><img src="img/187.webp" alt="Tres métodos para leer un encoder de cuadratura en PIC con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Método 1: en el while</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Circuito</h3><a class="min" href="https://youtu.be/6c5nL2tcCs0?t=237" target="_blank" rel="noopener">&#9654; 3:57</a></div><p>El encoder va a RB0 y RB1, el LCD al puerto C y el motor se mueve solo con el L293D para probar.</p><div class="uno"><figure class="cap"><a href="img/266.webp" target="_blank"><img src="img/266.webp" alt="Tres métodos para leer un encoder de cuadratura en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/6c5nL2tcCs0?t=389" target="_blank" rel="noopener">&#9654; 6:29</a></div><p>pulsos es signed int porque cuenta hacia arriba y hacia abajo. Se guardan los bits actuales, los anteriores y el armado. Se activa la librería del LCD y las conversiones.</p><div class="uno"><figure class="cap"><a href="img/501.webp" target="_blank"><img src="img/501.webp" alt="Tres métodos para leer un encoder de cuadratura en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Lectura</h3><a class="min" href="https://youtu.be/6c5nL2tcCs0?t=567" target="_blank" rel="noopener">&#9654; 9:27</a></div><p>Se leen A y B, se arma el número con la lectura anterior y se compara con las combinaciones de cada sentido. El sentido real depende de cómo esté conectado el encoder.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit encoder_A at portb.b0;
+sbit encoder_B at portb.b1;
+signed int pulsos = 0;
+char bits_actual = 0, bits_anterior = 0, bits_armado = 0;
+
+while (1) {
+  bits_actual = (encoder_A &lt;&lt; 1) | encoder_B;
+  bits_armado = (bits_anterior &lt;&lt; 2) | bits_actual;
+  if ((bits_armado == 13) || (bits_armado == 4) || (bits_armado == 2) || (bits_armado == 11)) pulsos++;
+  if ((bits_armado == 14) || (bits_armado == 7) || (bits_armado == 1) || (bits_armado == 8)) pulsos--;
+  inttostr(pulsos, texto);
+  Lcd_Out(2, 1, texto);
+  bits_anterior = bits_actual;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Tres métodos para leer un encoder de cuadratura en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/658.webp" target="_blank"><img src="img/658.webp" alt="Tres métodos para leer un encoder de cuadratura en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Prueba y problema</h3><a class="min" href="https://youtu.be/6c5nL2tcCs0?t=742" target="_blank" rel="noopener">&#9654; 12:22</a></div><p>El LCD cuenta hacia arriba en un sentido y hacia abajo en el otro. Pero si el main tiene retardos o el motor va rápido, se pierden pasos.</p><div class="uno"><figure class="cap"><a href="img/1051.webp" target="_blank"><img src="img/1051.webp" alt="Tres métodos para leer un encoder de cuadratura en PIC con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Método 2: timer</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Leer cada 5 ms</h3><a class="min" href="https://youtu.be/6c5nL2tcCs0?t=807" target="_blank" rel="noopener">&#9654; 13:27</a></div><p>Con Timer Calculator se genera una interrupción de Timer1 cada 5 ms y la lectura se pasa dentro de ella. En el main solo queda mostrar el valor. Hay que llamar la función que configura el timer antes del while.</p><p>Ahora se puede poner un retardo de 500 ms en el main y la cuenta sigue bien.</p><div class="uno"><figure class="cap"><a href="img/972.webp" target="_blank"><img src="img/972.webp" alt="Tres métodos para leer un encoder de cuadratura en PIC con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Método 3: flancos</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Mirar el flanco</h3><a class="min" href="https://youtu.be/6c5nL2tcCs0?t=1051" target="_blank" rel="noopener">&#9654; 17:31</a></div><p>Cuando A tiene un flanco, si A y B son iguales el motor va hacia un lado y si son distintos hacia el otro. Si se detectan tanto los flancos de subida como los de bajada se aprovecha toda la señal.</p><div class="uno"><figure class="cap"><a href="img/1129.webp" target="_blank"><img src="img/1129.webp" alt="Tres métodos para leer un encoder de cuadratura en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Interrupción por RB0</h3><a class="min" href="https://youtu.be/6c5nL2tcCs0?t=1219" target="_blank" rel="noopener">&#9654; 20:19</a></div><p>Se configura la interrupción externa empezando por flanco de bajada y se habilitan las interrupciones. En cada interrupción se compara A con B y luego se invierte el flanco a detectar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void interrupt() iv 0x0004 ics ICS_AUTO {
+  if (INTF_bit == 1) {
+    if (PORTB.RB1 == PORTB.RB0) pulsos++;
+    else pulsos--;
+    INTEDG_bit = ~INTEDG_bit;   // cambia el flanco a detectar
+    INTF_bit = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1286.webp" target="_blank"><img src="img/1286.webp" alt="Tres métodos para leer un encoder de cuadratura en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/6c5nL2tcCs0?t=1325" target="_blank" rel="noopener">&#9654; 22:05</a></div><p>Cuenta igual, pero en el mismo instante en que ocurre cada flanco. Es la forma más precisa y la base para el control de posición con PID.</p><div class="uno"><figure class="cap"><a href="img/1365.webp" target="_blank"><img src="img/1365.webp" alt="Tres métodos para leer un encoder de cuadratura en PIC con MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=6c5nL2tcCs0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

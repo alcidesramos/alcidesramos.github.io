@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Internet de las cosas con Ubidots, ESP8266 y PIC en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC18F2550 lee un LM35 y un switch y envía los datos a Ubidots por un ESP8266 con comandos AT. Se ve el tablero desde cualquier parte y se le pone un nombre fácil con No-IP.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/NvYAlp3d0XE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Internet de las cosas con Ubidots, ESP8266 y PIC en MikroC · Paso a paso">
+  <meta property="og:description" content="Un PIC18F2550 lee un LM35 y un switch y envía los datos a Ubidots por un ESP8266 con comandos AT. Se ve el tablero desde cualquier parte y se le pone un nombre fácil con No-IP.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/NvYAlp3d0XE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/NvYAlp3d0XE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Monitoreo en <span>Ubidots</span> con PIC y ESP8266</h1>
+    <p class="lead">Se crea en Ubidots un device con las variables temperatura y led y un tablero con un medidor y un indicador. El PIC configura el ESP8266 para unirse a la red WiFi con IP fija, abre una conexión TCP con things.ubidots.com por el puerto 80 y en cada ciclo envía un POST con la trama JSON y su largo. Para no gastar RAM se usan funciones propias que envían constantes.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=NvYAlp3d0XE" target="_blank" rel="noopener">&#9654; Ver el video completo (21:13)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/963.webp" alt="Internet de las cosas con Ubidots, ESP8266 y PIC en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC18F2550 a 4 MHz</li><li>Módulo ESP8266 (por USB como puerto serie)</li><li>Sensor LM35 y switch</li><li>Cuenta educativa de Ubidots</li><li>Hercules para probar</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Ubidots</a><a href="#f2">2 · PIC</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Ubidots</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Device y variables</h3><a class="min" href="https://youtu.be/NvYAlp3d0XE?t=62" target="_blank" rel="noopener">&#9654; 1:02</a></div><p>Se crea una cuenta educativa en Ubidots, un device llamado micasa y dos variables: temperatura y led. Conviene que el API label sea el mismo nombre, para llamarlas por nombre y no por ID.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Tablero</h3><a class="min" href="https://youtu.be/NvYAlp3d0XE?t=157" target="_blank" rel="noopener">&#9654; 2:37</a></div><p>En el dashboard se agrega un medidor (meter) para la temperatura de 0 a 100 y un indicador on/off para el led, con los textos cerrado y abierto.</p><div class="uno"><figure class="cap"><a href="img/174.webp" target="_blank"><img src="img/174.webp" alt="Internet de las cosas con Ubidots, ESP8266 y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Formato de la petición</h3><a class="min" href="https://youtu.be/NvYAlp3d0XE?t=226" target="_blank" rel="noopener">&#9654; 3:46</a></div><p>Se envía un POST con el nombre del device y el token, y luego el JSON con las variables. Content-Length es el largo de ese JSON. El token sale de API Credentials en la cuenta.</p><p>Se puede probar con Hercules conectando por TCP a things.ubidots.com en el puerto 80.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>POST /api/v1.6/devices/micasa/?token=TU_TOKEN HTTP/1.1
+Host: things.ubidots.com
+Content-Type: application/json
+Content-Length: 31
+
+{&quot;temperatura&quot;: 49.03,&quot;led&quot;: 1}</code></pre></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa en el PIC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/NvYAlp3d0XE?t=405" target="_blank" rel="noopener">&#9654; 6:45</a></div><p>PIC18F2550 a 4 MHz con oscilador XT. Es lento a propósito porque se simula en Proteus junto al ESP8266 real conectado al puerto.</p><div class="uno"><figure class="cap"><a href="img/461.webp" target="_blank"><img src="img/461.webp" alt="Internet de las cosas con Ubidots, ESP8266 y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/NvYAlp3d0XE?t=473" target="_blank" rel="noopener">&#9654; 7:53</a></div><p>El switch en RB0, el código del ADC, la temperatura, la trama a enviar, su largo como texto y como número y el estado del led.</p><div class="uno"><figure class="cap"><a href="img/532.webp" target="_blank"><img src="img/532.webp" alt="Internet de las cosas con Ubidots, ESP8266 y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Funciones de envío</h3><a class="min" href="https://youtu.be/NvYAlp3d0XE?t=541" target="_blank" rel="noopener">&#9654; 9:01</a></div><p>manda_serial_const envía una constante sin gastar RAM. manda_esp8266_const envía datos por el socket 4: manda AT+CIPSEND con el socket y el largo, espera y luego el texto. Hay otra versión igual para variables.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void manda_esp8266_const(const char *info) {
+  unsigned int largo;
+  manda_serial_const(&quot;AT+CIPSEND=&quot;);
+  UART1_Write(&#x27;4&#x27;);          // socket
+  UART1_Write(&#x27;,&#x27;);
+  largo = strlen_const(info);
+  sprinti(captu, &quot;%lu&quot;, largo);
+  UART1_Write_Text(captu);
+  manda_serial_const(&quot;\r\n&quot;);
+  Delay_ms(100);
+  manda_serial_const(info);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/604.webp" target="_blank"><img src="img/604.webp" alt="Internet de las cosas con Ubidots, ESP8266 y PIC en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/676.webp" target="_blank"><img src="img/676.webp" alt="Internet de las cosas con Ubidots, ESP8266 y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Configuración del ESP8266</h3><a class="min" href="https://youtu.be/NvYAlp3d0XE?t=704" target="_blank" rel="noopener">&#9654; 11:44</a></div><p>Puerto serial a 115200 baudios. Se quita el eco con ATE0, se pone en modo estación, se desactiva el DHCP y se da una IP fija dentro de la red del router, con la puerta de enlace y la máscara. Luego se une a la red WiFi.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>UART1_Init(115200);
+manda_serial_const(&quot;ATE0\r\n&quot;);            // sin eco
+manda_serial_const(&quot;AT+CWMODE=1\r\n&quot;);      // estacion
+manda_serial_const(&quot;AT+CWDHCP=1,0\r\n&quot;);    // sin DHCP
+manda_serial_const(&quot;AT+CIPSTA=\&quot;192.168.1.50\&quot;,\&quot;192.168.1.1\&quot;,\&quot;255.255.255.0\&quot;\r\n&quot;);
+manda_serial_const(&quot;AT+CWJAP=\&quot;tu_red\&quot;,\&quot;tu_clave\&quot;\r\n&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/748.webp" target="_blank"><img src="img/748.webp" alt="Internet de las cosas con Ubidots, ESP8266 y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Conectar con Ubidots</h3><a class="min" href="https://youtu.be/NvYAlp3d0XE?t=837" target="_blank" rel="noopener">&#9654; 13:57</a></div><p>Se aceptan múltiples conexiones, se revisa la IP y se abre la conexión TCP por el socket 4.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>manda_serial_const(&quot;AT+CIPMUX=1\r\n&quot;);
+Delay_ms(300);
+manda_serial_const(&quot;AT+CIFSR\r\n&quot;);          // mira la IP
+Delay_ms(1000);
+manda_serial_const(&quot;AT+CIPSTART=4,\&quot;TCP\&quot;,\&quot;things.ubidots.com\&quot;,80\r\n&quot;);
+Delay_ms(3000);</code></pre></div><div class="uno"><figure class="cap"><a href="img/891.webp" target="_blank"><img src="img/891.webp" alt="Internet de las cosas con Ubidots, ESP8266 y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Lazo principal</h3><a class="min" href="https://youtu.be/NvYAlp3d0XE?t=868" target="_blank" rel="noopener">&#9654; 14:28</a></div><p>Se lee la temperatura y el switch, se arma el JSON con sprintf, se calcula su largo y se le suman los dos fines de línea. Luego se envía el POST (con el device y el token propios), el largo y la trama.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = ADC_Read(0);
+temperatura = codigo * 500.0 / 1023.0;
+if (suiche == 0) led = &#x27;0&#x27;; else led = &#x27;1&#x27;;
+memset(trama_largo, 0, 20);
+memset(trama, 0, 150);
+sprintf(trama, &quot;{\&quot;temperatura\&quot;: %5.2f ,\&quot;led\&quot;: %c}\n&quot;, temperatura, led);
+var_largo = strlen(trama) - 1;</code></pre></div><div class="uno"><figure class="cap"><a href="img/963.webp" target="_blank"><img src="img/963.webp" alt="Internet de las cosas con Ubidots, ESP8266 y PIC en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Datos en la nube</h3><a class="min" href="https://youtu.be/NvYAlp3d0XE?t=1032" target="_blank" rel="noopener">&#9654; 17:12</a></div><p>El terminal muestra cómo el módulo toma la IP, se conecta y empieza a enviar. Al cambiar la temperatura y el switch en Proteus, el tablero de Ubidots se actualiza.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Internet de las cosas con Ubidots, ESP8266 y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Compartir el tablero</h3><a class="min" href="https://youtu.be/NvYAlp3d0XE?t=1130" target="_blank" rel="noopener">&#9654; 18:50</a></div><p>Ubidots da un enlace público largo del tablero. Con una cuenta gratis de No-IP se crea un hostname con redirección web (https) a ese enlace, y así basta con escribir un nombre corto.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=NvYAlp3d0XE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control de posición con PID de un motor DC con encoder de cuadratura en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC16F876A lee el encoder por interrupción y un PID digital lleva el motor DC a los pulsos que pide un potenciómetro, con PWM y sentido de giro por el L293D.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/G0Hv7S9KyLQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC · Paso a paso">
+  <meta property="og:description" content="Un PIC16F876A lee el encoder por interrupción y un PID digital lleva el motor DC a los pulsos que pide un potenciómetro, con PWM y sentido de giro por el L293D.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/G0Hv7S9KyLQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/G0Hv7S9KyLQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Control de posición con <span>PID y encoder</span></h1>
+    <p class="lead">Con la lectura del encoder del video anterior se cierra el lazo: un potenciómetro fija el setpoint en pulsos (de -50 a 50 en el ejemplo), la interrupción por flanco cuenta los pulsos y una función PID calcula la salida entre -255 y 255. La magnitud va al PWM y el signo decide el sentido de giro.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=G0Hv7S9KyLQ" target="_blank" rel="noopener">&#9654; Ver el video completo (19:05)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1056.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC16F876A a 4 MHz</li><li>Motor DC con encoder y L293D</li><li>Potenciómetro</li><li>LCD 16x2</li><li>Proteus</li><li>Excel</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La idea</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Posición con un PID</h3><a class="min" href="https://youtu.be/G0Hv7S9KyLQ?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La idea es decirle al motor cuántos pasos dar, como para abrir una puerta: va rápido y frena suave al llegar. El encoder cuenta los pasos y el PID decide la velocidad y el sentido.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pulsos por vuelta</h3><a class="min" href="https://youtu.be/G0Hv7S9KyLQ?t=67" target="_blank" rel="noopener">&#9654; 1:07</a></div><p>En la simulación una vuelta son unos 50 pulsos. En un motor real hay que medir cuántos pulsos da y usar ese número.</p><div class="uno"><figure class="cap"><a href="img/94.webp" target="_blank"><img src="img/94.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Setpoint con el potenciómetro</h3><a class="min" href="https://youtu.be/G0Hv7S9KyLQ?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><p>El ADC de 10 bits da 0 a 1023. En Excel se ponen dos puntos (0 → -50, 1023 → 50), se hace la gráfica de dispersión y la línea de tendencia da la ecuación: setpoint = 0.0978 · código - 50.</p><div class="uno"><figure class="cap"><a href="img/222.webp" target="_blank"><img src="img/222.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables</h3><a class="min" href="https://youtu.be/G0Hv7S9KyLQ?t=412" target="_blank" rel="noopener">&#9654; 6:52</a></div><p>Pines del LCD, los pines del sentido de giro, la variable de pulsos, un texto para el LCD y el código del ADC.</p><div class="uno"><figure class="cap"><a href="img/415.webp" target="_blank"><img src="img/415.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Función PID</h3><a class="min" href="https://youtu.be/G0Hv7S9KyLQ?t=449" target="_blank" rel="noopener">&#9654; 7:29</a></div><p>kp, ti y td se ajustan para cada sistema. La salida se limita a ±255 porque el PWM llega a 255 y el signo da el sentido. Con tiempo de muestreo 1 no hay que tenerlo en cuenta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float kp = 1.0, ti = 100.0, td = 0.0;   // ajustar al sistema
+float error, up, ui = 0.0, ui_ = 0.0, error_ = 0.0, ud, ut = 0.0, d_error = 0;
+float ki, kd;
+float setpoint = 0;
+
+void pid(float pid_in) {
+  const float max_s = 255.0;
+  const float min_s = -255.0;
+  const float t_muestreo = 1.0;
+
+  error = setpoint - pid_in;
+  up = kp * error;                          // proporcional
+  if (ti != 0) ki = (kp / ti); else ki = 0;
+  ui = ui_ + (ki * t_muestreo * error);     // integral
+  kd = kp * td;
+  d_error = error - error_;
+  ud = kd * (d_error) / t_muestreo;         // derivativa
+  ut = up + ui + ud;
+  if (ut &gt; max_s) ut = max_s;
+  if (ut &lt; min_s) ut = min_s;
+  ui_ = ui;
+  error_ = error;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/479.webp" target="_blank"><img src="img/479.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/607.webp" target="_blank"><img src="img/607.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Interrupción del encoder</h3><a class="min" href="https://youtu.be/G0Hv7S9KyLQ?t=689" target="_blank" rel="noopener">&#9654; 11:29</a></div><p>Es la misma del video del encoder: compara A con B en cada flanco y cambia el flanco. Además limita los pulsos a ±50.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void interrupt() iv 0x0004 ics ICS_AUTO {
+  if (INTF_bit == 1) {
+    if (PORTB.RB1 == PORTB.RB0) pulsos++;
+    else pulsos--;
+    if (pulsos &gt; 50) pulsos = 50;
+    if (pulsos &lt; -50) pulsos = -50;
+    INTEDG_bit = ~INTEDG_bit;
+    INTF_bit = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/735.webp" target="_blank"><img src="img/735.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Configuración</h3><a class="min" href="https://youtu.be/G0Hv7S9KyLQ?t=720" target="_blank" rel="noopener">&#9654; 12:00</a></div><p>Entradas del encoder, salidas del motor, canal análogo, LCD, ADC, PWM a 5 kHz arrancando en 0 e interrupción por flanco de bajada. Se activan las librerías ADC, LCD, PWM y conversiones.</p><div class="uno"><figure class="cap"><a href="img/799.webp" target="_blank"><img src="img/799.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Lazo principal</h3><a class="min" href="https://youtu.be/G0Hv7S9KyLQ?t=823" target="_blank" rel="noopener">&#9654; 13:43</a></div><p>Se lee el ADC con ADC_Get_Sample (más rápido que ADC_Read, porque el ADC ya se inició), se calcula el setpoint y se llama al PID con los pulsos. Si la salida es negativa se cambia de signo y se invierte el giro; la magnitud va al PWM.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = ADC_Get_Sample(0);
+setpoint = 0.0978 * codigo - 50.0;
+pid(pulsos);
+if (ut &lt; 0) {
+  ut = -ut;
+  m11 = 0; m12 = 1;   // un sentido
+} else {
+  m11 = 1; m12 = 0;   // el otro
+}
+PWM1_Set_Duty(ut);</code></pre></div><div class="dos"><figure class="cap"><a href="img/928.webp" target="_blank"><img src="img/928.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/992.webp" target="_blank"><img src="img/992.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Llega al setpoint</h3><a class="min" href="https://youtu.be/G0Hv7S9KyLQ?t=1024" target="_blank" rel="noopener">&#9654; 17:04</a></div><p>Con setpoint 43 el motor se mueve hasta que los pulsos llegan cerca de 43. En simulación la sintonía no es perfecta; en un motor real se ajustan las constantes.</p><div class="uno"><figure class="cap"><a href="img/1056.webp" target="_blank"><img src="img/1056.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Setpoint negativo</h3><a class="min" href="https://youtu.be/G0Hv7S9KyLQ?t=1091" target="_blank" rel="noopener">&#9654; 18:11</a></div><p>Con setpoint negativo el motor gira al otro lado. Esto sirve para puertas o para orientar un panel solar, convirtiendo pulsos en ángulo o desplazamiento.</p><div class="uno"><figure class="cap"><a href="img/1120.webp" target="_blank"><img src="img/1120.webp" alt="Control de posición con PID de un motor DC con encoder de cuadratura en MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=G0Hv7S9KyLQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
