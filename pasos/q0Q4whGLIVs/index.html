@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El mismo horno del video del PID se controla ahora con lógica difusa. Xfuzzy diseña el controlador con el error y su cambio como entradas, y genera el código C que se usa en MikroC.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/q0Q4whGLIVs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC · Paso a paso">
+  <meta property="og:description" content="El mismo horno del video del PID se controla ahora con lógica difusa. Xfuzzy diseña el controlador con el error y su cambio como entradas, y genera el código C que se usa en MikroC.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/q0Q4whGLIVs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/q0Q4whGLIVs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Controlador <span>difuso</span> en un PIC</h1>
+    <p class="lead">Con los datos del PID se ven los rangos: el error va de -1500 a 1500 y su cambio de unos -20 a 20. En Xfuzzy se definen las dos entradas con cinco conjuntos triangulares (muy negativo a muy positivo) y la salida PWM con cinco valores (mínimo a máximo). Las reglas se llenan en forma de matriz pensando qué hacer en cada caso y se revisa la superficie de control. Xfuzzy genera controlador.c y controlador.h, que se agregan al proyecto en lugar de la función pid.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=q0Q4whGLIVs" target="_blank" rel="noopener">&#9654; Ver el video completo (42:16)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1432.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC"></figure>
+    <ul class="materiales"><li>Xfuzzy 3.5 (requiere Java)</li><li>MikroC PRO for PIC</li><li>PIC18F2550 a 20 MHz</li><li>Proteus con el horno del video del PID</li><li>Excel para revisar los datos</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Datos</a><a href="#f2">2 · Xfuzzy</a><a href="#f3">3 · PIC</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Los datos</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La planta</h3><a class="min" href="https://youtu.be/q0Q4whGLIVs?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Es el mismo circuito del PID: horno, transistor, potenciómetro de set point, LCD y PIC18F2550 con USB.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Rangos del error</h3><a class="min" href="https://youtu.be/q0Q4whGLIVs?t=120" target="_blank" rel="noopener">&#9654; 2:00</a></div><p>Con los datos guardados de la planta se calculan el error (set point menos salida) y el cambio del error entre muestras. Así se ve que el error va hasta ±1500 y el cambio ronda ±20.</p><div class="uno"><figure class="cap"><a href="img/138.webp" target="_blank"><img src="img/138.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Diseño en Xfuzzy</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Sistema y operadores</h3><a class="min" href="https://youtu.be/q0Q4whGLIVs?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>Xfuzzy se abre con xfuzzy.bat. Se crea el sistema controlador y un conjunto de operadores (and, or, implicación, defuzzificación).</p><div class="uno"><figure class="cap"><a href="img/353.webp" target="_blank"><img src="img/353.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Entrada error</h3><a class="min" href="https://youtu.be/q0Q4whGLIVs?t=440" target="_blank" rel="noopener">&#9654; 7:20</a></div><p>El tipo T_error va de -1500 a 1500 con cardinalidad 256 y una familia de cinco funciones triangulares: muynegativo, negativo, cero, positivo y muypositivo. Los parámetros de cada triángulo se ajustan a mano.</p><div class="dos"><figure class="cap"><a href="img/461.webp" target="_blank"><img src="img/461.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/569.webp" target="_blank"><img src="img/569.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/677.webp" target="_blank"><img src="img/677.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Entrada cambio del error</h3><a class="min" href="https://youtu.be/q0Q4whGLIVs?t=870" target="_blank" rel="noopener">&#9654; 14:30</a></div><p>T_Cambio_e va de -20 a 20 con los mismos cinco conjuntos.</p><div class="uno"><figure class="cap"><a href="img/893.webp" target="_blank"><img src="img/893.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Salida PWM</h3><a class="min" href="https://youtu.be/q0Q4whGLIVs?t=980" target="_blank" rel="noopener">&#9654; 16:20</a></div><p>T_pwm va de 0 a 255 con cinco singletons: mínimo, bajo, medio (127.5), alto y máximo.</p><div class="uno"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Reglas</h3><a class="min" href="https://youtu.be/q0Q4whGLIVs?t=1100" target="_blank" rel="noopener">&#9654; 18:20</a></div><p>En Rulebase Edition, forma de matriz, cada cruce de error y cambio del error lleva una salida. Por ejemplo, error muy positivo (la temperatura está muy por debajo) da PWM máximo; si el error es negativo, PWM mínimo.</p><div class="dos"><figure class="cap"><a href="img/1216.webp" target="_blank"><img src="img/1216.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1324.webp" target="_blank"><img src="img/1324.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Superficie de control</h3><a class="min" href="https://youtu.be/q0Q4whGLIVs?t=1432" target="_blank" rel="noopener">&#9654; 23:52</a></div><p>Xfplot dibuja la salida PWM contra las dos entradas para revisar que el controlador sea suave y vaya en la dirección correcta.</p><div class="uno"><figure class="cap"><a href="img/1432.webp" target="_blank"><img src="img/1432.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>En el PIC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Proyecto base</h3><a class="min" href="https://youtu.be/q0Q4whGLIVs?t=1540" target="_blank" rel="noopener">&#9654; 25:40</a></div><p>Se parte del proyecto del PID: lectura de temperatura y set point, LCD y PWM.</p><div class="uno"><figure class="cap"><a href="img/1540.webp" target="_blank"><img src="img/1540.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Generar el código</h3><a class="min" href="https://youtu.be/q0Q4whGLIVs?t=1700" target="_blank" rel="noopener">&#9654; 28:20</a></div><p>En Synthesis se genera código C: controlador.c y controlador.h. Se copian a la carpeta del proyecto y se agregan en MikroC. El código evalúa las funciones de pertenencia y las reglas.</p><div class="uno"><figure class="cap"><a href="img/1755.webp" target="_blank"><img src="img/1755.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Usar el controlador</h3><a class="min" href="https://youtu.be/q0Q4whGLIVs?t=1863" target="_blank" rel="noopener">&#9654; 31:03</a></div><p>En vez de llamar pid, se calcula el error y su cambio, se llama controladorInferenceEngine con esas entradas y la salida va al PWM.</p><div class="uno"><figure class="cap"><a href="img/1863.webp" target="_blank"><img src="img/1863.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Prueba</h3><a class="min" href="https://youtu.be/q0Q4whGLIVs?t=2079" target="_blank" rel="noopener">&#9654; 34:39</a></div><p>La temperatura sigue al set point. Moviendo los conjuntos o las reglas en Xfuzzy y generando de nuevo se puede mejorar la respuesta.</p><div class="dos"><figure class="cap"><a href="img/2079.webp" target="_blank"><img src="img/2079.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/2294.webp" target="_blank"><img src="img/2294.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/2402.webp" target="_blank"><img src="img/2402.webp" alt="Controlador difuso (fuzzy) en PIC con Xfuzzy y MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=q0Q4whGLIVs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

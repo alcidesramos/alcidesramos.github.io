@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control PID discreto con PIC en MikroC sintonizado con MATLAB · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un horno simulado en Proteus se controla con un PID en un PIC18F2550. La planta se identifica con su respuesta al escalón (datos por USB a LabVIEW) y MATLAB entrega las constantes.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/NMEPg8ohzbk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Control PID discreto con PIC en MikroC sintonizado con MATLAB · Paso a paso">
+  <meta property="og:description" content="Un horno simulado en Proteus se controla con un PID en un PIC18F2550. La planta se identifica con su respuesta al escalón (datos por USB a LabVIEW) y MATLAB entrega las constantes.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/NMEPg8ohzbk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/NMEPg8ohzbk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>PID discreto con <span>MATLAB</span> y MikroC</h1>
+    <p class="lead">La planta es el modelo OVEN de Proteus con un calentador movido por un transistor. El PIC lee la temperatura y el set point por el ADC y los muestra en un LCD. Para conocer la planta se le aplica el máximo PWM y se envía la temperatura cada 100 ms por USB HID a LabVIEW, que la guarda en un archivo. En MATLAB, PID Tuner identifica un modelo de un polo y sintoniza un PI. Las constantes se usan en una función pid discreta que se llama en cada muestreo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=NMEPg8ohzbk" target="_blank" rel="noopener">&#9654; Ver el video completo (48:23)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2137.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (ADC, LCD, PWM, USB HID, conversiones)</li><li>PIC18F2550 a 20 MHz</li><li>Proteus con el modelo OVEN, transistor, LCD 16x2 y potenciómetro</li><li>LabVIEW para guardar los datos</li><li>MATLAB con PID Tuner (identificación de planta)</li><li>Excel para las ecuaciones</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Planta</a><a href="#f2">2 · Base</a><a href="#f3">3 · Identificar</a><a href="#f4">4 · PID</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La planta</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Horno en Proteus</h3><a class="min" href="https://youtu.be/NMEPg8ohzbk?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El modelo OVEN tiene un calentador y una salida de temperatura en voltaje. Un transistor lo prende y apaga con el PWM. En sus propiedades se ajustan la temperatura ambiente, la resistencia térmica, la constante de tiempo y la potencia.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Escalar la temperatura</h3><a class="min" href="https://youtu.be/NMEPg8ohzbk?t=380" target="_blank" rel="noopener">&#9654; 6:20</a></div><p>La salida del horno pasa por un divisor de 27 k y 10 k para no superar 5 V en el PIC. Despejando, la temperatura queda en función del código del ADC.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Vpic = Vfuen*10k/(27k+10k) = Vfuen/3.7
+Vpic = codigo*5/1023
+Temperatura = 100*Vfuen = 100*3.7*codigo*5/1023 = 1850*codigo/1023</code></pre></div><div class="uno"><figure class="cap"><a href="img/402.webp" target="_blank"><img src="img/402.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa base</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Configuración</h3><a class="min" href="https://youtu.be/NMEPg8ohzbk?t=526" target="_blank" rel="noopener">&#9654; 8:46</a></div><p>PIC18F2550 a 20 MHz. AN0 y AN1 análogos (temperatura y set point), RB7 como salida para medir la frecuencia de muestreo y el puerto C como salida para el PWM.</p><div class="uno"><figure class="cap"><a href="img/650.webp" target="_blank"><img src="img/650.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Leer y mostrar</h3><a class="min" href="https://youtu.be/NMEPg8ohzbk?t=773" target="_blank" rel="noopener">&#9654; 12:53</a></div><p>Se lee el canal 0 y se convierte a temperatura; el canal 1, con un potenciómetro, da el set point de 0 a 1500. Ambos se muestran en el LCD.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = ADC_Get_Sample(0);
+temperatura = codigo*1850.0/1023.0;
+WordToStr(temperatura, texto);
+Lcd_Out(1, 9, texto);
+Delay_us(5);
+codigo = ADC_Get_Sample(1);
+set_point = codigo*1500.0/1023.0;
+WordToStr(set_point, texto);
+Lcd_Out(2, 9, texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/773.webp" target="_blank"><img src="img/773.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure><figure class="cap"><a href="img/897.webp" target="_blank"><img src="img/897.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Identificar la planta</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Respuesta al escalón</h3><a class="min" href="https://youtu.be/NMEPg8ohzbk?t=1021" target="_blank" rel="noopener">&#9654; 17:01</a></div><p>Se pone el PWM al máximo (255) y se envía la temperatura por USB HID cada 100 ms. RB7 cambia en cada muestra para comprobar el tiempo con el osciloscopio.</p><div class="dos"><figure class="cap"><a href="img/1021.webp" target="_blank"><img src="img/1021.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure><figure class="cap"><a href="img/1269.webp" target="_blank"><img src="img/1269.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Guardar en LabVIEW</h3><a class="min" href="https://youtu.be/NMEPg8ohzbk?t=1393" target="_blank" rel="noopener">&#9654; 23:13</a></div><p>LabVIEW lee el HID y escribe cada dato en un archivo de texto (Datos.txt) elegido con un diálogo, hasta que se detiene.</p><div class="uno"><figure class="cap"><a href="img/1517.webp" target="_blank"><img src="img/1517.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Identificar en MATLAB</h3><a class="min" href="https://youtu.be/NMEPg8ohzbk?t=1889" target="_blank" rel="noopener">&#9654; 31:29</a></div><p>Los datos se cargan en MATLAB y en PID Tuner se usa Plant Identification con Step Response: amplitud 255 y tiempo de muestreo 0.1 s. Un modelo de un polo, K/(T1·s+1), se ajusta bien a la curva.</p><div class="uno"><figure class="cap"><a href="img/2013.webp" target="_blank"><img src="img/2013.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Sintonizar</h3><a class="min" href="https://youtu.be/NMEPg8ohzbk?t=2137" target="_blank" rel="noopener">&#9654; 35:37</a></div><p>Con un controlador PI, PID Tuner da Kp ≈ 0.235 y Ki ≈ 0.047, con un sobrepico de 2 % y un tiempo de establecimiento de unos 19 s. Se puede mover la respuesta más rápida o más robusta.</p><div class="uno"><figure class="cap"><a href="img/2137.webp" target="_blank"><img src="img/2137.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>PID en el PIC</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Función pid</h3><a class="min" href="https://youtu.be/NMEPg8ohzbk?t=2260" target="_blank" rel="noopener">&#9654; 37:40</a></div><p>La parte integral acumula ki·T·error y la derivativa usa el error anterior. La salida se limita entre 0 y 255, que es el rango del PWM.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float kp = 0.2346, ki = 0.0469, kd = 0;
+float error, up, ui = 0.0, ui_ = 0.0, error_ = 0.0, ud, ut;
+float set_point = 0;
+
+void pid(float pid_in) {
+  const float max_x = 255;
+  const float min_x = 0;
+  const float t_muestreo = 0.1;
+  // calculando el error
+  error = set_point - pid_in;
+  up = kp*error;
+  ui = ui_ + (ki*t_muestreo*error);
+  ud = kd*(error - error_)/t_muestreo;
+  ut = up + ui + ud;
+  if (ut &gt; max_x) ut = max_x;
+  if (ut &lt; min_x) ut = min_x;
+  ui_ = ui;
+  error_ = error;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2260.webp" target="_blank"><img src="img/2260.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure><figure class="cap"><a href="img/2384.webp" target="_blank"><img src="img/2384.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Llamarla en cada muestra</h3><a class="min" href="https://youtu.be/NMEPg8ohzbk?t=2508" target="_blank" rel="noopener">&#9654; 41:48</a></div><p>En el ciclo se lee la temperatura, se llama pid y la salida va al ciclo útil del PWM. El retardo del ciclo fija el tiempo de muestreo de 100 ms.</p><div class="uno"><figure class="cap"><a href="img/2508.webp" target="_blank"><img src="img/2508.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/NMEPg8ohzbk?t=2632" target="_blank" rel="noopener">&#9654; 43:52</a></div><p>Al cambiar el set point la temperatura lo sigue con poco sobrepico, y en el osciloscopio se ve cómo cambia el PWM.</p><div class="dos"><figure class="cap"><a href="img/2632.webp" target="_blank"><img src="img/2632.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure><figure class="cap"><a href="img/2756.webp" target="_blank"><img src="img/2756.webp" alt="Control PID discreto con PIC en MikroC sintonizado con MATLAB" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=NMEPg8ohzbk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

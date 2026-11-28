@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="LabVIEW arma una trama con dos velocidades y el estado de dos LEDs y la envía por USB HID. El PIC18F2550 la separa con strtok, ajusta dos PWM y prende los LEDs.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/LutUbhv0ul8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC · Paso a paso">
+  <meta property="og:description" content="LabVIEW arma una trama con dos velocidades y el estado de dos LEDs y la envía por USB HID. El PIC18F2550 la separa con strtok, ajusta dos PWM y prende los LEDs.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/LutUbhv0ul8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/LutUbhv0ul8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>LabVIEW <span>envía</span> al PIC por USB HID</h1>
+    <p class="lead">Es el camino contrario del video anterior. En LabVIEW dos indicadores de aguja dan la velocidad de dos motores (0 a 100) y dos botones prenden LEDs. Todo se une en una trama dat=v1/v2/l1/l2/ que se envía por HID. En MikroC se espera el dato con HID_Read, se busca dat= con strstr y strtok va sacando cada valor separado por /. Las velocidades se escalan a 0-255 para el PWM y los valores 1 o 0 prenden o apagan los LEDs.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=LutUbhv0ul8" target="_blank" rel="noopener">&#9654; Ver el video completo (27:22)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1615.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librerías USB HID, PWM, C_String, C_Stdlib)</li><li>PIC18F2550</li><li>LabVIEW con las funciones de HID del video anterior</li><li>Proteus con conector USB, dos LEDs y osciloscopio</li><li>HID Terminal de MikroC (Tools)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · LabVIEW</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>LabVIEW</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Panel</h3><a class="min" href="https://youtu.be/LutUbhv0ul8?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>Dos indicadores M1 y M2 de 0 a 100 dan la velocidad de cada motor y dos botones manejan LED1 y LED2. Un indicador de texto muestra la trama que se va a enviar.</p><div class="dos"><figure class="cap"><a href="img/123.webp" target="_blank"><img src="img/123.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/216.webp" target="_blank"><img src="img/216.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Armar la trama</h3><a class="min" href="https://youtu.be/LutUbhv0ul8?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>Format Into String con el formato %f/%f/%u/%u/ une los cuatro datos y se le antepone dat=. Así el micro sabe dónde empieza el mensaje y que cada dato termina en /.</p><div class="uno"><figure class="cap"><a href="img/310.webp" target="_blank"><img src="img/310.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Enviar por HID</h3><a class="min" href="https://youtu.be/LutUbhv0ul8?t=400" target="_blank" rel="noopener">&#9654; 6:40</a></div><p>La cadena se pasa a arreglo de bytes y se escribe con la función Write del HID dentro del ciclo, con una espera entre envíos. El LED Conexión indica que el dispositivo está abierto.</p><div class="uno"><figure class="cap"><a href="img/403.webp" target="_blank"><img src="img/403.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa en MikroC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Circuito</h3><a class="min" href="https://youtu.be/LutUbhv0ul8?t=496" target="_blank" rel="noopener">&#9654; 8:16</a></div><p>El PIC18F2550 va al conector USB. LED1 está en RB0 y LED2 en RB1; las salidas PWM (RC1 y RC2) van al osciloscopio para ver el cambio de velocidad.</p><div class="uno"><figure class="cap"><a href="img/496.webp" target="_blank"><img src="img/496.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configuración</h3><a class="min" href="https://youtu.be/LutUbhv0ul8?t=589" target="_blank" rel="noopener">&#9654; 9:49</a></div><p>Todo digital, RB0 y RB1 como salida para los LEDs, RC1 y RC2 como salida para los PWM, que se inician y arrancan.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0b1111;     // todo digital
+// salida de los leds
+TRISB0_bit = 0;
+TRISB1_bit = 0;
+// salidas pwm
+TRISC1_bit = 0;
+TRISC2_bit = 0;
+// pwm
+PWM1_Init(500);
+PWM2_Init(500);
+PWM1_Start();
+PWM2_Start();</code></pre></div><div class="uno"><figure class="cap"><a href="img/683.webp" target="_blank"><img src="img/683.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Descriptor e interrupción</h3><a class="min" href="https://youtu.be/LutUbhv0ul8?t=776" target="_blank" rel="noopener">&#9654; 12:56</a></div><p>Con el HID Terminal (menú Tools) se genera el archivo USBdsc.c y se agrega al proyecto. En la interrupción se llama USB_Interrupt_Proc y se declaran los buffers readbuff y writebuff de 64 bytes.</p><div class="uno"><figure class="cap"><a href="img/776.webp" target="_blank"><img src="img/776.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Esperar la trama</h3><a class="min" href="https://youtu.be/LutUbhv0ul8?t=1056" target="_blank" rel="noopener">&#9654; 17:36</a></div><p>Se habilita el HID y en el ciclo se espera hasta que llegue un dato. Con strstr se revisa que traiga dat=; el primer strtok con = arranca la separación.</p><div class="uno"><figure class="cap"><a href="img/1149.webp" target="_blank"><img src="img/1149.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Separar los datos</h3><a class="min" href="https://youtu.be/LutUbhv0ul8?t=1242" target="_blank" rel="noopener">&#9654; 20:42</a></div><p>Cada strtok(0, "/") entrega el siguiente valor. Las velocidades se pasan a número y se escalan de 0-100 a 0-255 para el ciclo útil. El tercer y cuarto dato deciden si cada LED se prende.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>HID_Enable(&amp;readbuff, &amp;writebuff);
+while (1) {
+  while (!HID_Read());
+  if (strstr(readbuff, &quot;dat=&quot;)) {
+    strcpy(tramita, strtok(readbuff, &quot;=&quot;));  // inicia captura de tokens
+    strcpy(tramita, strtok(0, &quot;/&quot;));          // primer dato
+    pwm1 = atoi(tramita);
+    PWM1_Set_Duty(pwm1*255/100);
+    strcpy(tramita, strtok(0, &quot;/&quot;));          // 2 dato
+    pwm2 = atoi(tramita);
+    PWM2_Set_Duty(pwm2*255/100);
+    strcpy(tramita, strtok(0, &quot;/&quot;));          // 3 dato
+    pwm1 = atoi(tramita);
+    if (pwm1 == 1) led1 = 1; else led1 = 0;
+    // el 4 dato igual para led2
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1335.webp" target="_blank"><img src="img/1335.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1429.webp" target="_blank"><img src="img/1429.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1522.webp" target="_blank"><img src="img/1522.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Simulación</h3><a class="min" href="https://youtu.be/LutUbhv0ul8?t=1560" target="_blank" rel="noopener">&#9654; 26:00</a></div><p>Con la simulación corriendo, LabVIEW se conecta al dispositivo. Al mover las agujas cambia el ancho del pulso en el osciloscopio y los botones prenden los LEDs del circuito.</p><div class="dos"><figure class="cap"><a href="img/962.webp" target="_blank"><img src="img/962.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1615.webp" target="_blank"><img src="img/1615.webp" alt="LabVIEW envía datos al PIC por USB HID: velocidad de motores y LEDs en MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=LutUbhv0ul8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

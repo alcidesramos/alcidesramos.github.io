@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sensores ópticos reflectivos leídos en digital con un timer en el PIC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Varios sensores reflectivos tipo CNY70 se leen con pines digitales: se carga un condensador, el pin pasa a entrada y el Timer1 mide cuánto tarda en descargarse.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/dFQ-Hvhh_-c/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Sensores ópticos reflectivos leídos en digital con un timer en el PIC · Paso a paso">
+  <meta property="og:description" content="Varios sensores reflectivos tipo CNY70 se leen con pines digitales: se carga un condensador, el pin pasa a entrada y el Timer1 mide cuánto tarda en descargarse.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/dFQ-Hvhh_-c/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/dFQ-Hvhh_-c/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Sensores reflectivos <span>sin ADC</span></h1>
+    <p class="lead">Es el método de los sensores tipo QTR-RC. El pin se pone como salida en 1 para cargar el condensador, luego como entrada; el fototransistor lo descarga más rápido cuanto más luz refleja la superficie. El Timer1 se configura para una ventana de unos 13 ms y, mientras corre, se guarda el valor del timer en el instante en que cada pin cae a 0. Así se leen ocho sensores sin usar el ADC. Las lecturas se envían por serial.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=dFQ-Hvhh_-c" target="_blank" rel="noopener">&#9654; Ver el video completo (19:10)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/826.webp" alt="Sensores ópticos reflectivos leídos en digital con un timer en el PIC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC18F2550</li><li>Sensores CNY70 con condensador de 10 nF y resistencias</li><li>Proteus con Virtual Terminal</li><li>Excel para calcular el Timer1</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Principio</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Cómo funciona</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El sensor</h3><a class="min" href="https://youtu.be/dFQ-Hvhh_-c?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El CNY70 tiene un LED infrarrojo y un fototransistor. Según la distancia y el color de la superficie conduce más o menos.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Sensores ópticos reflectivos leídos en digital con un timer en el PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Medir tiempo</h3><a class="min" href="https://youtu.be/dFQ-Hvhh_-c?t=180" target="_blank" rel="noopener">&#9654; 3:00</a></div><p>Con un condensador en el colector, el pin lo carga y luego se mide cuánto tarda en descargarse. En Proteus se usa una gráfica transitoria para ver la curva de descarga.</p><div class="uno"><figure class="cap"><a href="img/229.webp" target="_blank"><img src="img/229.webp" alt="Sensores ópticos reflectivos leídos en digital con un timer en el PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Timer1</h3><a class="min" href="https://youtu.be/dFQ-Hvhh_-c?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>La carga del Timer1 sale de 65536 − tiempo deseado / (Tciclo × preescalador). Se elige el preescalador que cumple para unos 13 ms de ventana.</p><div class="uno"><figure class="cap"><a href="img/329.webp" target="_blank"><img src="img/329.webp" alt="Sensores ópticos reflectivos leídos en digital con un timer en el PIC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pines</h3><a class="min" href="https://youtu.be/dFQ-Hvhh_-c?t=428" target="_blank" rel="noopener">&#9654; 7:08</a></div><p>Cada sensor usa el mismo pin como salida (LATB) y como entrada (RB).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit led at LATC0_bit;
+unsigned int timer = 0;   // acumula contador del sensor
+// pines sensores
+sbit s1_out at LATB0_bit;
+sbit s1_in  at RB0_bit;
+sbit s2_out at LATB1_bit;
+sbit s2_in  at RB1_bit;
+// ... igual hasta s8 en RB7</code></pre></div><div class="uno"><figure class="cap"><a href="img/428.webp" target="_blank"><img src="img/428.webp" alt="Sensores ópticos reflectivos leídos en digital con un timer en el PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Entradas y salidas</h3><a class="min" href="https://youtu.be/dFQ-Hvhh_-c?t=528" target="_blank" rel="noopener">&#9654; 8:48</a></div><p>config_entradas pone el puerto B como entrada, config_salidas como salida y saca_uno pone todos en 1 para cargar los condensadores.</p><div class="uno"><figure class="cap"><a href="img/528.webp" target="_blank"><img src="img/528.webp" alt="Sensores ópticos reflectivos leídos en digital con un timer en el PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Medir</h3><a class="min" href="https://youtu.be/dFQ-Hvhh_-c?t=627" target="_blank" rel="noopener">&#9654; 10:27</a></div><p>Se cargan los condensadores unos microsegundos, los pines pasan a entrada y arranca el timer. Mientras no se desborde, el primer momento en que cada pin lee 0 se guarda el valor del Timer1 y se marca su bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void analizasensoresir() {
+  config_timer1();       // TIMER 13MS
+  config_salidas();
+  saca_uno();
+  Delay_us(10);
+  config_entradas();
+  TMR1ON_bit = 1;        // prende el timer
+  // limpia lecturas y banderas
+  while (TMR1IF_bit == 0) {
+    if ((s1_in == 0) &amp;&amp; (flag_s1 == 0)) {
+      lectura1 = ((unsigned int)TMR1H &lt;&lt; 8) | TMR1L;
+      flag_s1 = 1;
+    }
+    // igual para los demas sensores
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/627.webp" target="_blank"><img src="img/627.webp" alt="Sensores ópticos reflectivos leídos en digital con un timer en el PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Enviar</h3><a class="min" href="https://youtu.be/dFQ-Hvhh_-c?t=727" target="_blank" rel="noopener">&#9654; 12:07</a></div><p>En el ciclo principal se mide y se envían las lecturas por el UART a 9600.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>UART1_Init(9600);
+UART1_Write_Text(&quot;iniciando&quot;);
+while (1) {
+  analizasensoresir();
+  sprintf(texto, &quot;lecturas=%d %d %d\r\n&quot;, lectura1, lectura2, lectura3);
+  UART1_Write_Text(texto);
+  Delay_ms(200);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/727.webp" target="_blank"><img src="img/727.webp" alt="Sensores ópticos reflectivos leídos en digital con un timer en el PIC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Simulación</h3><a class="min" href="https://youtu.be/dFQ-Hvhh_-c?t=826" target="_blank" rel="noopener">&#9654; 13:46</a></div><p>En el Virtual Terminal aparecen las lecturas; al cambiar la distancia simulada del sensor cambia el número. El mismo método funciona en Arduino.</p><div class="dos"><figure class="cap"><a href="img/826.webp" target="_blank"><img src="img/826.webp" alt="Sensores ópticos reflectivos leídos en digital con un timer en el PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/926.webp" target="_blank"><img src="img/926.webp" alt="Sensores ópticos reflectivos leídos en digital con un timer en el PIC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=dFQ-Hvhh_-c" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tarjeta entrenadora básica con PIC18F2550 y bootloader USB · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo está hecha una tarjeta sencilla para practicar con el PIC18F2550: USB con bootloader, selección de 5 V o 3.3 V, cristal, reset, LEDs y conectores. Se prueba con un parpadeo.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/e2n5tIIdF9c/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Tarjeta entrenadora básica con PIC18F2550 y bootloader USB · Paso a paso">
+  <meta property="og:description" content="Cómo está hecha una tarjeta sencilla para practicar con el PIC18F2550: USB con bootloader, selección de 5 V o 3.3 V, cristal, reset, LEDs y conectores. Se prueba con un parpadeo.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/e2n5tIIdF9c/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/e2n5tIIdF9c/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Tarjeta entrenadora con <span>PIC18F2550</span></h1>
+    <p class="lead">El esquema en Proteus muestra el PIC18F2550 con su conector USB, el cristal, el reset, LEDs en el puerto B y conectores para serial, PWM, entradas análogas y digitales. Un jumper elige si la tarjeta trabaja a 5 V o a 3.3 V. El micro tiene un bootloader USB, así que se programa sin programador: se crea el proyecto en MikroC, se carga el esquema de configuración y se graba un parpadeo de todo el puerto B.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=e2n5tIIdF9c" target="_blank" rel="noopener">&#9654; Ver el video completo (11:02)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/247.webp" alt="Tarjeta entrenadora básica con PIC18F2550 y bootloader USB"></figure>
+    <ul class="materiales"><li>PIC18F2550 con bootloader USB</li><li>Cristal de 20 MHz</li><li>Conector USB, diodos 1N4001, regulación a 3.3 V y jumper de selección</li><li>LEDs, pulsador de reset y conectores</li><li>MikroC PRO for PIC</li><li>Proteus para el esquema</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Diseño</a><a href="#f2">2 · Programar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El diseño</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Micro y USB</h3><a class="min" href="https://youtu.be/e2n5tIIdF9c?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El PIC18F2550 va directo al conector USB (D+ y D-), con su condensador en VUSB, el cristal en OSC1 y OSC2 y un pulsador de reset en MCLR. Los LEDs van en el puerto B con sus resistencias.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Tarjeta entrenadora básica con PIC18F2550 y bootloader USB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Alimentación</h3><a class="min" href="https://youtu.be/e2n5tIIdF9c?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>La tarjeta se alimenta del USB. Con diodos y un jumper se elige si VDD es 5 V o 3.3 V, para poder conectar módulos de 3.3 V.</p><div class="uno"><figure class="cap"><a href="img/77.webp" target="_blank"><img src="img/77.webp" alt="Tarjeta entrenadora básica con PIC18F2550 y bootloader USB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Conectores</h3><a class="min" href="https://youtu.be/e2n5tIIdF9c?t=120" target="_blank" rel="noopener">&#9654; 2:00</a></div><p>Hay conectores para el serial (TX y RX), las salidas PWM, las entradas análogas (AN0 a AN4) y los pines digitales del puerto B, cada uno con VDD y GND al lado.</p><div class="dos"><figure class="cap"><a href="img/134.webp" target="_blank"><img src="img/134.webp" alt="Tarjeta entrenadora básica con PIC18F2550 y bootloader USB" loading="lazy"></a></figure><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Tarjeta entrenadora básica con PIC18F2550 y bootloader USB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Tarjeta armada</h3><a class="min" href="https://youtu.be/e2n5tIIdF9c?t=230" target="_blank" rel="noopener">&#9654; 3:50</a></div><p>Así queda la tarjeta: el micro en el centro, el USB abajo y los conectores marcados alrededor.</p><div class="uno"><figure class="cap"><a href="img/247.webp" target="_blank"><img src="img/247.webp" alt="Tarjeta entrenadora básica con PIC18F2550 y bootloader USB" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programarla</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/e2n5tIIdF9c?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>Proyecto nuevo con el PIC18F2550. Como el bootloader trabaja con el PLL, el reloj del proyecto es 48 MHz aunque el cristal sea de 20 MHz.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configuración</h3><a class="min" href="https://youtu.be/e2n5tIIdF9c?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>En Edit Project se carga el esquema de configuración para cristal de 20 MHz, el mismo que usa el bootloader, para no tener que ajustar bit por bit.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Parpadeo</h3><a class="min" href="https://youtu.be/e2n5tIIdF9c?t=531" target="_blank" rel="noopener">&#9654; 8:51</a></div><p>Todo digital, el puerto B como salida y en el ciclo se invierte LATB cada medio segundo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void main() {
+  ADCON1 = 0b1111;
+  TRISB = 0;
+  LATB = 0;
+  while (1) {
+    LATB = ~LATB;
+    Delay_ms(500);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/588.webp" target="_blank"><img src="img/588.webp" alt="Tarjeta entrenadora básica con PIC18F2550 y bootloader USB" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Grabar y probar</h3><a class="min" href="https://youtu.be/e2n5tIIdF9c?t=620" target="_blank" rel="noopener">&#9654; 10:20</a></div><p>Se compila, se conecta la tarjeta en modo bootloader y se graba el .hex por USB. Los LEDs empiezan a parpadear.</p><div class="uno"><figure class="cap"><a href="img/645.webp" target="_blank"><img src="img/645.webp" alt="Tarjeta entrenadora básica con PIC18F2550 y bootloader USB" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=e2n5tIIdF9c" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
