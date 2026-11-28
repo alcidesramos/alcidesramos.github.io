@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Desempacando la tarjeta EasyPIC v8 de MikroElektronika · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Qué trae la tarjeta de desarrollo EasyPIC v8, cómo se configura su programador CODEGRIP (por USB o WiFi) y dos pruebas con ejemplos de MikroC: la cortina de LED y el UART con la terminal.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/mARQqOvUyWs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Desempacando la tarjeta EasyPIC v8 de MikroElektronika · Paso a paso">
+  <meta property="og:description" content="Qué trae la tarjeta de desarrollo EasyPIC v8, cómo se configura su programador CODEGRIP (por USB o WiFi) y dos pruebas con ejemplos de MikroC: la cortina de LED y el UART con la terminal.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/mARQqOvUyWs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/mARQqOvUyWs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Primeros pasos con la <span>EasyPIC v8</span></h1>
+    <p class="lead">Video de desempaque de la EasyPIC v8 con una tarjeta MCU PIC18F47K42. Se revisa lo que trae la caja (planos de la tarjeta, cables y adaptadores USB), las conexiones para tarjetas MCU, LCD, TFT y módulos click, y el nuevo programador CODEGRIP, que puede programar por USB o por WiFi. Se escanea el programador en la suite de CODEGRIP, se carga el ejemplo de la cortina de LED que trae MikroC y después el ejemplo de UART, que se comunica con la terminal del PC por el USB de la tarjeta.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=mARQqOvUyWs" target="_blank" rel="noopener">&#9654; Ver el video completo (12:57)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/150.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika"></figure>
+    <ul class="materiales"><li>Tarjeta EasyPIC v8 con MCU card PIC18F47K42</li><li>Programador CODEGRIP integrado</li><li>Cables USB tipo C</li><li>MikroC PRO for PIC con sus ejemplos</li><li>CODEGRIP Suite</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Tarjeta</a><a href="#f2">2 · Programar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La tarjeta</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué trae la caja</h3><a class="min" href="https://youtu.be/mARQqOvUyWs?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La caja trae la tarjeta, los manuales y los planos de la tarjeta, que ayudan mucho a entender cómo se conecta cada parte. También una bolsa con cables y adaptadores USB tipo C.</p><div class="dos"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika" loading="lazy"></a></figure><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Recorrido</h3><a class="min" href="https://youtu.be/mARQqOvUyWs?t=97" target="_blank" rel="noopener">&#9654; 1:37</a></div><p>La EasyPIC v8 acepta distintas tarjetas MCU con micros de Microchip. Tiene el programador integrado, fuente, conectores para módulos click, para LCD y para TFT, y botones y LED en todos los pines. Comparada con la v7 trae menos sensores montados, pero más opciones de micros.</p><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika" loading="lazy"></a></figure><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika" loading="lazy"></a></figure><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Conectar</h3><a class="min" href="https://youtu.be/mARQqOvUyWs?t=163" target="_blank" rel="noopener">&#9654; 2:43</a></div><p>Con un cable USB tipo C se alimenta la tarjeta y se conecta el programador. Otro cable en el USB de la parte UART crea un puerto COM en el PC para la comunicación serial.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programar</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>CODEGRIP</h3><a class="min" href="https://youtu.be/mARQqOvUyWs?t=265" target="_blank" rel="noopener">&#9654; 4:25</a></div><p>Antes de programar se configura el CODEGRIP en su suite: se escanea y se conecta por USB o por WiFi. Por WiFi se pueden programar varias tarjetas de forma remota. En opciones se escoge el micro si no lo detecta, por ejemplo el PIC18F47K42.</p><div class="dos"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika" loading="lazy"></a></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Ejemplo de la cortina de LED</h3><a class="min" href="https://youtu.be/mARQqOvUyWs?t=437" target="_blank" rel="noopener">&#9654; 7:17</a></div><p>En MikroC se abre un ejemplo de la carpeta de la EasyPIC v8: <b>Led Curtain</b>. Se compila y se programa, y los LED de todos los puertos corren de un lado al otro.</p><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Ejemplo de UART</h3><a class="min" href="https://youtu.be/mARQqOvUyWs?t=504" target="_blank" rel="noopener">&#9654; 8:24</a></div><p>Se abre el ejemplo de UART, se revisa en la tarjeta a qué pines van RX y TX (RC6 y RC7) y se conecta la terminal de MikroC al puerto COM a 9600 baudios. El micro manda un texto y devuelve lo que se le escribe. Se modifica para mandar un mensaje cada 2 segundos con \r\n al final.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ANSELC = 0;   // puerto C digital
+UART1_Init(9600);
+Delay_ms(100);
+UART1_Write_Text(&quot;Start&quot;);
+UART1_Write(13);
+UART1_Write(10);
+
+while (1) {
+  UART1_Write_Text(&quot;Hola desde la EasyPIC\r\n&quot;);
+  Delay_ms(2000);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika" loading="lazy"></a></figure><figure class="cap"><a href="img/610.webp" target="_blank"><img src="img/610.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika" loading="lazy"></a></figure><figure class="cap"><a href="img/690.webp" target="_blank"><img src="img/690.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika" loading="lazy"></a></figure><figure class="cap"><a href="img/750.webp" target="_blank"><img src="img/750.webp" alt="Desempacando la tarjeta EasyPIC v8 de MikroElektronika" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Un cuidado</h3><a class="min" href="https://youtu.be/mARQqOvUyWs?t=721" target="_blank" rel="noopener">&#9654; 12:01</a></div><p>Algunos selectores de la tarjeta son de montaje superficial y se mueven con un destornillador muy pequeño. Hay que manejarlos con cuidado porque con el uso se pueden dañar.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=mARQqOvUyWs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modo sleep en un microcontrolador PIC con MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo dormir un PIC16F1824 con la instrucción sleep en MikroC y despertarlo con la interrupción externa por flanco o con la recepción serial, configurando a mano pull-ups, remapeo del UART e interrupciones.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/7851BF3HuLo/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Modo sleep en un microcontrolador PIC con MikroC · Paso a paso">
+  <meta property="og:description" content="Cómo dormir un PIC16F1824 con la instrucción sleep en MikroC y despertarlo con la interrupción externa por flanco o con la recepción serial, configurando a mano pull-ups, remapeo del UART e interrupciones.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/7851BF3HuLo/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/7851BF3HuLo/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Usar el modo <span>sleep</span> en MikroC</h1>
+    <p class="lead">Versión en MikroC de un video hecho antes con MPLAB XC8. En MikroC no hay un configurador gráfico, así que hay que conocer los registros. Un PIC16F1824 con cristal hace una secuencia de LED, avisa por el serial que se va a dormir y ejecuta sleep. Se despierta con la interrupción externa en RA2 (con pull-up interna) o al recibir un carácter por el UART, remapeado a RA0 y RA1. Unos LED indican si despertó por flanco o por serial.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=7851BF3HuLo" target="_blank" rel="noopener">&#9654; Ver el video completo (11:15)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/540.webp" alt="Modo sleep en un microcontrolador PIC con MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con PIC16F1824, cristal, pulsador, LED y Virtual Terminal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Configurar</a><a href="#f2">2 · Sleep</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/7851BF3HuLo?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Proyecto con un PIC16F1824 y cristal externo (oscilador XT). Se habilita el Power-up Timer y se deja deshabilitado lo demás, incluido el watchdog.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Modo sleep en un microcontrolador PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>LED y pines del UART</h3><a class="min" href="https://youtu.be/7851BF3HuLo?t=134" target="_blank" rel="noopener">&#9654; 2:14</a></div><p>Los LED se manejan con LAT, como en los 16F nuevos. El UART se remapea con los bits RXDTSEL y TXCKSEL: en 1, TX queda en RA0 y RX en RA1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit led1 at LATC4_bit;
+sbit led2 at LATC5_bit;
+sbit led_f at LATC2_bit;   // despertó por flanco
+sbit led_s at LATC3_bit;   // despertó por serial
+
+ANSELA = 0;  ANSELC = 0;   // todo digital
+UART1_Init(9600);
+TRISC = 0;  TRISA = 0;
+TRISA1_bit = 1;   // entrada serial
+TRISA2_bit = 1;   // entrada por flanco
+RXDTSEL_bit = 1;  // RX en RA1, si no RC5
+TXCKSEL_bit = 1;  // TX en RA0, si no RC4</code></pre></div><div class="dos"><figure class="cap"><a href="img/130.webp" target="_blank"><img src="img/130.webp" alt="Modo sleep en un microcontrolador PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Modo sleep en un microcontrolador PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Modo sleep en un microcontrolador PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Pull-up interna</h3><a class="min" href="https://youtu.be/7851BF3HuLo?t=277" target="_blank" rel="noopener">&#9654; 4:37</a></div><p>Para ahorrar energía no se pone resistencia externa en el pulsador: se usa la pull-up interna de RA2. NOT_WPUEN en 0 autoriza las pull-up individuales y WPUA2 activa la de ese pin.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>INTCON = 0b01000000;   // habilita interrupciones de periféricos
+NOT_WPUEN_bit = 0;     // autoriza las pull-up individuales
+WPUA2_bit = 1;         // pull-up en RA2
+UART1_Write_Text(&quot;Iniciando\r\n&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/330.webp" target="_blank"><img src="img/330.webp" alt="Modo sleep en un microcontrolador PIC con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Dormir y despertar</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>La instrucción sleep</h3><a class="min" href="https://youtu.be/7851BF3HuLo?t=344" target="_blank" rel="noopener">&#9654; 5:44</a></div><p>El programa hace una secuencia con el LED 1, avisa por el serial y se duerme. En MikroC la instrucción va dentro de un bloque asm.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>asm sleep;</code></pre></div><div class="uno"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Modo sleep en un microcontrolador PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Despertar por flanco</h3><a class="min" href="https://youtu.be/7851BF3HuLo?t=445" target="_blank" rel="noopener">&#9654; 7:25</a></div><p>Antes del while se configura la interrupción externa por flanco de bajada y se habilita GIE. La rutina de interrupción se crea con el Interrupt Assistant: si fue por flanco, prende el LED de flanco y limpia la bandera. Al despertar, el programa prende un LED un rato y vuelve a dormir.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>INTF_bit = 0;
+INTEDG_bit = 0;   // flanco de bajada
+INTE_bit = 1;     // habilita la interrupción por flanco
+GIE_bit = 1;</code></pre></div><div class="dos"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Modo sleep en un microcontrolador PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Modo sleep en un microcontrolador PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Despertar por serial</h3><a class="min" href="https://youtu.be/7851BF3HuLo?t=544" target="_blank" rel="noopener">&#9654; 9:04</a></div><p>Se limpia RCIF y se habilita RCIE. En la interrupción se lee RCREG (obligatorio para limpiar la recepción), se prende el LED de serial y se limpia la bandera. Así el micro despierta al recibir un carácter.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char dato;
+
+void interrupcion() iv 0x0004 ics ICS_AUTO
+{
+  if (INTF_bit == 1) {
+    led_f = 1;
+    INTF_bit = 0;
+  }
+  if (RCIF_bit == 1) {
+    dato = RCREG;
+    led_s = 1;
+    RCIF_bit = 0;
+  }
+}</code></pre></div><p class="ojo">Esta rutina maneja un solo carácter. Para recibir cadenas hace falta otra lógica.</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Modo sleep en un microcontrolador PIC con MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=7851BF3HuLo" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

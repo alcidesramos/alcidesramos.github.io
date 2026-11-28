@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tip para adquisición serial a alta velocidad en Windows · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Video corto: cómo cambiar el temporizador de latencia de un puerto COM físico de 16 ms a 1 ms en Windows para que LabVIEW, Visual Studio o Delphi lean datos seriales rápido.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/Xz9o_lKAB44/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Tip para adquisición serial a alta velocidad en Windows · Paso a paso">
+  <meta property="og:description" content="Video corto: cómo cambiar el temporizador de latencia de un puerto COM físico de 16 ms a 1 ms en Windows para que LabVIEW, Visual Studio o Delphi lean datos seriales rápido.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/Xz9o_lKAB44/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Xz9o_lKAB44/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Bajar la <span>latencia</span> del puerto COM en Windows</h1>
+    <p class="lead">Aunque se suban los baudios, a veces el programa del PC (LabVIEW, Visual Studio, Delphi) no responde rápido al leer datos seriales. En el Administrador de dispositivos, en las opciones avanzadas del puerto COM, el temporizador de latencia viene con un valor alto por defecto. Al bajarlo a 1 ms Windows atiende el puerto casi en tiempo real. La opción solo aparece en puertos COM físicos, como un convertidor USB a serial, y no en puertos virtuales.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Xz9o_lKAB44" target="_blank" rel="noopener">&#9654; Ver el video completo (2:01)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/80.webp" alt="Tip para adquisición serial a alta velocidad en Windows"></figure>
+    <ul class="materiales"><li>PC con Windows</li><li>Convertidor USB a serial u otro puerto COM físico</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Latencia</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Cambiar la latencia</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Abrir el puerto</h3><a class="min" href="https://youtu.be/Xz9o_lKAB44?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Con el dispositivo conectado, se abre el <b>Administrador de dispositivos</b> (clic derecho en el botón de Inicio), se despliega <b>Puertos (COM y LPT)</b> y se abren las propiedades del puerto.</p><div class="uno"><figure class="cap"><a href="img/45.webp" target="_blank"><img src="img/45.webp" alt="Tip para adquisición serial a alta velocidad en Windows" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Opciones avanzadas</h3><a class="min" href="https://youtu.be/Xz9o_lKAB44?t=45" target="_blank" rel="noopener">&#9654; 0:45</a></div><p>En la pestaña <b>Configuración de puerto</b> se pulsa <b>Opciones avanzadas</b>. Ahí está el <b>Temporizador de latencia (mseg)</b>.</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Tip para adquisición serial a alta velocidad en Windows" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Ponerlo en 1 ms</h3><a class="min" href="https://youtu.be/Xz9o_lKAB44?t=68" target="_blank" rel="noopener">&#9654; 1:08</a></div><p>Se cambia el valor a <b>1</b> y se acepta. Así Windows le da prioridad al puerto serial y el programa de adquisición recibe los datos casi en tiempo real.</p><p class="ojo">La opción solo sale en puertos COM físicos. No aparece en puertos virtuales ni en los creados sobre otro puerto.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Tip para adquisición serial a alta velocidad en Windows" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Xz9o_lKAB44" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
