@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El PIC16F1824 tiene un solo UART, pero sus pines se pueden cambiar en ejecución con APFCON0. Así se habla con dos dispositivos por turnos sin comprar un micro más caro.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/aMOxtDKU2Lo/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines) · Paso a paso">
+  <meta property="og:description" content="El PIC16F1824 tiene un solo UART, pero sus pines se pueden cambiar en ejecución con APFCON0. Así se habla con dos dispositivos por turnos sin comprar un micro más caro.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/aMOxtDKU2Lo/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/aMOxtDKU2Lo/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Dos puertos serial con un <span>UART</span></h1>
+    <p class="lead">Lección 43 del curso. Los micros más modernos permiten elegir en qué pines sale un periférico. En el PIC16F1824 los bits RXDTSEL y TXCKSEL de APFCON0 pasan el UART de RC4/RC5 a RA0/RA1. Cambiando esos bits en el programa se manda texto a un puerto y luego al otro. Se configura el oscilador interno a 4 MHz, todo digital, un LCD y un led.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=aMOxtDKU2Lo" target="_blank" rel="noopener">&#9654; Ver el video completo (11:28)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/665.webp" alt="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines)"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC16F1824 con oscilador interno a 4 MHz</li><li>LCD 16x2</li><li>Resistencia pull-up de 10k para RX</li><li>Proteus con dos Virtual Terminal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · Config</a><a href="#f3">3 · Remapeo</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La idea</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Un UART, dos destinos</h3><a class="min" href="https://youtu.be/aMOxtDKU2Lo?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>A veces se necesitan dos puertos seriales por hardware y el micro tiene uno. En vez de hacer uno por software o comprar un micro más costoso, se aprovecha el remapeo de pines.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>En la hoja de datos</h3><a class="min" href="https://youtu.be/aMOxtDKU2Lo?t=31" target="_blank" rel="noopener">&#9654; 0:31</a></div><p>En el diagrama de pines del PIC16F1824 TX y RX aparecen en dos lugares. Una nota dice que la función se elige con APFCON0 o APFCON1.</p><div class="uno"><figure class="cap"><a href="img/88.webp" target="_blank"><img src="img/88.webp" alt="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Circuito</h3><a class="min" href="https://youtu.be/aMOxtDKU2Lo?t=164" target="_blank" rel="noopener">&#9654; 2:44</a></div><p>Dos terminales virtuales, UNO y DOS, conectados a cada par de pines, un LCD y un led de operación. Una pull-up de 10k evita que la RX que no se usa quede flotando.</p><div class="uno"><figure class="cap"><a href="img/145.webp" target="_blank"><img src="img/145.webp" alt="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/aMOxtDKU2Lo?t=231" target="_blank" rel="noopener">&#9654; 3:51</a></div><p>Proyecto para PIC16F1824 a 4 MHz con oscilador interno, sin reloj externo.</p><div class="uno"><figure class="cap"><a href="img/261.webp" target="_blank"><img src="img/261.webp" alt="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>LCD y led</h3><a class="min" href="https://youtu.be/aMOxtDKU2Lo?t=297" target="_blank" rel="noopener">&#9654; 4:57</a></div><p>Se definen los pines del LCD y del led, y en el ciclo principal el led parpadea para ver que el micro corre.</p><div class="dos"><figure class="cap"><a href="img/319.webp" target="_blank"><img src="img/319.webp" alt="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines)" loading="lazy"></a></figure><figure class="cap"><a href="img/376.webp" target="_blank"><img src="img/376.webp" alt="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Oscilador y pines digitales</h3><a class="min" href="https://youtu.be/aMOxtDKU2Lo?t=398" target="_blank" rel="noopener">&#9654; 6:38</a></div><p>OSCCON elige el oscilador interno a 4 MHz y ANSELA/ANSELC en cero dejan todo digital.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>SCS1_bit = 1; SCS0_bit = 0;  // oscilador interno
+ANSELA = 0; ANSELC = 0;      // todo digital
+IRCF3_bit = 1; IRCF2_bit = 1;
+IRCF1_bit = 0; IRCF0_bit = 1; // 4 MHz</code></pre></div><div class="uno"><figure class="cap"><a href="img/434.webp" target="_blank"><img src="img/434.webp" alt="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Direcciones de pines</h3><a class="min" href="https://youtu.be/aMOxtDKU2Lo?t=467" target="_blank" rel="noopener">&#9654; 7:47</a></div><p>Los dos TX como salida y los dos RX como entrada, aunque en este video solo se transmite. Se inicia el LCD con "DOS PUERTOS SERIAL" y el UART a 9600.</p><div class="uno"><figure class="cap"><a href="img/492.webp" target="_blank"><img src="img/492.webp" alt="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Cambiar de puerto</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>APFCON0</h3><a class="min" href="https://youtu.be/aMOxtDKU2Lo?t=536" target="_blank" rel="noopener">&#9654; 8:56</a></div><p>En el capítulo 12 de la hoja de datos, funciones alternas de pines: RXDTSEL y TXCKSEL eligen si RX y TX van en RC5/RC4 o en RA1/RA0.</p><div class="uno"><figure class="cap"><a href="img/550.webp" target="_blank"><img src="img/550.webp" alt="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Dos funciones</h3><a class="min" href="https://youtu.be/aMOxtDKU2Lo?t=604" target="_blank" rel="noopener">&#9654; 10:04</a></div><p>en_serial1() y en_serial2() cambian esos bits. En el ciclo se elige un puerto, se escribe, y se pasa al otro.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>en_serial1();
+UART1_Write_Text(&quot;SOY EL 1\r\n&quot;);
+en_serial2();
+UART1_Write_Text(&quot;SOY EL 2\r\n&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/607.webp" target="_blank"><img src="img/607.webp" alt="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/aMOxtDKU2Lo?t=635" target="_blank" rel="noopener">&#9654; 10:35</a></div><p>La terminal UNO recibe "SOY EL 1" y la DOS "SOY EL 2". Con un micro económico se manejan dos dispositivos seriales.</p><div class="uno"><figure class="cap"><a href="img/665.webp" target="_blank"><img src="img/665.webp" alt="Curso MikroC PRO for PIC, lección 43: dos puertos serial con un solo UART (remapeo de pines)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=aMOxtDKU2Lo" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

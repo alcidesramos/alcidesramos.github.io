@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo recibir tramas seriales sin carácter de inicio ni de fin: cada byte reinicia un timer y, si el timer se desborda sin datos nuevos, la trama terminó. Ejemplo con PIC18F2550, Timer0 e interrupciones.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/5KilWy0ryDA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line) · Paso a paso">
+  <meta property="og:description" content="Cómo recibir tramas seriales sin carácter de inicio ni de fin: cada byte reinicia un timer y, si el timer se desborda sin datos nuevos, la trama terminó. Ejemplo con PIC18F2550, Timer0 e interrupciones.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/5KilWy0ryDA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/5KilWy0ryDA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Fin de trama serial con <span>timer</span></h1>
+    <p class="lead">Lección 41 del curso. Algunos dispositivos mandan datos sin inicio ni final. La técnica de línea en reposo (idle line) usa un timer: cada byte recibido lo reinicia y, si se desborda sin que llegue otro, se da la trama por terminada. Se calcula el tiempo según los baudios, se configura Timer0 en un PIC18F2550 a 4 MHz y se procesa la trama en el programa principal.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=5KilWy0ryDA" target="_blank" rel="noopener">&#9654; Ver el video completo (13:44)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/574.webp" alt="Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line)"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC18F2550 a 4 MHz</li><li>Proteus con Virtual Terminal</li><li>Hercules y un puerto serie virtual (VSPE) para probar</li><li>Excel para calcular tiempos</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · Config</a><a href="#f3">3 · Interrupción</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La idea</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Tramas sin inicio ni fin</h3><a class="min" href="https://youtu.be/5KilWy0ryDA?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se pueden recibir tramas de una letra, medianas o largas sin saber dónde terminan. Es lo que en los STM32 se conoce como detección de línea en reposo; aquí se hace con un timer.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Tiempo por byte</h3><a class="min" href="https://youtu.be/5KilWy0ryDA?t=102" target="_blank" rel="noopener">&#9654; 1:42</a></div><p>El tiempo de un bit es 1/baudios. Un byte con inicio y parada son unos 10 bits; con margen se multiplica por unos 12. A 2400 baudios son unos 5 ms y a 9600 unos 1.25 ms.</p><div class="uno"><figure class="cap"><a href="img/121.webp" target="_blank"><img src="img/121.webp" alt="Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Elegir el timer</h3><a class="min" href="https://youtu.be/5KilWy0ryDA?t=169" target="_blank" rel="noopener">&#9654; 2:49</a></div><p>Un timer de 5 a 10 ms sirve para velocidades comunes. Aquí se calcula para unos 8 ms con Timer0 en 8 bits y su prescaler.</p><div class="uno"><figure class="cap"><a href="img/166.webp" target="_blank"><img src="img/166.webp" alt="Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Cómo funciona</h3><a class="min" href="https://youtu.be/5KilWy0ryDA?t=201" target="_blank" rel="noopener">&#9654; 3:21</a></div><p>Cada byte que llega reinicia el timer. Si el timer termina su cuenta y no llegaron datos, la trama acabó y se levanta una bandera.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pines, UART y Timer0</h3><a class="min" href="https://youtu.be/5KilWy0ryDA?t=301" target="_blank" rel="noopener">&#9654; 5:01</a></div><p>RC6 salida (TX), RC7 entrada (RX), dos leds en RC0 y RC1. Timer0 en 8 bits con reloj interno y prescaler, apagado y sin interrupción hasta que llegue el primer byte.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>INTCON = 0b01000000;
+TRISC6_bit = 0; TRISC7_bit = 1;
+TRISC0_bit = 0; TRISC1_bit = 0;
+UART1_Init(9600);
+T0CON = 0; T08BIT_bit = 1;
+TMR0ON_bit = 0; T0CS_bit = 0; PSA_bit = 0;
+TMR0IF_bit = 0; TMR0IE_bit = 0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/392.webp" target="_blank"><img src="img/392.webp" alt="Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Habilitar recepción</h3><a class="min" href="https://youtu.be/5KilWy0ryDA?t=402" target="_blank" rel="noopener">&#9654; 6:42</a></div><p>Se limpia RCIF, se reinicia la recepción con CREN, se habilita la interrupción de recepción y por último GIE.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>RCIF_bit = 0;
+CREN_bit = 0; CREN_bit = 1;
+RCIE_bit = 1;
+GIE_bit = 1;</code></pre></div><div class="uno"><figure class="cap"><a href="img/438.webp" target="_blank"><img src="img/438.webp" alt="Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Interrupción</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Llega un byte</h3><a class="min" href="https://youtu.be/5KilWy0ryDA?t=499" target="_blank" rel="noopener">&#9654; 8:19</a></div><p>Se guarda en la trama, se avanza el contador (con tope de 50) y se reinicia y enciende el Timer0 con su interrupción.</p><div class="uno"><figure class="cap"><a href="img/528.webp" target="_blank"><img src="img/528.webp" alt="Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Se desborda el timer</h3><a class="min" href="https://youtu.be/5KilWy0ryDA?t=597" target="_blank" rel="noopener">&#9654; 9:57</a></div><p>Si el Timer0 llega a desbordarse, la trama terminó: se levanta flag_rx, se pone el contador en cero, se apaga la recepción y el timer.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void uartrx() iv 0x0008 ics ICS_AUTO {
+  if (RCIF_bit == 1) {
+    dato_rx = RCREG;
+    trama_rx[cont_trama] = dato_rx;
+    cont_trama++;
+    if (cont_trama &gt;= 50) cont_trama = 0;
+    TMR0L = 0; TMR0ON_bit = 1; TMR0IE_bit = 1;
+    RCIF_bit = 0;
+  }
+  if (TMR0IF_bit == 1) {
+    flag_rx = 1; cont_trama = 0; RCIE_bit = 0;
+    TMR0IF_bit = 0; TMR0IE_bit = 0; TMR0ON_bit = 0;
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/574.webp" target="_blank"><img src="img/574.webp" alt="Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line)" loading="lazy"></a></figure><figure class="cap"><a href="img/619.webp" target="_blank"><img src="img/619.webp" alt="Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Procesar y probar</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>En el programa principal</h3><a class="min" href="https://youtu.be/5KilWy0ryDA?t=631" target="_blank" rel="noopener">&#9654; 10:31</a></div><p>Con flag_rx en 1 se devuelve la trama por el serial, se busca "led=" y "on" para manejar el led, se limpia la trama y se vuelve a habilitar la recepción.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>UART1_Write_Text(trama_rx);
+if (strstr(trama_rx, &quot;led=&quot;)) {
+  if (strstr(trama_rx, &quot;on&quot;)) led2 = 1;
+  else led2 = 0;
+}
+memset(trama_rx, 0, 50);
+CREN_bit = 0; CREN_bit = 1;
+RCIF_bit = 0; RCIE_bit = 1;
+flag_rx = 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/664.webp" target="_blank"><img src="img/664.webp" alt="Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line)" loading="lazy"></a></figure><figure class="cap"><a href="img/709.webp" target="_blank"><img src="img/709.webp" alt="Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Prueba</h3><a class="min" href="https://youtu.be/5KilWy0ryDA?t=767" target="_blank" rel="noopener">&#9654; 12:47</a></div><p>Con Hercules y un puerto virtual se manda una letra o una frase larga y el micro la repite completa, sin importar el tamaño. Sirve para dispositivos que mandan datos sin inicio ni final.</p><div class="uno"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Curso MikroC PRO for PIC, lección 41: detectar fin de trama serial con un timer (idle line)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=5KilWy0ryDA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

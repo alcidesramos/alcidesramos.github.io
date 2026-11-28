@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Una librería para el LiDAR TF-mini que trabaja en modo hexadecimal o en modo texto según un #define, usando #ifdef, #else y #endif. Recepción por interrupción con máquina de estados en un PIC18F2550 y distancia en un LCD.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/KeUS7tLgaZY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini · Paso a paso">
+  <meta property="og:description" content="Una librería para el LiDAR TF-mini que trabaja en modo hexadecimal o en modo texto según un #define, usando #ifdef, #else y #endif. Recepción por interrupción con máquina de estados en un PIC18F2550 y distancia en un LCD.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/KeUS7tLgaZY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/KeUS7tLgaZY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Librerías dinámicas con <span>#ifdef</span>: LiDAR TF-mini</h1>
+    <p class="lead">Lección 42 del curso. El sensor LiDAR TF-mini puede entregar la distancia en tramas hexadecimales o como texto. En vez de dos programas, se hace una librería con las dos versiones y el compilador incluye solo la que se elige con un #define. Se explica la trama de cada modo, la interrupción con máquina de estados y el procesamiento de la distancia, y se prueba en un PIC18F2550 con LCD.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=KeUS7tLgaZY" target="_blank" rel="noopener">&#9654; Ver el video completo (22:42)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1102.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC18F2550</li><li>Sensor LiDAR TF-mini</li><li>LCD 16x2</li><li>Proteus o montaje real</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Librería</a><a href="#f2">2 · Recepción</a><a href="#f3">3 · Main</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La librería del sensor</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Librerías dinámicas</h3><a class="min" href="https://youtu.be/KeUS7tLgaZY?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>Con directivas del preprocesador se decide qué código se compila antes de quemar el micro. Así una sola librería sirve para los dos modos del sensor.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/KeUS7tLgaZY?t=98" target="_blank" rel="noopener">&#9654; 1:38</a></div><p>Una trama de 20 bytes (suficiente para este sensor), contador, bandera y un enum para los estados de la recepción.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned char trama_rx_lidar[20];
+unsigned char trama_rx_lidar_cont;
+char flag_rx_lidar;
+enum tf_estado_ {tf_cabe, tf_cabe1, tf_datos, tf_fin};
+unsigned int distancia, fuerza;
+float distancia_float;</code></pre></div><div class="uno"><figure class="cap"><a href="img/116.webp" target="_blank"><img src="img/116.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Configurar el modo</h3><a class="min" href="https://youtu.be/KeUS7tLgaZY?t=163" target="_blank" rel="noopener">&#9654; 2:43</a></div><p>tf_mini_config() inicia el UART a 115200 y limpia la trama. tf_mini_out_hex() y tf_mini_out_str() mandan al sensor el comando de 8 bytes (0x42 0x57 0x02 0x00 0x00 0x00 0x01 ...) que cambia el formato de salida.</p><div class="uno"><figure class="cap"><a href="img/192.webp" target="_blank"><img src="img/192.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Recepción</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Modo hexadecimal</h3><a class="min" href="https://youtu.be/KeUS7tLgaZY?t=233" target="_blank" rel="noopener">&#9654; 3:53</a></div><p>La trama empieza con 0x59 0x59. La interrupción espera las dos cabeceras, guarda los siete bytes siguientes y al terminar apaga RCIE y levanta la bandera.</p><div class="uno"><figure class="cap"><a href="img/268.webp" target="_blank"><img src="img/268.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Modo texto</h3><a class="min" href="https://youtu.be/KeUS7tLgaZY?t=302" target="_blank" rel="noopener">&#9654; 5:02</a></div><p>En texto, se espera un fin de línea, se guarda hasta el siguiente '\n' y se agrega el 0 final. Si llegan más de 20 bytes se reinicia para no salirse del vector.</p><div class="uno"><figure class="cap"><a href="img/344.webp" target="_blank"><img src="img/344.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Procesar</h3><a class="min" href="https://youtu.be/KeUS7tLgaZY?t=400" target="_blank" rel="noopener">&#9654; 6:40</a></div><p>En hexadecimal la distancia es la parte alta por 256 más la baja, y la fuerza indica la calidad de la señal. En texto basta con atof.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>distancia = ((unsigned int)trama_rx_lidar[1] &lt;&lt; 8) + (unsigned int)trama_rx_lidar[0];
+fuerza = ((unsigned int)trama_rx_lidar[3] &lt;&lt; 8) + (unsigned int)trama_rx_lidar[2];
+
+// modo texto
+distancia_float = atof(trama_rx_lidar);</code></pre></div><div class="uno"><figure class="cap"><a href="img/419.webp" target="_blank"><img src="img/419.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Incluir la librería</h3><a class="min" href="https://youtu.be/KeUS7tLgaZY?t=628" target="_blank" rel="noopener">&#9654; 10:28</a></div><p>Se agrega el archivo tf_mini.c al proyecto (clic derecho, añadir) junto con las librerías de UART y LCD.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Elegir el modo</h3><a class="min" href="https://youtu.be/KeUS7tLgaZY?t=795" target="_blank" rel="noopener">&#9654; 13:15</a></div><p>Arriba se escribe #define tf_hex. Si está, se compila el modo hexadecimal; si se comenta, el modo texto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define tf_hex
+...
+#ifdef tf_hex
+  tf_mini_out_hex();
+#else
+  tf_mini_out_str();
+#endif</code></pre></div><div class="dos"><figure class="cap"><a href="img/799.webp" target="_blank"><img src="img/799.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini" loading="lazy"></a></figure><figure class="cap"><a href="img/875.webp" target="_blank"><img src="img/875.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Interrupción</h3><a class="min" href="https://youtu.be/KeUS7tLgaZY?t=859" target="_blank" rel="noopener">&#9654; 14:19</a></div><p>La interrupción llama a una u otra rutina según el mismo #ifdef, para no quedar esperando al sensor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void INTERRUPCION() iv 0x0008 ics ICS_AUTO {
+#ifdef tf_hex
+  tf_mini_interrupcion_hex();
+#else
+  tf_mini_interrupcion_str();
+#endif
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1026.webp" target="_blank"><img src="img/1026.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Mostrar la distancia</h3><a class="min" href="https://youtu.be/KeUS7tLgaZY?t=1070" target="_blank" rel="noopener">&#9654; 17:50</a></div><p>Cuando la bandera está activa se procesa la trama, se muestra la distancia en el LCD (entero en hexadecimal, con decimal en texto) y se reactiva la recepción.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (flag_rx_lidar == 1) {
+#ifdef tf_hex
+  procesa_lidar_hex();
+  sprintf(texto, &quot;DIST=%u&quot;, distancia);
+#else
+  procesa_lidar_str();
+  sprintf(texto, &quot;DIST=%4.1f&quot;, distancia_float);
+#endif
+  Lcd_Out(1, 1, texto);
+  CREN_bit = 0; CREN_bit = 1;
+  RCIF_bit = 0; RCIE_bit = 1;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1102.webp" target="_blank"><img src="img/1102.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini" loading="lazy"></a></figure><figure class="cap"><a href="img/1178.webp" target="_blank"><img src="img/1178.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/KeUS7tLgaZY?t=1240" target="_blank" rel="noopener">&#9654; 20:40</a></div><p>Con el sensor real la distancia cambia al acercar y alejar la mano, en los dos modos.</p><div class="dos"><figure class="cap"><a href="img/1254.webp" target="_blank"><img src="img/1254.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini" loading="lazy"></a></figure><figure class="cap"><a href="img/1330.webp" target="_blank"><img src="img/1330.webp" alt="Curso MikroC PRO for PIC, lección 42: librerías dinámicas con #ifdef y sensor LiDAR TF-mini" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=KeUS7tLgaZY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

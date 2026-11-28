@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Qué es el bus I2C, cómo probarlo en Proteus con una memoria 24LC512, el problema de la librería de MikroC cuando el esclavo no responde y una librería propia con registros del PIC16F1824 para escribir y leer la memoria.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/vwTd0uu6U0E/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia · Paso a paso">
+  <meta property="og:description" content="Qué es el bus I2C, cómo probarlo en Proteus con una memoria 24LC512, el problema de la librería de MikroC cuando el esclavo no responde y una librería propia con registros del PIC16F1824 para escribir y leer la memoria.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/vwTd0uu6U0E/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/vwTd0uu6U0E/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Protocolo <span>I2C</span> y memoria 24LC512</h1>
+    <p class="lead">Lección 40 del curso. Se explica el bus I2C (de Philips; en Atmel se llama TWI): dos líneas con resistencias pull-up de 4.7k a 10k, maestro y esclavos con dirección. En Proteus se monta un PIC16F1824 a 8 MHz con una memoria 24LC512 y el depurador I2C. Primero se prueba la librería de MikroC y se ve que se bloquea si el esclavo no contesta; luego se escribe una librería propia (I2C_ARZ.c) con los registros SSP1 que permite saber si hubo reconocimiento, y con ella funciones para escribir y leer la memoria.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=vwTd0uu6U0E" target="_blank" rel="noopener">&#9654; Ver el video completo (32:38)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1267.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC16F1824 a 8 MHz (oscilador interno)</li><li>Memoria 24LC512</li><li>Resistencias pull-up de 4.7k</li><li>Proteus con I2C Debugger y Virtual Terminal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · I2C</a><a href="#f2">2 · Base</a><a href="#f3">3 · MikroC</a><a href="#f4">4 · I2C_ARZ</a><a href="#f5">5 · Memoria</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El bus I2C</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué es</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>I2C es un bus serie de dos hilos, SDA (datos) y SCL (reloj), creado por Philips. Atmel lo llamó TWI por temas de licencia. Un maestro genera el reloj y habla con esclavos que tienen dirección.</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pull-ups</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Las dos líneas son de drenador abierto y necesitan resistencias pull-up. Lo recomendable está entre 4.7k y 10k.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Proteus</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>Algunos dispositivos I2C en Proteus solo funcionan si el depurador I2C está conectado al bus. Además sirve para ver cada byte, el start, el stop y los reconocimientos.</p><div class="uno"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto base</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Micro y oscilador</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=279" target="_blank" rel="noopener">&#9654; 4:39</a></div><p>PIC16F1824 con oscilador interno a 8 MHz, sin interrupciones por ahora.</p><div class="uno"><figure class="cap"><a href="img/301.webp" target="_blank"><img src="img/301.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>UART remapeado</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=345" target="_blank" rel="noopener">&#9654; 5:45</a></div><p>El I2C usa RC0 y RC1, así que el UART se pasa a RC4 y RC5 con los bits de APFCON0, y se imprime "iniciando" para comprobar que el programa corre.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>RXDTSEL_bit = 1;
+TXCKSEL_bit = 1;</code></pre></div><div class="uno"><figure class="cap"><a href="img/382.webp" target="_blank"><img src="img/382.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Led de monitoreo</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=381" target="_blank" rel="noopener">&#9654; 6:21</a></div><p>Un led que se invierte en el ciclo principal muestra que el micro no está bloqueado.</p><div class="uno"><figure class="cap"><a href="img/462.webp" target="_blank"><img src="img/462.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería de MikroC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Escribir en la memoria</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=447" target="_blank" rel="noopener">&#9654; 7:27</a></div><p>Para escribir: condición de start, byte de control con la dirección del esclavo y el bit de escritura en 0, dos bytes de dirección de memoria, el dato y stop.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>I2C1_Start();
+I2C1_Wr(dir_esclavo &amp; 0b11111110);
+I2C1_Wr(0); I2C1_Wr(0);
+I2C1_Wr(0xF);
+I2C1_Stop();</code></pre></div><div class="uno"><figure class="cap"><a href="img/543.webp" target="_blank"><img src="img/543.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Bit de lectura o escritura</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=557" target="_blank" rel="noopener">&#9654; 9:17</a></div><p>El último bit del byte de dirección dice si se va a escribir (0) o a leer (1). Por eso se hace AND con 0b11111110 para escribir y OR con 1 para leer.</p><div class="uno"><figure class="cap"><a href="img/623.webp" target="_blank"><img src="img/623.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>El problema</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=658" target="_blank" rel="noopener">&#9654; 10:58</a></div><p>Funciona, pero si el esclavo no está o no responde, la librería se queda esperando y el programa se bloquea: el led deja de titilar. Por eso se hace una librería propia.</p><div class="uno"><figure class="cap"><a href="img/703.webp" target="_blank"><img src="img/703.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Librería propia</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Archivo I2C_ARZ.c</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=758" target="_blank" rel="noopener">&#9654; 12:38</a></div><p>Se crea un archivo nuevo en el proyecto con las funciones del maestro, hechas con los registros SSP1 según la hoja de datos.</p><div class="uno"><figure class="cap"><a href="img/784.webp" target="_blank"><img src="img/784.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Configuración</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=832" target="_blank" rel="noopener">&#9654; 13:52</a></div><p>SSP1CON1 = 0b1000 pone el módulo en modo maestro I2C. La velocidad se calcula con el reloj del micro: SSP1ADD = (Fosc/4)/velocidad - 1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const unsigned long cristal = Clock_MHz()*1e6/4;
+void I2C_CONFIG_master(unsigned long i2c_velo){
+  SSP1STAT = 0; SSP1CON1 = 0b1000; SSP1CON2 = 0;
+  SSP1ADD = (cristal/i2c_velo) - 1;
+  SSPEN_bit = 1;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/864.webp" target="_blank"><img src="img/864.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Start, stop y repeated start</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=1046" target="_blank" rel="noopener">&#9654; 17:26</a></div><p>Cada condición se genera poniendo su bit en 1 (SEN, PEN o RSEN) y esperando a que el hardware lo limpie. ACKDT elige si se manda reconocimiento y ACKSTAT dice si el esclavo lo mandó.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void I2C_STARTBIT(){
+  SSP1IF_bit = 0;
+  SEN_bit = 1;
+  while (SEN_bit == 1);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1025.webp" target="_blank"><img src="img/1025.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure><figure class="cap"><a href="img/1106.webp" target="_blank"><img src="img/1106.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Escribir un byte</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=1181" target="_blank" rel="noopener">&#9654; 19:41</a></div><p>Se carga SSP1BUF, se espera la bandera SSP1IF y se revisa ACKSTAT. Retorna 1 si el esclavo respondió y 0 si no, así el programa no se bloquea.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char I2C_WRITE_BYTE(unsigned char dato_i2c){
+  SSP1IF_bit = 0;
+  SSP1BUF = dato_i2c;
+  I2C_WAIT();
+  if (ACKSTAT_bit == 0) return 1;
+  else return 0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1186.webp" target="_blank"><img src="img/1186.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.5</span><h3>Saber si el esclavo está</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=1248" target="_blank" rel="noopener">&#9654; 20:48</a></div><p>Con ese retorno se puede avisar cuando no hay reconocimiento en vez de quedar pegado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (I2C_WRITE_BYTE(dir_esclavo &amp; 0b11111110) == 0)
+  UART1_Write_Text(&quot;no hubo reconocimiento esclavo&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1267.webp" target="_blank"><img src="img/1267.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>Escribir y leer la memoria</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>Escritura</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=1424" target="_blank" rel="noopener">&#9654; 23:44</a></div><p>memoria_i2c_write(dir_mem, dato_mem): start, dirección del esclavo, parte alta y baja de la dirección con Hi() y Lo(), el dato, stop y 5 ms para que la memoria grabe. Hi y Lo requieren el include que indica la ayuda (built_in.h).</p><div class="dos"><figure class="cap"><a href="img/1427.webp" target="_blank"><img src="img/1427.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure><figure class="cap"><a href="img/1508.webp" target="_blank"><img src="img/1508.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Leer un byte</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=1576" target="_blank" rel="noopener">&#9654; 26:16</a></div><p>Se activa RCEN, se espera a que termine y se lee SSP1BUF. Luego el maestro manda reconocimiento si va a seguir leyendo, o no lo manda si es el último byte.</p><div class="uno"><figure class="cap"><a href="img/1588.webp" target="_blank"><img src="img/1588.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.3</span><h3>Lectura</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=1647" target="_blank" rel="noopener">&#9654; 27:27</a></div><p>memoria_i2c_read(dir_mem): start, dirección del esclavo para escribir, dirección de memoria, repeated start, dirección del esclavo con el bit de lectura, se lee un byte sin reconocimiento y stop.</p></article><article class="paso"><div class="paso-cab"><span class="num">5.4</span><h3>Prueba</h3><a class="min" href="https://youtu.be/vwTd0uu6U0E?t=1715" target="_blank" rel="noopener">&#9654; 28:35</a></div><p>Se escriben los valores 10 a 14 en las posiciones 0 a 4 y se lee la posición 0. Para mostrarlo se incluye la librería de conversiones o se usa sprinti.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>leido = memoria_i2c_read(0);
+sprinti(texto, &quot;leido0= %u \r\n&quot;, (unsigned int)leido);
+UART1_Write_Text(texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1749.webp" target="_blank"><img src="img/1749.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure><figure class="cap"><a href="img/1910.webp" target="_blank"><img src="img/1910.webp" alt="Curso MikroC PRO for PIC, lección 40: I2C y memoria 24LC512 con librería propia" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=vwTd0uu6U0E" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

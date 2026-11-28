@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Joystick USB, LabVIEW y XBee para un barco, parte 3.1: receptor con PIC18F2550 en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Versión en MikroC con PIC18F2550 del receptor del barco: librería de servos, interrupción serial con máquina de estados para la trama I N = ... * y control de dirección y velocidad desde un joystick leído en LabVIEW.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/CVQEfpozA-4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Joystick USB, LabVIEW y XBee para un barco, parte 3.1: receptor con PIC18F2550 en MikroC · Paso a paso">
+  <meta property="og:description" content="Versión en MikroC con PIC18F2550 del receptor del barco: librería de servos, interrupción serial con máquina de estados para la trama I N = ... * y control de dirección y velocidad desde un joystick leído en LabVIEW.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/CVQEfpozA-4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/CVQEfpozA-4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Barco por XBee: receptor con <span>PIC18F2550</span></h1>
+    <p class="lead">Video extra (3.1) de la serie del barco controlado con un joystick USB, LabVIEW y módulos XBee. Se pasa el receptor a un PIC18F2550 en MikroC: se agregan la librería de servos (hasta ocho servos con un solo timer) y la librería serial, se arma una interrupción global que atiende ambas, y la trama que llega se recibe con una máquina de estados. En el programa principal se procesa la trama y se mueven los servos de dirección y velocidad.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=CVQEfpozA-4" target="_blank" rel="noopener">&#9654; Ver el video completo (9:49)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/423.webp" alt="Joystick USB, LabVIEW y XBee para un barco, parte 3.1: receptor con PIC18F2550 en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC18F2550 a 20 MHz</li><li>Proteus con servos y Virtual Terminal o XBee</li><li>LabVIEW con el joystick USB (videos anteriores de la serie)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Librerías</a><a href="#f2">2 · Interrupción</a><a href="#f3">3 · Main</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto y librerías</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Por qué un 3.1</h3><a class="min" href="https://youtu.be/CVQEfpozA-4?t=1" target="_blank" rel="noopener">&#9654; 0:01</a></div><p>Varios pidieron el receptor con un PIC18F, así que se hace la versión en MikroC con el PIC18F2550. Las librerías de servos y serial ya se vieron en otros videos; aquí se juntan.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Reloj</h3><a class="min" href="https://youtu.be/CVQEfpozA-4?t=98" target="_blank" rel="noopener">&#9654; 1:38</a></div><p>Se trabaja con el cristal de 20 MHz. Con PLL podría ir a 48 MHz, pero Proteus a veces falla con simulaciones muy rápidas.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Agregar las librerías</h3><a class="min" href="https://youtu.be/CVQEfpozA-4?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>Se agregan al proyecto la librería de servos y la serial, y sus cabeceras se pegan al inicio del programa. También se incluye la de conversiones porque se necesita para pasar texto a número.</p><div class="uno"><figure class="cap"><a href="img/177.webp" target="_blank"><img src="img/177.webp" alt="Joystick USB, LabVIEW y XBee para un barco, parte 3.1: receptor con PIC18F2550 en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Pines de los servos</h3><a class="min" href="https://youtu.be/CVQEfpozA-4?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>La librería maneja hasta ocho servos. El truco para no gastar pines es dejar los servos que no se usan todos en un mismo pin libre. Aquí el servo 0 es la dirección y el 1 la velocidad.</p><div class="uno"><figure class="cap"><a href="img/226.webp" target="_blank"><img src="img/226.webp" alt="Joystick USB, LabVIEW y XBee para un barco, parte 3.1: receptor con PIC18F2550 en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Interrupciones</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Una interrupción global</h3><a class="min" href="https://youtu.be/CVQEfpozA-4?t=264" target="_blank" rel="noopener">&#9654; 4:24</a></div><p>El PIC18 tiene un vector de interrupción de alta prioridad. Dentro se llama primero la rutina de los servos y luego la serial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void interrupciones() iv 0x0008 ics ICS_AUTO {
+  servos_interrupcion();
+  interrupcion_serial();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/275.webp" target="_blank"><img src="img/275.webp" alt="Joystick USB, LabVIEW y XBee para un barco, parte 3.1: receptor con PIC18F2550 en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar el serial</h3><a class="min" href="https://youtu.be/CVQEfpozA-4?t=299" target="_blank" rel="noopener">&#9654; 4:59</a></div><p>config_serial() inicia el UART a la velocidad deseada y habilita la interrupción de recepción. Si se quiere más velocidad solo se cambian los baudios.</p><div class="uno"><figure class="cap"><a href="img/325.webp" target="_blank"><img src="img/325.webp" alt="Joystick USB, LabVIEW y XBee para un barco, parte 3.1: receptor con PIC18F2550 en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Máquina de estados</h3><a class="min" href="https://youtu.be/CVQEfpozA-4?t=397" target="_blank" rel="noopener">&#9654; 6:37</a></div><p>interrupcion_serial() espera la 'I', luego la 'N', luego el '='; después guarda cada byte en Trama_rx1 hasta que llega el '*'. Ahí apaga la recepción y levanta flag_rx1. Si un carácter no corresponde, vuelve al estado inicial.</p><div class="uno"><figure class="cap"><a href="img/374.webp" target="_blank"><img src="img/374.webp" alt="Joystick USB, LabVIEW y XBee para un barco, parte 3.1: receptor con PIC18F2550 en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa principal</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Configuración</h3><a class="min" href="https://youtu.be/CVQEfpozA-4?t=431" target="_blank" rel="noopener">&#9654; 7:11</a></div><p>Todo digital, puertos B y C como salida excepto RC7 (RX), interrupciones de periféricos, serial, servos con pulso de 1 a 2 ms, ambos servos en cero y por último GIE.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0b1111;
+TRISC = 0; TRISB = 0;
+TRISC7_bit = 1;
+INTCON = 0b01000000;
+config_serial();
+init_servos(1.0, 2.0);
+servo_valor(dir, 0);
+servo_valor(vel, 0);
+GIE_bit = 1;</code></pre></div><div class="uno"><figure class="cap"><a href="img/423.webp" target="_blank"><img src="img/423.webp" alt="Joystick USB, LabVIEW y XBee para un barco, parte 3.1: receptor con PIC18F2550 en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Procesar la trama</h3><a class="min" href="https://youtu.be/CVQEfpozA-4?t=463" target="_blank" rel="noopener">&#9654; 7:43</a></div><p>Cuando flag_rx1 vale 1 se procesa la trama y se mueven los servos. Luego se baja la bandera, se limpia el vector y se reinicia la recepción con CREN.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (flag_rx1 == 1) {
+  procesa_rx1();
+  flag_rx1 = 0;
+  memset(Trama_rx1, 0, 50);
+  CREN_bit = 0; CREN_bit = 1;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/472.webp" target="_blank"><img src="img/472.webp" alt="Joystick USB, LabVIEW y XBee para un barco, parte 3.1: receptor con PIC18F2550 en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Traducción del programa</h3><a class="min" href="https://youtu.be/CVQEfpozA-4?t=497" target="_blank" rel="noopener">&#9654; 8:17</a></div><p>El análisis de la trama es el mismo de la versión anterior; solo cambian los nombres de registros. Se agregan dos leds, rojo y verde, para mostrar el sentido de la marcha.</p><div class="uno"><figure class="cap"><a href="img/521.webp" target="_blank"><img src="img/521.webp" alt="Joystick USB, LabVIEW y XBee para un barco, parte 3.1: receptor con PIC18F2550 en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Prueba con el joystick</h3><a class="min" href="https://youtu.be/CVQEfpozA-4?t=563" target="_blank" rel="noopener">&#9654; 9:23</a></div><p>Desde LabVIEW se mueve el joystick: el servo de dirección y el de velocidad responden y se encienden los leds según el sentido.</p><div class="uno"><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Joystick USB, LabVIEW y XBee para un barco, parte 3.1: receptor con PIC18F2550 en MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=CVQEfpozA-4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
