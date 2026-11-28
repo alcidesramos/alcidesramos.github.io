@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Por qué se usó el remapeo del UART del PIC16F1824 en una tarjeta real con Modbus RS485 y Ethernet, el cero indeseado al cambiar de puerto y cómo evitarlo, y las protecciones con diodos TVS y la resistencia de terminación de 120 ohmios.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/jXDNjl7Z7wg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485 · Paso a paso">
+  <meta property="og:description" content="Por qué se usó el remapeo del UART del PIC16F1824 en una tarjeta real con Modbus RS485 y Ethernet, el cero indeseado al cambiar de puerto y cómo evitarlo, y las protecciones con diodos TVS y la resistencia de terminación de 120 ohmios.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/jXDNjl7Z7wg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/jXDNjl7Z7wg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Remapeo en un proyecto real y <span>RS485</span></h1>
+    <p class="lead">Lección 45 del curso. Se cuenta la aplicación real del video anterior: una tarjeta con un PIC16F1824 que lee tres sensores esclavos por Modbus en RS485 y manda los datos por Ethernet a través de un módulo serial. En la práctica, al cambiar el UART de un par de pines a otro aparecía un cero que confundía al bus Modbus; la solución fue dejar en 1 la línea TX libre. También se explican los diodos TVS y la resistencia de 120 ohmios en la red RS485.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=jXDNjl7Z7wg" target="_blank" rel="noopener">&#9654; Ver el video completo (9:26)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/445.webp" alt="Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485"></figure>
+    <ul class="materiales"><li>PIC16F1824</li><li>Transceptor MAX485</li><li>Diodos TVS bidireccionales</li><li>Resistencia de terminación de 120 ohmios</li><li>Proteus para la simulación</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Cero</a><a href="#f3">3 · RS485</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Por qué este micro</h3><a class="min" href="https://youtu.be/jXDNjl7Z7wg?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El PIC16F1824 es muy versátil para su tamaño y precio. Ante la escasez de microcontroladores se aprovechó en un proyecto nuevo en vez de buscar un micro con dos UART.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Tarjeta anterior</h3><a class="min" href="https://youtu.be/jXDNjl7Z7wg?t=98" target="_blank" rel="noopener">&#9654; 1:38</a></div><p>Antes se había hecho una tarjeta universal que convertía sensores analógicos, digitales o seriales a Modbus por RS485, trabajando como esclavo.</p><div class="uno"><figure class="cap"><a href="img/162.webp" target="_blank"><img src="img/162.webp" alt="Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>El nuevo requisito</h3><a class="min" href="https://youtu.be/jXDNjl7Z7wg?t=167" target="_blank" rel="noopener">&#9654; 2:47</a></div><p>Ahora el micro debía ser maestro de tres sensores Modbus y además mandar la información por Ethernet con un módulo serial configurable. Un UART remapeado sirve para el Modbus y para el módulo Ethernet.</p><div class="dos"><figure class="cap"><a href="img/67.webp" target="_blank"><img src="img/67.webp" alt="Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485" loading="lazy"></a></figure><figure class="cap"><a href="img/209.webp" target="_blank"><img src="img/209.webp" alt="Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El problema del cero</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>En la simulación no aparece</h3><a class="min" href="https://youtu.be/jXDNjl7Z7wg?t=231" target="_blank" rel="noopener">&#9654; 3:51</a></div><p>Si se pasa a hexadecimal lo que llega en Proteus, no hay ningún cero extra.</p><div class="uno"><figure class="cap"><a href="img/256.webp" target="_blank"><img src="img/256.webp" alt="Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>En la vida real sí</h3><a class="min" href="https://youtu.be/jXDNjl7Z7wg?t=231" target="_blank" rel="noopener">&#9654; 3:51</a></div><p>Al conmutar de un puerto al otro se mandaba un cero. Para Modbus eso es grave porque el primer byte es la dirección del nodo y lo tomaba como nodo cero.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>La causa y la solución</h3><a class="min" href="https://youtu.be/jXDNjl7Z7wg?t=263" target="_blank" rel="noopener">&#9654; 4:23</a></div><p>Al quitar el UART de un par de pines, esos pines quedan como salidas comunes. Si TX queda en 0, el receptor lo ve como un bit de inicio. La solución fue poner en 1 los pines TX antes del ciclo principal, porque en reposo la línea serial está en 1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>LATA2_bit = 1;
+LATC4_bit = 1;   // TX en reposo = 1
+while (1) {
+  en_serial1();
+  ...
+  en_serial2();
+  ...
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/304.webp" target="_blank"><img src="img/304.webp" alt="Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Protecciones en RS485</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Diodos TVS</h3><a class="min" href="https://youtu.be/jXDNjl7Z7wg?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>En las líneas A y B del RS485 se colocan diodos TVS para suprimir picos al conectar o desconectar sensores. Conviene que sean bidireccionales para proteger en ambos sentidos.</p><div class="dos"><figure class="cap"><a href="img/351.webp" target="_blank"><img src="img/351.webp" alt="Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485" loading="lazy"></a></figure><figure class="cap"><a href="img/398.webp" target="_blank"><img src="img/398.webp" alt="Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Resistencia de 120 ohmios</h3><a class="min" href="https://youtu.be/jXDNjl7Z7wg?t=363" target="_blank" rel="noopener">&#9654; 6:03</a></div><p>En la red RS485 va una sola resistencia de terminación de 120 ohmios, en el maestro. Si cada esclavo la tuviera, bajaría la impedancia de la línea y habría problemas.</p><div class="uno"><figure class="cap"><a href="img/445.webp" target="_blank"><img src="img/445.webp" alt="Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>También en la fuente</h3><a class="min" href="https://youtu.be/jXDNjl7Z7wg?t=397" target="_blank" rel="noopener">&#9654; 6:37</a></div><p>Se recomienda otro TVS en la alimentación de 24 V para proteger la tarjeta de los picos al conectar y desconectar.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Tarjeta final</h3><a class="min" href="https://youtu.be/jXDNjl7Z7wg?t=463" target="_blank" rel="noopener">&#9654; 7:43</a></div><p>La tarjeta quedó con los tres sensores, la fuente conmutada, el micro y la parte de Ethernet.</p><div class="uno"><figure class="cap"><a href="img/493.webp" target="_blank"><img src="img/493.webp" alt="Curso MikroC PRO for PIC, lección 45: aplicación real del remapeo de UART y protecciones en RS485" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=jXDNjl7Z7wg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

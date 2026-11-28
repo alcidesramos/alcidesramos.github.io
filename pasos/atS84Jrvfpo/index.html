@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 44: el depurador de MikroC y #define frente a variables · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con el depurador de MikroC se resuelve una pregunta típica de C: con #define x 2+3, x*x*x da 17 y no 125. También se ve cuánta memoria gasta un #define, una variable y una constante.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/atS84Jrvfpo/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 44: el depurador de MikroC y #define frente a variables · Paso a paso">
+  <meta property="og:description" content="Con el depurador de MikroC se resuelve una pregunta típica de C: con #define x 2+3, x*x*x da 17 y no 125. También se ve cuánta memoria gasta un #define, una variable y una constante.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/atS84Jrvfpo/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/atS84Jrvfpo/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>El <span>depurador</span> de MikroC</h1>
+    <p class="lead">Lección 44 del curso. A partir de una pregunta publicada en Facebook (qué imprime un programa con #define x 2+3 e y = x*x*x) se usa el depurador de MikroC: barra de herramientas, paso a paso y ventana de variables. Se ve que #define solo reemplaza texto y por precedencia da 17. Después se compara en el resumen de memoria qué pasa con un #define, una variable int y una constante.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=atS84Jrvfpo" target="_blank" rel="noopener">&#9654; Ver el video completo (7:43)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/249.webp" alt="Curso MikroC PRO for PIC, lección 44: el depurador de MikroC y #define frente a variables"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (cualquier micro, sin configurar fusibles)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pregunta</a><a href="#f2">2 · Depurador</a><a href="#f3">3 · Memoria</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La pregunta</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>¿125 o 17?</h3><a class="min" href="https://youtu.be/atS84Jrvfpo?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El programa define x como 2+3 y calcula y = x*x*x. Mucha gente responde 125, pero la respuesta es 17.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Curso MikroC PRO for PIC, lección 44: el depurador de MikroC y #define frente a variables" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto de prueba</h3><a class="min" href="https://youtu.be/atS84Jrvfpo?t=64" target="_blank" rel="noopener">&#9654; 1:04</a></div><p>Se crea un proyecto nuevo con cualquier micro y se escribe el mismo código: #define x 2+3, int y; y en el main y = x*x*x.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Usar el depurador</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Activar la barra</h3><a class="min" href="https://youtu.be/atS84Jrvfpo?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>En View, Toolbars se activa la barra Debugger y se inicia la depuración. Aparecen la ventana de variables (Watch Values) y el reloj (Watch Clock).</p><div class="uno"><figure class="cap"><a href="img/135.webp" target="_blank"><img src="img/135.webp" alt="Curso MikroC PRO for PIC, lección 44: el depurador de MikroC y #define frente a variables" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Agregar la variable</h3><a class="min" href="https://youtu.be/atS84Jrvfpo?t=131" target="_blank" rel="noopener">&#9654; 2:11</a></div><p>Se escribe y en el buscador y se agrega. Se puede ver en decimal, hexadecimal, binario o flotante.</p><div class="uno"><figure class="cap"><a href="img/173.webp" target="_blank"><img src="img/173.webp" alt="Curso MikroC PRO for PIC, lección 44: el depurador de MikroC y #define frente a variables" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Paso a paso</h3><a class="min" href="https://youtu.be/atS84Jrvfpo?t=164" target="_blank" rel="noopener">&#9654; 2:44</a></div><p>Step Over ejecuta una función completa y Step Into entra en ella. Al pasar la línea, y vale 17.</p><div class="uno"><figure class="cap"><a href="img/249.webp" target="_blank"><img src="img/249.webp" alt="Curso MikroC PRO for PIC, lección 44: el depurador de MikroC y #define frente a variables" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Por qué 17</h3><a class="min" href="https://youtu.be/atS84Jrvfpo?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>El preprocesador cambia cada x por el texto 2+3, así que la línea queda y = 2+3*2+3*2+3. Por precedencia primero se multiplica: 2 + 6 + 6 + 3 = 17.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define x 2+3
+int y;
+void main() {
+  y = x*x*x;   // queda y = 2+3*2+3*2+3 = 17
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/211.webp" target="_blank"><img src="img/211.webp" alt="Curso MikroC PRO for PIC, lección 44: el depurador de MikroC y #define frente a variables" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Con una variable</h3><a class="min" href="https://youtu.be/atS84Jrvfpo?t=266" target="_blank" rel="noopener">&#9654; 4:26</a></div><p>Si en vez del #define se declara int x = 2+3, primero se guarda 5 y y vale 125.</p><div class="dos"><figure class="cap"><a href="img/287.webp" target="_blank"><img src="img/287.webp" alt="Curso MikroC PRO for PIC, lección 44: el depurador de MikroC y #define frente a variables" loading="lazy"></a></figure><figure class="cap"><a href="img/325.webp" target="_blank"><img src="img/325.webp" alt="Curso MikroC PRO for PIC, lección 44: el depurador de MikroC y #define frente a variables" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Memoria</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Variable</h3><a class="min" href="https://youtu.be/atS84Jrvfpo?t=331" target="_blank" rel="noopener">&#9654; 5:31</a></div><p>En View, Statistics (resumen) se ve el consumo. Con la variable int x se usan 4 bytes de RAM y 168 de ROM.</p><div class="uno"><figure class="cap"><a href="img/364.webp" target="_blank"><img src="img/364.webp" alt="Curso MikroC PRO for PIC, lección 44: el depurador de MikroC y #define frente a variables" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>#define y constante</h3><a class="min" href="https://youtu.be/atS84Jrvfpo?t=398" target="_blank" rel="noopener">&#9654; 6:38</a></div><p>Con #define solo quedan 2 bytes de RAM y 38 de ROM, porque no se guarda nada. Si x se declara const int, también queda en 2 y 38. Si un valor no va a cambiar, conviene definirlo o hacerlo constante.</p><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Curso MikroC PRO for PIC, lección 44: el depurador de MikroC y #define frente a variables" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=atS84Jrvfpo" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

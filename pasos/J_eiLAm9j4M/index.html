@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Módulo HLK-RM04, parte 4: IoT con Ubidots y PIC en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se pasa a un módulo HLK-RM04 un programa de Ubidots que estaba hecho para el ESP8266: el módulo se configura con su propio programa como cliente TCP hacia Ubidots y el PIC solo manda las peticiones HTTP por el serial.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/J_eiLAm9j4M/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Módulo HLK-RM04, parte 4: IoT con Ubidots y PIC en MikroC · Paso a paso">
+  <meta property="og:description" content="Se pasa a un módulo HLK-RM04 un programa de Ubidots que estaba hecho para el ESP8266: el módulo se configura con su propio programa como cliente TCP hacia Ubidots y el PIC solo manda las peticiones HTTP por el serial.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/J_eiLAm9j4M/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/J_eiLAm9j4M/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>HLK-RM04 e <span>IoT</span> con Ubidots</h1>
+    <p class="lead">Cuarta parte de la serie del módulo HLK-RM04. Se toma un proyecto de monitoreo y control con Ubidots hecho antes con el ESP8266 (temperatura, un switch, un voltaje y un led) y se traduce a este módulo. Como el HLK-RM04 se configura con su herramienta, el micro ya no manda comandos AT: solo escribe por el UART la petición HTTP. El módulo es más rápido que el ESP8266 y el programa queda más simple.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=J_eiLAm9j4M" target="_blank" rel="noopener">&#9654; Ver el video completo (15:16)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/586.webp" alt="Módulo HLK-RM04, parte 4: IoT con Ubidots y PIC en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC18F25K50 (o el micro del proyecto anterior)</li><li>Módulo HLK-RM04 y su programa de configuración</li><li>Cuenta de Ubidots con un dispositivo y sus variables</li><li>Proteus con Virtual Terminal y conversor USB serial</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Módulo</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configurar el módulo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Partir de lo que ya existe</h3><a class="min" href="https://youtu.be/J_eiLAm9j4M?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El proyecto de Ubidots con el ESP8266 ya está explicado en otros videos del canal. Aquí solo se muestra qué hay que cambiar para usar el HLK-RM04.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El circuito</h3><a class="min" href="https://youtu.be/J_eiLAm9j4M?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>El micro lee una temperatura (LM35), un switch y un voltaje, maneja un led y se comunica por el serial con el módulo, que ya está como cliente WiFi conectado a la red.</p><div class="uno"><figure class="cap"><a href="img/81.webp" target="_blank"><img src="img/81.webp" alt="Módulo HLK-RM04, parte 4: IoT con Ubidots y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Quitar los comandos AT</h3><a class="min" href="https://youtu.be/J_eiLAm9j4M?t=133" target="_blank" rel="noopener">&#9654; 2:13</a></div><p>En el main del programa del ESP8266 se mandaban muchos comandos de configuración. Con este módulo se borran todos: la configuración se hace con el programa del fabricante.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>IP y puerto de Ubidots</h3><a class="min" href="https://youtu.be/J_eiLAm9j4M?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>En la herramienta de configuración se lee el módulo, se deja en modo serial a WiFi como cliente TCP y en el campo remoto se pone la IP del servidor de Ubidots y el puerto 80. Con el nombre things.ubidots.com no funcionó, así que se busca su IP con una página que resuelve nombres de dominio.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Probar sin el micro</h3><a class="min" href="https://youtu.be/J_eiLAm9j4M?t=301" target="_blank" rel="noopener">&#9654; 5:01</a></div><p>Con Hercules se pueden mandar a mano las peticiones al módulo y ver la respuesta de Ubidots. El dato cambia de inmediato en el tablero.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Cambiar el programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Enviar solo por serial</h3><a class="min" href="https://youtu.be/J_eiLAm9j4M?t=369" target="_blank" rel="noopener">&#9654; 6:09</a></div><p>La función que mandaba al ESP8266 se reemplaza por una que solo escribe la trama por el UART. Después de enviar se espera unos 2 segundos.</p><div class="uno"><figure class="cap"><a href="img/485.webp" target="_blank"><img src="img/485.webp" alt="Módulo HLK-RM04, parte 4: IoT con Ubidots y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Armar la trama</h3><a class="min" href="https://youtu.be/J_eiLAm9j4M?t=401" target="_blank" rel="noopener">&#9654; 6:41</a></div><p>La trama con temperatura y led se arma igual que antes con sprintf, y se cambian el nombre del dispositivo y el token por los de la cuenta propia de Ubidots. El token es privado: no lo publiques.</p><div class="uno"><figure class="cap"><a href="img/536.webp" target="_blank"><img src="img/536.webp" alt="Módulo HLK-RM04, parte 4: IoT con Ubidots y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Revisar los nombres</h3><a class="min" href="https://youtu.be/J_eiLAm9j4M?t=749" target="_blank" rel="noopener">&#9654; 12:29</a></div><p>La primera prueba falló porque las variables del programa no se llamaban igual que en Ubidots. Hay que revisar que cada nombre (switch, voltaje, led, temperatura) coincida con el del tablero.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>En la simulación</h3><a class="min" href="https://youtu.be/J_eiLAm9j4M?t=816" target="_blank" rel="noopener">&#9654; 13:36</a></div><p>Al subir el voltaje o la temperatura cambian en Ubidots, y desde el tablero se prende y apaga el led, con unos 2 segundos de retardo.</p><div class="uno"><figure class="cap"><a href="img/586.webp" target="_blank"><img src="img/586.webp" alt="Módulo HLK-RM04, parte 4: IoT con Ubidots y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>El módulo real</h3><a class="min" href="https://youtu.be/J_eiLAm9j4M?t=882" target="_blank" rel="noopener">&#9654; 14:42</a></div><p>El mismo esquema se usa con el módulo real. El HLK-RM04 responde más rápido que el ESP8266.</p><div class="uno"><figure class="cap"><a href="img/890.webp" target="_blank"><img src="img/890.webp" alt="Módulo HLK-RM04, parte 4: IoT con Ubidots y PIC en MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=J_eiLAm9j4M" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Dividir el pico entre raíz de 2 solo vale para una seno pura. El valor RMS real es la raíz del promedio de los cuadrados de las muestras; aquí se programa en MikroC y se compara con el método por pico.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/ptqg85iDqdg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC · Paso a paso">
+  <meta property="og:description" content="Dividir el pico entre raíz de 2 solo vale para una seno pura. El valor RMS real es la raíz del promedio de los cuadrados de las muestras; aquí se programa en MikroC y se compara con el método por pico.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/ptqg85iDqdg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/ptqg85iDqdg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Valor <span>True RMS</span> con PIC</h1>
+    <p class="lead">Se parte de un video anterior que medía voltaje AC tomando el pico y dividiendo entre 1.414. Ese cálculo solo sirve para ondas seno. El True RMS que dan los multímetros es la raíz cuadrada de la suma de los cuadrados de cada muestra dividida entre el número de muestras. Se calcula cuántas muestras hacen falta, se cambia el programa y se ve que la lectura queda estable.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=ptqg85iDqdg" target="_blank" rel="noopener">&#9654; Ver el video completo (10:51)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/630.webp" alt="Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC con la librería C_Math (sqrt)</li><li>PIC con ADC (el del video anterior de lectura AC)</li><li>Divisor resistivo y puente rectificador del montaje anterior</li><li>Proteus con fuente AC y osciloscopio</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Fórmula</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Resultado</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La fórmula</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>RMS por pico</h3><a class="min" href="https://youtu.be/ptqg85iDqdg?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Multiplicar el pico por 0.707 (o dividir entre 1.414) solo es correcto si la señal es una seno perfecta.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>True RMS</h3><a class="min" href="https://youtu.be/ptqg85iDqdg?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>El valor eficaz real es la raíz cuadrada del promedio de los cuadrados de las muestras. Tiene más carga de cálculo, pero sirve para cualquier forma de onda.</p><div class="uno"><figure class="cap"><a href="img/85.webp" target="_blank"><img src="img/85.webp" alt="Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>El programa anterior</h3><a class="min" href="https://youtu.be/ptqg85iDqdg?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Antes se hacían varias lecturas, se tomaba la mayor, se pasaba a voltios, se aplicaba el divisor y se dividía entre 1.4142.</p><div class="uno"><figure class="cap"><a href="img/248.webp" target="_blank"><img src="img/248.webp" alt="Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables</h3><a class="min" href="https://youtu.be/ptqg85iDqdg?t=101" target="_blank" rel="noopener">&#9654; 1:41</a></div><p>Ya no se necesitan dos lecturas. Se agregan la suma de los cuadrados (float) y el contador de muestras.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float suma = 0;
+unsigned int muestras = 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/139.webp" target="_blank"><img src="img/139.webp" alt="Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/194.webp" target="_blank"><img src="img/194.webp" alt="Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Sumar cuadrados</h3><a class="min" href="https://youtu.be/ptqg85iDqdg?t=236" target="_blank" rel="noopener">&#9654; 3:56</a></div><p>Cada lectura se pasa a voltios, se eleva al cuadrado, se suma y se cuenta la muestra.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>lectura = ADC_Get_Sample(0);
+Delay_us(10);
+voltaje = lectura*5.0/1023.0;
+suma += voltaje*voltaje;
+muestras++;</code></pre></div><div class="uno"><figure class="cap"><a href="img/412.webp" target="_blank"><img src="img/412.webp" alt="Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Cuántas muestras</h3><a class="min" href="https://youtu.be/ptqg85iDqdg?t=302" target="_blank" rel="noopener">&#9654; 5:02</a></div><p>A 60 Hz el periodo es de 16.66 ms. Si cada lectura tarda unos 20 µs, hacen falta al menos unas 400 muestras por ciclo; lo ideal es el doble o el triple. Se usan 1500.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Raíz del promedio</h3><a class="min" href="https://youtu.be/ptqg85iDqdg?t=401" target="_blank" rel="noopener">&#9654; 6:41</a></div><p>Al llegar a 1500 muestras se aplica la fórmula con sqrt (incluir la librería matemática en MikroC), luego el divisor resistivo y la caída del puente rectificador, y se muestra en el LCD. Para la siguiente medición hay que volver a poner en cero suma y muestras.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (muestras == 1500) {
+  voltaje = sqrt(suma/(float)muestras);
+  voltaje = voltaje*(res1+res2)/res2;  // divisor resistivo
+  voltaje = voltaje + 1.4;             // caída del puente
+  FloatToStr_FixLen(voltaje, texto, 6);
+  Lcd_Out(1, 9, texto);
+  Delay_ms(100);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/466.webp" target="_blank"><img src="img/466.webp" alt="Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/521.webp" target="_blank"><img src="img/521.webp" alt="Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Resultado</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Simulación</h3><a class="min" href="https://youtu.be/ptqg85iDqdg?t=532" target="_blank" rel="noopener">&#9654; 8:52</a></div><p>La lectura queda estable en unos 127.5 V. Con menos muestras se vuelve menos precisa; en la vida real conviene más de 1200.</p><div class="dos"><figure class="cap"><a href="img/575.webp" target="_blank"><img src="img/575.webp" alt="Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/630.webp" target="_blank"><img src="img/630.webp" alt="Cómo leer el valor RMS real (True RMS) de cualquier señal con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Comparación</h3><a class="min" href="https://youtu.be/ptqg85iDqdg?t=596" target="_blank" rel="noopener">&#9654; 9:56</a></div><p>El método por pico salta un poco porque no siempre lee el pico exacto. El True RMS da el valor real de la señal.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=ptqg85iDqdg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
