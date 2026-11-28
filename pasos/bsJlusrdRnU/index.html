@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo configurar a mano en MikroC el módulo DSM de un PIC16F1824 para modular en FSK: dos PWM de distinta frecuencia como portadoras y como moduladora un pin, un bit por software o el TX del UART.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/bsJlusrdRnU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC · Paso a paso">
+  <meta property="og:description" content="Cómo configurar a mano en MikroC el módulo DSM de un PIC16F1824 para modular en FSK: dos PWM de distinta frecuencia como portadoras y como moduladora un pin, un bit por software o el TX del UART.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/bsJlusrdRnU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/bsJlusrdRnU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>El modulador de señales <span>DSM</span> en MikroC</h1>
+    <p class="lead">Versión en MikroC de un video hecho con MPLAB XC8. El DSM (Data Signal Modulator) combina una señal moduladora con dos portadoras: cuando la moduladora está en 1 sale una portadora y cuando está en 0 sale la otra, lo que da una modulación FSK. MikroC no trae librería para el DSM ni deja escoger el timer de cada PWM, así que todo se hace con registros. Con un PIC16F1824 a 32 MHz se configura PWM1 a 40 kHz con el Timer2 y PWM4 con el Timer6 a otra frecuencia, y luego el DSM con tres moduladoras distintas: un pin de entrada, el bit MDBIT por software y la salida TX del UART.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=bsJlusrdRnU" target="_blank" rel="noopener">&#9654; Ver el video completo (30:47)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1420.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con PIC16F1824, osciloscopio, analizador digital y Virtual Terminal</li><li>Hoja de datos del PIC16F1824 (capítulos de CCP y DSM)</li><li>Hoja de Excel para calcular los timers del PWM</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Base</a><a href="#f2">2 · PWM</a><a href="#f3">3 · DSM</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configuración base</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Reloj a 32 MHz</h3><a class="min" href="https://youtu.be/bsJlusrdRnU?t=71" target="_blank" rel="noopener">&#9654; 1:11</a></div><p>Proyecto con PIC16F1824 y oscilador interno. En Edit Project se deja el PLL deshabilitado y se prende por software: oscilador interno a 8 MHz y el PLL x4 da 32 MHz.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>OSCTUNE = 0;      // frecuencia centrada
+SCS1_bit = 0;     // oscilador puesto en la palabra de configuración
+SCS0_bit = 0;
+// oscilador interno a 8 MHz
+IRCF3_bit = 1;  IRCF2_bit = 1;
+IRCF1_bit = 1;  IRCF0_bit = 0;
+SPLLEN_bit = 1;   // prende el PLL x4, entonces 32 MHz</code></pre></div><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Remapear el UART</h3><a class="min" href="https://youtu.be/bsJlusrdRnU?t=271" target="_blank" rel="noopener">&#9654; 4:31</a></div><p>Al iniciar el UART, MikroC lo deja en RC4 y RC5. Con los bits de remapeo se pasa RX a RA1 y TX a RA0. RC3 queda como entrada para la moduladora manual.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>UART1_Init(9600);
+// pines UART
+RXDTSEL_bit = 1;   // RX en RA1
+TXCKSEL_bit = 1;   // TX en RA0
+TRISA = 0;
+TRISC = 0;
+TRISC3_bit = 1;    // entrada de moduladora manual</code></pre></div><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Las dos portadoras</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Por qué a mano</h3><a class="min" href="https://youtu.be/bsJlusrdRnU?t=337" target="_blank" rel="noopener">&#9654; 5:37</a></div><p>Se necesitan dos PWM con frecuencias distintas, así que cada uno va con un timer diferente: PWM1 con el Timer2 y PWM4 con el Timer6. La librería de MikroC no deja escoger el timer, por eso se configuran los registros. Los valores salen de las fórmulas del PWM de la hoja de datos, calculados en Excel.</p><div class="dos"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>PWM1 a 40 kHz con el Timer2</h3><a class="min" href="https://youtu.be/bsJlusrdRnU?t=471" target="_blank" rel="noopener">&#9654; 7:51</a></div><p>Con preescalador de 1 y PR2 = 199 el periodo es de 25 µs (40 kHz). CCP1 se asocia al Timer2 con C1TSEL, se pone en modo PWM y el ciclo útil queda en 50 % con CCPR1L = 99. La salida va por P1A.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// configuración módulo PWM1 CCP1 al timer 2
+T2CON = 0;
+T2CKPS1_bit = 0;   // preescalador 1
+T2CKPS0_bit = 0;
+PR2 = 199;         // para 25 us, 40 kHz
+CCP1CON = 0;
+C1TSEL1_bit = 0;   // selecciona el timer 2
+C1TSEL0_bit = 0;
+CCP1M3_bit = 1;    // modo PWM
+CCP1M2_bit = 1;
+CCPR1L = 99;       // parte alta del ciclo útil
+DC1B1_bit = 0;     // bits bajos del ciclo útil
+DC1B0_bit = 0;
+PSTR1CON = 0;
+STR1A_bit = 1;     // salida PWM en P1A
+TMR2ON_bit = 1;    // prende el timer 2</code></pre></div><div class="dos"><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/780.webp" target="_blank"><img src="img/780.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>PWM4 con el Timer6</h3><a class="min" href="https://youtu.be/bsJlusrdRnU?t=953" target="_blank" rel="noopener">&#9654; 15:53</a></div><p>Igual con CCP4 y el Timer6: preescalador de 4 y PR6 = 119 para un periodo de 60 µs. C4TSEL en 10 asocia CCP4 al Timer6.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// configuración módulo PWM4 CCP4 al timer 6
+T6CON = 0;
+T6CKPS1_bit = 0;   // preescalador 4
+T6CKPS0_bit = 1;
+PR6 = 119;         // para 60 us
+CCP4CON = 0;
+C4TSEL1_bit = 1;   // selecciona el timer 6
+C4TSEL0_bit = 0;
+CCP4M3_bit = 1;    // modo PWM
+CCP4M2_bit = 1;
+TMR6ON_bit = 1;</code></pre></div><div class="dos"><figure class="cap"><a href="img/1020.webp" target="_blank"><img src="img/1020.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1100.webp" target="_blank"><img src="img/1100.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El modulador</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Configurar el DSM</h3><a class="min" href="https://youtu.be/bsJlusrdRnU?t=1159" target="_blank" rel="noopener">&#9654; 19:19</a></div><p>En MDCON se habilita la salida por el pin y la moduladora. En MDSRC se escoge quién modula (MDMS): 0000 el bit MDBIT por software, 0001 el pin MDMIN, 1010 el TX del UART, y otras opciones como los comparadores o el SPI. En MDCARH y MDCARL se escogen las portadoras para el 1 y el 0: aquí CCP1 y CCP4.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>MDCON = 0;
+MDEN_bit = 0;        // deshabilita el módulo
+MDOE_bit = 1;        // habilita la salida en el pin
+MDSLR_bit = 1;       // slew rate
+MDMSODIS_bit = 0;    // habilita la moduladora
+// quién modula: en este caso manual, MDMIN
+MDMS3_bit = 0;  MDMS2_bit = 0;
+MDMS1_bit = 0;  MDMS0_bit = 1;
+// fuente para el 0: en este caso CCP4
+MDCL3_bit = 0;  MDCL2_bit = 1;
+MDCL1_bit = 0;  MDCL0_bit = 1;
+MDEN_bit = 1;        // habilita el módulo</code></pre></div><div class="dos"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1260.webp" target="_blank"><img src="img/1260.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1340.webp" target="_blank"><img src="img/1340.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Moduladora por un pin</h3><a class="min" href="https://youtu.be/bsJlusrdRnU?t=1365" target="_blank" rel="noopener">&#9654; 22:45</a></div><p>Con la moduladora en el pin MDMIN (RC3), un interruptor cambia la salida: con 1 sale la portadora rápida y con 0 la lenta. Es una modulación FSK de lo que entre por ese pin.</p><div class="uno"><figure class="cap"><a href="img/1420.webp" target="_blank"><img src="img/1420.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Moduladora por software</h3><a class="min" href="https://youtu.be/bsJlusrdRnU?t=1433" target="_blank" rel="noopener">&#9654; 23:53</a></div><p>Con MDMS en 0000, el bit MDBIT decide qué portadora sale. Así se codifica información por software, por ejemplo para controles infrarrojos o comunicación por la red eléctrica. Al terminar se apaga el módulo para que la señal no quede activa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>MDEN_bit = 1;    // habilita el módulo
+MDBIT_bit = 1;
+Delay_ms(1);
+MDBIT_bit = 0;
+Delay_ms(1);
+MDEN_bit = 0;    // deshabilita el módulo</code></pre></div><div class="uno"><figure class="cap"><a href="img/1500.webp" target="_blank"><img src="img/1500.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Moduladora por el UART</h3><a class="min" href="https://youtu.be/bsJlusrdRnU?t=1634" target="_blank" rel="noopener">&#9654; 27:14</a></div><p>Con MDMS en 1010 la moduladora es la salida TX del UART: lo que se transmite sale modulado en FSK. Se habilita el módulo, se envía el dato, se espera a que termine la transmisión y se apaga. En el analizador digital de Proteus se ve la trama serial junto a la señal modulada.</p><div class="dos"><figure class="cap"><a href="img/1580.webp" target="_blank"><img src="img/1580.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1660.webp" target="_blank"><img src="img/1660.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1740.webp" target="_blank"><img src="img/1740.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1800.webp" target="_blank"><img src="img/1800.webp" alt="Módulo de modulación de señales digital (DSM) en los PIC modernos con MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=bsJlusrdRnU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

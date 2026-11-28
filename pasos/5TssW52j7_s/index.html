@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tips para usar el watchdog timer en microcontroladores PIC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo funciona el watchdog (perro guardián) de un PIC16F1824, cómo escoger su tiempo con WDTPS y cómo prenderlo y apagarlo por software con SWDTEN para medir si un ciclo tarda demasiado o queda en un bucle infinito.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/5TssW52j7_s/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Tips para usar el watchdog timer en microcontroladores PIC · Paso a paso">
+  <meta property="og:description" content="Cómo funciona el watchdog (perro guardián) de un PIC16F1824, cómo escoger su tiempo con WDTPS y cómo prenderlo y apagarlo por software con SWDTEN para medir si un ciclo tarda demasiado o queda en un bucle infinito.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/5TssW52j7_s/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/5TssW52j7_s/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Usar el <span>watchdog</span> para encontrar bloqueos</h1>
+    <p class="lead">El watchdog es un contador con su propio oscilador, independiente del cristal, que resetea el micro si llega al final de su tiempo. Además de evitar que el micro quede bloqueado, sirve para analizar el código: saber dónde se queda pegado o cuánto tarda un ciclo. Con un PIC16F1824 se prueba primero con el watchdog siempre activo (unos 2 s por defecto) y luego controlado por software: se fija el tiempo con los bits WDTPS, se prende el watchdog con SWDTEN antes del ciclo a analizar y se apaga al salir. Si el micro se resetea, ese ciclo tarda más de lo permitido o nunca termina.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=5TssW52j7_s" target="_blank" rel="noopener">&#9654; Ver el video completo (16:46)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/720.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con PIC16F1824, LED y Virtual Terminal</li><li>Hoja de datos del PIC16F1824 (registro WDTCON)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Teoría</a><a href="#f2">2 · Prueba</a><a href="#f3">3 · Software</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El watchdog</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué es</h3><a class="min" href="https://youtu.be/5TssW52j7_s?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El watchdog es un contador que, al terminar su tiempo, resetea el micro. Se puede activar siempre desde los bits de configuración o manejar por software. Tiene un oscilador propio, independiente del cristal, así que su base de tiempo no cambia con el cristal.</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Registro WDTCON</h3><a class="min" href="https://youtu.be/5TssW52j7_s?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>En el PIC16F1824, los bits <b>WDTPS&lt;4:0&gt;</b> escogen el tiempo, desde 1 ms hasta 256 s (por defecto unos 2 s). El bit <b>SWDTEN</b> lo prende (1) o lo apaga (0) cuando se controla por software.</p><div class="uno"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Prueba básica</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Watchdog siempre activo</h3><a class="min" href="https://youtu.be/5TssW52j7_s?t=166" target="_blank" rel="noopener">&#9654; 2:46</a></div><p>Proyecto a 4 MHz con el watchdog habilitado en Edit Project. Al iniciar, el programa prende un LED un momento y manda "INICIANDO" por el serial: si eso se repite, el micro se está reseteando.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TRISA = 0;
+TRISC = 0;
+UART1_Init(9600);
+LATC1_bit = 1;   // LED de reinicio
+Delay_ms(100);
+LATC1_bit = 0;
+UART1_Write_Text(&quot;INICIANDO\r\n&quot;);
+
+while (1) {
+  UART1_Write_Text(&quot;WHILE\r\n&quot;);
+  LATC0_bit = ~LATC0_bit;
+  Delay_ms(100);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/5TssW52j7_s?t=379" target="_blank" rel="noopener">&#9654; 6:19</a></div><p>Con el watchdog siempre activo y sin limpiarlo, el micro se resetea cada 2 s aproximadamente: aparece de nuevo "INICIANDO".</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Control por software</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Tiempo y SWDTEN</h3><a class="min" href="https://youtu.be/5TssW52j7_s?t=413" target="_blank" rel="noopener">&#9654; 6:53</a></div><p>En Edit Project se deja el watchdog controlado por SWDTEN. Al inicio se apaga y se fija el tiempo, por ejemplo 4 s (WDTPS = 01100). Antes del ciclo a analizar se prende.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>SWDTEN_bit = 0;   // apaga el perro guardián
+// preescalado del watchdog: 4 s
+WDTPS4_bit = 0;
+WDTPS3_bit = 1;
+WDTPS2_bit = 1;
+WDTPS1_bit = 0;
+WDTPS0_bit = 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Medir un ciclo</h3><a class="min" href="https://youtu.be/5TssW52j7_s?t=558" target="_blank" rel="noopener">&#9654; 9:18</a></div><p>Se prende el watchdog antes de un for y se apaga al salir. Si el micro se resetea, el ciclo tarda más que el tiempo del watchdog. Con 2 s se resetea y con 4 s no: el ciclo dura entre 2 y 4 s.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  UART1_Write_Text(&quot;WHILE\r\n&quot;);
+  Delay_ms(300);
+  SWDTEN_bit = 1;   // prende el perro
+  for (cont = 0; cont &lt;= 10; cont++) {
+    UART1_Write_Text(&quot;for\r\n&quot;);
+    LATC0_bit = ~LATC0_bit;
+    Delay_ms(100);
+  }
+  SWDTEN_bit = 0;   // apaga el perro
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/780.webp" target="_blank"><img src="img/780.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Detectar un bucle infinito</h3><a class="min" href="https://youtu.be/5TssW52j7_s?t=824" target="_blank" rel="noopener">&#9654; 13:44</a></div><p>Se cambia el for por un while que nunca termina. Como el watchdog nunca se apaga, el micro se resetea. Poniendo el watchdog al inicio y al final de cada ciclo se encuentra cuál deja el programa bloqueado, por ejemplo uno que espera respuesta de un GPS o un módem que no llega.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>SWDTEN_bit = 1;   // prende el perro
+while (1 == 1) {
+  UART1_Write_Text(&quot;for\r\n&quot;);
+  LATC0_bit = ~LATC0_bit;
+  Delay_ms(100);
+}
+SWDTEN_bit = 0;   // nunca llega aquí</code></pre></div><p class="ojo">Si el puerto serial está ocupado con otro equipo, un LED que se prende al iniciar sirve para ver si el micro se está reseteando.</p><div class="dos"><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/950.webp" target="_blank"><img src="img/950.webp" alt="Tips para usar el watchdog timer en microcontroladores PIC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=5TssW52j7_s" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

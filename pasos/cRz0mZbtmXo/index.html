@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Multiplexación de display de siete segmentos usando interrupciones · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo mostrar un número en cuatro displays de 7 segmentos multiplexados con la interrupción del Timer1 cada 5 ms, para que el programa principal quede libre y pueda demorarse lo que necesite.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/cRz0mZbtmXo/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Multiplexación de display de siete segmentos usando interrupciones · Paso a paso">
+  <meta property="og:description" content="Cómo mostrar un número en cuatro displays de 7 segmentos multiplexados con la interrupción del Timer1 cada 5 ms, para que el programa principal quede libre y pueda demorarse lo que necesite.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/cRz0mZbtmXo/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/cRz0mZbtmXo/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Multiplexar displays de 7 segmentos con <span>interrupciones</span></h1>
+    <p class="lead">Video a pedido de un seguidor, pensado para mostrar números como en un turnero. Con un PIC18F2550, cuatro displays de cátodo común en el puerto B y transistores 2N3904 como habilitadores, el Timer1 genera una interrupción cada 5 ms. En cada interrupción se apaga todo, se saca el código del dígito que toca y se prende su display. Para separar el número en dígitos se usa un truco: sprintf con %04d y restar 48 a cada carácter. Como la multiplexación va en la interrupción, el while puede tener retardos o leer sensores sin que el display parpadee.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=cRz0mZbtmXo" target="_blank" rel="noopener">&#9654; Ver el video completo (18:23)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/820.webp" alt="Multiplexación de display de siete segmentos usando interrupciones"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librerías Sprintf y UART)</li><li>Proteus con PIC18F2550, display de 4 dígitos de cátodo común, transistores 2N3904 y resistencias</li><li>Hoja de Excel para calcular el Timer1</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Circuito</a><a href="#f2">2 · Timer1</a><a href="#f3">3 · Multiplexar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Circuito y datos</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/cRz0mZbtmXo?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Los segmentos van al puerto B con resistencias. Cada display se habilita con un transistor 2N3904: tres en RC0, RC1 y RC2 y el cuarto en el puerto A, porque RC3 en este micro no sirve como salida. Hay un LED en RA1.</p><div class="dos"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Variables y códigos</h3><a class="min" href="https://youtu.be/cRz0mZbtmXo?t=128" target="_blank" rel="noopener">&#9654; 2:08</a></div><p>Se nombran el puerto del display y los habilitadores, y se guardan en un vector los códigos de 7 segmentos del 0 al 9 para cátodo común. MikroC los da en <b>Tools &gt; Seven Segment Editor</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int conteo = 0;
+#define display LATB   // puerto del display
+
+// pines de habilitador
+sbit EN1 at LATC0_bit;
+sbit EN2 at LATC1_bit;
+sbit EN3 at LATC2_bit;
+sbit EN4 at LATA2_bit;
+sbit LED at LATA1_bit;
+
+// códigos de los números, cátodo común
+char codigo_siete[] = {63, 6, 91, 79, 102, 109, 125, 7, 127, 111};
+char multiplexa = 1;
+char digito1, digito2, digito3, digito4;
+char texto[20];
+
+void apaga_siete() {
+  EN1 = 0;  EN2 = 0;  EN3 = 0;  EN4 = 0;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/160.webp" target="_blank"><img src="img/160.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Timer1 cada 5 ms</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Calcular el timer</h3><a class="min" href="https://youtu.be/cRz0mZbtmXo?t=280" target="_blank" rel="noopener">&#9654; 4:40</a></div><p>Con un cristal de 10 MHz cada ciclo de instrucción dura 0.4 µs. Con preescalador de 2, para 5 ms hacen falta 6250 pasos, así que el Timer1 se carga con 65536 - 6250 = 59286: TMR1H = 231 y TMR1L = 150.</p><div class="dos"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar la interrupción</h3><a class="min" href="https://youtu.be/cRz0mZbtmXo?t=324" target="_blank" rel="noopener">&#9654; 5:24</a></div><p>Se habilitan las interrupciones de periféricos, se configura el Timer1 y se activa su interrupción. Al final, GIE autoriza que las interrupciones ocurran.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0b1111;        // todo digital
+TRISA = 0;  TRISB = 0;  TRISC = 0;
+INTCON = 0b01000000;    // habilita interrupción de periféricos
+UART1_Init(9600);
+// configuración timer 1 a 5 ms
+T1CON = 0;
+T1CKPS1_bit = 0;        // preescalador de 2
+T1CKPS0_bit = 1;
+TMR1H = 231;
+TMR1L = 150;
+TMR1IF_bit = 0;
+TMR1IE_bit = 1;         // habilita la interrupción del timer1
+TMR1ON_bit = 1;         // prende el timer
+GIE_bit = 1;            // autoriza las interrupciones</code></pre></div><div class="uno"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>La multiplexación</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>La rutina de interrupción</h3><a class="min" href="https://youtu.be/cRz0mZbtmXo?t=455" target="_blank" rel="noopener">&#9654; 7:35</a></div><p>Si la interrupción es del Timer1, se recarga el timer, se apagan los displays y, según la variable multiplexa, se saca el código de un dígito y se prende su display. Luego multiplexa se desplaza para que la próxima vez toque el siguiente y vuelve a 1 después del último.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Interrupcion() iv 0x0008 ics ICS_AUTO
+{
+  if (TMR1IF_bit == 1) {
+    TMR1H = 231;   // recarga para mantener los 5 ms
+    TMR1L = 150;
+    apaga_siete();
+    switch (multiplexa) {
+      case 0b0001: display = codigo_siete[digito1]; EN1 = 1; break;
+      case 0b0010: display = codigo_siete[digito2]; EN2 = 1; break;
+      case 0b0100: display = codigo_siete[digito3]; EN3 = 1; break;
+      case 0b1000: display = codigo_siete[digito4]; EN4 = 1; break;
+    }
+    multiplexa = multiplexa &lt;&lt; 1;
+    if (multiplexa == 0b10000) multiplexa = 1;   // vuelve al primero
+    TMR1IF_bit = 0;
+  }
+}</code></pre></div><p class="ojo">Si tiene menos displays, quite los case que sobran y cambie el valor con el que multiplexa vuelve a 1.</p><div class="dos"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Separar los dígitos</h3><a class="min" href="https://youtu.be/cRz0mZbtmXo?t=652" target="_blank" rel="noopener">&#9654; 10:52</a></div><p>El truco: sprintf con <b>%04d</b> rellena con ceros a la izquierda (125 queda "0125"). Cada carácter menos 48 (el código ASCII del '0') da el número. El dígito de las unidades está en la posición 3 del texto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void mostrar() {
+  sprintf(texto, &quot;%04d\r\n&quot;, conteo);
+  digito1 = texto[3] - 48;   // pasa a número
+  digito2 = texto[2] - 48;
+  digito3 = texto[1] - 48;
+  digito4 = texto[0] - 48;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>El programa principal</h3><a class="min" href="https://youtu.be/cRz0mZbtmXo?t=915" target="_blank" rel="noopener">&#9654; 15:15</a></div><p>En el while basta llamar a mostrar() cuando cambia el valor. Aquí un contador sube cada 150 ms hasta 9999. El retardo no afecta la multiplexación, que corre sola en la interrupción, así que el programa puede leer sensores o enviar por serial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  if (conteo &gt; 9999) conteo = 0;
+  mostrar();
+  conteo++;
+  Delay_ms(150);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Multiplexación de display de siete segmentos usando interrupciones" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=cRz0mZbtmXo" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

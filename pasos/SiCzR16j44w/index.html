@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manejo de la memoria EEPROM de datos en PIC con MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo guardar en la EEPROM interna de un PIC datos que no se borran al apagar: un contador de un byte con EEPROM_Write y EEPROM_Read, y funciones propias con punteros para guardar enteros, long, flotantes y textos.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/SiCzR16j44w/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Manejo de la memoria EEPROM de datos en PIC con MikroC · Paso a paso">
+  <meta property="og:description" content="Cómo guardar en la EEPROM interna de un PIC datos que no se borran al apagar: un contador de un byte con EEPROM_Write y EEPROM_Read, y funciones propias con punteros para guardar enteros, long, flotantes y textos.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/SiCzR16j44w/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/SiCzR16j44w/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Guardar datos en la <span>EEPROM</span> del PIC</h1>
+    <p class="lead">Video a pedido de un seguidor del canal. La EEPROM de datos guarda valores que deben sobrevivir a un apagón, como una clave, un tiempo o un contador de piezas. Con un PIC18F2550 se usa la librería EEPROM de MikroC para guardar y leer un byte, con un pulsador que restaura el valor de fábrica al encender. Como EEPROM_Write y EEPROM_Read trabajan de a un byte, se hacen funciones con un puntero tipo char que recorren los bytes de la variable para guardar enteros (2 bytes), long y float (4 bytes) y textos terminados en cero. Con el visor de memoria EEPROM de Proteus se comprueba dónde queda cada byte.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=SiCzR16j44w" target="_blank" rel="noopener">&#9654; Ver el video completo (35:36)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1850.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librerías EEPROM, UART y Sprintf)</li><li>Proteus con PIC18F2550, pulsador y Virtual Terminal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Byte</a><a href="#f2">2 · Enteros</a><a href="#f3">3 · Otros tipos</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Un byte</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El proyecto</h3><a class="min" href="https://youtu.be/SiCzR16j44w?t=67" target="_blank" rel="noopener">&#9654; 1:07</a></div><p>PIC18F2550 a 4 MHz con cristal XT. Un pulsador en RB7 usa la pull-up interna del puerto B, y el serial se usa solo para ver qué pasa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0b1111;   // todo digital
+TRISB7_bit = 1;    // entrada pulsador
+TRISC6_bit = 0;    // salida TX
+NOT_RBPU_bit = 0;  // habilita las pull-up del puerto B
+UART1_Init(9600);
+UART1_Write_Text(&quot;INICIANDO\r\n&quot;);</code></pre></div><div class="dos"><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/230.webp" target="_blank"><img src="img/230.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Ver la EEPROM en Proteus</h3><a class="min" href="https://youtu.be/SiCzR16j44w?t=277" target="_blank" rel="noopener">&#9654; 4:37</a></div><p>Con la simulación en pausa, en <b>Debug &gt; PIC18 CPU EEPROM Memory</b> se ve el contenido. Una EEPROM borrada tiene 255 (FF) en todas las posiciones.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Escribir y leer</h3><a class="min" href="https://youtu.be/SiCzR16j44w?t=343" target="_blank" rel="noopener">&#9654; 5:43</a></div><p>Se activa la librería EEPROM. <b>EEPROM_Write(dirección, dato)</b> guarda un byte y <b>EEPROM_Read(dirección)</b> lo lee.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned char contador;
+
+contador = 15;
+EEPROM_Write(0, contador);
+contador = EEPROM_Read(0);</code></pre></div><div class="dos"><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Restaurar de fábrica con un pulsador</h3><a class="min" href="https://youtu.be/SiCzR16j44w?t=475" target="_blank" rel="noopener">&#9654; 7:55</a></div><p>Si se escribe el valor inicial cada vez que arranca, se pierde lo guardado. Mejor: solo si el pulsador está presionado al encender se escribe el valor de fábrica; si no, se lee el último valor guardado. Luego el contador sigue desde ahí.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>contador = 15;
+if (RB7_bit == 0) EEPROM_Write(0, contador);   // valor de fábrica
+contador = EEPROM_Read(0);
+
+while (1) {
+  contador++;
+  EEPROM_Write(0, contador);
+  sprintf(texto, &quot;valor=%u\r\n&quot;, (unsigned int)contador);
+  UART1_Write_Text(texto);
+  Delay_ms(1000);
+}</code></pre></div><p class="ojo">En sprintf haga el cast a unsigned int si la variable es char; si no, el formato muestra valores errados.</p><div class="dos"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Enteros de 2 bytes</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Escribir un entero</h3><a class="min" href="https://youtu.be/SiCzR16j44w?t=817" target="_blank" rel="noopener">&#9654; 13:37</a></div><p>Un unsigned int ocupa 2 bytes. Un puntero tipo char apunta al byte bajo de la variable; se escribe ese byte, se incrementa el puntero y se escribe el otro. Así el entero ocupa dos posiciones seguidas de la EEPROM.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void EEPROM_Write_Int(unsigned char dir, unsigned int dato_e)
+{
+  char *punte;       // puntero tipo char
+  punte = &amp;dato_e;
+  dir += 1;
+  EEPROM_Write(dir, *punte);
+  punte++;
+  dir--;
+  EEPROM_Write(dir, *punte);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Leer un entero</h3><a class="min" href="https://youtu.be/SiCzR16j44w?t=948" target="_blank" rel="noopener">&#9654; 15:48</a></div><p>La lectura hace el camino inverso: el puntero apunta a la variable de salida y se llenan sus dos bytes desde las mismas posiciones.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int EEPROM_Read_Int(unsigned char dir)
+{
+  char *punte;
+  unsigned int leido;
+  punte = &amp;leido;
+  dir += 1;
+  *punte = EEPROM_Read(dir);
+  punte++;
+  dir--;
+  *punte = EEPROM_Read(dir);
+  return (leido);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Comprobarlo con el depurador</h3><a class="min" href="https://youtu.be/SiCzR16j44w?t=1014" target="_blank" rel="noopener">&#9654; 16:54</a></div><p>Se escribe 500 (0x01F4) en la posición 0 y con el depurador y la ventana Watch se sigue el puntero paso a paso. En la EEPROM quedan el 01 y el F4 en dos posiciones, y al leerlas se recupera el 500. El contador ya pasa de 255 sin perderse.</p><div class="dos"><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1160.webp" target="_blank"><img src="img/1160.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1240.webp" target="_blank"><img src="img/1240.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Long, float y textos</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Long y float de 4 bytes</h3><a class="min" href="https://youtu.be/SiCzR16j44w?t=1485" target="_blank" rel="noopener">&#9654; 24:45</a></div><p>Para unsigned long y float, que ocupan 4 bytes, la función es la misma pero se recorren cuatro posiciones: se suma 3 a la dirección y se va restando mientras el puntero avanza. Así se guardan valores como 100000 o 10.5 con todos sus decimales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float EEPROM_Read_Float(unsigned char dir)
+{
+  char *punte;
+  float leido;
+  punte = &amp;leido;
+  dir += 3;
+  *punte = EEPROM_Read(dir);
+  punte++;  dir--;
+  *punte = EEPROM_Read(dir);
+  punte++;  dir--;
+  *punte = EEPROM_Read(dir);
+  punte++;  dir--;
+  *punte = EEPROM_Read(dir);
+  return (leido);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1500.webp" target="_blank"><img src="img/1500.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1720.webp" target="_blank"><img src="img/1720.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Textos</h3><a class="min" href="https://youtu.be/SiCzR16j44w?t=1903" target="_blank" rel="noopener">&#9654; 31:43</a></div><p>Un texto se escribe carácter por carácter hasta encontrar el nulo del final, y se escribe también ese 0 para saber dónde termina. Al leer se copian caracteres hasta encontrar el 0.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void EEPROM_Write_Texto(unsigned char dir, char *cadena)
+{
+  while (*cadena) {
+    EEPROM_Write(dir, *cadena);
+    cadena++;
+    dir++;
+  }
+  EEPROM_Write(dir, 0);   // escribe el carácter nulo
+}
+
+void EEPROM_Read_Texto(unsigned char dir, char *cadena)
+{
+  char dato;
+  do {
+    dato = EEPROM_Read(dir);
+    *cadena = dato;
+    cadena++;
+    dir++;
+  } while (dato != 0);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1600.webp" target="_blank"><img src="img/1600.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1850.webp" target="_blank"><img src="img/1850.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/2000.webp" target="_blank"><img src="img/2000.webp" alt="Manejo de la memoria EEPROM de datos en PIC con MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=SiCzR16j44w" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
