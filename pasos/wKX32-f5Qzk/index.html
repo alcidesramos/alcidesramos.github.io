@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arduino: leer un encoder de cuadratura con una sola interrupción cambiando el flanco · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Lectura de un encoder de cuadratura en el Arduino Uno con la interrupción del pin 2, invirtiendo el flanco en cada interrupción para contar en ambos sentidos, y mostrando los pulsos en un LCD en Proteus.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/wKX32-f5Qzk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Arduino: leer un encoder de cuadratura con una sola interrupción cambiando el flanco · Paso a paso">
+  <meta property="og:description" content="Lectura de un encoder de cuadratura en el Arduino Uno con la interrupción del pin 2, invirtiendo el flanco en cada interrupción para contar en ambos sentidos, y mostrando los pulsos en un LCD en Proteus.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/wKX32-f5Qzk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/wKX32-f5Qzk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#arduino">&larr; Volver al curso</a>
+    <span class="etiqueta">// Arduino · Paso a paso</span>
+    <h1>Encoder de <span>cuadratura</span> con Arduino</h1>
+    <p class="lead">El canal A del encoder entra al pin 2 (interrupción) y el canal B al pin 3. En cada interrupción se comparan los dos canales: si son iguales se suma un pulso y si no se resta. Luego se invierte la variable del flanco y se vuelve a configurar la interrupción, así se detectan tanto los flancos de subida como los de bajada. Es el mismo método que se usó con PIC, traducido a Arduino. En el loop se muestra el conteo en un LCD de 20x4.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=wKX32-f5Qzk" target="_blank" rel="noopener">&#9654; Ver el video completo (4:14)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/250.webp" alt="Arduino: leer un encoder de cuadratura con una sola interrupción cambiando el flanco"></figure>
+    <ul class="materiales"><li>Arduino IDE</li><li>Arduino Uno (en Proteus)</li><li>Motor con encoder y driver L293D</li><li>LCD 20x4</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Código</a><a href="#f2">2 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>LCD y variables</h3><a class="min" href="https://youtu.be/wKX32-f5Qzk?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>Se incluye LiquidCrystal con los pines del LCD, una variable flanco que arranca en cero y la variable pulsos con signo, para contar hacia los dos lados.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &lt;LiquidCrystal.h&gt;
+LiquidCrystal lcd(13,12, 11, 10, 9, 8);// pines de conexion del lcd
+bool flanco=0;  //variable para determinar flanco de la interrupcion
+signed int  pulsos=0;  //variable del encoder</code></pre></div><div class="uno"><figure class="cap"><a href="img/50.webp" target="_blank"><img src="img/50.webp" alt="Arduino: leer un encoder de cuadratura con una sola interrupción cambiando el flanco" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Habilitar la interrupción</h3><a class="min" href="https://youtu.be/wKX32-f5Qzk?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>En el setup se inicia el LCD, se escribe el título y se habilita la interrupción del pin 2. En el lugar del flanco se usa la variable flanco: como vale cero arranca por flanco de bajada.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void setup()
+{
+  lcd.begin(20, 4);
+  lcd.setCursor(0, 0);
+  lcd.print(&quot;    ENCODER ARZ&quot;);
+  attachInterrupt(digitalPinToInterrupt(2), interrupcion,flanco ); // interrupcion por flanco de bajada
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/94.webp" target="_blank"><img src="img/94.webp" alt="Arduino: leer un encoder de cuadratura con una sola interrupción cambiando el flanco" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>La rutina de interrupción</h3><a class="min" href="https://youtu.be/wKX32-f5Qzk?t=120" target="_blank" rel="noopener">&#9654; 2:00</a></div><p>Si el pin 2 y el pin 3 están iguales el encoder va en un sentido y se suma; si no, se resta. Después se invierte flanco y se vuelve a configurar la interrupción, para que la siguiente sea por el flanco contrario.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void interrupcion()
+{
+  if (digitalRead(2)==digitalRead(3)) pulsos++; else pulsos--;
+  flanco=!flanco;// niega la variable flanco
+  attachInterrupt(digitalPinToInterrupt(2), interrupcion,flanco );//invierte el flanco en la interrupcion
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/161.webp" target="_blank"><img src="img/161.webp" alt="Arduino: leer un encoder de cuadratura con una sola interrupción cambiando el flanco" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Mostrar los pulsos</h3><a class="min" href="https://youtu.be/wKX32-f5Qzk?t=173" target="_blank" rel="noopener">&#9654; 2:53</a></div><p>En el loop se posiciona el cursor del LCD, se escriben los pulsos y se pone un pequeño retardo. Como la lectura se hace por interrupciones no se pierden pulsos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void loop()
+{
+  lcd.setCursor(...); // ...
+  lcd.print(pulsos);
+  delay(...); // ...
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/205.webp" target="_blank"><img src="img/205.webp" alt="Arduino: leer un encoder de cuadratura con una sola interrupción cambiando el flanco" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Simulación</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Probar en Proteus</h3><a class="min" href="https://youtu.be/wKX32-f5Qzk?t=205" target="_blank" rel="noopener">&#9654; 3:25</a></div><p>Se mueve el motor hacia un lado y el conteo sube; hacia el otro y baja, incluso a negativos. Con esto se puede hacer luego un control de posición del motor.</p><div class="dos"><figure class="cap"><a href="img/228.webp" target="_blank"><img src="img/228.webp" alt="Arduino: leer un encoder de cuadratura con una sola interrupción cambiando el flanco" loading="lazy"></a></figure><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Arduino: leer un encoder de cuadratura con una sola interrupción cambiando el flanco" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=wKX32-f5Qzk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

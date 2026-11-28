@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Control de potencia AC por ángulo de disparo con un Arduino Uno usando tres interrupciones: la externa por cruce por cero, la del Timer2 para el pulso de disparo y la del puerto serial para recibir comandos, todo probado en Proteus con una interfaz en LabVIEW.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/TziXXKABmSo/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC · Paso a paso">
+  <meta property="og:description" content="Control de potencia AC por ángulo de disparo con un Arduino Uno usando tres interrupciones: la externa por cruce por cero, la del Timer2 para el pulso de disparo y la del puerto serial para recibir comandos, todo probado en Proteus con una interfaz en LabVIEW.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/TziXXKABmSo/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/TziXXKABmSo/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#arduino">&larr; Volver al curso</a>
+    <span class="etiqueta">// Arduino · Paso a paso</span>
+    <h1>Múltiples <span>interrupciones</span> en Arduino</h1>
+    <p class="lead">El programa principal configura el puerto serial, la interrupción por flanco y el Timer2; revisa si llegó una trama serial, mira el porcentaje de disparo (si es menor de 5 % apaga, si es mayor de 90 % prende y si no calcula el tiempo del timer con una ecuación) y envía la temperatura y el estado de un suiche. La interrupción por cruce por cero carga el Timer2 y lo habilita; la del Timer2 envía el pulso de disparo y se deshabilita. Se usa el Timer2 porque el Timer0 lo usan millis y delay y el Timer1 lo usan el servo y el PWM. La ecuación del timer se saca en Excel con una línea de tendencia.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=TziXXKABmSo" target="_blank" rel="noopener">&#9654; Ver el video completo (17:29)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1015.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC"></figure>
+    <ul class="materiales"><li>Arduino IDE</li><li>Arduino Uno (en Proteus)</li><li>Circuito de detección de cruce por cero y disparo (optoacoplador y triac)</li><li>Sensor de temperatura LM35</li><li>Excel para los cálculos</li><li>LabVIEW u otra interfaz serial</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · Setup</a><a href="#f3">3 · Código</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La idea del programa</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Programa principal</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El programa principal hace cuatro cosas:</p><ul><li>Configura el puerto serial, la interrupción por flanco, el timer y la interrupción serial.</li><li>Revisa si está activa la bandera de datos seriales y, si la está, procesa los datos.</li><li>Mira el porcentaje de disparo: menor de 5 % apaga, mayor de 90 % prende; si no, aplica una ecuación para pasar ese porcentaje a tiempo del timer.</li><li>Lee las variables análogas y digitales, arma la trama y la envía.</li></ul><div class="uno"><figure class="cap"><a href="img/69.webp" target="_blank"><img src="img/69.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Interrupción por cruce por cero</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=64" target="_blank" rel="noopener">&#9654; 1:04</a></div><p>En cada flanco de subida (cruce por cero) se carga el timer con el valor de disparo calculado en el programa principal y se activa la interrupción del timer para que avise cuándo disparar.</p><div class="uno"><figure class="cap"><a href="img/99.webp" target="_blank"><img src="img/99.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Interrupción del timer</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=99" target="_blank" rel="noopener">&#9654; 1:39</a></div><p>Cuando el timer se desborda envía el pulso de disparo y desactiva su propia interrupción hasta el siguiente cruce por cero.</p><div class="uno"><figure class="cap"><a href="img/128.webp" target="_blank"><img src="img/128.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>El circuito</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=129" target="_blank" rel="noopener">&#9654; 2:09</a></div><p>En Proteus están el Arduino Uno, el detector de cruce por cero que entra al pin 2, el circuito de disparo en el pin 12, un LM35, un LED en el pin 13 y un suiche en el pin 3.</p><div class="uno"><figure class="cap"><a href="img/158.webp" target="_blank"><img src="img/158.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configuración</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Macros y variables</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=160" target="_blank" rel="noopener">&#9654; 2:40</a></div><p>Se definen macros para poner, borrar, invertir y leer bits de un registro, los pines y las variables para la trama que se envía, la que se recibe y la interrupción serial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define sbi(x, y) x |= _BV(y)    // set bit
+#define cbi(x, y) x &amp;= ~(_BV(y)) // clear bit
+#define tbi(x, y) x ^= _BV(y)    // toggle bit
+#define is_high(x, y) ((x &amp; _BV(y)) == _BV(y))
+#define led 13
+#define suiche 3
+#define pulso 12
+float calculo;
+unsigned  dispara=0;
+unsigned int codigo;
+float temperatura;
+char trama_tx[100];
+//variables para capturar la trama
+char trama_rx[30];
+char procesa[30];
+char dato;
+//variables interrupcion serial
+char datorx;
+char puntero=0;
+char flag_rx=0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/187.webp" target="_blank"><img src="img/187.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Setup</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=235" target="_blank" rel="noopener">&#9654; 3:55</a></div><p>Primero se deshabilitan las interrupciones mientras se configura todo. Se usa la interrupción externa del pin 2 por flanco de subida.</p><p>Para el disparo se usa el Timer2: el Timer0 lo usan millis y delay, y el Timer1 lo usan el servo y el PWM. El Timer2 se configura con preescalador de 1024 y su interrupción queda deshabilitada hasta el primer cruce.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void setup()
+{
+  noInterrupts();
+  Serial.begin(9600);
+  pinMode(led,OUTPUT);
+  pinMode(pulso,OUTPUT);
+  pinMode(suiche,INPUT);
+  pinMode(2,INPUT);//PIN DE LA INTERRUPCION
+  digitalWrite(led,LOW);
+  attachInterrupt(digitalPinToInterrupt(2), cruce,RISING );//interrupcion por flanco de subida
+  //Configura registroA
+  TCCR2A=0;
+  //configura registroB
+  TCCR2B=0;
+  TCCR2B=0b111;// Configura el preescalador a 1024 16ms
+  TCNT2=0;  //Arranca en cero el timer2
+  sbi(TIFR2,TOV2); // pone un uno para limpiar bandera de desborde
+  cbi(TIMSK2,TOIE2); // Deshabilita interrupcion del timer2
+  // ...
+  interrupts();
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/276.webp" target="_blank"><img src="img/276.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure><figure class="cap"><a href="img/335.webp" target="_blank"><img src="img/335.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Escoger el preescalador</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=366" target="_blank" rel="noopener">&#9654; 6:06</a></div><p>En Excel se calcula, con el cristal de 16 MHz, cuánto dura cada cuenta según el preescalador y cuántos pasos se necesitan para el semiciclo de 8,33 ms (60 Hz). Con 1024 el tiempo cabe en los 8 bits del Timer2.</p><div class="uno"><figure class="cap"><a href="img/394.webp" target="_blank"><img src="img/394.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Las rutinas</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Interrupción por cruce</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=435" target="_blank" rel="noopener">&#9654; 7:15</a></div><p>Al detectar el cruce apaga la carga, carga el Timer2 con el valor calculado, limpia la bandera de desborde y habilita la interrupción del timer.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//si se da la interrupcion por cruce
+void cruce()
+{
+  digitalWrite(pulso,LOW);//APAGA LA CARGA
+  TCNT2=calculo;// carga el valor en el timer2
+  sbi(TIFR2,TOV2); // pone un uno para limpiar bandera de desborde
+  sbi(TIMSK2,TOIE2); // habilita interrupcion del timer2
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/483.webp" target="_blank"><img src="img/483.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>El loop</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=534" target="_blank" rel="noopener">&#9654; 8:54</a></div><p>Si llegó una trama la procesa y limpia el buffer. Con menos de 5 % deshabilita la interrupción y deja la carga apagada; con más de 90 % la deja prendida; en otro caso calcula el valor del timer y vuelve a habilitar la interrupción por flanco.</p><p>Después lee la temperatura y envía la trama con la temperatura y el estado del suiche.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (flag_rx==1)
+{
+  procesarx();
+  flag_rx=0;// borra la bandera
+  puntero=0;  //resetea contador de datos
+  memset(trama_rx,0,30);  // borra el vector de datos recibidos
+}
+if (dispara&lt;=5)
+{
+  detachInterrupt(digitalPinToInterrupt(2));//deshabilita interrupcion por flanco
+  digitalWrite(pulso,LOW);//APAGA LA CARGA
+}
+else if (dispara&gt;=90)
+{
+  detachInterrupt(digitalPinToInterrupt(2));// DESHABILITA INTERRUPCION POR FLANCO
+  digitalWrite(pulso,HIGH);//activa la carga
+}
+else
+{
+  calculo = -1.3054*dispara + 256.17;//ecuacion para pasar a tiempo
+  attachInterrupt(digitalPinToInterrupt(2), cruce,RISING );//interrupcion por flanco de subida
+}
+// ... lectura de la temperatura
+Serial.print(&quot;temp=&quot;);
+dtostrf(temperatura,5,3,trama_tx);  // convierte de decimal a texto
+Serial.print(trama_tx);
+Serial.print(&quot;/&quot;);
+if (digitalRead(suiche)==1) Serial.print(&quot;led=on/&quot;);
+else Serial.print(&quot;led=off/&quot;);
+delay(50);</code></pre></div><div class="dos"><figure class="cap"><a href="img/572.webp" target="_blank"><img src="img/572.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure><figure class="cap"><a href="img/601.webp" target="_blank"><img src="img/601.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Procesar la trama</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=599" target="_blank" rel="noopener">&#9654; 9:59</a></div><p>La función procesarx busca en la trama recibida los comandos para prender o apagar el LED y el valor de disparo «pul», que va de 0 a 100 y se guarda en la variable dispara.</p><div class="uno"><figure class="cap"><a href="img/661.webp" target="_blank"><img src="img/661.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>La ecuación del disparo</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=661" target="_blank" rel="noopener">&#9654; 11:01</a></div><p>En Excel se calcula el valor del timer para varios porcentajes (por ejemplo 5 % da 250 y 10 % da 243). Con un gráfico de dispersión y una línea de tendencia sale la ecuación que se usa en el loop: calculo = -1,3054·dispara + 256,17.</p><div class="uno"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Interrupción serial</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=761" target="_blank" rel="noopener">&#9654; 12:41</a></div><p>serialEvent guarda cada carácter que llega en trama_rx y avanza el puntero; cuando llega el final de la trama (o se llena el buffer) activa flag_rx para que el loop la procese.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void serialEvent()
+{
+  while (Serial.available())
+  {
+    datorx= (char)Serial.read();
+    trama_rx[puntero]=datorx;
+    puntero++;
+    if (puntero&gt;=30)
+    {
+      // ...
+    }
+    // ... al llegar el fin de trama: flag_rx=1;
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/808.webp" target="_blank"><img src="img/808.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure><figure class="cap"><a href="img/838.webp" target="_blank"><img src="img/838.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.6</span><h3>Interrupción del Timer2</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=824" target="_blank" rel="noopener">&#9654; 13:44</a></div><p>Cuando se desborda el Timer2 se aplica el pulso de disparo de 10 µs, se limpia la bandera y se deshabilita la interrupción del timer hasta el siguiente cruce. Si se quiere, se puede dejar la señal encendida sin esperar los 10 µs.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//interrupcion del timer2
+ISR(TIMER2_OVF_vect)
+{
+  //aplica pulso de disparo
+  digitalWrite(pulso,HIGH);//activa la carga
+  delayMicroseconds(10);
+  digitalWrite(pulso,LOW);//APAGA LA CARGA
+  sbi(TIFR2,TOV2); // pone un uno para limpiar bandera de desborde
+  cbi(TIMSK2,TOIE2); // deshabilita interrupcion del timer2
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/868.webp" target="_blank"><img src="img/868.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Simulación</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Cargar y simular</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=922" target="_blank" rel="noopener">&#9654; 15:22</a></div><p>Se compila, se carga el programa en el Arduino de Proteus y se conecta la interfaz en LabVIEW por el puerto serial virtual.</p><div class="uno"><figure class="cap"><a href="img/956.webp" target="_blank"><img src="img/956.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Probar el disparo</h3><a class="min" href="https://youtu.be/TziXXKABmSo?t=990" target="_blank" rel="noopener">&#9654; 16:30</a></div><p>La interfaz muestra la temperatura (unos 27 °C) y el estado del suiche, prende y apaga el LED, y con la perilla se cambia el porcentaje de disparo. En el osciloscopio se ve el pulso desplazándose sobre la onda; al 50 % se dispara en la mitad del semiciclo.</p><div class="dos"><figure class="cap"><a href="img/1015.webp" target="_blank"><img src="img/1015.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure><figure class="cap"><a href="img/1045.webp" target="_blank"><img src="img/1045.webp" alt="Arduino: varias interrupciones a la vez (cruce por cero, Timer2 y serial) para controlar potencia AC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=TziXXKABmSo" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo usar Visual Studio Code con la extensión de Arduino para tener autocompletado e IntelliSense, cargar el programa a un Arduino Uno físico y sacar el .hex para simularlo en Proteus.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/q_gl2C0LwNE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus · Paso a paso">
+  <meta property="og:description" content="Cómo usar Visual Studio Code con la extensión de Arduino para tener autocompletado e IntelliSense, cargar el programa a un Arduino Uno físico y sacar el .hex para simularlo en Proteus.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/q_gl2C0LwNE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/q_gl2C0LwNE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#arduino">&larr; Volver al curso</a>
+    <span class="etiqueta">// Arduino · Paso a paso</span>
+    <h1>Arduino en <span>VS Code</span></h1>
+    <p class="lead">Visual Studio Code es gratuito y, con la extensión Arduino de Microsoft, da autocompletado y ayudas que el IDE de Arduino no tiene. Se abre una carpeta para el proyecto, con F1 se ejecuta Arduino: Initialize para crear el sketch, y se escogen la tarjeta y el puerto. Se escribe el clásico parpadeo del LED 13 viendo cómo el editor sugiere funciones y variables, se verifica y se carga a la tarjeta física. Para Proteus se agrega en arduino.json una carpeta de salida, así al verificar queda el .hex que se carga al Arduino Uno simulado.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=q_gl2C0LwNE" target="_blank" rel="noopener">&#9654; Ver el video completo (10:06)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/395.webp" alt="Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus"></figure>
+    <ul class="materiales"><li>Visual Studio Code</li><li>Extensión Arduino (Microsoft) para VS Code</li><li>Arduino IDE instalado (lo usa la extensión)</li><li>Arduino Uno</li><li>Proteus (opcional)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Instalar</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Proteus</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar VS Code</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Instalar la extensión</h3><a class="min" href="https://youtu.be/q_gl2C0LwNE?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>Se descarga Visual Studio Code, se va a Extensiones, se busca «arduino» y se instala la primera, la de Microsoft. No hace falta tener la tarjeta conectada para empezar.</p><div class="uno"><figure class="cap"><a href="img/61.webp" target="_blank"><img src="img/61.webp" alt="Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Carpeta y sketch</h3><a class="min" href="https://youtu.be/q_gl2C0LwNE?t=69" target="_blank" rel="noopener">&#9654; 1:09</a></div><p>Se crea una carpeta para el proyecto y se abre con File > Open Folder. Luego, con F1 se escribe «arduino» y se escoge Arduino: Initialize; pide el nombre del sketch (led.ino) y crea el archivo con setup y loop.</p><div class="uno"><figure class="cap"><a href="img/164.webp" target="_blank"><img src="img/164.webp" alt="Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Tarjeta y puerto</h3><a class="min" href="https://youtu.be/q_gl2C0LwNE?t=173" target="_blank" rel="noopener">&#9654; 2:53</a></div><p>En la barra de abajo se escoge la tarjeta (Arduino Uno) y el puerto donde está conectada. Esa configuración queda guardada en la carpeta .vscode.</p><div class="uno"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programar y cargar</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Autocompletado</h3><a class="min" href="https://youtu.be/q_gl2C0LwNE?t=210" target="_blank" rel="noopener">&#9654; 3:30</a></div><p>Al escribir, el editor muestra los parámetros de cada función (por ejemplo pinMode(pin, mode)) y sugiere funciones como digitalWrite o delay. También reconoce las variables que uno declara.</p><div class="dos"><figure class="cap"><a href="img/267.webp" target="_blank"><img src="img/267.webp" alt="Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/292.webp" target="_blank"><img src="img/292.webp" alt="Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>El programa</h3><a class="min" href="https://youtu.be/q_gl2C0LwNE?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>Se escribe el parpadeo del LED 13 cada segundo. La variable yuca está solo para ver que el autocompletado la reconoce.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char yuca;
+void setup() {
+  pinMode(13,OUTPUT);
+}
+void loop()
+{
+  digitalWrite(13,HIGH);
+  delay(1000);
+  digitalWrite(13,LOW);
+  delay(1000);
+  yuca=34;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/343.webp" target="_blank"><img src="img/343.webp" alt="Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Verificar y cargar</h3><a class="min" href="https://youtu.be/q_gl2C0LwNE?t=360" target="_blank" rel="noopener">&#9654; 6:00</a></div><p>Con los botones de arriba a la derecha se verifica y se carga el programa. El LED de la tarjeta física empieza a parpadear.</p><div class="uno"><figure class="cap"><a href="img/395.webp" target="_blank"><img src="img/395.webp" alt="Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Simular en Proteus</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Circuito en Proteus</h3><a class="min" href="https://youtu.be/q_gl2C0LwNE?t=410" target="_blank" rel="noopener">&#9654; 6:50</a></div><p>En Proteus se busca el Arduino Uno en la librería y se le pone un LED con su resistencia en el pin 13.</p><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Sacar el .hex</h3><a class="min" href="https://youtu.be/q_gl2C0LwNE?t=460" target="_blank" rel="noopener">&#9654; 7:40</a></div><p>En arduino.json, que tiene el sketch, la tarjeta y el puerto, se agrega una línea de salida para que el compilado quede en una carpeta del proyecto (por ejemplo bin). Al verificar de nuevo aparece esa carpeta con el .hex.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>{
+  &quot;sketch&quot;: &quot;led.ino&quot;,
+  &quot;board&quot;: &quot;arduino:avr:uno&quot;,
+  &quot;port&quot;: &quot;COM5&quot;
+  // ... + la carpeta de salida para el .hex
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/472.webp" target="_blank"><img src="img/472.webp" alt="Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/574.webp" target="_blank"><img src="img/574.webp" alt="Programar Arduino con Visual Studio Code: autocompletado, carga a la tarjeta y .hex para Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Cargar y simular</h3><a class="min" href="https://youtu.be/q_gl2C0LwNE?t=520" target="_blank" rel="noopener">&#9654; 8:40</a></div><p>En las propiedades del Arduino de Proteus se escoge el .hex de esa carpeta y se simula: el LED parpadea igual que en la tarjeta física.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=q_gl2C0LwNE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
