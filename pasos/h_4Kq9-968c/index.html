@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leer voltaje AC con PIC16F1824 y MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se rectifica la tensión de la red con un puente, se reduce con un divisor resistivo y se protege con zener, fusible y varistor. El PIC busca el pico de la onda en cada lectura y calcula el voltaje RMS que muestra en un LCD.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/h_4Kq9-968c/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Leer voltaje AC con PIC16F1824 y MikroC · Paso a paso">
+  <meta property="og:description" content="Se rectifica la tensión de la red con un puente, se reduce con un divisor resistivo y se protege con zener, fusible y varistor. El PIC busca el pico de la onda en cada lectura y calcula el voltaje RMS que muestra en un LCD.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/h_4Kq9-968c/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/h_4Kq9-968c/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Leer <span>voltaje AC</span> con PIC</h1>
+    <p class="lead">Hay varias formas de medir voltaje AC con un micro: un amplificador de aislamiento como el ISO124, un transformador o, la que se usa aquí, un puente rectificador con un divisor resistivo de 330k y 6,8k, un zener de 5,1 V (o 3,3 V según el micro) como protección, y un fusible con un varistor del 150% del voltaje RMS. Un capacitor de filtro no se recomienda porque no sigue cambios rápidos. La señal rectificada tiene 120 Hz, o sea 8,33 ms por semiciclo, y basta leer unos 4 ms para encontrar el pico: se hacen 200 pares de lecturas con 10 µs de pausa guardando el mayor. Con el pico se calcula el voltaje, se deshace el divisor, se suman 1,4 V de los diodos y se divide entre 1,4142 para obtener el RMS, que se muestra en el LCD cada 100 ms. Con 155 V de pico se leen unos 109,6 V RMS.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=h_4Kq9-968c" target="_blank" rel="noopener">&#9654; Ver el video completo (17:59)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1060.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC"></figure>
+    <ul class="materiales"><li>PIC16F1824</li><li>Puente rectificador</li><li>Resistencias de 330k y 6,8k</li><li>Zener 1N4733A (5,1 V)</li><li>Fusible y varistor</li><li>LCD 16x2</li><li>MikroC PRO for PIC (ADC, LCD y Conversions)</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Hardware</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Opciones de hardware</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Divisor directo</h3><a class="min" href="https://youtu.be/h_4Kq9-968c?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>La entrada de 110 V con un divisor y un varistor de protección. El micro no acepta voltajes negativos, así que hay que adaptar la señal.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Aislamiento o transformador</h3><a class="min" href="https://youtu.be/h_4Kq9-968c?t=102" target="_blank" rel="noopener">&#9654; 1:42</a></div><p>Se puede usar un amplificador de aislamiento como el ISO124, que separa físicamente las dos partes, o un transformador reductor.</p><div class="uno"><figure class="cap"><a href="img/142.webp" target="_blank"><img src="img/142.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Rectificar</h3><a class="min" href="https://youtu.be/h_4Kq9-968c?t=204" target="_blank" rel="noopener">&#9654; 3:24</a></div><p>La opción elegida: puente rectificador para que la señal sea siempre positiva y divisor de 330k con 6,8k.</p><div class="dos"><figure class="cap"><a href="img/204.webp" target="_blank"><img src="img/204.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/265.webp" target="_blank"><img src="img/265.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Protecciones</h3><a class="min" href="https://youtu.be/h_4Kq9-968c?t=304" target="_blank" rel="noopener">&#9654; 5:04</a></div><p>Un zener de 5,1 V (o 3,3 V si el micro trabaja a 3,3 V) limita la entrada. Antes del circuito van un fusible y un varistor del 150% del voltaje RMS para los picos.</p><div class="dos"><figure class="cap"><a href="img/326.webp" target="_blank"><img src="img/326.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/387.webp" target="_blank"><img src="img/387.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Sin capacitor</h3><a class="min" href="https://youtu.be/h_4Kq9-968c?t=409" target="_blank" rel="noopener">&#9654; 6:49</a></div><p>Con un capacitor la señal queda continua, pero por su tiempo de carga y descarga no sigue cambios rápidos. Sirve solo para sistemas lentos.</p><div class="uno"><figure class="cap"><a href="img/448.webp" target="_blank"><img src="img/448.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Circuito con el PIC</h3><a class="min" href="https://youtu.be/h_4Kq9-968c?t=509" target="_blank" rel="noopener">&#9654; 8:29</a></div><p>La señal va a AN0 del PIC16F1824 y el LCD al puerto C.</p><div class="uno"><figure class="cap"><a href="img/509.webp" target="_blank"><img src="img/509.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/h_4Kq9-968c?t=571" target="_blank" rel="noopener">&#9654; 9:31</a></div><p>Conexiones del LCD, lecturas, el mayor, las dos resistencias del divisor, el voltaje y el texto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int lectura_1, lectura_2;
+unsigned int mayor, mayor1;
+const float res1 = 330000;
+const float res2 = 6800;
+float voltaje;
+char texto[30];</code></pre></div><div class="uno"><figure class="cap"><a href="img/571.webp" target="_blank"><img src="img/571.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Inicio</h3><a class="min" href="https://youtu.be/h_4Kq9-968c?t=632" target="_blank" rel="noopener">&#9654; 10:32</a></div><p>Se inicia el LCD con el texto Voltaje=, se inicia el ADC y se configura todo digital menos AN0.</p><div class="dos"><figure class="cap"><a href="img/632.webp" target="_blank"><img src="img/632.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/693.webp" target="_blank"><img src="img/693.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Buscar el pico</h3><a class="min" href="https://youtu.be/h_4Kq9-968c?t=708" target="_blank" rel="noopener">&#9654; 11:48</a></div><p>El semiciclo rectificado dura 8,33 ms y con la mitad basta. 200 pares de lecturas con 10 µs de pausa recorren esa ventana guardando el valor mayor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  mayor = 0;
+  mayor1 = 0;
+  for (cont = 0; cont &lt; 200; cont++)
+  {
+    lectura_1 = ADC_Get_Sample(0);  // realiza primera lectura
+    Delay_us(10);
+    lectura_2 = ADC_Get_Sample(0);  // realiza segunda lectura
+    Delay_us(10);
+    if (lectura_2 &gt; lectura_1) mayor = lectura_1;
+    else mayor = lectura_2;
+    if (mayor &gt; mayor1) mayor1 = mayor;
+  }</code></pre></div><div class="uno"><figure class="cap"><a href="img/876.webp" target="_blank"><img src="img/876.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Calcular el RMS</h3><a class="min" href="https://youtu.be/h_4Kq9-968c?t=937" target="_blank" rel="noopener">&#9654; 15:37</a></div><p>Del valor del ADC al voltaje, se deshace el divisor, se suman 1,4 V de los diodos y se divide entre raíz de 2.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>  voltaje = mayor1 * 5.0 / 1023.0;           // calcula el voltaje
+  voltaje = voltaje * (res1 + res2) / res2;  // aplica el divisor resistivo
+  voltaje = voltaje + 1.4;                   // suma caída en el puente rectificador
+  voltaje = voltaje / 1.4142;                // saca RMS
+  FloatToStr_FixLen(voltaje, texto, 6);      // toma 6 dígitos
+  Lcd_Out(1, 9, texto);
+  Delay_ms(100);                             // retardo de refresco
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/938.webp" target="_blank"><img src="img/938.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Resultado</h3><a class="min" href="https://youtu.be/h_4Kq9-968c?t=1038" target="_blank" rel="noopener">&#9654; 17:18</a></div><p>Con 155 V de pico el LCD muestra unos 109,6 V RMS; con 180 V de pico, unos 127 V. En un montaje real conviene medir la caída de los diodos para mayor precisión.</p><div class="uno"><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Leer voltaje AC con PIC16F1824 y MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=h_4Kq9-968c" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

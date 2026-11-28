@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Robot velocista en Proteus con PIC y MikroC, parte 3: control proporcional · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="La posición de la línea, calculada con pesos de -10 a 10, se lleva con una función map a una velocidad de giro que se suma a un motor y se resta al otro. Al final compite contra el ejemplo de Proteus que trae PID.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/N7IrttxVPIk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Robot velocista en Proteus con PIC y MikroC, parte 3: control proporcional · Paso a paso">
+  <meta property="og:description" content="La posición de la línea, calculada con pesos de -10 a 10, se lleva con una función map a una velocidad de giro que se suma a un motor y se resta al otro. Al final compite contra el ejemplo de Proteus que trae PID.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/N7IrttxVPIk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/N7IrttxVPIk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Velocista con control <span>proporcional</span></h1>
+    <p class="lead">Con la posición de la línea ya calculada por pesos (de -10 a 10) se arma el control más sencillo: proporcional. Una función map, igual a la de Arduino, convierte ese rango en una velocidad de giro entre -velo_giro_max y +velo_giro_max. La función aplica_pwm suma esa velocidad a un motor y la resta al otro sobre una velocidad básica, limita ambos valores entre 0 y 255 y deja los motores siempre hacia adelante. Con velocidad básica 125 y giro máximo 100 el robot sigue la pista, y luego se prueba a 500 mm/s. Para terminar, se corre contra el robot Zumo de ejemplo de Proteus, que trae un PID, y el proporcional gana la carrera.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=N7IrttxVPIk" target="_blank" rel="noopener">&#9654; Ver el video completo (9:54)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/580.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 3: control proporcional"></figure>
+    <ul class="materiales"><li>PIC del robot velocista de las partes anteriores</li><li>Robot de Proteus con sensores de línea</li><li>MikroC PRO for PIC (librería PWM)</li><li>Notepad++ para revisar el código</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · Control</a><a href="#f3">3 · Carrera</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La idea</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Punto de partida</h3><a class="min" href="https://youtu.be/N7IrttxVPIk?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>Se parte del robot con los sensores normalizados y la función de pesos que da la posición de la línea entre -10 y 10.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 3: control proporcional" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Función map</h3><a class="min" href="https://youtu.be/N7IrttxVPIk?t=71" target="_blank" rel="noopener">&#9654; 1:11</a></div><p>Para pasar de un rango a otro se usa una función map como la de Arduino.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float map(float x, float in_min, float in_max, float out_min, float out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/71.webp" target="_blank"><img src="img/71.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 3: control proporcional" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Variables y pesos</h3><a class="min" href="https://youtu.be/N7IrttxVPIk?t=122" target="_blank" rel="noopener">&#9654; 2:02</a></div><p>Los pesos de los seis sensores son -10, -5, -1, 1, 5 y 10. Se declaran la velocidad básica, la velocidad de giro y la de giro máximo.</p><div class="uno"><figure class="cap"><a href="img/122.webp" target="_blank"><img src="img/122.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 3: control proporcional" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El control</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Aplicar el PWM</h3><a class="min" href="https://youtu.be/N7IrttxVPIk?t=173" target="_blank" rel="noopener">&#9654; 2:53</a></div><p>Un motor gana velocidad y el otro la pierde. Los valores se limitan entre 0 y 255 y los motores van siempre hacia adelante.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void aplica_pwm(float pwm_vel)
+{
+  velo_der = velo_basica - pwm_vel;   // uno gana velocidad
+  velo_izq = velo_basica + pwm_vel;   // otro pierde velocidad
+
+  if (velo_der &lt; 0) velo_der = 0;
+  if (velo_der &gt; 255) velo_der = 255;
+  if (velo_izq &lt; 0) velo_izq = 0;
+  if (velo_izq &gt; 255) velo_izq = 255;
+
+  // siempre los motores adelante
+  m1_g = 0;
+  m2_g = 0;
+  // aplica el valor absoluto de las velocidades
+  PWM1_Set_Duty(abs(velo_der));
+  PWM2_Set_Duty(abs(velo_izq));
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/173.webp" target="_blank"><img src="img/173.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 3: control proporcional" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Proporcional</h3><a class="min" href="https://youtu.be/N7IrttxVPIk?t=224" target="_blank" rel="noopener">&#9654; 3:44</a></div><p>La posición de la línea se lleva con map a una velocidad de giro entre menos y más el giro máximo, y se aplica a los motores.</p><div class="uno"><figure class="cap"><a href="img/224.webp" target="_blank"><img src="img/224.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 3: control proporcional" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Versión final</h3><a class="min" href="https://youtu.be/N7IrttxVPIk?t=275" target="_blank" rel="noopener">&#9654; 4:35</a></div><p>En la versión que queda, la función recibe la posición y llama a la función de PWM; aquí aparece ya la versión rápida, aplica_pwm_fast, que se explica en la siguiente parte.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void proporcional(float pro_in)
+{
+  velo_giro = map(pro_in, -10.0, 10.0, -(float)velo_giro_max, (float)velo_giro_max);
+  aplica_pwm_fast(velo_giro);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/275.webp" target="_blank"><img src="img/275.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 3: control proporcional" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>El main</h3><a class="min" href="https://youtu.be/N7IrttxVPIk?t=325" target="_blank" rel="noopener">&#9654; 5:25</a></div><p>En el ciclo principal se calcula la posición con los pesos y se llama al control proporcional. Se arranca con velocidad básica 125 y giro máximo 100.</p><div class="uno"><figure class="cap"><a href="img/325.webp" target="_blank"><img src="img/325.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 3: control proporcional" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Carrera</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Más velocidad</h3><a class="min" href="https://youtu.be/N7IrttxVPIk?t=376" target="_blank" rel="noopener">&#9654; 6:16</a></div><p>Se sube la velocidad del robot en Proteus hasta 500 mm/s y el proporcional sigue en la pista.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Contra el Zumo con PID</h3><a class="min" href="https://youtu.be/N7IrttxVPIk?t=529" target="_blank" rel="noopener">&#9654; 8:49</a></div><p>Se pone en la misma pista el robot Zumo de ejemplo de Proteus, que trae un control PID.</p><div class="uno"><figure class="cap"><a href="img/529.webp" target="_blank"><img src="img/529.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 3: control proporcional" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/N7IrttxVPIk?t=580" target="_blank" rel="noopener">&#9654; 9:40</a></div><p>El robot con control proporcional le gana al ejemplo. En la siguiente parte se agrega el PID.</p><div class="uno"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 3: control proporcional" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=N7IrttxVPIk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

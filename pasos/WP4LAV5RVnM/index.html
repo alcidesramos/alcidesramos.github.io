@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Juegos de luces con 24 LEDs, PIC16F877A y MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC16F877A maneja 24 LEDs en los puertos B, C y D con un dato de 32 bits. Se programan varios efectos, la velocidad se ajusta con un potenciómetro y un pulsador cambia de efecto mediante la interrupción del Timer1.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/WP4LAV5RVnM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Juegos de luces con 24 LEDs, PIC16F877A y MikroC · Paso a paso">
+  <meta property="og:description" content="Un PIC16F877A maneja 24 LEDs en los puertos B, C y D con un dato de 32 bits. Se programan varios efectos, la velocidad se ajusta con un potenciómetro y un pulsador cambia de efecto mediante la interrupción del Timer1.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/WP4LAV5RVnM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/WP4LAV5RVnM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Juegos de luces con <span>24 LEDs</span></h1>
+    <p class="lead">Los 24 LEDs se manejan como un solo número unsigned long: la función saca reparte sus bytes con Lo, Hi y Higher en PORTB, PORTC y PORTD (hace falta built_in.h). Con eso se escriben los efectos: flash, alternado, policía, corrimientos a la derecha y a la izquierda desplazando 0x000001 o 0x800000 en 24 pasos, acerca y aleja, auto fantástico y los de encendido y apagado progresivo, como derecha_on con salida = (salida << 1) + 1. El retardo se lee del ADC y se escala a 0..300 ms para usar VDelay_ms. Un switch elige el efecto (hasta 8) y el Timer1, configurado con Timer Calculator a 200 ms, revisa el pulsador en la interrupción y avanza al siguiente efecto. El programa usa cerca del 10% de RAM y el 11% de ROM.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=WP4LAV5RVnM" target="_blank" rel="noopener">&#9654; Ver el video completo (17:32)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/736.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC"></figure>
+    <ul class="materiales"><li>PIC16F877A</li><li>24 LEDs con resistencias</li><li>Potenciómetro en AN0</li><li>Pulsador en RA1</li><li>MikroC PRO for PIC (librería ADC)</li><li>Timer Calculator</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Salida</a><a href="#f2">2 · Efectos</a><a href="#f3">3 · Selección</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Hardware y salida</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito</h3><a class="min" href="https://youtu.be/WP4LAV5RVnM?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>Tres puertos con 8 LEDs cada uno: PORTB para los bajos, PORTC los del medio y PORTD los altos. Potenciómetro para la velocidad y pulsador para cambiar de efecto.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/WP4LAV5RVnM?t=80" target="_blank" rel="noopener">&#9654; 1:20</a></div><p>Se definen los nombres de los puertos, el pulsador y la variable de 32 bits con la salida.</p><div class="uno"><figure class="cap"><a href="img/80.webp" target="_blank"><img src="img/80.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Lo, Hi y Higher</h3><a class="min" href="https://youtu.be/WP4LAV5RVnM?t=139" target="_blank" rel="noopener">&#9654; 2:19</a></div><p>La ayuda de MikroC muestra Lo, Hi y Higher, que devuelven el byte 0, 1 y 2 de un número. Requieren built_in.h.</p><div class="uno"><figure class="cap"><a href="img/139.webp" target="_blank"><img src="img/139.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Función saca</h3><a class="min" href="https://youtu.be/WP4LAV5RVnM?t=199" target="_blank" rel="noopener">&#9654; 3:19</a></div><p>Reparte los 24 bits en los tres puertos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;built_in.h&quot;
+
+unsigned int retardo;
+unsigned int codigo;
+#define sv RA1_bit
+#define LEDS_L PORTB
+#define LEDS_M PORTC
+#define LEDS_H PORTD
+unsigned long salida;
+
+void saca(unsigned long dato)
+{
+  LEDS_L = Lo(dato);
+  LEDS_M = Hi(dato);
+  LEDS_H = Higher(dato);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/199.webp" target="_blank"><img src="img/199.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Efectos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Flash, alternado y policía</h3><a class="min" href="https://youtu.be/WP4LAV5RVnM?t=319" target="_blank" rel="noopener">&#9654; 5:19</a></div><p>Los primeros efectos prenden y apagan todo, alternan LEDs o hacen destellos tipo policía.</p><div class="dos"><figure class="cap"><a href="img/319.webp" target="_blank"><img src="img/319.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/378.webp" target="_blank"><img src="img/378.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Corrimientos</h3><a class="min" href="https://youtu.be/WP4LAV5RVnM?t=498" target="_blank" rel="noopener">&#9654; 8:18</a></div><p>Derecha e izquierda desplazan un solo LED, 0x000001 o 0x800000, en 24 pasos con VDelay_ms. Acerca y aleja mueven dos datos hacia el centro y hacia afuera; con eso se arma el auto fantástico.</p><div class="dos"><figure class="cap"><a href="img/498.webp" target="_blank"><img src="img/498.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/557.webp" target="_blank"><img src="img/557.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/617.webp" target="_blank"><img src="img/617.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Encendido progresivo</h3><a class="min" href="https://youtu.be/WP4LAV5RVnM?t=677" target="_blank" rel="noopener">&#9654; 11:17</a></div><p>derecha_on va llenando los LEDs uno a uno; también hay derecha_off, izquierda_on e izquierda_off.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void derecha_on(unsigned int velo)
+{
+  char cuenta;
+
+  salida = 0x000001;
+  saca(salida);
+  for (cuenta = 0; cuenta &lt; 24; cuenta++)
+  {
+    VDelay_ms(velo);
+    salida = (salida &lt;&lt; 1) + 1;
+    saca(salida);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/677.webp" target="_blank"><img src="img/677.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Velocidad</h3><a class="min" href="https://youtu.be/WP4LAV5RVnM?t=736" target="_blank" rel="noopener">&#9654; 12:16</a></div><p>El potenciómetro se lee con ADC_Get_Sample(0) y se escala: retardo = codigo * 300.0 / 1023.0.</p><div class="uno"><figure class="cap"><a href="img/736.webp" target="_blank"><img src="img/736.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Cambiar de efecto</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Switch</h3><a class="min" href="https://youtu.be/WP4LAV5RVnM?t=796" target="_blank" rel="noopener">&#9654; 13:16</a></div><p>Un switch con la variable efecto elige qué juego corre; un caso puede combinar varios efectos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>switch (efecto)
+{
+  // primer efecto deseado
+  case 0:
+    // flash(retardo);
+    derecha_on(100);
+    izquierda_off(100);
+    izquierda_on(100);
+    derecha_off(100);
+    break;
+
+  // 2 efecto deseado
+  case 1:
+    alternado(retardo);
+    break;
+  // ... hasta 8 efectos
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/856.webp" target="_blank"><img src="img/856.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Timer1 a 200 ms</h3><a class="min" href="https://youtu.be/WP4LAV5RVnM?t=916" target="_blank" rel="noopener">&#9654; 15:16</a></div><p>Con Timer Calculator se genera la configuración del Timer1. En la interrupción se revisa el pulsador y se incrementa efecto, deshabilitando el timer mientras se procesa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void InitTimer1(){
+  T1CON = 0x31;
+  TMR1IF_bit = 0;
+  TMR1H = 0x3C;
+  TMR1L = 0xB0;
+  TMR1IE_bit = 1;
+  INTCON = 0xC0;
+}
+
+void Interrupt(){
+  if (TMR1IF_bit){
+    TMR1IF_bit = 0;
+    TMR1H = 0x3C;
+    TMR1L = 0xB0;
+    // aquí: si se presiona el pulsador, efecto++
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/916.webp" target="_blank"><img src="img/916.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Simulación</h3><a class="min" href="https://youtu.be/WP4LAV5RVnM?t=975" target="_blank" rel="noopener">&#9654; 16:15</a></div><p>En Proteus el pulsador cambia de efecto y el potenciómetro la velocidad. El programa ocupa cerca del 10% de RAM y el 11% de ROM.</p><div class="uno"><figure class="cap"><a href="img/975.webp" target="_blank"><img src="img/975.webp" alt="Juegos de luces con 24 LEDs, PIC16F877A y MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=WP4LAV5RVnM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

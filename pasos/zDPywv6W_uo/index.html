@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Módulo MP3 serial YX5300 con PIC16F876A y MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El módulo YX5300 reproduce MP3 desde una memoria SD con comandos por UART. Con una librería propia, un PIC16F876A saluda al arrancar, sube el volumen con un pulsador y reproduce un aviso según la temperatura de un LM35.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/zDPywv6W_uo/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Módulo MP3 serial YX5300 con PIC16F876A y MikroC · Paso a paso">
+  <meta property="og:description" content="El módulo YX5300 reproduce MP3 desde una memoria SD con comandos por UART. Con una librería propia, un PIC16F876A saluda al arrancar, sube el volumen con un pulsador y reproduce un aviso según la temperatura de un LM35.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/zDPywv6W_uo/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/zDPywv6W_uo/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Módulo MP3 <span>YX5300</span> con PIC</h1>
+    <p class="lead">El YX5300 (Serial MP3 Player) recibe comandos por la UART y lee archivos de una tarjeta SD, numerados 001 a 255 dentro de carpetas 01 a 99. A diferencia del DFPlayer no puede mover un parlante directo: necesita audífonos o un amplificador, y se alimenta de 3,3 a 5 V. Con un PIC16F876A a 4 MHz y una librería propia se inicializa el módulo, se fija el volumen y se reproduce la pista 5 o 6 al arrancar; los demás comandos (repetir, carpeta, aleatorio, dormir) quedan como comentarios. En el ciclo se lee un LM35: por encima de 60 °C suena el mensaje de temperatura alta y por debajo de 20 °C el de temperatura baja, y un pulsador sube el volumen. En Proteus se ven los comandos en un terminal virtual.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=zDPywv6W_uo" target="_blank" rel="noopener">&#9654; Ver el video completo (10:40)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/625.webp" alt="Módulo MP3 serial YX5300 con PIC16F876A y MikroC"></figure>
+    <ul class="materiales"><li>Módulo Serial MP3 Player YX5300</li><li>Tarjeta micro SD con los audios</li><li>PIC16F876A a 4 MHz</li><li>Sensor LM35</li><li>Dos pulsadores y un LED</li><li>Audífonos o amplificador</li><li>MikroC PRO for PIC (UART y ADC)</li><li>Proteus (COMPIM y Virtual Terminal)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Módulo</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El módulo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>YX5300</h3><a class="min" href="https://youtu.be/zDPywv6W_uo?t=5" target="_blank" rel="noopener">&#9654; 0:05</a></div><p>Es más sencillo que el DFPlayer, pero no se le puede conectar un parlante directamente: necesita audífonos o un amplificador. Funciona de 3,3 a 5 V.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Módulo MP3 serial YX5300 con PIC16F876A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Comandos</h3><a class="min" href="https://youtu.be/zDPywv6W_uo?t=75" target="_blank" rel="noopener">&#9654; 1:15</a></div><p>La hoja de datos trae las tramas de cada comando (empiezan con 7E FF 06 y terminan en EF) y cómo probarlo desde el PC con un convertidor USB a UART.</p><div class="uno"><figure class="cap"><a href="img/75.webp" target="_blank"><img src="img/75.webp" alt="Módulo MP3 serial YX5300 con PIC16F876A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Archivos en la SD</h3><a class="min" href="https://youtu.be/zDPywv6W_uo?t=185" target="_blank" rel="noopener">&#9654; 3:05</a></div><p>Los audios se nombran 001, 002... dentro de carpetas 01 a 99. Aquí: bienvenidos, temperatura alta, temperatura baja, suiche, iniciando y una canción.</p><div class="uno"><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="Módulo MP3 serial YX5300 con PIC16F876A y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/zDPywv6W_uo?t=190" target="_blank" rel="noopener">&#9654; 3:10</a></div><p>Proyecto en MikroC con la librería UART y la librería propia del módulo agregada al proyecto.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configuración</h3><a class="min" href="https://youtu.be/zDPywv6W_uo?t=240" target="_blank" rel="noopener">&#9654; 4:00</a></div><p>Se configuran el ADC, los pulsadores con pull-up, el LED y los pines de la UART, y se inicializa el módulo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int codigo;
+float temperatuta;
+
+void main()
+{
+  ADCON1 = 0;          // todo análogo
+  TRISA0_bit = 1;      // entrada análoga
+  TRISB0_bit = 1;      // entrada pulsador1
+  TRISB1_bit = 1;      // entrada pulsador2
+  TRISC0_bit = 0;      // salida led
+  TRISC6_bit = 0;      // salida tx
+  TRISC7_bit = 1;      // entrada rx
+  NOT_RBPU_bit = 0;    // habilita pull up en portb
+  Delay_ms(100);
+  mp3_init();          // manda comando de inicialización</code></pre></div><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Módulo MP3 serial YX5300 con PIC16F876A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Micro en Proteus</h3><a class="min" href="https://youtu.be/zDPywv6W_uo?t=295" target="_blank" rel="noopener">&#9654; 4:55</a></div><p>El PIC16F876A se configura a 4 MHz y se le carga el .hex.</p><div class="uno"><figure class="cap"><a href="img/295.webp" target="_blank"><img src="img/295.webp" alt="Módulo MP3 serial YX5300 con PIC16F876A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Circuito</h3><a class="min" href="https://youtu.be/zDPywv6W_uo?t=350" target="_blank" rel="noopener">&#9654; 5:50</a></div><p>PIC16F876A, LM35 en AN0, pulsadores en RB0 y RB1, LED y el puerto serie COMPIM hacia el módulo.</p><div class="uno"><figure class="cap"><a href="img/350.webp" target="_blank"><img src="img/350.webp" alt="Módulo MP3 serial YX5300 con PIC16F876A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Comandos enviados</h3><a class="min" href="https://youtu.be/zDPywv6W_uo?t=405" target="_blank" rel="noopener">&#9654; 6:45</a></div><p>En el terminal virtual se ven las tramas que el PIC envía al módulo.</p><div class="dos"><figure class="cap"><a href="img/405.webp" target="_blank"><img src="img/405.webp" alt="Módulo MP3 serial YX5300 con PIC16F876A y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Módulo MP3 serial YX5300 con PIC16F876A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Volumen y canción</h3><a class="min" href="https://youtu.be/zDPywv6W_uo?t=515" target="_blank" rel="noopener">&#9654; 8:35</a></div><p>Se fija el volumen y se reproduce una pista. Las otras funciones de la librería quedan comentadas para probarlas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>mp3_set_vol(30);
+
+mp3_play_song(6);
+//mp3_play_song(temp_alta);
+//mp3_ciclo_play_num(1);   // suena cíclico la canción 1
+//mp3_sleep();
+//mp3_wake_up();
+mp3_folder_song(1,4);      // play el folder 1 canción 4
+//mp3_folder_cycle(1);     // reproduce cíclico el folder 1
+//mp3_play_random();
+//mp3_play_song_vol(3,20); // suena la canción 3 con 20 de volumen</code></pre></div><div class="uno"><figure class="cap"><a href="img/515.webp" target="_blank"><img src="img/515.webp" alt="Módulo MP3 serial YX5300 con PIC16F876A y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.7</span><h3>Temperatura y pulsador</h3><a class="min" href="https://youtu.be/zDPywv6W_uo?t=570" target="_blank" rel="noopener">&#9654; 9:30</a></div><p>El LM35 da 10 mV por grado: con referencia de 5 V la temperatura es codigo * 500 / 1023. Según el valor suena un aviso, y el pulsador sube el volumen.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>temperatuta = codigo * 500.0 / 1023.0;
+
+if (temperatuta &gt; 60)
+{
+  mp3_play_song(temp_alta);
+  Delay_ms(5000);
+}
+else if (temperatuta &lt; 20)
+{
+  mp3_play_song(temp_baja);
+  Delay_ms(4000);
+}
+
+if (sw == 0)          // sube volumen
+{
+  mp3_vol_up();
+  Delay_ms(200);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Módulo MP3 serial YX5300 con PIC16F876A y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Prueba final</h3><a class="min" href="https://youtu.be/zDPywv6W_uo?t=625" target="_blank" rel="noopener">&#9654; 10:25</a></div><p>Con el módulo real suena el saludo al iniciar, los avisos de temperatura y el volumen sube con el pulsador.</p><div class="uno"><figure class="cap"><a href="img/625.webp" target="_blank"><img src="img/625.webp" alt="Módulo MP3 serial YX5300 con PIC16F876A y MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=zDPywv6W_uo" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Robot velocista en Proteus con PIC y MikroC, parte 4: control PID · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se explica el PID discreto (proporcional, integral y derivativo), se programa en MikroC con salida limitada y motores que pueden girar en reversa, y se ajustan kp, kd y ki hasta ganar la carrera.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/-0_uzhs-QGc/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID · Paso a paso">
+  <meta property="og:description" content="Se explica el PID discreto (proporcional, integral y derivativo), se programa en MikroC con salida limitada y motores que pueden girar en reversa, y se ajustan kp, kd y ki hasta ganar la carrera.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/-0_uzhs-QGc/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/-0_uzhs-QGc/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Velocista con control <span>PID</span></h1>
+    <p class="lead">Se repasa el diagrama de un PID y su forma discreta: el error es setpoint menos entrada, la parte proporcional es kp por el error, la integral acumula ki por el tiempo de muestreo por el error y la derivativa es kd por el cambio del error sobre el tiempo de muestreo. La suma se limita a la velocidad de giro máxima y se guardan la integral y el error anteriores. El tiempo de muestreo se deja en 1. Para corregir más rápido se crea aplica_pwm_fast, que permite valores entre -255 y 255 e invierte el giro del motor cuando el valor es negativo. Se prueba en Proteus, se invierte la salida y se ajusta: kp 30 y kd 2, luego velocidades de 140 y 120, y por último ki 0,1. El robot termina la pista y le gana al ejemplo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=-0_uzhs-QGc" target="_blank" rel="noopener">&#9654; Ver el video completo (23:05)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1253.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID"></figure>
+    <ul class="materiales"><li>Robot velocista de las partes anteriores</li><li>Proteus</li><li>MikroC PRO for PIC</li><li>Notepad++</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Teoría</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Ajuste</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Teoría del PID</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Diagrama</h3><a class="min" href="https://youtu.be/-0_uzhs-QGc?t=79" target="_blank" rel="noopener">&#9654; 1:19</a></div><p>El PID toma el error entre el valor deseado y el medido y suma tres acciones: proporcional, integral y derivativa.</p><div class="uno"><figure class="cap"><a href="img/79.webp" target="_blank"><img src="img/79.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Forma discreta</h3><a class="min" href="https://youtu.be/-0_uzhs-QGc?t=137" target="_blank" rel="noopener">&#9654; 2:17</a></div><p>En el micro el PID se calcula cada cierto tiempo de muestreo, con la integral como suma acumulada y la derivada como diferencia de errores.</p><div class="uno"><figure class="cap"><a href="img/137.webp" target="_blank"><img src="img/137.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Variables</h3><a class="min" href="https://youtu.be/-0_uzhs-QGc?t=196" target="_blank" rel="noopener">&#9654; 3:16</a></div><p>Se declaran kp, ki, kd, el setpoint, las partes up, ui y ud, la salida ut, los límites y los valores anteriores ui_ y error_.</p><div class="dos"><figure class="cap"><a href="img/196.webp" target="_blank"><img src="img/196.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure><figure class="cap"><a href="img/255.webp" target="_blank"><img src="img/255.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>La función PID</h3><a class="min" href="https://youtu.be/-0_uzhs-QGc?t=313" target="_blank" rel="noopener">&#9654; 5:13</a></div><p>El tiempo de muestreo se deja en 1 y se ajusta según los datos. La salida se limita y se guardan la integral y el error para la siguiente vuelta. La salida va invertida a los motores.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const float t_muestreo = 1;  // se ajusta según los datos obtenidos
+// calculando el error
+error = setpoint - pid_in;
+
+up = kp * error;
+ui = ui_ + (ki * t_muestreo * error);
+ud = kd * (error - error_) / t_muestreo;
+
+ut = up + ui + ud;
+if (ut &gt; max_x) ut = max_x;
+if (ut &lt; min_x) ut = min_x;
+
+ui_ = ui;       // guarda salida integral anterior
+error_ = error;
+aplica_pwm_fast(-ut);</code></pre></div><div class="uno"><figure class="cap"><a href="img/313.webp" target="_blank"><img src="img/313.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Límites</h3><a class="min" href="https://youtu.be/-0_uzhs-QGc?t=372" target="_blank" rel="noopener">&#9654; 6:12</a></div><p>Los límites max_x y min_x son más y menos la velocidad de giro máxima.</p><div class="dos"><figure class="cap"><a href="img/372.webp" target="_blank"><img src="img/372.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure><figure class="cap"><a href="img/431.webp" target="_blank"><img src="img/431.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>PWM rápido</h3><a class="min" href="https://youtu.be/-0_uzhs-QGc?t=666" target="_blank" rel="noopener">&#9654; 11:06</a></div><p>Para corregir más rápido, aplica_pwm_fast permite valores negativos: si la velocidad es negativa se invierte el giro de ese motor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void aplica_pwm_fast(float pwm_vel)
+{
+  velo_der = velo_basica - pwm_vel;   // uno gana velocidad
+  velo_izq = velo_basica + pwm_vel;   // otro pierde velocidad
+
+  if (velo_der &lt; -255) velo_der = -255;
+  if (velo_der &gt; 255) velo_der = 255;
+  if (velo_izq &lt; -255) velo_izq = -255;
+  if (velo_izq &gt; 255) velo_izq = 255;
+
+  // determina el giro de los motores
+  if (velo_der &lt;= 0) m1_g = 1;   // invierte giro
+  else m1_g = 0;
+
+  if (velo_izq &lt;= 0) m2_g = 1;   // invierte giro
+  else m2_g = 0;
+  // ... luego se aplica el PWM con el valor absoluto
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/666.webp" target="_blank"><img src="img/666.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure><figure class="cap"><a href="img/724.webp" target="_blank"><img src="img/724.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Ajuste y carrera</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Primera prueba</h3><a class="min" href="https://youtu.be/-0_uzhs-QGc?t=783" target="_blank" rel="noopener">&#9654; 13:03</a></div><p>En Proteus el robot sigue la línea; con la salida invertida corrige hacia el lado correcto.</p><div class="dos"><figure class="cap"><a href="img/783.webp" target="_blank"><img src="img/783.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure><figure class="cap"><a href="img/842.webp" target="_blank"><img src="img/842.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Ajustar kp y kd</h3><a class="min" href="https://youtu.be/-0_uzhs-QGc?t=959" target="_blank" rel="noopener">&#9654; 15:59</a></div><p>Se deja kp en 30 y kd en 2, y se suben las velocidades a 140 y 120.</p><div class="dos"><figure class="cap"><a href="img/959.webp" target="_blank"><img src="img/959.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure><figure class="cap"><a href="img/1018.webp" target="_blank"><img src="img/1018.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Agregar ki</h3><a class="min" href="https://youtu.be/-0_uzhs-QGc?t=1135" target="_blank" rel="noopener">&#9654; 18:55</a></div><p>Por último se agrega ki de 0,1.</p><div class="uno"><figure class="cap"><a href="img/1135.webp" target="_blank"><img src="img/1135.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Carrera</h3><a class="min" href="https://youtu.be/-0_uzhs-QGc?t=1194" target="_blank" rel="noopener">&#9654; 19:54</a></div><p>Con el PID ajustado el robot recorre la pista más rápido y le gana al ejemplo de Proteus.</p><div class="dos"><figure class="cap"><a href="img/1194.webp" target="_blank"><img src="img/1194.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure><figure class="cap"><a href="img/1253.webp" target="_blank"><img src="img/1253.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure><figure class="cap"><a href="img/1311.webp" target="_blank"><img src="img/1311.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Main</h3><a class="min" href="https://youtu.be/-0_uzhs-QGc?t=1370" target="_blank" rel="noopener">&#9654; 22:50</a></div><p>En el ciclo principal se calcula la posición con los pesos y se pasa a la función PID.</p><div class="uno"><figure class="cap"><a href="img/1370.webp" target="_blank"><img src="img/1370.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 4: control PID" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=-0_uzhs-QGc" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Si la línea se mantiene centrada varias lecturas seguidas, el robot entiende que va en recta y acelera al máximo; si no, sigue con el PID. Un LED indica cuándo está en modo recta.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/qEonvG5vuAw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas · Paso a paso">
+  <meta property="og:description" content="Si la línea se mantiene centrada varias lecturas seguidas, el robot entiende que va en recta y acelera al máximo; si no, sigue con el PID. Un LED indica cuándo está en modo recta.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/qEonvG5vuAw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/qEonvG5vuAw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Velocista: PID y <span>turbo en rectas</span></h1>
+    <p class="lead">La mejora consiste en detectar las rectas. Cada vez que la posición de la línea queda entre -1 y 1 se incrementa un contador, y si sale de ese rango el contador vuelve a cero. Cuando el contador llega a un valor (se prueban 30, 8 y 10) el robot está en una recta y se llama a velo_linea(255), que pone ambos motores al máximo hacia adelante y borra la integral y el error anterior del PID para que no arrastre valores viejos. Un LED extra en RB6 cambia de estado en ese modo. Fuera de la recta se usa el PID de la parte anterior, con velocidad base 150. En la carrera el robot es más rápido que la versión anterior.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=qEonvG5vuAw" target="_blank" rel="noopener">&#9654; Ver el video completo (12:21)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/725.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas"></figure>
+    <ul class="materiales"><li>Robot velocista de las partes anteriores</li><li>LED adicional en RB6</li><li>Proteus</li><li>MikroC PRO for PIC</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La idea</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Punto de partida</h3><a class="min" href="https://youtu.be/qEonvG5vuAw?t=20" target="_blank" rel="noopener">&#9654; 0:20</a></div><p>Se parte del robot con PID de la parte 4.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>La carrera actual</h3><a class="min" href="https://youtu.be/qEonvG5vuAw?t=84" target="_blank" rel="noopener">&#9654; 1:24</a></div><p>En las rectas el PID mantiene la velocidad base aunque podría ir más rápido.</p><div class="uno"><figure class="cap"><a href="img/84.webp" target="_blank"><img src="img/84.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>LED de recta</h3><a class="min" href="https://youtu.be/qEonvG5vuAw?t=148" target="_blank" rel="noopener">&#9654; 2:28</a></div><p>Se agrega un LED en LATB6 para ver cuándo el robot está en modo recta.</p><div class="uno"><figure class="cap"><a href="img/148.webp" target="_blank"><img src="img/148.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Detectar la recta</h3><a class="min" href="https://youtu.be/qEonvG5vuAw?t=212" target="_blank" rel="noopener">&#9654; 3:32</a></div><p>Si la posición está entre -1 y 1 se cuenta; si no, el contador vuelve a cero. Con suficientes lecturas seguidas se acelera.</p><div class="uno"><figure class="cap"><a href="img/212.webp" target="_blank"><img src="img/212.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Velocidad en línea recta</h3><a class="min" href="https://youtu.be/qEonvG5vuAw?t=276" target="_blank" rel="noopener">&#9654; 4:36</a></div><p>velo_linea pone la misma velocidad en ambos motores, hacia adelante, limitada a 0..255, y borra error_ y ui_ del PID.</p><div class="dos"><figure class="cap"><a href="img/276.webp" target="_blank"><img src="img/276.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas" loading="lazy"></a></figure><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Ajustes</h3><a class="min" href="https://youtu.be/qEonvG5vuAw?t=405" target="_blank" rel="noopener">&#9654; 6:45</a></div><p>Se prueba con distintos umbrales del contador y con velocidad base 150.</p><div class="dos"><figure class="cap"><a href="img/405.webp" target="_blank"><img src="img/405.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas" loading="lazy"></a></figure><figure class="cap"><a href="img/469.webp" target="_blank"><img src="img/469.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Código del ciclo</h3><a class="min" href="https://youtu.be/qEonvG5vuAw?t=597" target="_blank" rel="noopener">&#9654; 9:57</a></div><p>Así queda el ciclo principal con el umbral en 10.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>linea_actual = calcula_pesos();
+// si los pesos están entre un rango
+if ((linea_actual &gt;= -1) &amp;&amp; (linea_actual &lt;= 1))
+{
+  cont_linea++;          // incrementa variable de línea
+}
+else cont_linea = 0;
+
+if (cont_linea &gt;= 10)    // valor para detectar que la línea es recta
+{
+  velo_linea(255);       // velocidad de la línea recta
+  ledl = !ledl;
+}
+else PID(linea_actual);</code></pre></div><div class="uno"><figure class="cap"><a href="img/597.webp" target="_blank"><img src="img/597.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>En Proteus</h3><a class="min" href="https://youtu.be/qEonvG5vuAw?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>El LED se activa en las rectas y el robot acelera.</p><div class="uno"><figure class="cap"><a href="img/661.webp" target="_blank"><img src="img/661.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Carrera</h3><a class="min" href="https://youtu.be/qEonvG5vuAw?t=725" target="_blank" rel="noopener">&#9654; 12:05</a></div><p>El robot completa la pista más rápido que con solo PID.</p><div class="uno"><figure class="cap"><a href="img/725.webp" target="_blank"><img src="img/725.webp" alt="Robot velocista en Proteus con PIC y MikroC, parte 5: PID y velocidad en rectas" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=qEonvG5vuAw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
