@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arduino UNO Q: revisión de la hoja de datos · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Repaso técnico de la hoja de datos del Arduino UNO Q: el procesador Qualcomm con Linux y el STM32U585, los LEDs RGB, los conectores SPI, Qwiic y de alta velocidad, las condiciones de operación, la alimentación y la protección contra polaridad inversa.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/Rpq3rWh68IM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Arduino UNO Q: revisión de la hoja de datos · Paso a paso">
+  <meta property="og:description" content="Repaso técnico de la hoja de datos del Arduino UNO Q: el procesador Qualcomm con Linux y el STM32U585, los LEDs RGB, los conectores SPI, Qwiic y de alta velocidad, las condiciones de operación, la alimentación y la protección contra polaridad inversa.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/Rpq3rWh68IM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Rpq3rWh68IM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#arduino">&larr; Volver al curso</a>
+    <span class="etiqueta">// Arduino · Paso a paso</span>
+    <h1>Arduino <span>UNO Q</span>: la hoja de datos</h1>
+    <p class="lead">El UNO Q tiene la forma del Arduino Uno pero combina un procesador Qualcomm Dragonwing QRB2210 con Debian Linux y un microcontrolador STM32U585 con Arduino Core, comunicados por un puente RPC. Se recorre la hoja de datos: periféricos y conectores, entradas analógicas que no toleran 5 V, rangos de temperatura, alimentación por USB-C o VIN de 7 a 24 V, protección contra polaridad inversa y el entorno Arduino App Lab.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Rpq3rWh68IM" target="_blank" rel="noopener">&#9654; Ver el video completo (8:42)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/56.webp" alt="Arduino UNO Q: revisión de la hoja de datos"></figure>
+    <ul class="materiales"><li>Hoja de datos del Arduino UNO Q (PDF)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Tarjeta</a><a href="#f2">2 · Datos</a><a href="#f3">3 · Más</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La tarjeta</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Se parece a un Uno, pero no es igual</h3><a class="min" href="https://youtu.be/Rpq3rWh68IM?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Mantiene la forma y los pines del Arduino Uno, pero agrega cuatro LEDs RGB controlados por el microcontrolador, un puerto SPI separado, DAC además del ADC y un conector para depurar.</p><div class="uno"><figure class="cap"><a href="img/56.webp" target="_blank"><img src="img/56.webp" alt="Arduino UNO Q: revisión de la hoja de datos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pinout</h3><a class="min" href="https://youtu.be/Rpq3rWh68IM?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>El diagrama de pines muestra qué funciones salen por cada conector y qué pines maneja cada chip.</p><div class="uno"><figure class="cap"><a href="img/102.webp" target="_blank"><img src="img/102.webp" alt="Arduino UNO Q: revisión de la hoja de datos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Conectores de abajo</h3><a class="min" href="https://youtu.be/Rpq3rWh68IM?t=131" target="_blank" rel="noopener">&#9654; 2:11</a></div><p>Por la parte de abajo tiene conectores de alta velocidad como JMEDIA (cámara y pantalla por MIPI) y JMISC; por ahí se conectarán tarjetas de expansión.</p><div class="uno"><figure class="cap"><a href="img/148.webp" target="_blank"><img src="img/148.webp" alt="Arduino UNO Q: revisión de la hoja de datos" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Lo que dice la hoja de datos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Dos cerebros</h3><a class="min" href="https://youtu.be/Rpq3rWh68IM?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>El MPU Qualcomm QRB2210 (cuatro núcleos Cortex-A53) corre Debian Linux y el STM32U585 (Cortex-M33) corre Arduino Core sobre Zephyr. Hay versiones de 2 GB de RAM con 16 GB de eMMC o de 4 GB con 32 GB. Puede sacar video por el USB-C.</p><div class="uno"><figure class="cap"><a href="img/194.webp" target="_blank"><img src="img/194.webp" alt="Arduino UNO Q: revisión de la hoja de datos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>SPI y Qwiic</h3><a class="min" href="https://youtu.be/Rpq3rWh68IM?t=232" target="_blank" rel="noopener">&#9654; 3:52</a></div><p>El conector JSPI trae SPI dedicado a 3,3 V y el Qwiic da I²C a 3,3 V para módulos del ecosistema.</p><div class="uno"><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Arduino UNO Q: revisión de la hoja de datos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Condiciones de operación</h3><a class="min" href="https://youtu.be/Rpq3rWh68IM?t=263" target="_blank" rel="noopener">&#9654; 4:23</a></div><p>La temperatura de operación va de −10 a 60 °C, limitada por el procesador; un microcontrolador industrial suele aguantar de −40 a 85 °C. Hay que tenerlo en cuenta en los diseños.</p><div class="uno"><figure class="cap"><a href="img/286.webp" target="_blank"><img src="img/286.webp" alt="Arduino UNO Q: revisión de la hoja de datos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Alimentación y pines</h3><a class="min" href="https://youtu.be/Rpq3rWh68IM?t=329" target="_blank" rel="noopener">&#9654; 5:29</a></div><p>Se puede alimentar por VIN de 7 a 24 V. Las entradas analógicas vienen del STM32, su referencia es 3,3 V y no toleran 5 V; los pines digitales sí.</p><div class="uno"><figure class="cap"><a href="img/332.webp" target="_blank"><img src="img/332.webp" alt="Arduino UNO Q: revisión de la hoja de datos" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programación y protección</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Arduino App Lab</h3><a class="min" href="https://youtu.be/Rpq3rWh68IM?t=362" target="_blank" rel="noopener">&#9654; 6:02</a></div><p>Viene con Arduino App Lab, que permite programar por bloques y genera librerías para usar después en el IDE normal.</p><div class="uno"><figure class="cap"><a href="img/424.webp" target="_blank"><img src="img/424.webp" alt="Arduino UNO Q: revisión de la hoja de datos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Protección contra polaridad inversa</h3><a class="min" href="https://youtu.be/Rpq3rWh68IM?t=463" target="_blank" rel="noopener">&#9654; 7:43</a></div><p>Soporta −24 V en DC_IN sin dañarse, algo útil en la universidad cuando un estudiante conecta la fuente al revés.</p><div class="uno"><figure class="cap"><a href="img/470.webp" target="_blank"><img src="img/470.webp" alt="Arduino UNO Q: revisión de la hoja de datos" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Rpq3rWh68IM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arduino: módulo de inicio y parada para robots con un receptor infrarrojo · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un receptor infrarrojo y un control remoto reemplazan el módulo de arranque y parada que exigen en las competencias de robots. Se usa una librería propia que lee el código por interrupciones con el Timer2, se capturan los códigos de dos botones y se prende o apaga una salida.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/rk-SdRB1DU0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Arduino: módulo de inicio y parada para robots con un receptor infrarrojo · Paso a paso">
+  <meta property="og:description" content="Un receptor infrarrojo y un control remoto reemplazan el módulo de arranque y parada que exigen en las competencias de robots. Se usa una librería propia que lee el código por interrupciones con el Timer2, se capturan los códigos de dos botones y se prende o apaga una salida.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/rk-SdRB1DU0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/rk-SdRB1DU0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#arduino">&larr; Volver al curso</a>
+    <span class="etiqueta">// Arduino · Paso a paso</span>
+    <h1>Módulo de <span>inicio y parada</span> con IR</h1>
+    <p class="lead">En las competencias de seguidores de línea y sumo el robot debe arrancar y detenerse con un módulo de inicio comercial. La idea es hacerlo con un receptor IR común conectado a un Arduino Nano. En lugar de IRremote se usa una librería propia (irarz) que decodifica el control por interrupciones con un algoritmo de hash y usa solo el Timer2. Se explica qué timer usa cada función de Arduino para evitar conflictos, se arma el circuito en Proteus, se imprime el código de cada tecla por el puerto serial y con dos de esos códigos se arma el arranque y la parada, mientras el programa principal sigue trabajando.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=rk-SdRB1DU0" target="_blank" rel="noopener">&#9654; Ver el video completo (16:47)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/268.webp" alt="Arduino: módulo de inicio y parada para robots con un receptor infrarrojo"></figure>
+    <ul class="materiales"><li>Arduino Nano (o Uno)</li><li>Receptor infrarrojo de tres pines y un control remoto</li><li>Resistencia de 100 Ω y condensador de 0,1 µF para el receptor (montaje real)</li><li>Dos LEDs con sus resistencias</li><li>Proteus para la simulación y la librería del receptor en .zip</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Circuito</a><a href="#f2">2 · Timers</a><a href="#f3">3 · Código</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El circuito</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Arduino Nano y receptor IR</h3><a class="min" href="https://youtu.be/rk-SdRB1DU0?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>Se usa un Arduino Nano por el poco espacio que hay en estos robots. El receptor IR va al pin 2 o 3 (pines de interrupción externa).</p><p>En el montaje real el receptor se alimenta de 5 V a través de una resistencia de 100 Ω y lleva un condensador de 0,1 µF, como indica su hoja de datos; con un micro de 3,3 V puede ir directo.</p><div class="uno"><figure class="cap"><a href="img/139.webp" target="_blank"><img src="img/139.webp" alt="Arduino: módulo de inicio y parada para robots con un receptor infrarrojo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>LEDs y terminal virtual</h3><a class="min" href="https://youtu.be/rk-SdRB1DU0?t=268" target="_blank" rel="noopener">&#9654; 4:28</a></div><p>Se agregan dos LEDs en los pines 11 y 12: uno parpadea para mostrar que el programa principal sigue corriendo y el otro muestra el estado de arranque o parada.</p><p>Un Virtual Terminal en TX permite ver los códigos que llegan del control.</p><div class="uno"><figure class="cap"><a href="img/268.webp" target="_blank"><img src="img/268.webp" alt="Arduino: módulo de inicio y parada para robots con un receptor infrarrojo" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Por qué el Timer2</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Qué timer usa cada función</h3><a class="min" href="https://youtu.be/rk-SdRB1DU0?t=362" target="_blank" rel="noopener">&#9654; 6:02</a></div><p>En el Arduino Uno/Nano el Timer0 (8 bits) lo usan delay(), millis() y micros(); el Timer1 (16 bits) lo usa la librería Servo, y el Timer2 (8 bits) lo usa tone().</p><div class="uno"><figure class="cap"><a href="img/398.webp" target="_blank"><img src="img/398.webp" alt="Arduino: módulo de inicio y parada para robots con un receptor infrarrojo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Los pines PWM también dependen de los timers</h3><a class="min" href="https://youtu.be/rk-SdRB1DU0?t=397" target="_blank" rel="noopener">&#9654; 6:37</a></div><p>analogWrite usa el Timer0 en los pines 5 y 6, el Timer1 en los pines 9 y 10 y el Timer2 en los pines 11 y 3.</p><p>Como la librería usa solo el Timer2, con ella no se puede usar tone() ni analogWrite en los pines 3 y 11. Si hace falta, la librería se puede pasar al Timer1 cambiando los registros que dicen 2 por 1.</p><p>Por esto IRremote suele dar problemas con Servo y tone: usa más de un timer.</p><div class="uno"><figure class="cap"><a href="img/484.webp" target="_blank"><img src="img/484.webp" alt="Arduino: módulo de inicio y parada para robots con un receptor infrarrojo" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El programa</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Incluir la librería y declarar variables</h3><a class="min" href="https://youtu.be/rk-SdRB1DU0?t=560" target="_blank" rel="noopener">&#9654; 9:20</a></div><p>Se instala la librería desde el .zip (Sketch, Incluir librería, Añadir biblioteca .ZIP) y se incluye. Se declara el pin del receptor y una variable unsigned long donde la librería deja el código de la tecla.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;irarz.h&quot;
+
+#define led 11
+#define led1 12
+
+int irpin=2;             // pin usado para el sensor IR
+unsigned long codigo_ir; // código único de la tecla
+
+void setup() {
+  pinMode(led, OUTPUT);
+  pinMode(led1, OUTPUT);
+  Serial.begin(9600);  // inicia comunicación a 9600
+  ir_init();           // inicializa el receptor IR
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Arduino: módulo de inicio y parada para robots con un receptor infrarrojo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Capturar los códigos del control</h3><a class="min" href="https://youtu.be/rk-SdRB1DU0?t=629" target="_blank" rel="noopener">&#9654; 10:29</a></div><p>En el loop se llama analiza_ir() y se imprime codigo_ir en hexadecimal. Si no hay tecla presionada llega 0. Con un delay largo se alcanza a leer el código de cada botón en el terminal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void loop() {
+  analiza_ir();
+  Serial.println(codigo_ir, HEX); // deshabilitar si se desea
+  delay(5000);  // solo mientras se capturan los códigos
+}</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Arranque y parada</h3><a class="min" href="https://youtu.be/rk-SdRB1DU0?t=743" target="_blank" rel="noopener">&#9654; 12:23</a></div><p>Los códigos de las dos teclas elegidas se guardan como constantes y se comparan. En el ejemplo de abajo van valores de ejemplo: cada control tiene los suyos.</p><p>El LED del pin 11 sigue parpadeando, lo que muestra que el programa principal no se detiene mientras la interrupción analiza el código.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define IRSTART 0x00000000  // código de tu tecla de arranque
+#define IRSTOP  0x00000000  // código de tu tecla de parada
+
+void loop() {
+  analiza_ir();
+  if (codigo_ir == IRSTART)      digitalWrite(led1, HIGH);
+  else if (codigo_ir == IRSTOP)  digitalWrite(led1, LOW);
+
+  digitalWrite(led, HIGH);
+  delay(50);
+  digitalWrite(led, LOW);
+  delay(50);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/872.webp" target="_blank"><img src="img/872.webp" alt="Arduino: módulo de inicio y parada para robots con un receptor infrarrojo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Exportar y probar en Proteus</h3><a class="min" href="https://youtu.be/rk-SdRB1DU0?t=865" target="_blank" rel="noopener">&#9654; 14:25</a></div><p>Con Sketch, Exportar binarios compilados se genera el .hex, se carga en el Arduino de Proteus y se prueba con el control: una tecla prende la salida y la otra la apaga.</p><p class="ojo">Al preguntarle a ChatGPT qué timers usan las librerías, la respuesta tuvo errores. Siempre hay que verificar contra la hoja de datos del micro.</p><div class="uno"><figure class="cap"><a href="img/915.webp" target="_blank"><img src="img/915.webp" alt="Arduino: módulo de inicio y parada para robots con un receptor infrarrojo" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=rk-SdRB1DU0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
