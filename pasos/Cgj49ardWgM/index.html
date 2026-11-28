@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC18F2550 maneja un módulo SIM800 con comandos AT: lo enciende, configura la conexión GPRS, abre un socket TCP con Ubidots y envía temperatura, estado de un LED y coordenadas en formato JSON.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/Cgj49ardWgM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots · Paso a paso">
+  <meta property="og:description" content="Un PIC18F2550 maneja un módulo SIM800 con comandos AT: lo enciende, configura la conexión GPRS, abre un socket TCP con Ubidots y envía temperatura, estado de un LED y coordenadas en formato JSON.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/Cgj49ardWgM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Cgj49ardWgM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>SIM800 y <span>Ubidots</span> con PIC (parte 1)</h1>
+    <p class="lead">El PIC trabaja a 48 MHz (cristal de 20 MHz con PLL). El SIM800 se alimenta a unos 4 V y se enciende con un pulso a través de un transistor. El GPS va por un puerto serial por software y el SIM800 por el UART con interrupción, guardando las respuestas en una trama. La función manda_AT_COMANDO envía un comando y espera una de dos respuestas con un tiempo límite, así el programa no se bloquea. Se intenta encender el módulo hasta 10 veces, se configura el APN del operador, se abre la conexión TCP y se arma el JSON con sprintf. En Ubidots se crea el dispositivo con sus variables y un tablero.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Cgj49ardWgM" target="_blank" rel="noopener">&#9654; Ver el video completo (45:43)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1083.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (UART, Software UART, C_String, conversiones)</li><li>PIC18F2550 a 48 MHz (tarjeta entrenadora)</li><li>Módulo SIM800 con su SIM de datos</li><li>Transistor para el pulso de encendido</li><li>Módulo GPS (o GPS virtual en Proteus)</li><li>Cuenta en Ubidots</li><li>Terminal serial (Hercules)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Preparar</a><a href="#f2">2 · Funciones</a><a href="#f3">3 · Ubidots</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar el proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El módulo SIM800</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Es un módulo GSM/GPRS que se maneja con comandos AT por serial. Necesita una fuente capaz de dar los picos de corriente (unos 4 V) y se enciende con un pulso en su pin de encendido, que aquí se da con un transistor desde el PIC.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Timer de 1 segundo</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>El Timer0 con preescalador 256 se usa como base de tiempo para que las lecturas del GPS y las esperas de respuesta tengan un límite y el programa nunca se quede bloqueado.</p><div class="uno"><figure class="cap"><a href="img/381.webp" target="_blank"><img src="img/381.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Interrupción serial</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=450" target="_blank" rel="noopener">&#9654; 7:30</a></div><p>Se habilita la recepción continua y la interrupción del UART. En la interrupción cada dato se guarda en trama_rx con una máquina de estados que permite capturar solo la parte que interesa de la respuesta.</p><div class="dos"><figure class="cap"><a href="img/498.webp" target="_blank"><img src="img/498.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure><figure class="cap"><a href="img/615.webp" target="_blank"><img src="img/615.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Funciones de comunicación</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Serial por software</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=700" target="_blank" rel="noopener">&#9654; 11:40</a></div><p>El GPS va en un puerto serial por software. Se escriben funciones para enviar textos constantes y variables, y una lectura que retorna si se cumplió el tiempo de espera.</p><div class="dos"><figure class="cap"><a href="img/732.webp" target="_blank"><img src="img/732.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure><figure class="cap"><a href="img/966.webp" target="_blank"><img src="img/966.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Esperar respuestas</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=840" target="_blank" rel="noopener">&#9654; 14:00</a></div><p>La función tiempo revisa durante un número de milisegundos si en la trama llegó una de dos respuestas (por ejemplo OK o ERROR) con strstr. Retorna 1, 2 o 0 si no llegó nada.</p><div class="uno"><figure class="cap"><a href="img/849.webp" target="_blank"><img src="img/849.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Mandar un comando AT</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=1050" target="_blank" rel="noopener">&#9654; 17:30</a></div><p>manda_AT_COMANDO envía el comando, el fin de línea y espera la respuesta. prendio pregunta con AT si el módulo ya está encendido; si no responde, da el pulso de encendido.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char manda_AT_COMANDO(char *coman, char cap[15], char cap1[15], unsigned int retardo)
+{
+  Uart1_write_text(coman);          // manda el comando
+  Uart1_write_text_const(&quot;\r\n&quot;);  // manda final de linea
+  return (tiempo(retardo, cap, cap1));
+}
+
+// funcion que intenta prender el modulo
+unsigned char prendio()
+{
+  Delay_ms(2000);
+  // manda comando at para ver si ya esta encendido
+  if (manda_AT_COMANDO(&quot;AT&quot;, &quot;OK&quot;, &quot;ERROR&quot;, 2000) == 1) return 1;
+  // sino manda pulso de encendido
+  else {
+    pin_on = 0;
+    Delay_ms(1000);
+    // ...
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1083.webp" target="_blank"><img src="img/1083.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Encender el módulo</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=1180" target="_blank" rel="noopener">&#9654; 19:40</a></div><p>En el programa principal se intenta encender el módulo hasta 10 veces. En la terminal se ve el AT, el OK y el mensaje de prueba cuando lo logra.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>cuenta_on = 0;
+while ((prendio() == 0) || (cuenta_on &lt;= 10)) cuenta_on++;  // intenta prender el modulo usando 10 intentos</code></pre></div><div class="dos"><figure class="cap"><a href="img/1200.webp" target="_blank"><img src="img/1200.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure><figure class="cap"><a href="img/1317.webp" target="_blank"><img src="img/1317.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>GPRS y Ubidots</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Configurar GPRS</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=1420" target="_blank" rel="noopener">&#9654; 23:40</a></div><p>config_gprs manda la secuencia de comandos: el APN del operador con AT+CSTT (sin usuario ni clave en este caso; cada operador tiene el suyo), la calidad de servicio, el modo de mensajes de texto y la consulta del estado hasta que llegue IP START.</p><div class="dos"><figure class="cap"><a href="img/1433.webp" target="_blank"><img src="img/1433.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure><figure class="cap"><a href="img/1667.webp" target="_blank"><img src="img/1667.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Conexión TCP</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=1880" target="_blank" rel="noopener">&#9654; 31:20</a></div><p>conecta abre el socket con AT+CIPSTART hacia things.ubidots.com en el puerto 80 y espera CONNECT OK o ALREADY CONNECT.</p><div class="uno"><figure class="cap"><a href="img/1901.webp" target="_blank"><img src="img/1901.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Variables</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=2000" target="_blank" rel="noopener">&#9654; 33:20</a></div><p>Se declaran temperatura, latitud, longitud y el estado del LED que se van a enviar, y un buffer para lo que responda Ubidots.</p><div class="uno"><figure class="cap"><a href="img/2018.webp" target="_blank"><img src="img/2018.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Dispositivo en Ubidots</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=2300" target="_blank" rel="noopener">&#9654; 38:20</a></div><p>En Ubidots se crea el dispositivo pruebas con las variables gps, led y temperatura, y luego un tablero para verlas. El token de la cuenta no se debe mostrar.</p><div class="uno"><figure class="cap"><a href="img/2369.webp" target="_blank"><img src="img/2369.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Armar y enviar el JSON</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=2420" target="_blank" rel="noopener">&#9654; 40:20</a></div><p>Con sprintf se arma el JSON: la temperatura con 2 decimales y la latitud y longitud con 7. Se calcula el largo, se envía la cabecera HTTP con el token y el cuerpo, y se termina con Ctrl+Z (0x1A) esperando SEND OK.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(trama_tx, &quot;{\&quot;led\&quot;: %d,\&quot;temperatura\&quot;: %5.2f,\&quot;gps\&quot;:{\&quot;lat\&quot;:%11.7f, \&quot;lng\&quot;:%12.7f}}&quot;,
+        (unsigned int)led_ubidot, temperatura, latitud, longitud);
+largo = strlen(trama_tx);
+sprintf(largo_str, &quot;%u\n\n&quot;, largo);
+Uart1_write_text_const(&quot;POST /api/v1.6/devices/pruebas/?token=TU_TOKEN HTTP/1.1\nHost: things.ubidots.com\nContent-Type: application/json\nContent-Length: &quot;);
+UART1_Write_Text(largo_str);
+Uart1_write_text(trama_tx);
+Delay_ms(4000);   // retardo de envio
+temp = manda_AT_COMANDO(&quot;\x1A&quot;, &quot;SEND OK&quot;, &quot;ERROR&quot;, 4000);  // comando de fin de envio</code></pre></div><div class="uno"><figure class="cap"><a href="img/2486.webp" target="_blank"><img src="img/2486.webp" alt="SIM800 con PIC y MikroC parte 1: comandos AT, GPRS y envío de datos a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.6</span><h3>Prueba</h3><a class="min" href="https://youtu.be/Cgj49ardWgM?t=2600" target="_blank" rel="noopener">&#9654; 43:20</a></div><p>En el ciclo principal se llama conectar cada 5 segundos y los valores aparecen en el tablero de Ubidots. En la segunda parte se agrega la lectura real del GPS.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Cgj49ardWgM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

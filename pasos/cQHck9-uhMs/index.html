@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dado electrónico sencillo y doble con PIC y MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Dos dados de 7 LEDs cada uno con un PIC16F628A. Un pulsador lanza un dado y otro lanza los dos. El número aleatorio sale de los timers corriendo libres con srand, rand y una función map.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/cQHck9-uhMs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Dado electrónico sencillo y doble con PIC y MikroC · Paso a paso">
+  <meta property="og:description" content="Dos dados de 7 LEDs cada uno con un PIC16F628A. Un pulsador lanza un dado y otro lanza los dos. El número aleatorio sale de los timers corriendo libres con srand, rand y una función map.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/cQHck9-uhMs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/cQHck9-uhMs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Dado <span>electrónico</span> con PIC</h1>
+    <p class="lead">Se usan 14 LEDs (7 por dado) y el oscilador interno a 4 MHz, así quedan libres casi todos los pines; RA4 es de drenador abierto y necesita resistencia de pull-up. Un arreglo constante decodifica cada número en los LEDs que se prenden. Como los LEDs no están en un solo puerto, se escriben funciones para poner, borrar y leer un bit por medio de un puntero. borrar_dado apaga los 7 LEDs y mostrar_dado recorre los bits del número. El valor aleatorio usa el Timer0 y el Timer2 corriendo libres (0 a 255) como semilla de srand; rand se escala de 1 a 7 con una función como map de Arduino.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=cQHck9-uhMs" target="_blank" rel="noopener">&#9654; Ver el video completo (21:41)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1280.webp" alt="Dado electrónico sencillo y doble con PIC y MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (C_Stdlib)</li><li>PIC16F628A con oscilador interno a 4 MHz</li><li>14 LEDs con sus resistencias</li><li>Dos pulsadores con pull-up</li><li>Resistencia de pull-up para RA4</li><li>Proteus para la simulación</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Circuito</a><a href="#f2">2 · Mostrar</a><a href="#f3">3 · Aleatorio</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El circuito</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La idea</h3><a class="min" href="https://youtu.be/cQHck9-uhMs?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Un dado para juegos de mesa: con un botón se lanza un dado y con otro los dos.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Dado electrónico sencillo y doble con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Esquema</h3><a class="min" href="https://youtu.be/cQHck9-uhMs?t=120" target="_blank" rel="noopener">&#9654; 2:00</a></div><p>Cada dado tiene 7 LEDs en la forma de los puntos. Los pulsadores ONE y TWO van con pull-up. RA4 lleva su propia resistencia de pull-up.</p><div class="uno"><figure class="cap"><a href="img/135.webp" target="_blank"><img src="img/135.webp" alt="Dado electrónico sencillo y doble con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Nombres de pines</h3><a class="min" href="https://youtu.be/cQHck9-uhMs?t=240" target="_blank" rel="noopener">&#9654; 4:00</a></div><p>Con sbit se le da nombre a cada LED (d11 a d17 y d21 a d27) y a los dos pulsadores.</p><div class="uno"><figure class="cap"><a href="img/249.webp" target="_blank"><img src="img/249.webp" alt="Dado electrónico sencillo y doble con PIC y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Mostrar el número</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Decodificador</h3><a class="min" href="https://youtu.be/cQHck9-uhMs?t=350" target="_blank" rel="noopener">&#9654; 5:50</a></div><p>Cada número es un patrón de 7 bits. Las funciones setbit, clearbit y readbit trabajan sobre cualquier variable o puerto por medio de un puntero.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// decodificador de dados
+const char numeros[] = {0b0000000, 0b1000000, 0b0001001, 0b1001001, 0b0101101, 0b1101101, 0b0111111};
+
+void setbit(unsigned int *port, char bit)
+{
+  *port |= (1 &lt;&lt; bit);
+}
+
+void clearbit(unsigned int *port, char bit)
+{
+  *port &amp;= ~(1 &lt;&lt; bit);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/364.webp" target="_blank"><img src="img/364.webp" alt="Dado electrónico sencillo y doble con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Mostrar un dado</h3><a class="min" href="https://youtu.be/cQHck9-uhMs?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>borrado1 apaga los LEDs. dado1 recorre los 7 bits del número y, con un switch, prende el LED que corresponde a cada bit en 1. dado2 hace lo mismo con el segundo dado.</p><div class="dos"><figure class="cap"><a href="img/478.webp" target="_blank"><img src="img/478.webp" alt="Dado electrónico sencillo y doble con PIC y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/593.webp" target="_blank"><img src="img/593.webp" alt="Dado electrónico sencillo y doble con PIC y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Número aleatorio</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Timers libres</h3><a class="min" href="https://youtu.be/cQHck9-uhMs?t=800" target="_blank" rel="noopener">&#9654; 13:20</a></div><p>El Timer0 corre con el reloj interno y preescalador 2, y el Timer2 también. Como cambian todo el tiempo, sirven como semilla.</p><div class="uno"><figure class="cap"><a href="img/822.webp" target="_blank"><img src="img/822.webp" alt="Dado electrónico sencillo y doble con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>srand, rand y map</h3><a class="min" href="https://youtu.be/cQHck9-uhMs?t=920" target="_blank" rel="noopener">&#9654; 15:20</a></div><p>Se siembra srand con el timer y el número anterior, rand da un valor de 0 a 32767 y map lo lleva al rango del dado. Se repite si queda fuera de 1 a 6.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned char random1()
+{
+  float temp;
+  do {
+    srand(tmr0 * random_num * random_num);
+    temp = rand();
+    valor = map(temp, 0, 32767, 1, 7);
+    random_num = valor;
+  } while ((random_num &lt; 1) || (random_num &gt; 6));
+  return random_num;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/936.webp" target="_blank"><img src="img/936.webp" alt="Dado electrónico sencillo y doble con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Lanzar</h3><a class="min" href="https://youtu.be/cQHck9-uhMs?t=1150" target="_blank" rel="noopener">&#9654; 19:10</a></div><p>Al presionar el botón de un dado se borra el segundo y se muestran varios números seguidos como animación antes del resultado. Con el otro botón se lanzan los dos.</p><div class="uno"><figure class="cap"><a href="img/1165.webp" target="_blank"><img src="img/1165.webp" alt="Dado electrónico sencillo y doble con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Simulación</h3><a class="min" href="https://youtu.be/cQHck9-uhMs?t=1270" target="_blank" rel="noopener">&#9654; 21:10</a></div><p>En Proteus cada pulsador muestra un número distinto en cada lanzamiento.</p><div class="uno"><figure class="cap"><a href="img/1280.webp" target="_blank"><img src="img/1280.webp" alt="Dado electrónico sencillo y doble con PIC y MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=cQHck9-uhMs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

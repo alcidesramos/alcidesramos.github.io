@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El mismo proyecto de Ubidots con GPS, ahora con un ESP8266 por WiFi: el PIC18F2550 envía temperatura, estado de un suiche y coordenadas, y lee de Ubidots una variable para prender un LED.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/XiDP4YNlNOQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED · Paso a paso">
+  <meta property="og:description" content="El mismo proyecto de Ubidots con GPS, ahora con un ESP8266 por WiFi: el PIC18F2550 envía temperatura, estado de un suiche y coordenadas, y lee de Ubidots una variable para prender un LED.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/XiDP4YNlNOQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/XiDP4YNlNOQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>ESP8266, GPS y <span>Ubidots</span> con PIC</h1>
+    <p class="lead">El ESP8266 se maneja con comandos AT por el UART del PIC (9600 baudios en Proteus; el módulo real suele venir a 115200). Se reutilizan manda_comando y la función tiempo de la clase del SIM800. El módulo se conecta a la red WiFi, abre un socket TCP (el 4) con things.ubidots.com y envía el JSON con POST. Luego hace un GET a la variable del suiche y captura el valor entre los dos puntos y la coma para mover el LED. El GPS va por serial por software con un timer de 4 s como límite y la temperatura sale de un DS18B20.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=XiDP4YNlNOQ" target="_blank" rel="noopener">&#9654; Ver el video completo (35:07)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1356.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (UART, Software UART, One Wire, C_String)</li><li>PIC18F2550</li><li>Módulo ESP8266 (ESP-01)</li><li>Sensor DS18B20</li><li>Módulo GPS (o GPS virtual en Proteus)</li><li>Pulsador y LED</li><li>Proteus con COMPIM</li><li>Cuenta en Ubidots</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Preparar</a><a href="#f2">2 · Comunicación</a><a href="#f3">3 · Ubidots</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Simulación</h3><a class="min" href="https://youtu.be/XiDP4YNlNOQ?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>En Proteus el COMPIM representa el ESP8266 real conectado al computador. Se configura el puerto y 9600 baudios, igual que el módulo.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/XiDP4YNlNOQ?t=260" target="_blank" rel="noopener">&#9654; 4:20</a></div><p>Se incluye la librería del DS18B20, se definen el suiche en RB0 y el LED en LATB6, todo digital, RC7 como entrada y el UART a 9600.</p><div class="uno"><figure class="cap"><a href="img/271.webp" target="_blank"><img src="img/271.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Estados de recepción</h3><a class="min" href="https://youtu.be/XiDP4YNlNOQ?t=380" target="_blank" rel="noopener">&#9654; 6:20</a></div><p>Las respuestas del ESP8266 se procesan con una máquina de estados (normal, cap_l, cap_u, cap_e, cap_co, esp_final) para capturar el valor que devuelve Ubidots.</p><div class="uno"><figure class="cap"><a href="img/392.webp" target="_blank"><img src="img/392.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Funciones reutilizadas</h3><a class="min" href="https://youtu.be/XiDP4YNlNOQ?t=500" target="_blank" rel="noopener">&#9654; 8:20</a></div><p>Se copian del proyecto del SIM800 las funciones de texto por UART y por serial por software y la lectura con límite.</p><div class="uno"><figure class="cap"><a href="img/512.webp" target="_blank"><img src="img/512.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Comunicación</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Esperar respuesta</h3><a class="min" href="https://youtu.be/XiDP4YNlNOQ?t=620" target="_blank" rel="noopener">&#9654; 10:20</a></div><p>tiempo limpia la trama y los errores de recepción y revisa durante un número de milisegundos si llegó la respuesta esperada.</p><div class="uno"><figure class="cap"><a href="img/633.webp" target="_blank"><img src="img/633.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Timer e interrupciones</h3><a class="min" href="https://youtu.be/XiDP4YNlNOQ?t=740" target="_blank" rel="noopener">&#9654; 12:20</a></div><p>Se configura el Timer0 y la interrupción serial. En la interrupción del UART cada dato pasa por la máquina de estados; en la del timer se cuenta el tiempo y, al cumplirse, se activa flag_timer para cortar la lectura del GPS.</p><div class="dos"><figure class="cap"><a href="img/754.webp" target="_blank"><img src="img/754.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure><figure class="cap"><a href="img/874.webp" target="_blank"><img src="img/874.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure><figure class="cap"><a href="img/995.webp" target="_blank"><img src="img/995.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Conectar a la red</h3><a class="min" href="https://youtu.be/XiDP4YNlNOQ?t=1100" target="_blank" rel="noopener">&#9654; 18:20</a></div><p>Se conecta a la red WiFi, se permiten múltiples conexiones y se muestra la IP. Después se lee la temperatura una vez para calibrar el sensor.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>manda_AT_COMANDO(&quot;AT+CWJAP=\&quot;tu_red\&quot;,\&quot;tu_clave\&quot;&quot;, &quot;OK&quot;, &quot;OK&quot;, 10000); // se conecta a una red WiFi
+manda_AT_COMANDO(&quot;AT+CIPMUX=1&quot;, &quot;OK&quot;, &quot;OK&quot;, 1000);  // permite multiples conexiones
+manda_AT_COMANDO(&quot;AT+CIFSR&quot;, &quot;OK&quot;, &quot;OK&quot;, 1000);     // muestra la ip del modulo
+temperatura = ds18b20_read(&amp;portb, 7);  // lectura necesaria para calibrar el sensor</code></pre></div><div class="uno"><figure class="cap"><a href="img/1115.webp" target="_blank"><img src="img/1115.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Ubidots</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Abrir el socket</h3><a class="min" href="https://youtu.be/XiDP4YNlNOQ?t=1340" target="_blank" rel="noopener">&#9654; 22:20</a></div><p>conecta abre la conexión TCP número 4 con things.ubidots.com en el puerto 80 y espera OK o CONNECT.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned char conecta()
+{
+  temp = manda_AT_COMANDO(&quot;AT+CIPSTART=4,\&quot;TCP\&quot;,\&quot;things.ubidots.com\&quot;,80&quot;, &quot;OK&quot;, &quot;CONNECT&quot;, 10000);
+  Delay_ms(2000);
+  if ((temp == 1) || (temp == 2)) return 1;
+  else return 0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1356.webp" target="_blank"><img src="img/1356.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Leer el suiche</h3><a class="min" href="https://youtu.be/XiDP4YNlNOQ?t=1460" target="_blank" rel="noopener">&#9654; 24:20</a></div><p>Con un GET a la variable se pide el último valor. La respuesta trae value: 0.0; se captura lo que hay entre los dos puntos y la coma, se convierte con atof y se cierra el socket.</p><div class="uno"><figure class="cap"><a href="img/1477.webp" target="_blank"><img src="img/1477.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>GPS por software</h3><a class="min" href="https://youtu.be/XiDP4YNlNOQ?t=1700" target="_blank" rel="noopener">&#9654; 28:20</a></div><p>lee_trama_soft y lee_cordenadas son las mismas de la parte 2 del SIM800: capturan la trama GGA con límite de tiempo y la pasan a grados decimales.</p><div class="dos"><figure class="cap"><a href="img/1718.webp" target="_blank"><img src="img/1718.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure><figure class="cap"><a href="img/1839.webp" target="_blank"><img src="img/1839.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Ciclo principal</h3><a class="min" href="https://youtu.be/XiDP4YNlNOQ?t=1950" target="_blank" rel="noopener">&#9654; 32:30</a></div><p>Se lee la temperatura, el LED de Ubidots copia el suiche, y si hay coordenadas válidas se envía todo. El LED físico toma el valor del suiche de Ubidots.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  temperatura = ds18b20_read(&amp;portb, 7);  // manda la temperatura
+  led_ubidot = sw;      // el led de ubidot es igual al suiche
+  if (lee_cordenadas() == 1) conectar();
+  led1 = suiche_ubi;    // saca el valor de suiche de ubidot al led
+  Delay_ms(2000);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1959.webp" target="_blank"><img src="img/1959.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/XiDP4YNlNOQ?t=2060" target="_blank" rel="noopener">&#9654; 34:20</a></div><p>En las terminales se ven la respuesta HTTP y el valor leído. En el tablero cambian la temperatura, el LED y el punto del GPS, y el suiche de Ubidots prende el LED.</p><div class="uno"><figure class="cap"><a href="img/2080.webp" target="_blank"><img src="img/2080.webp" alt="ESP8266 con PIC y MikroC: enviar temperatura y GPS a Ubidots y controlar un LED" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=XiDP4YNlNOQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

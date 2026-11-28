@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Billetero NV10 con PIC y MikroC: contar billetes por pulsos · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC18F2550 cuenta los pulsos que entrega el aceptador de billetes NV10 en modo pulsos. La interrupción externa cuenta cada pulso y el Timer0 detecta cuándo terminó el billete.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/wK0VOHq5MfE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Billetero NV10 con PIC y MikroC: contar billetes por pulsos · Paso a paso">
+  <meta property="og:description" content="Un PIC18F2550 cuenta los pulsos que entrega el aceptador de billetes NV10 en modo pulsos. La interrupción externa cuenta cada pulso y el Timer0 detecta cuándo terminó el billete.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/wK0VOHq5MfE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/wK0VOHq5MfE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Billetero <span>NV10</span> con PIC</h1>
+    <p class="lead">En modo pulsos el NV10 entrega un pulso por cada 1000: un billete de 2000 da dos pulsos. Cada flanco de bajada genera una interrupción que suma un pulso y reinicia el Timer0 (16 bits, preescalador 256, TMR0H = 146 y TMR0L = 35, unos 600 ms). Si el timer se desborda es porque ya no llegan más pulsos y el billete es válido. El pin RB1 (inhibir) habilita el billetero con 0. El procedimiento billetero multiplica los pulsos por 1000, los suma al saldo y lo envía por serial. Se usó en un proyecto de lavadero con pantalla HMI.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=wK0VOHq5MfE" target="_blank" rel="noopener">&#9654; Ver el video completo (15:47)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/765.webp" alt="Billetero NV10 con PIC y MikroC: contar billetes por pulsos"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (UART, conversiones)</li><li>PIC18F2550 a 48 MHz (tarjeta entrenadora con bootloader)</li><li>Aceptador de billetes NV10 USB configurado en modo pulsos</li><li>Fuente de 12 V para el billetero</li><li>Terminal serial (Hercules)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Preparar</a><a href="#f2">2 · Pulsos</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El billetero</h3><a class="min" href="https://youtu.be/wK0VOHq5MfE?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El NV10 valida el billete y, en modo pulsos, entrega un pulso por cada 1000. Tiene un pin de inhibir para habilitarlo o no desde el micro.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Billetero NV10 con PIC y MikroC: contar billetes por pulsos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/wK0VOHq5MfE?t=170" target="_blank" rel="noopener">&#9654; 2:50</a></div><p>pulsos_var cuenta los pulsos, flag_bill indica que llegó un billete completo y dinero acumula el saldo.</p><div class="uno"><figure class="cap"><a href="img/185.webp" target="_blank"><img src="img/185.webp" alt="Billetero NV10 con PIC y MikroC: contar billetes por pulsos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Configuración</h3><a class="min" href="https://youtu.be/wK0VOHq5MfE?t=250" target="_blank" rel="noopener">&#9654; 4:10</a></div><p>RB1 en 0 habilita el billetero. Se inicia el UART y la interrupción externa por flanco de bajada.</p><div class="uno"><figure class="cap"><a href="img/268.webp" target="_blank"><img src="img/268.webp" alt="Billetero NV10 con PIC y MikroC: contar billetes por pulsos" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Contar pulsos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Timer0</h3><a class="min" href="https://youtu.be/wK0VOHq5MfE?t=340" target="_blank" rel="noopener">&#9654; 5:40</a></div><p>El Timer0 en 16 bits con preescalador 256 y TMR0H = 146, TMR0L = 35 tarda unos 600 ms, más que el espacio entre pulsos. Queda apagado hasta el primer pulso.</p><div class="dos"><figure class="cap"><a href="img/351.webp" target="_blank"><img src="img/351.webp" alt="Billetero NV10 con PIC y MikroC: contar billetes por pulsos" loading="lazy"></a></figure><figure class="cap"><a href="img/516.webp" target="_blank"><img src="img/516.webp" alt="Billetero NV10 con PIC y MikroC: contar billetes por pulsos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Interrupciones</h3><a class="min" href="https://youtu.be/wK0VOHq5MfE?t=590" target="_blank" rel="noopener">&#9654; 9:50</a></div><p>Cada pulso recarga y enciende el timer y suma uno. Si el timer se desborda, ya no llegaron más pulsos: se apaga y se activa flag_bill.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// en la interrupcion externa (cada pulso)
+TMR0H = 146;
+TMR0L = 35;
+TMR0ON_bit = 1;  // enciende el timer para medir desborde y saber si ya termino los pulsos
+pulsos_var++;
+INT0IF_bit = 0;
+
+if (TMR0IF_bit == 1) {
+  TMR0H = 146;
+  TMR0L = 35;
+  TMR0ON_bit = 0;  // apaga el timer
+  flag_bill = 1;
+  TMR0IF_bit = 0;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/599.webp" target="_blank"><img src="img/599.webp" alt="Billetero NV10 con PIC y MikroC: contar billetes por pulsos" loading="lazy"></a></figure><figure class="cap"><a href="img/682.webp" target="_blank"><img src="img/682.webp" alt="Billetero NV10 con PIC y MikroC: contar billetes por pulsos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Ciclo principal</h3><a class="min" href="https://youtu.be/wK0VOHq5MfE?t=750" target="_blank" rel="noopener">&#9654; 12:30</a></div><p>billetero revisa flag_bill: multiplica los pulsos por 1000, los suma a dinero, envía el saldo por serial y limpia las variables. El LED de RB7 indica que el programa corre.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  billetero();
+  UART1_Write_Text(&quot;FUNCIONANDO\r\n&quot;);
+  LATB7_bit = ~LATB7_bit;
+  Delay_ms(1000);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/765.webp" target="_blank"><img src="img/765.webp" alt="Billetero NV10 con PIC y MikroC: contar billetes por pulsos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Prueba</h3><a class="min" href="https://youtu.be/wK0VOHq5MfE?t=830" target="_blank" rel="noopener">&#9654; 13:50</a></div><p>Al meter billetes en la terminal aparece el saldo acumulado, por ejemplo SALDO=7000 después de un billete de 5000 y uno de 2000.</p><div class="uno"><figure class="cap"><a href="img/847.webp" target="_blank"><img src="img/847.webp" alt="Billetero NV10 con PIC y MikroC: contar billetes por pulsos" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=wK0VOHq5MfE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

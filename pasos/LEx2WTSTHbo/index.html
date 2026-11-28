@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se lee la trama GPGGA de un GPS por un puerto serial por software, con un tiempo límite para no bloquear el programa, se extraen la latitud y la longitud en grados y se envían a Ubidots con el SIM800.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/LEx2WTSTHbo/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots · Paso a paso">
+  <meta property="og:description" content="Se lee la trama GPGGA de un GPS por un puerto serial por software, con un tiempo límite para no bloquear el programa, se extraen la latitud y la longitud en grados y se envían a Ubidots con el SIM800.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/LEx2WTSTHbo/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/LEx2WTSTHbo/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>SIM800 y <span>GPS</span> con PIC (parte 2)</h1>
+    <p class="lead">Es la continuación de la parte 1. El Timer0 da el tiempo límite de la lectura por software: si se cumple, se activa flag_timer y la lectura retorna. Una máquina de estados busca los caracteres G, G, A y guarda la trama hasta el asterisco. La función de coordenadas copia la trama, revisa que el fix sea válido, separa los campos con strtok y pasa grados y minutos a grados decimales (los minutos se dividen entre 60 y el sur o el oeste quedan negativos). El programa envía los datos a Ubidots cada 5 segundos. También se deja una función para enviar un SMS.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=LEx2WTSTHbo" target="_blank" rel="noopener">&#9654; Ver el video completo (26:12)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1189.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (Software UART, C_String, conversiones)</li><li>PIC18F2550 a 48 MHz</li><li>Módulo SIM800</li><li>Módulo GPS (o GPS virtual en Proteus)</li><li>Proteus con COMPIM para la simulación</li><li>Cuenta en Ubidots</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Timer</a><a href="#f2">2 · GPGGA</a><a href="#f3">3 · Coordenadas</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Leer sin bloquear</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Timer de espera</h3><a class="min" href="https://youtu.be/LEx2WTSTHbo?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>El Timer0 con preescalador 256 y TMR0H = 72, TMR0L = 228 interrumpe cada cierto tiempo. timer_enable recibe cuánto esperar y enciende el timer.</p><div class="dos"><figure class="cap"><a href="img/119.webp" target="_blank"><img src="img/119.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure><figure class="cap"><a href="img/208.webp" target="_blank"><img src="img/208.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/LEx2WTSTHbo?t=290" target="_blank" rel="noopener">&#9654; 4:50</a></div><p>Se agregan las tramas del GPS, el estado de su máquina, la bandera flag_timer y las variables de grados, minutos, latitud, longitud y fix.</p><div class="dos"><figure class="cap"><a href="img/297.webp" target="_blank"><img src="img/297.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure><figure class="cap"><a href="img/565.webp" target="_blank"><img src="img/565.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Lectura con límite</h3><a class="min" href="https://youtu.be/LEx2WTSTHbo?t=380" target="_blank" rel="noopener">&#9654; 6:20</a></div><p>Soft_UART_Read espera un dato; si el timer se cumple antes, la bandera hace que retorne y el programa sigue.</p><div class="uno"><figure class="cap"><a href="img/386.webp" target="_blank"><img src="img/386.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Capturar la trama</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Máquina de estados</h3><a class="min" href="https://youtu.be/LEx2WTSTHbo?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>lee_trama_soft lee dato por dato. Si llega la secuencia de la trama GGA pasa de estado en estado; en el estado final guarda los datos hasta el asterisco y retorna 1.</p><div class="dos"><figure class="cap"><a href="img/476.webp" target="_blank"><img src="img/476.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure><figure class="cap"><a href="img/654.webp" target="_blank"><img src="img/654.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Fin de la trama</h3><a class="min" href="https://youtu.be/LEx2WTSTHbo?t=740" target="_blank" rel="noopener">&#9654; 12:20</a></div><p>Al llegar el asterisco se apaga el timer, se limpia la bandera y se sale del procedimiento. Si el buffer pasa de 100 datos se reinicia el contador.</p><div class="uno"><figure class="cap"><a href="img/743.webp" target="_blank"><img src="img/743.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Probar la lectura</h3><a class="min" href="https://youtu.be/LEx2WTSTHbo?t=830" target="_blank" rel="noopener">&#9654; 13:50</a></div><p>En un ciclo de prueba, si lee_trama_soft retorna 1 se envía la trama por serial; si no, se envía nada. En Proteus el GPS virtual se conecta al pin del puerto por software y el COMPIM al conversor serial.</p><div class="dos"><figure class="cap"><a href="img/832.webp" target="_blank"><img src="img/832.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure><figure class="cap"><a href="img/921.webp" target="_blank"><img src="img/921.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Coordenadas y envío</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>SMS</h3><a class="min" href="https://youtu.be/LEx2WTSTHbo?t=1000" target="_blank" rel="noopener">&#9654; 16:40</a></div><p>manda_mensaje usa AT+CMGF=1, AT+CMGS con el número de destino y el texto, y termina con Ctrl+Z. El número se pone en el código.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Separar campos</h3><a class="min" href="https://youtu.be/LEx2WTSTHbo?t=1090" target="_blank" rel="noopener">&#9654; 18:10</a></div><p>La trama se copia a otro buffer porque primero hay que leer el fix. Con strtok se saltan las comas hasta el campo del fix y solo se sigue si vale 1 o 2.</p><div class="uno"><figure class="cap"><a href="img/1099.webp" target="_blank"><img src="img/1099.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Grados decimales</h3><a class="min" href="https://youtu.be/LEx2WTSTHbo?t=1180" target="_blank" rel="noopener">&#9654; 19:40</a></div><p>Los dos primeros dígitos son grados y el resto minutos. Los minutos se dividen entre 60 y se suman. Si la orientación es S (o W en la longitud) el valor queda negativo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>fix = atoi(captu_GPS);
+if ((fix == 1) || (fix == 2)) {        // solo si ya tiene un dato valido
+  strcpy(captu_GPS, strtok(trama_GPS1, &quot;,&quot;));  // captura 1 coma
+  strcpy(captu_GPS, strtok(0, &quot;,&quot;));           // captura hasta segunda coma
+  strcpy(captu_GPS, strtok(0, &quot;,&quot;));           // captura latitud
+  memset(c_grados, 0, 10);                     // limpia los grados
+  strncpy(c_grados, captu_GPS, 2);             // captura los grados
+  grados = atof(c_grados);
+  minutos = atof(&amp;captu_GPS[2]) / 60.0;        // lo pasa a grados
+  latitud = grados + minutos;
+  strcpy(captu_GPS, strtok(0, &quot;,&quot;));           // orientacion o signo de la lat
+  if (captu_GPS[0] == &#x27;S&#x27;) latitud = -latitud;
+  // captura la longitud de la misma forma (W negativo)
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1189.webp" target="_blank"><img src="img/1189.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Ciclo principal</h3><a class="min" href="https://youtu.be/LEx2WTSTHbo?t=1270" target="_blank" rel="noopener">&#9654; 21:10</a></div><p>Cuando hay una trama válida se calculan las coordenadas y se llama conectar, que envía temperatura, LED y GPS a Ubidots. El ciclo se repite cada 5 segundos y en el tablero aparece el punto en el mapa.</p><div class="uno"><figure class="cap"><a href="img/1278.webp" target="_blank"><img src="img/1278.webp" alt="SIM800 con PIC y MikroC parte 2: leer el GPS y enviar las coordenadas a Ubidots" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=LEx2WTSTHbo" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

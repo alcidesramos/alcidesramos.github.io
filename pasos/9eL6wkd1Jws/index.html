@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tip LabVIEW: sincronizar la comunicación serial full duplex con un PIC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo evitar que los valores en LabVIEW se vayan a cero o salten cuando el PIC envía datos seguido: ajustar el retardo de lectura y procesar la trama solo cuando llegó completa.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/9eL6wkd1Jws/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Tip LabVIEW: sincronizar la comunicación serial full duplex con un PIC · Paso a paso">
+  <meta property="og:description" content="Cómo evitar que los valores en LabVIEW se vayan a cero o salten cuando el PIC envía datos seguido: ajustar el retardo de lectura y procesar la trama solo cuando llegó completa.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/9eL6wkd1Jws/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/9eL6wkd1Jws/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Sincronizar <span>LabVIEW</span> y el PIC por serial</h1>
+    <p class="lead">Se usa el ejemplo full duplex con PIC18F en Proteus y LabVIEW unidos por un puerto virtual. Si LabVIEW lee más rápido de lo que el PIC envía, a veces toma tramas incompletas y los indicadores caen a cero. La solución es que el retardo de lectura de LabVIEW sea de 2.5 a 3 veces el periodo de envío del PIC, y procesar la trama con una estructura case solo si su largo es al menos el tamaño esperado (16) menos 2. El PIC puede transmitir cada 20 a 100 ms. Las estructuras de eventos son una mejor opción para proyectos más grandes.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=9eL6wkd1Jws" target="_blank" rel="noopener">&#9654; Ver el video completo (8:55)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/320.webp" alt="Tip LabVIEW: sincronizar la comunicación serial full duplex con un PIC"></figure>
+    <ul class="materiales"><li>LabVIEW con VISA</li><li>Proteus con COMPIM</li><li>PIC18F con el programa full duplex</li><li>Puerto serial virtual (VSPE)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Problema</a><a href="#f2">2 · Solución</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El problema</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Ejemplo full duplex</h3><a class="min" href="https://youtu.be/9eL6wkd1Jws?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>LabVIEW envía el estado de LEDs y giro del motor, y el PIC devuelve temperatura, velocidad y el estado de un suiche, todo por el mismo puerto.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Valores que caen a cero</h3><a class="min" href="https://youtu.be/9eL6wkd1Jws?t=200" target="_blank" rel="noopener">&#9654; 3:20</a></div><p>Cuando la lectura en LabVIEW no está sincronizada con el envío del PIC, a veces llega media trama y los indicadores saltan a cero.</p><div class="uno"><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Tip LabVIEW: sincronizar la comunicación serial full duplex con un PIC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La solución</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Retardo de lectura</h3><a class="min" href="https://youtu.be/9eL6wkd1Jws?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>El retardo del ciclo de LabVIEW debe ser de 2.5 a 3 veces el periodo con que el PIC envía. Así siempre hay una trama completa en el buffer.</p><div class="uno"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Tip LabVIEW: sincronizar la comunicación serial full duplex con un PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Revisar el largo</h3><a class="min" href="https://youtu.be/9eL6wkd1Jws?t=400" target="_blank" rel="noopener">&#9654; 6:40</a></div><p>Se compara el número de bytes en el puerto con el tamaño de la trama (16) menos 2. Solo si es mayor o igual, una estructura case procesa los datos; si no, se conservan los valores anteriores.</p><div class="uno"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Tip LabVIEW: sincronizar la comunicación serial full duplex con un PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/9eL6wkd1Jws?t=500" target="_blank" rel="noopener">&#9654; 8:20</a></div><p>Con el ajuste, la temperatura y el suiche se ven estables aunque el PIC envíe cada 20 a 100 ms.</p><div class="uno"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Tip LabVIEW: sincronizar la comunicación serial full duplex con un PIC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=9eL6wkd1Jws" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
