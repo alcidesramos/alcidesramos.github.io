@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>El pin RA4 en PIC16F antiguos: salida de colector abierto · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="En el PIC16F877A y otros PIC16F antiguos el pin RA4 es de colector abierto: como salida no entrega un 1. Necesita una resistencia a positivo.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/in32yGZ5YGM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="El pin RA4 en PIC16F antiguos: salida de colector abierto · Paso a paso">
+  <meta property="og:description" content="En el PIC16F877A y otros PIC16F antiguos el pin RA4 es de colector abierto: como salida no entrega un 1. Necesita una resistencia a positivo.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/in32yGZ5YGM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/in32yGZ5YGM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>El pin <span>RA4</span> en PIC16F antiguos</h1>
+    <p class="lead">RA4 también es la entrada de reloj externo del Timer0 (T0CKI) y en estos micros su salida es de drenador abierto. Si se hace parpadear todo el puerto A, todos los LEDs prenden menos el de RA4. Con una resistencia de 1 k a 10 k de RA4 a VDD (pull up) la señal ya sale y el LED funciona.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=in32yGZ5YGM" target="_blank" rel="noopener">&#9654; Ver el video completo (6:55)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/400.webp" alt="El pin RA4 en PIC16F antiguos: salida de colector abierto"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC16F877A</li><li>LEDs con resistencias de 220 Ω</li><li>Resistencia de pull up para RA4</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Problema</a><a href="#f2">2 · Solución</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El problema</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Parpadeo del puerto A</h3><a class="min" href="https://youtu.be/in32yGZ5YGM?t=71" target="_blank" rel="noopener">&#9654; 1:11</a></div><p>Todo digital, el puerto A como salida y se invierte cada 400 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0b0111;   // todo digital
+TRISA = 0;
+PORTA = 0;
+while (1) {
+  PORTA = ~PORTA;
+  Delay_ms(400);
+}</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>RA4 no prende</h3><a class="min" href="https://youtu.be/in32yGZ5YGM?t=137" target="_blank" rel="noopener">&#9654; 2:17</a></div><p>Al correr el programa todos los LEDs del puerto A parpadean menos el de RA4, porque ese pin solo puede llevar la salida a 0.</p><div class="uno"><figure class="cap"><a href="img/248.webp" target="_blank"><img src="img/248.webp" alt="El pin RA4 en PIC16F antiguos: salida de colector abierto" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La solución</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pull up</h3><a class="min" href="https://youtu.be/in32yGZ5YGM?t=205" target="_blank" rel="noopener">&#9654; 3:25</a></div><p>Se pone una resistencia de 1 k a 10 k de RA4 a positivo. En Proteus se usa una de 300 Ω para que la simulación se vea bien. Después se conecta la carga.</p><div class="dos"><figure class="cap"><a href="img/324.webp" target="_blank"><img src="img/324.webp" alt="El pin RA4 en PIC16F antiguos: salida de colector abierto" loading="lazy"></a></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="El pin RA4 en PIC16F antiguos: salida de colector abierto" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Tenerlo en cuenta</h3><a class="min" href="https://youtu.be/in32yGZ5YGM?t=401" target="_blank" rel="noopener">&#9654; 6:41</a></div><p>Este detalle no aparece en los micros nuevos, pero si un proyecto con un PIC16F antiguo no prende algo en RA4, es lo primero que hay que revisar.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=in32yGZ5YGM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

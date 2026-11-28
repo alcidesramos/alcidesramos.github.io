@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pantalla OLED SSD1306 por I2C con PIC y MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Manejo de la pantalla OLED monocromática de 128x64 con controlador SSD1306 desde un PIC18F2550: conexión I2C, dirección, texto e imágenes hechas con el editor de bitmaps de MikroC.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/lBFj261LQBk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Pantalla OLED SSD1306 por I2C con PIC y MikroC · Paso a paso">
+  <meta property="og:description" content="Manejo de la pantalla OLED monocromática de 128x64 con controlador SSD1306 desde un PIC18F2550: conexión I2C, dirección, texto e imágenes hechas con el editor de bitmaps de MikroC.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/lBFj261LQBk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/lBFj261LQBk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Pantalla <span>OLED SSD1306</span> con PIC</h1>
+    <p class="lead">La OLED SSD1306 es pequeña y económica. Se usa una librería de terceros modificada que trabaja por I2C (por hardware o por software) y trae funciones para texto, números, líneas, rectángulos, círculos e imágenes. Se revisa en la hoja de datos cómo se elige la dirección con el pin SA0 (D/C), se arma el circuito en Proteus, se escribe texto y se convierten imágenes con el GLCD Bitmap Editor. Al final se quita el pin de reset y se mueve el I2C a otros pines.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=lBFj261LQBk" target="_blank" rel="noopener">&#9654; Ver el video completo (31:09)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1845.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librería I2C o Soft_I2C)</li><li>PIC18F2550</li><li>Pantalla OLED 128x64 SSD1306 (UG-2864HSWEG01 en Proteus)</li><li>Resistencias de 4.7 kΩ para SDA y SCL</li><li>Librería SSD1306 (fonts.c, SSD1306.c y SSD1306.h)</li><li>GLCD Bitmap Editor de MikroC</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Pantalla</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Imágenes</a><a href="#f4">4 · Pines</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La pantalla</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>OLED SSD1306</h3><a class="min" href="https://youtu.be/lBFj261LQBk?t=2" target="_blank" rel="noopener">&#9654; 0:02</a></div><p>Es una pantalla gráfica monocromática de 128x64 puntos. La librería que se usa sirve también para otros micros; se modificó para dibujar y para trabajar el I2C por software.</p><div class="uno"><figure class="cap"><a href="img/137.webp" target="_blank"><img src="img/137.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pines y dirección</h3><a class="min" href="https://youtu.be/lBFj261LQBk?t=139" target="_blank" rel="noopener">&#9654; 2:19</a></div><p>En modo I2C, CS va a tierra. El pin D/C hace de SA0: con 0 la dirección es 0b0111100 (0x78 al escribir) y con 1 es 0b0111101 (0x7A). El pin RES reinicia la pantalla; si el módulo no lo trae no se usa.</p><div class="dos"><figure class="cap"><a href="img/244.webp" target="_blank"><img src="img/244.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/457.webp" target="_blank"><img src="img/457.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Circuito</h3><a class="min" href="https://youtu.be/lBFj261LQBk?t=346" target="_blank" rel="noopener">&#9654; 5:46</a></div><p>En Proteus el modelo de la OLED trae el bus de datos de 8 bits; para I2C se dejan solo SDA (D1 y D2 unidos), SCL (D0), RES y D/C. SDA y SCL llevan resistencias de 4.7 kΩ a VDD.</p><div class="uno"><figure class="cap"><a href="img/884.webp" target="_blank"><img src="img/884.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Librería</h3><a class="min" href="https://youtu.be/lBFj261LQBk?t=619" target="_blank" rel="noopener">&#9654; 10:19</a></div><p>Se copian fonts.c, SSD1306.c y SSD1306.h al proyecto. Con #define reset se indica que se usa el pin de reset y en qué pin está.</p><div class="uno"><figure class="cap"><a href="img/671.webp" target="_blank"><img src="img/671.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Activar I2C</h3><a class="min" href="https://youtu.be/lBFj261LQBk?t=773" target="_blank" rel="noopener">&#9654; 12:53</a></div><p>Al compilar sale error en I2C1_Init si no se activa la librería I2C. Se habilitan I2C y conversiones en el Library Manager.</p><div class="uno"><figure class="cap"><a href="img/777.webp" target="_blank"><img src="img/777.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Texto</h3><a class="min" href="https://youtu.be/lBFj261LQBk?t=839" target="_blank" rel="noopener">&#9654; 13:59</a></div><p>Todo digital, se inicia la pantalla y se escribe. Primero va la columna (0 a 127) y luego la fila (0 a 7).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void main() {
+  adcon1 = 0b1111;   // todo digital
+  OLED_init();
+  OLED_print_string(0, 0, &quot;HOLA&quot;);
+  OLED_print_string(0, 7, &quot;esto es una prueba&quot;);
+  Delay_ms(3000);
+  while (1) {
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/991.webp" target="_blank"><img src="img/991.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1204.webp" target="_blank"><img src="img/1204.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Imágenes</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Crear la imagen</h3><a class="min" href="https://youtu.be/lBFj261LQBk?t=1050" target="_blank" rel="noopener">&#9654; 17:30</a></div><p>En el GLCD Bitmap Editor (pestaña de 128x64) se carga una imagen o se dibuja, y con Copy to Clipboard se copia el arreglo para mikroC. Se pega en un archivo imagenes.h y se incluye en el programa; el arreglo va en memoria de programa (const).</p><div class="uno"><figure class="cap"><a href="img/1311.webp" target="_blank"><img src="img/1311.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Dibujar</h3><a class="min" href="https://youtu.be/lBFj261LQBk?t=1314" target="_blank" rel="noopener">&#9654; 21:54</a></div><p>OLED_print_Image muestra una imagen de pantalla completa; con ON u OFF se invierten los colores. OLED_draw_bitmap pone una imagen más pequeña en una posición y tamaño dados.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>OLED_clear_screen();
+OLED_print_Image(&amp;truck, OFF);
+// OLED_draw_bitmap(0, 0, 50, 50, &amp;media);
+Delay_ms(3000);
+OLED_clear_screen();
+OLED_print_Image(&amp;carsun, ON);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1418.webp" target="_blank"><img src="img/1418.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1631.webp" target="_blank"><img src="img/1631.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1525.webp" target="_blank"><img src="img/1525.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Menos pines</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Sin reset</h3><a class="min" href="https://youtu.be/lBFj261LQBk?t=1674" target="_blank" rel="noopener">&#9654; 27:54</a></div><p>Si el módulo no tiene pin de reset, se conecta RES a VDD y se borra el #define reset. La pantalla sigue funcionando.</p><div class="uno"><figure class="cap"><a href="img/1738.webp" target="_blank"><img src="img/1738.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>I2C en otros pines</h3><a class="min" href="https://youtu.be/lBFj261LQBk?t=1748" target="_blank" rel="noopener">&#9654; 29:08</a></div><p>Con el I2C por software, SDA y SCL pueden ir en cualquier pin del micro; solo se cambian las definiciones de pines y su dirección (TRIS).</p><div class="uno"><figure class="cap"><a href="img/1845.webp" target="_blank"><img src="img/1845.webp" alt="Pantalla OLED SSD1306 por I2C con PIC y MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=lBFj261LQBk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

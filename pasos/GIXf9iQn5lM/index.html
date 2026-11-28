@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC16F877A mueve un motor con encoder por PWM. Se comparan el lazo abierto, el control ON-OFF, un control por software que sube o baja la salida y un PID, viendo la respuesta en LabVIEW.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/GIXf9iQn5lM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID · Paso a paso">
+  <meta property="og:description" content="Un PIC16F877A mueve un motor con encoder por PWM. Se comparan el lazo abierto, el control ON-OFF, un control por software que sube o baja la salida y un PID, viendo la respuesta en LabVIEW.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/GIXf9iQn5lM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/GIXf9iQn5lM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Velocidad de un motor: <span>ON-OFF y PID</span></h1>
+    <p class="lead">En lazo abierto el potenciómetro da el PWM pero no se sabe si el motor llega a la velocidad. Para cerrar el lazo se mide la frecuencia del encoder con la interrupción externa y el Timer1 (con preescalador 8 para frecuencias bajas). El set point del potenciómetro se lleva al mismo rango de la frecuencia con una recta sacada en Excel. Luego se prueba el ON-OFF (prende o apaga), un control que sube o baja la salida según el error y un PID discreto. Los datos se envían por serial a LabVIEW para graficar.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=GIXf9iQn5lM" target="_blank" rel="noopener">&#9654; Ver el video completo (46:15)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1331.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (ADC, PWM, UART)</li><li>PIC16F877A</li><li>Motor DC con encoder (ENCMOTOR en Proteus) y transistor TIP122</li><li>Potenciómetro para el set point</li><li>LabVIEW y COMPIM para graficar</li><li>Excel para la recta del set point</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Abierto</a><a href="#f2">2 · Medir</a><a href="#f3">3 · ON-OFF</a><a href="#f4">4 · Software</a><a href="#f5">5 · PID</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Lazo abierto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El PWM de RC2 mueve el motor con un TIP122. El encoder entra por RB0, un potenciómetro da el set point en AN0 y el serial va al COMPIM. Un selector elige si el set point viene del potenciómetro o de LabVIEW.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Configuración</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=196" target="_blank" rel="noopener">&#9654; 3:16</a></div><p>Entradas para el encoder, el selector y RX, pull ups del puerto B, UART a 19200 y PWM arrancando a máxima velocidad.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0;          // todo analogo
+TRISA = 255;
+TRISB = 0;
+TRISC = 0;
+TRISB0_bit = 1;      // ENTRADA RPM
+TRISB7_bit = 1;      // ENTRADA SELECTOR DE POTENCIOMETRO O LABVIEW
+TRISC7_bit = 1;      // ENTRADA RX
+NOT_RBPU_bit = 0;    // habilita pull up
+UART1_Init(19200);
+UART1_Write_Text_const(&quot;Iniciando&quot;);
+PWM1_Init(620);
+PWM1_Set_Duty(255);  // maxima velocidad
+PWM1_Start();</code></pre></div><div class="uno"><figure class="cap"><a href="img/267.webp" target="_blank"><img src="img/267.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Potenciómetro al PWM</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=465" target="_blank" rel="noopener">&#9654; 7:45</a></div><p>El ADC de 10 bits se corre dos lugares para quedar en 0-255. El motor cambia de velocidad, pero si se le pone carga baja y nadie lo corrige: eso es lazo abierto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADC_Init();
+while (1) {
+  codigo = ADC_Get_Sample(0);
+  PWM1_Set_Duty(codigo &gt;&gt; 2);
+  Delay_ms(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/385.webp" target="_blank"><img src="img/385.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure><figure class="cap"><a href="img/503.webp" target="_blank"><img src="img/503.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Medir la velocidad</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Encoder</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=595" target="_blank" rel="noopener">&#9654; 9:55</a></div><p>En el motor de Proteus se ajustan el voltaje, las RPM sin carga y los pulsos por vuelta. La frecuencia se mide como en el video de medición de frecuencia: interrupción INT y Timer1.</p><div class="dos"><figure class="cap"><a href="img/621.webp" target="_blank"><img src="img/621.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Calcular y enviar</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=976" target="_blank" rel="noopener">&#9654; 16:16</a></div><p>Con flag_cero se calcula solo si hubo pulsos. La frecuencia se pasa a texto con dos decimales y se envía por serial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (flag_cero != 0) frecuencia = (Clock_kHz()*1e3)/(1.0*contador*4.0*8.0);  // 8 es el preescalador
+flag_cero = 0;
+FloatToStr_(frecuencia, texto, 2);
+UART1_Write_Text_const(&quot;RPM=&quot;);
+UART1_Write_Text(texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/976.webp" target="_blank"><img src="img/976.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure><figure class="cap"><a href="img/1213.webp" target="_blank"><img src="img/1213.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Preescalador</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=1224" target="_blank" rel="noopener">&#9654; 20:24</a></div><p>Por debajo de unos 38 Hz el Timer1 se desborda antes del siguiente pulso y la medida falla. Con preescalador 8 se miden frecuencias mucho más bajas.</p><div class="dos"><figure class="cap"><a href="img/1094.webp" target="_blank"><img src="img/1094.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure><figure class="cap"><a href="img/1331.webp" target="_blank"><img src="img/1331.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Set point en el mismo rango</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=1358" target="_blank" rel="noopener">&#9654; 22:38</a></div><p>El motor va de unos 5 a 70 Hz. En Excel se grafican los puntos ADC 0 → 5 y ADC 1023 → 70 y la línea de tendencia da la ecuación para pasar el código del ADC a set point.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>set_point = codigo*65.0/1023.0 + 5.0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1449.webp" target="_blank"><img src="img/1449.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Control ON-OFF</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Prender o apagar</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=1493" target="_blank" rel="noopener">&#9654; 24:53</a></div><p>Si la velocidad está por debajo del set point el PWM va al máximo; si está por encima, se apaga. Se envía SP, RPM y salida a LabVIEW.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (set_point &gt; frecuencia) PWM1_Set_Duty(255);  // prende
+else PWM1_Set_Duty(0);                          // apaga</code></pre></div><div class="uno"><figure class="cap"><a href="img/1567.webp" target="_blank"><img src="img/1567.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=1841" target="_blank" rel="noopener">&#9654; 30:41</a></div><p>La velocidad oscila alrededor del set point todo el tiempo. Funciona, pero no es un buen control para algo como una caminadora.</p><div class="uno"><figure class="cap"><a href="img/1922.webp" target="_blank"><img src="img/1922.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Control por software</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Subir o bajar</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=2113" target="_blank" rel="noopener">&#9654; 35:13</a></div><p>Se compara la salida con el set point: si está por encima, se baja un poco el PWM; si está por debajo, se sube. Por eso ambos deben estar en el mismo rango.</p><div class="uno"><figure class="cap"><a href="img/2159.webp" target="_blank"><img src="img/2159.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=2250" target="_blank" rel="noopener">&#9654; 37:30</a></div><p>Después de un retardo la velocidad se estabiliza casi sobre la línea, con mucha menos oscilación que el ON-OFF.</p><div class="uno"><figure class="cap"><a href="img/2040.webp" target="_blank"><img src="img/2040.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f5"><div class="contenedor"><span class="etiqueta">Fase 5</span><h2>PID</h2><article class="paso"><div class="paso-cab"><span class="num">5.1</span><h3>La función</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=2457" target="_blank" rel="noopener">&#9654; 40:57</a></div><p>Es la misma función pid discreta de los otros videos, con la salida limitada a 0-255. Las constantes se ajustan a mano empezando por la proporcional.</p><div class="uno"><figure class="cap"><a href="img/2632.webp" target="_blank"><img src="img/2632.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">5.2</span><h3>Ajuste</h3><a class="min" href="https://youtu.be/GIXf9iQn5lM?t=2592" target="_blank" rel="noopener">&#9654; 43:12</a></div><p>Solo con proporcional la velocidad queda un poco por debajo; al agregar integral se elimina ese error. Si se suben mucho las ganancias aparecen oscilaciones fuertes.</p><div class="uno"><figure class="cap"><a href="img/2395.webp" target="_blank"><img src="img/2395.webp" alt="Control de velocidad de un motor DC con PIC: lazo abierto, ON-OFF y PID" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=GIXf9iQn5lM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

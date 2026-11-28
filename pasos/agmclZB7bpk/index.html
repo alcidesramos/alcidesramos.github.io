@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Puerto serial por software en PIC: MikroC, CCS y XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo enviar y recibir datos seriales con cualquier pin en un micro sin UART, como el PIC12F629: con la librería de CCS, con la de MikroC y con una librería propia que también funciona en XC8.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/agmclZB7bpk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Puerto serial por software en PIC: MikroC, CCS y XC8 · Paso a paso">
+  <meta property="og:description" content="Cómo enviar y recibir datos seriales con cualquier pin en un micro sin UART, como el PIC12F629: con la librería de CCS, con la de MikroC y con una librería propia que también funciona en XC8.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/agmclZB7bpk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/agmclZB7bpk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>UART por <span>software</span> en un PIC</h1>
+    <p class="lead">Una trama serial empieza con un bit de arranque en bajo, sigue con 8 bits de datos y termina con un bit de parada en alto. Si cada bit dura exactamente 1/baudios, cualquier pin puede transmitir. CCS lo resuelve con #use rs232. MikroC tiene Soft_UART, pero su lectura de cadenas gasta mucha RAM en un micro de 64 bytes. Por eso se hace una librería propia y se miden con el cronómetro del depurador los ciclos extra de cada bit, que dependen del compilador. Con esa corrección funciona hasta 115200 baudios.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=agmclZB7bpk" target="_blank" rel="noopener">&#9654; Ver el video completo (53:12)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1393.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8"></figure>
+    <ul class="materiales"><li>PIC12F629 (sin UART)</li><li>MikroC PRO for PIC, CCS y MPLAB X con XC8</li><li>Proteus con COMPIM y Virtual Terminal</li><li>Hercules SETUP utility (terminal serial)</li><li>Librería Software_Uart.c y Software_Uart.h</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Trama</a><a href="#f2">2 · MikroC</a><a href="#f3">3 · Propia</a><a href="#f4">4 · XC8</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La trama</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Cómo se envía un byte</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La línea está en alto. Un bit de arranque en bajo, ocho bits de datos empezando por el menos significativo y un bit de parada en alto. Lo importante es que cada bit dure lo mismo.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Con CCS</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=204" target="_blank" rel="noopener">&#9654; 3:24</a></div><p>En el asistente de proyecto de CCS se elige RS-232 con el pin de transmisión, el de recepción y los baudios. Con eso printf envía por esos pines.</p><div class="uno"><figure class="cap"><a href="img/303.webp" target="_blank"><img src="img/303.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Circuito</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=413" target="_blank" rel="noopener">&#9654; 6:53</a></div><p>El PIC12F629 a 4 MHz con TX en GP0 y RX en GP1, conectados al COMPIM y a un Virtual Terminal.</p><div class="uno"><figure class="cap"><a href="img/439.webp" target="_blank"><img src="img/439.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Librería de MikroC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Soft_UART</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=619" target="_blank" rel="noopener">&#9654; 10:19</a></div><p>Soft_UART_Init recibe el puerto, el pin RX, el pin TX, los baudios y si se invierte. Soft_UART_Write envía un carácter; para cadenas se hacen funciones propias, una para constantes y otra para variables, para no llenar la RAM.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Soft_UART_Init(&amp;gpio, 1, 0, 9600, 0);
+Soft_UART_Write_Text_Const(&quot;HOLA MUNDO\r\n&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/848.webp" target="_blank"><img src="img/848.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Falta RAM</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=950" target="_blank" rel="noopener">&#9654; 15:50</a></div><p>Al leer una cadena hasta el asterisco y reenviarla, el programa no funciona: el micro tiene muy poca RAM y la lectura de MikroC no alcanza.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  Soft_UART_Read_Text(texto, &quot;*&quot;, 10);   // lee hasta el asterisco
+  Soft_UART_Write_Text(texto);           // reenvia lo recibido
+  Soft_UART_Write_Text_Const(&quot;\r\n\r\n&quot;);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/984.webp" target="_blank"><img src="img/984.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Librería propia</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Agregar la librería</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=1080" target="_blank" rel="noopener">&#9654; 18:00</a></div><p>Se copian Software_Uart.c y Software_Uart.h al proyecto, se agregan y se definen los pines y los baudios. Se desactiva el comparador del 12F629.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned char dato;
+char texto[10];
+
+void main() {
+  CMCON = 7;   // deshabilita el comparador
+  SoftWareUart_Init();
+  Software_UART_Write_Text_Const(&quot;INICIANDO&quot;);
+  while (1) {
+    Software_UART_Read_Text(texto, &quot;*&quot;, 10);  // lee hasta el asterisco
+    Software_UART_Write_Text(texto);          // reenvia lo recibido
+    Software_UART_Write_Text(&quot;\r\n\r\n&quot;);
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1257.webp" target="_blank"><img src="img/1257.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Prueba</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=1347" target="_blank" rel="noopener">&#9654; 22:27</a></div><p>Con Hercules en el puerto virtual se envía texto terminado en asterisco y el micro lo devuelve. Subiendo a 115200 también funciona.</p><div class="uno"><figure class="cap"><a href="img/1393.webp" target="_blank"><img src="img/1393.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Tiempo de cada bit</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=1481" target="_blank" rel="noopener">&#9654; 24:41</a></div><p>Cada bit dura 1000000/baudios microsegundos, pero el ciclo for y el if también gastan tiempo. Ese tiempo se resta del retardo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const unsigned char cristal = Clock_MHz();   // reloj en MHz
+#define DELAY_FOR      (4*15/cristal)   // extra en la escritura (15 ciclos)
+#define DELAY_FOR_READ (4*12/cristal)   // extra en la lectura (12 ciclos)
+#define BITPERIOD      ((1000000/BAUDIOS))       // duracion de 1 bit en us
+#define BITPERIOD_FOR  (BITPERIOD - DELAY_FOR)   // retardo real en la escritura</code></pre></div><div class="uno"><figure class="cap"><a href="img/1802.webp" target="_blank"><img src="img/1802.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Medir con el cronómetro</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=1620" target="_blank" rel="noopener">&#9654; 27:00</a></div><p>En el depurador de MikroC, con la ventana Watch Clock, se pone un punto de parada, se reinicia el cronómetro y se mide una vuelta del for: 15 ciclos al escribir y 12 al leer. Ese número depende del compilador y de su optimización.</p><div class="dos"><figure class="cap"><a href="img/1666.webp" target="_blank"><img src="img/1666.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1938.webp" target="_blank"><img src="img/1938.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>En XC8</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Proyecto en MPLAB X</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=2094" target="_blank" rel="noopener">&#9654; 34:54</a></div><p>Se crea el proyecto para el 12F629, los bits de configuración se generan con la ventana Config Bits y se agregan los archivos de la librería. Se definen _XTAL_FREQ y BAUDIOS.</p></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Escribir un byte</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=2290" target="_blank" rel="noopener">&#9654; 38:10</a></div><p>La función es la misma: bit de arranque, los ocho bits con una máscara que se corre a la izquierda y bit de parada.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Software_UART_Write(unsigned char Data) {
+  unsigned char mask;
+  SoftWare_Uart_Tx = 0;             // bit de arranque
+  __delay_us(BITPERIOD);
+  for (mask = 0x01; mask != 0; mask = mask &lt;&lt; 1) {
+    if (Data &amp; mask) SoftWare_Uart_Tx = 1;
+    else SoftWare_Uart_Tx = 0;
+    __delay_us(BITPERIOD_FOR);
+  }
+  SoftWare_Uart_Tx = 1;             // bit de parada
+  __delay_us(BITPERIOD);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/2483.webp" target="_blank"><img src="img/2483.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Ciclos en XC8</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=2438" target="_blank" rel="noopener">&#9654; 40:38</a></div><p>Con el Stopwatch de MPLAB X se mide de nuevo cuánto tarda el ciclo; en XC8 da otro número que en MikroC, y cambia con el nivel de optimización. Se ajustan DELAY_FOR y DELAY_FOR_READ.</p><div class="uno"><figure class="cap"><a href="img/2756.webp" target="_blank"><img src="img/2756.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Probar</h3><a class="min" href="https://youtu.be/agmclZB7bpk?t=2769" target="_blank" rel="noopener">&#9654; 46:09</a></div><p>El programa envía INICIANDO, lee una cadena, la reenvía y también lee caracteres sueltos. Con otras velocidades (1200, 19200...) solo se cambia BAUDIOS.</p><div class="dos"><figure class="cap"><a href="img/2892.webp" target="_blank"><img src="img/2892.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/3029.webp" target="_blank"><img src="img/3029.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/3165.webp" target="_blank"><img src="img/3165.webp" alt="Puerto serial por software en PIC: MikroC, CCS y XC8" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=agmclZB7bpk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

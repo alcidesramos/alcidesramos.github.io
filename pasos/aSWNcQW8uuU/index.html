@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC16F877A mide la frecuencia de una señal contando con el Timer1 el tiempo entre dos flancos de subida, primero con la interrupción externa INT y luego con el módulo de captura CCP.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/aSWNcQW8uuU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC · Paso a paso">
+  <meta property="og:description" content="Un PIC16F877A mide la frecuencia de una señal contando con el Timer1 el tiempo entre dos flancos de subida, primero con la interrupción externa INT y luego con el módulo de captura CCP.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/aSWNcQW8uuU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/aSWNcQW8uuU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Medir <span>frecuencia</span> con interrupciones</h1>
+    <p class="lead">Entre dos flancos de subida pasa un periodo. Si el Timer1 cuenta ese tiempo, la frecuencia es Fosc / (4 × conteo × preescalador). En la primera versión cada flanco en RB0 dispara la interrupción INT, que lee y reinicia el Timer1. En la segunda, el módulo CCP en modo captura guarda solo el valor del timer al llegar el flanco. Una bandera indica si hubo flanco para mostrar 0 Hz cuando la señal desaparece. Sirve para encoders, tacómetros o un frecuencímetro.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=aSWNcQW8uuU" target="_blank" rel="noopener">&#9654; Ver el video completo (32:18)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1910.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (LCD y conversiones)</li><li>PIC16F877A</li><li>LCD 16x2</li><li>Proteus con generadores de pulsos y un selector rotatorio</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · INT</a><a href="#f3">3 · CCP</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La idea</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito</h3><a class="min" href="https://youtu.be/aSWNcQW8uuU?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Un selector rotatorio elige entre cuatro señales de distinta frecuencia (hasta 60 Hz) que entran por RB0. El resultado se muestra en un LCD.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Medir el periodo</h3><a class="min" href="https://youtu.be/aSWNcQW8uuU?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>El Timer1 (16 bits) cuenta el tiempo entre un flanco de subida y el siguiente. Con ese valor se calcula el periodo y de ahí la frecuencia.</p><div class="uno"><figure class="cap"><a href="img/141.webp" target="_blank"><img src="img/141.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Con la interrupción INT</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables e interrupción</h3><a class="min" href="https://youtu.be/aSWNcQW8uuU?t=256" target="_blank" rel="noopener">&#9654; 4:16</a></div><p>contador guarda el valor del timer. En cada flanco se para el timer, se arma el valor de 16 bits, se reinicia y se vuelve a prender.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int contador = 0;
+float frecuencia;
+char texto[15];
+
+void Interrupcion() iv 0x0004 ics ICS_AUTO {
+  if (INTF_bit == 1) {
+    TMR1ON_bit = 0;                    // para el conteo del timer
+    contador = (TMR1H &lt;&lt; 8) | TMR1L;
+    TMR1H = 0;
+    TMR1L = 0;
+    TMR1ON_bit = 1;                    // arranca el conteo del timer
+  }
+  INTF_bit = 0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/251.webp" target="_blank"><img src="img/251.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Timer1 e INT</h3><a class="min" href="https://youtu.be/aSWNcQW8uuU?t=391" target="_blank" rel="noopener">&#9654; 6:31</a></div><p>Timer1 con preescalador 1, registros en cero y apagado. INT por flanco de subida, bandera limpia, interrupción habilitada y al final GIE.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>T1CON = 0;
+T1CKPS1_bit = 0;   // preescalador 1
+T1CKPS0_bit = 0;
+TMR1L = 0;
+TMR1H = 0;
+TMR1ON_bit = 0;    // timer quieto
+
+INTEDG_bit = 1;    // flanco de subida
+INTF_bit = 0;      // limpia la bandera
+INTE_bit = 1;      // habilita la interrupcion
+GIE_bit = 1;       // habilita interrupciones</code></pre></div><div class="dos"><figure class="cap"><a href="img/472.webp" target="_blank"><img src="img/472.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/694.webp" target="_blank"><img src="img/694.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Calcular</h3><a class="min" href="https://youtu.be/aSWNcQW8uuU?t=665" target="_blank" rel="noopener">&#9654; 11:05</a></div><p>Clock_kHz() da el cristal en kHz; por 1000 queda en Hz. Se divide entre el conteo por 4 (ciclo de instrucción) y por el preescalador. El micro queda libre para otras tareas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  frecuencia = (Clock_kHz()*1e3)/(contador*4.0);
+  FloatToStr(frecuencia, texto);
+  Lcd_Out(2, 5, texto);
+  Lcd_Out_CP(&quot; HZ&quot;);
+  Delay_ms(100);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/915.webp" target="_blank"><img src="img/915.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Cuando no hay señal</h3><a class="min" href="https://youtu.be/aSWNcQW8uuU?t=868" target="_blank" rel="noopener">&#9654; 14:28</a></div><p>Sin flancos no hay interrupción y se queda el último valor. Con una bandera flag_cero, que la interrupción pone en 1, se calcula solo si hubo flanco; si no, la frecuencia es 0. También se usa una función propia para mostrar solo dos decimales.</p><div class="dos"><figure class="cap"><a href="img/804.webp" target="_blank"><img src="img/804.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1025.webp" target="_blank"><img src="img/1025.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Con el módulo CCP</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Captura</h3><a class="min" href="https://youtu.be/aSWNcQW8uuU?t=1157" target="_blank" rel="noopener">&#9654; 19:17</a></div><p>En modo captura, al llegar el flanco el CCP copia el Timer1 en CCPR2H y CCPR2L. Se puede capturar en cada flanco o cada 4 o 16 para señales rápidas. La señal entra por RC1 (CCP2).</p><div class="dos"><figure class="cap"><a href="img/1357.webp" target="_blank"><img src="img/1357.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1468.webp" target="_blank"><img src="img/1468.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Configurar</h3><a class="min" href="https://youtu.be/aSWNcQW8uuU?t=1356" target="_blank" rel="noopener">&#9654; 22:36</a></div><p>RC1 como entrada, el Timer1 igual que antes y el CCP2 en captura por flanco de subida; se limpia su bandera y se habilitan su interrupción, la de periféricos y la global.</p><div class="uno"><figure class="cap"><a href="img/1578.webp" target="_blank"><img src="img/1578.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Interrupción del CCP</h3><a class="min" href="https://youtu.be/aSWNcQW8uuU?t=1626" target="_blank" rel="noopener">&#9654; 27:06</a></div><p>Se lee el valor capturado, se avisa con flag_frec y se reinicia el timer.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void interrupcion() iv 0x0004 ics ICS_AUTO {
+  if (CCP2IF_bit == 1) {
+    TMR1ON_bit = 0;                    // para el timer
+    frecu = (CCPR2H &lt;&lt; 8) | CCPR2L;
+    flag_frec = 1;                     // hay dato
+    TMR1L = 0;
+    TMR1H = 0;
+    TMR1ON_bit = 1;                    // timer para el proximo dato
+    CCP2IF_bit = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1689.webp" target="_blank"><img src="img/1689.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Mostrar</h3><a class="min" href="https://youtu.be/aSWNcQW8uuU?t=1764" target="_blank" rel="noopener">&#9654; 29:24</a></div><p>Si la bandera está activa se calcula; si no, la frecuencia vale 0. Luego se baja la bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (flag_frec == 1) {
+  if (frecu != 0) {
+    frecuencia = Clock_kHz()*1e3/(frecu*4.0);  // convierte a hercios
+    frecu = 0;
+  }
+}
+else frecuencia = 0;
+flag_frec = 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/1799.webp" target="_blank"><img src="img/1799.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1910.webp" target="_blank"><img src="img/1910.webp" alt="Medir frecuencia con interrupciones (INT y CCP) en un PIC con MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=aSWNcQW8uuU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
