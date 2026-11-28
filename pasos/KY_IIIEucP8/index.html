@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulando un ESP32 «de mentira» en una carcasa en Proteus · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="En internet circula un modelo de ESP32 para Proteus, pero por dentro es un Arduino Uno (ATmega328P a 16 MHz) con la carcasa de la ESP32. Se muestra cómo instalarlo y cómo simular un LED con un .hex de Arduino, y por qué es mejor usar el Arduino directamente.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/KY_IIIEucP8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Simulando un ESP32 «de mentira» en una carcasa en Proteus · Paso a paso">
+  <meta property="og:description" content="En internet circula un modelo de ESP32 para Proteus, pero por dentro es un Arduino Uno (ATmega328P a 16 MHz) con la carcasa de la ESP32. Se muestra cómo instalarlo y cómo simular un LED con un .hex de Arduino, y por qué es mejor usar el Arduino directamente.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/KY_IIIEucP8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/KY_IIIEucP8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#esp32-simulacion">&larr; Volver al curso</a>
+    <span class="etiqueta">// Simulación de ESP32 · Paso a paso</span>
+    <h1>La ESP32 <span>de mentira</span> en Proteus</h1>
+    <p class="lead">Se copian los archivos de la librería en la carpeta de librerías de Proteus (la que dice System Settings, para no equivocarse de carpeta) y se reinicia Proteus. Al buscar ESP32 aparece el módulo; si se descompone se ve que es un Arduino Uno disfrazado. Por eso sirve para lo básico, pero no para funciones propias de la ESP32 como el PWM avanzado. Se escribe un programa de LED en la IDE de Arduino, se compila eligiendo la placa Arduino Uno, se exporta el binario compilado y se carga el .hex en el módulo de Proteus.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=KY_IIIEucP8" target="_blank" rel="noopener">&#9654; Ver el video completo (8:10)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/445.webp" alt="Simulando un ESP32 «de mentira» en una carcasa en Proteus"></figure>
+    <ul class="materiales"><li>Proteus</li><li>Librería del módulo «ESP32» para Proteus (enlace en la descripción del video)</li><li>IDE de Arduino</li><li>LED y resistencia de 220 Ω</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Módulo</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Simulación</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El módulo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Instalar la librería</h3><a class="min" href="https://youtu.be/KY_IIIEucP8?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Los dos archivos de la librería se copian donde Proteus tiene sus librerías. Para no equivocarse de carpeta, se abre Proteus, se mira la ruta de librerías en System Settings y se pegan ahí. Luego se cierra y se vuelve a abrir Proteus.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Buscar la ESP32</h3><a class="min" href="https://youtu.be/KY_IIIEucP8?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>Al buscar ESP32 en los componentes aparece el módulo ESP32-WROOM hecho por otra persona.</p><div class="uno"><figure class="cap"><a href="img/93.webp" target="_blank"><img src="img/93.webp" alt="Simulando un ESP32 «de mentira» en una carcasa en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Por dentro es un Arduino</h3><a class="min" href="https://youtu.be/KY_IIIEucP8?t=99" target="_blank" rel="noopener">&#9654; 1:39</a></div><p>Si se descompone el módulo se ve que es un ATmega328P a 16 MHz, es decir, un Arduino Uno con carcasa de ESP32. Sirve para cosas normales porque la ESP32 acepta las librerías de Arduino, pero no para las funciones avanzadas de la ESP32.</p><div class="dos"><figure class="cap"><a href="img/113.webp" target="_blank"><img src="img/113.webp" alt="Simulando un ESP32 «de mentira» en una carcasa en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/176.webp" target="_blank"><img src="img/176.webp" alt="Simulando un ESP32 «de mentira» en una carcasa en Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa en Arduino</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Sketch del LED</h3><a class="min" href="https://youtu.be/KY_IIIEucP8?t=204" target="_blank" rel="noopener">&#9654; 3:24</a></div><p>En la IDE de Arduino se hace un sketch nuevo: el pin 2 como salida y en el loop se prende y apaga cada 500 ms.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void setup() {
+  // put your setup code here, to run once:
+  pinMode(2, OUTPUT);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  digitalWrite(2, 1);
+  delay(500);
+  digitalWrite(2, 0);
+  delay(500);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/196.webp" target="_blank"><img src="img/196.webp" alt="Simulando un ESP32 «de mentira» en una carcasa en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/258.webp" target="_blank"><img src="img/258.webp" alt="Simulando un ESP32 «de mentira» en una carcasa en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Simulando un ESP32 «de mentira» en una carcasa en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Placa Arduino Uno</h3><a class="min" href="https://youtu.be/KY_IIIEucP8?t=320" target="_blank" rel="noopener">&#9654; 5:20</a></div><p>Como placa se elige Arduino Uno, no la ESP32, porque se va a simular en este módulo. Con una ESP32 física sí se elegiría la ESP32, ya que el código es compatible.</p><div class="uno"><figure class="cap"><a href="img/320.webp" target="_blank"><img src="img/320.webp" alt="Simulando un ESP32 «de mentira» en una carcasa en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Exportar el .hex</h3><a class="min" href="https://youtu.be/KY_IIIEucP8?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>Se compila y en Sketch se usa exportar binarios compilados para que la IDE cree el .hex junto al sketch.</p><div class="uno"><figure class="cap"><a href="img/341.webp" target="_blank"><img src="img/341.webp" alt="Simulando un ESP32 «de mentira» en una carcasa en Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Simulación</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Cargar el programa</h3><a class="min" href="https://youtu.be/KY_IIIEucP8?t=354" target="_blank" rel="noopener">&#9654; 5:54</a></div><p>Doble clic al módulo en Proteus y en el archivo de programa se elige el .hex más corto (el que no trae el bootloader).</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>LED y prueba</h3><a class="min" href="https://youtu.be/KY_IIIEucP8?t=387" target="_blank" rel="noopener">&#9654; 6:27</a></div><p>Se conecta un LED con resistencia de 220 Ω al pin 2 y a tierra, y con play el LED titila. Ojo: es un Arduino Uno disfrazado; para simular es igual poner un Arduino normal.</p><div class="dos"><figure class="cap"><a href="img/403.webp" target="_blank"><img src="img/403.webp" alt="Simulando un ESP32 «de mentira» en una carcasa en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/424.webp" target="_blank"><img src="img/424.webp" alt="Simulando un ESP32 «de mentira» en una carcasa en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/445.webp" target="_blank"><img src="img/445.webp" alt="Simulando un ESP32 «de mentira» en una carcasa en Proteus" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=KY_IIIEucP8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

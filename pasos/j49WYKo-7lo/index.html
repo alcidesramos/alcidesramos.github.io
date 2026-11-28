@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se simula una ESP32-S3 en Proteus con MicroPython: primero un LED que parpadea y luego un servo en GP4 que cambia de −90 a 90 grados cada vez que el LED alterna. El código se pide a una IA y se pega en Proteus.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/j49WYKo-7lo/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA) · Paso a paso">
+  <meta property="og:description" content="Se simula una ESP32-S3 en Proteus con MicroPython: primero un LED que parpadea y luego un servo en GP4 que cambia de −90 a 90 grados cada vez que el LED alterna. El código se pide a una IA y se pega en Proteus.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/j49WYKo-7lo/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/j49WYKo-7lo/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#esp32-simulacion">&larr; Volver al curso</a>
+    <span class="etiqueta">// Simulación de ESP32 · Paso a paso</span>
+    <h1>ESP32 en Proteus con <span>MicroPython</span> e IA</h1>
+    <p class="lead">Se crea el proyecto en Proteus con firmware MicroPython y la ESP32-S3. Se pone un LED con resistencia de 220 Ω en GP2. En vez de escribir el código, se le pide a la IA un programa en MicroPython para titilar un LED cada 500 ms en el pin 2, y se pega desde la línea 17 del archivo que genera Proteus. Después se agrega un servo en GP4 y se le pide a la IA que lo mueva de −90 a 90 grados cada vez que el LED cambia. La idea es ver cómo se simula en Proteus y cómo la IA ayuda a quien todavía no sabe programar.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=j49WYKo-7lo" target="_blank" rel="noopener">&#9654; Ver el video completo (6:12)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/347.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)"></figure>
+    <ul class="materiales"><li>Proteus 9</li><li>ESP32-S3 (modelo MicroPython de Proteus)</li><li>LED amarillo y resistencia de 220 Ω</li><li>Servomotor</li><li>Un asistente de IA para generar el código</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · LED</a><a href="#f3">3 · Servo</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto y circuito</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto con MicroPython</h3><a class="min" href="https://youtu.be/j49WYKo-7lo?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Nuevo proyecto en Proteus, sin PCB. En firmware se elige MicroPython y como controlador la ESP32-S3; el compilador queda en MicroPython (Proteus).</p><div class="uno"><figure class="cap"><a href="img/94.webp" target="_blank"><img src="img/94.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>LED en GP2</h3><a class="min" href="https://youtu.be/j49WYKo-7lo?t=74" target="_blank" rel="noopener">&#9654; 1:14</a></div><p>Se pone la ESP32, un LED amarillo y una resistencia de 220 Ω al pin GP2, con el LED a tierra.</p><div class="dos"><figure class="cap"><a href="img/115.webp" target="_blank"><img src="img/115.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)" loading="lazy"></a></figure><figure class="cap"><a href="img/136.webp" target="_blank"><img src="img/136.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>El archivo main.py</h3><a class="min" href="https://youtu.be/j49WYKo-7lo?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>Proteus crea un main.py con secciones de módulos, setup y bucle infinito. Ahí se va a pegar el código.</p><div class="uno"><figure class="cap"><a href="img/178.webp" target="_blank"><img src="img/178.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>LED con código de la IA</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pedir el código</h3><a class="min" href="https://youtu.be/j49WYKo-7lo?t=182" target="_blank" rel="noopener">&#9654; 3:02</a></div><p>Se le pide a la IA: «dame un código en MicroPython para titilar un LED cada 500 milisegundos en un ESP32. El LED está en el pin 2».</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>from machine import Pin
+import time
+
+# Configura el pin 2 como salida (este es el LED integrado en la mayoría de ESP32)
+led = Pin(2, Pin.OUT)
+
+# Bucle infinito para hacer parpadear el LED
+while True:
+    led.value(not led.value())  # Invierte el estado actual del LED (1 a 0, o 0 a 1)
+    time.sleep_ms(500)          # Pausa la ejecución por 500 milisegundos</code></pre></div><div class="dos"><figure class="cap"><a href="img/200.webp" target="_blank"><img src="img/200.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)" loading="lazy"></a></figure><figure class="cap"><a href="img/221.webp" target="_blank"><img src="img/221.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Pegar y simular</h3><a class="min" href="https://youtu.be/j49WYKo-7lo?t=215" target="_blank" rel="noopener">&#9654; 3:35</a></div><p>Se copia y se reemplaza desde la línea 17 hacia abajo. Importa Pin y time, define el LED y en el bucle niega su valor y espera. Con play el LED titila.</p><div class="uno"><figure class="cap"><a href="img/263.webp" target="_blank"><img src="img/263.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Servo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Agregar el servo</h3><a class="min" href="https://youtu.be/j49WYKo-7lo?t=246" target="_blank" rel="noopener">&#9654; 4:06</a></div><p>Se busca un servo en las librerías y se conecta a GP4. Se le pide a la IA que el servo cambie de −90 a 90 grados cada vez que el LED alterne.</p><div class="dos"><figure class="cap"><a href="img/284.webp" target="_blank"><img src="img/284.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)" loading="lazy"></a></figure><figure class="cap"><a href="img/305.webp" target="_blank"><img src="img/305.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Código con PWM</h3><a class="min" href="https://youtu.be/j49WYKo-7lo?t=312" target="_blank" rel="noopener">&#9654; 5:12</a></div><p>El nuevo código importa PWM para el servo, define el pin del LED y el del servo, el ancho mínimo y máximo del pulso y el tiempo. Se pega en main.py.</p><div class="uno"><figure class="cap"><a href="img/326.webp" target="_blank"><img src="img/326.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Simulación</h3><a class="min" href="https://youtu.be/j49WYKo-7lo?t=345" target="_blank" rel="noopener">&#9654; 5:45</a></div><p>Al darle play el servo va a −90, 90, −90, 90 al ritmo del LED. Así se pueden poner sensores y más cosas, pero en Proteus la ESP32 solo trabaja con MicroPython.</p><div class="dos"><figure class="cap"><a href="img/347.webp" target="_blank"><img src="img/347.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)" loading="lazy"></a></figure><figure class="cap"><a href="img/368.webp" target="_blank"><img src="img/368.webp" alt="ESP32 simulación en Proteus usando MicroPython (con ayuda de la IA)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=j49WYKo-7lo" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simular ESP32 con Proteus y MicroPython · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Video corto: las versiones nuevas de Proteus ya simulan la ESP32, pero solo con MicroPython y el compilador que trae Proteus. Se hace un proyecto con un LED en GP2 que parpadea cada medio segundo.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/v0bCdETy1XU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Simular ESP32 con Proteus y MicroPython · Paso a paso">
+  <meta property="og:description" content="Video corto: las versiones nuevas de Proteus ya simulan la ESP32, pero solo con MicroPython y el compilador que trae Proteus. Se hace un proyecto con un LED en GP2 que parpadea cada medio segundo.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/v0bCdETy1XU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/v0bCdETy1XU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#esp32-simulacion">&larr; Volver al curso</a>
+    <span class="etiqueta">// Simulación de ESP32 · Paso a paso</span>
+    <h1>ESP32 en <span>Proteus</span> con MicroPython</h1>
+    <p class="lead">Se crea un proyecto nuevo en Proteus 8.17 SP4 (también funciona en la 9). En el asistente se elige firmware con MicroPython y una ESP32; solo acepta el compilador propio de Proteus. Se conecta un LED con su resistencia a GP2, se pega un programa sencillo de MicroPython que prende y apaga el LED cada 0.5 s y se corre la simulación. El WiFi todavía no está implementado, pero sí SPI, I2C, UART y otros periféricos.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=v0bCdETy1XU" target="_blank" rel="noopener">&#9654; Ver el video completo (2:54)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/172.webp" alt="Simular ESP32 con Proteus y MicroPython"></figure>
+    <ul class="materiales"><li>Proteus 8.17 SP4 o Proteus 9</li><li>ESP32 (modelo MicroPython de Proteus)</li><li>LED y resistencia</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Programa</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto con firmware MicroPython</h3><a class="min" href="https://youtu.be/v0bCdETy1XU?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Nuevo proyecto en Proteus, se le da nombre y se avanza con next. En la parte de firmware se elige la familia MicroPython y cualquiera de las ESP32 que aparecen.</p><p>Por ahora solo trabaja con el compilador que trae Proteus: no permite Thonny ni otro compilador.</p><div class="uno"><figure class="cap"><a href="img/66.webp" target="_blank"><img src="img/66.webp" alt="Simular ESP32 con Proteus y MicroPython" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Circuito</h3><a class="min" href="https://youtu.be/v0bCdETy1XU?t=74" target="_blank" rel="noopener">&#9654; 1:14</a></div><p>Se conecta un LED con una resistencia a tierra y el otro extremo a un pin, por ejemplo GP2.</p><div class="dos"><figure class="cap"><a href="img/96.webp" target="_blank"><img src="img/96.webp" alt="Simular ESP32 con Proteus y MicroPython" loading="lazy"></a></figure><figure class="cap"><a href="img/111.webp" target="_blank"><img src="img/111.webp" alt="Simular ESP32 con Proteus y MicroPython" loading="lazy"></a></figure><figure class="cap"><a href="img/126.webp" target="_blank"><img src="img/126.webp" alt="Simular ESP32 con Proteus y MicroPython" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa y simulación</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Código en MicroPython</h3><a class="min" href="https://youtu.be/v0bCdETy1XU?t=109" target="_blank" rel="noopener">&#9654; 1:49</a></div><p>Se borra lo que Proteus pone por defecto y se pega el programa: importa Pin y sleep, define el pin 2 como salida y prende y apaga el LED cada medio segundo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>from machine import Pin
+from time import sleep
+
+# Configura el pin GPIO 2 como salida (puedes cambiarlo según tu conexión)
+led = Pin(2, Pin.OUT)
+
+# Bucle infinito para parpadear el LED
+while True:
+    led.on()        # Enciende el LED
+    sleep(0.5)      # Espera 0.5 segundos
+    led.off()       # Apaga el LED
+    sleep(0.5)      # Espera 0.5 segundos</code></pre></div><div class="uno"><figure class="cap"><a href="img/142.webp" target="_blank"><img src="img/142.webp" alt="Simular ESP32 con Proteus y MicroPython" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Simulación</h3><a class="min" href="https://youtu.be/v0bCdETy1XU?t=142" target="_blank" rel="noopener">&#9654; 2:22</a></div><p>Con play el LED parpadea: MicroPython funcionando en Proteus. El WiFi da error porque aún no está implementado, pero se pueden trabajar otros periféricos de la ESP32.</p><div class="uno"><figure class="cap"><a href="img/172.webp" target="_blank"><img src="img/172.webp" alt="Simular ESP32 con Proteus y MicroPython" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=v0bCdETy1XU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
