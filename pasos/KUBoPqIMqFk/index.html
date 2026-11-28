@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lector de tags RFID RC522 con MPLAB XC8 y método hash · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El lector de tarjetas RFID RC522 hecho en MikroC se pasa a XC8 con un PIC18F2550: SPI por software, la misma librería del RC522 y un hash que convierte el código de cada tarjeta en un número único.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/KUBoPqIMqFk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Lector de tags RFID RC522 con MPLAB XC8 y método hash · Paso a paso">
+  <meta property="og:description" content="El lector de tarjetas RFID RC522 hecho en MikroC se pasa a XC8 con un PIC18F2550: SPI por software, la misma librería del RC522 y un hash que convierte el código de cada tarjeta en un número único.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/KUBoPqIMqFk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/KUBoPqIMqFk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>Lector <span>RFID</span> RC522 en XC8</h1>
+    <p class="lead">Es una traducción del proyecto de MikroC, sin MCC. Se usan dos librerías: la del RC522, igual a la de MikroC, y una de SPI por software, porque XC8 no la trae. Antes de incluirlas se definen los pines del módulo en el puerto A. Las funciones seriales se hacen con los mismos nombres de MikroC para que el código quede compatible. El programa revisa si hay tarjeta, lee su número de serie y con el algoritmo hash FNV lo convierte en un unsigned long; luego lo compara con los códigos guardados y cambia el LED de cada tarjeta. Se prueba en la tarjeta entrenadora a 48 MHz con un terminal serial.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=KUBoPqIMqFk" target="_blank" rel="noopener">&#9654; Ver el video completo (10:57)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/312.webp" alt="Lector de tags RFID RC522 con MPLAB XC8 y método hash"></figure>
+    <ul class="materiales"><li>PIC18F2550 (tarjeta entrenadora a 48 MHz)</li><li>Módulo RFID RC522</li><li>Tarjetas o llaveros RFID</li><li>4 LEDs</li><li>Conversor USB-serial</li><li>MPLAB X con XC8</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Programa</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Librerías</h3><a class="min" href="https://youtu.be/KUBoPqIMqFk?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>Se crea el proyecto con el PIC18F2550 y se copian las librerías RC522.h y soft_spi.h a la carpeta del proyecto. Primero se incluye la de SPI y después la del RC522.</p><div class="uno"><figure class="cap"><a href="img/129.webp" target="_blank"><img src="img/129.webp" alt="Lector de tags RFID RC522 con MPLAB XC8 y método hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pines del módulo</h3><a class="min" href="https://youtu.be/KUBoPqIMqFk?t=199" target="_blank" rel="noopener">&#9654; 3:19</a></div><p>Los pines del RC522 se definen antes de incluir las librerías.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define _XTAL_FREQ 48000000
+
+#define MFRC522_CS   LATA0   // SDA SS
+#define MFRC522_Rst  LATA1   // RST
+#define SoftSPI_SDO  LATA2   // MOSI
+#define SoftSPI_CLK  LATA3   // SCK
+#define SoftSPI_SDI  RA4     // MISO
+
+#define MFRC522_CS_Direction   TRISA0
+#define MFRC522_Rst_Direction  TRISA1
+#define SoftSPI_SDO_Direction  TRISA2
+#define SoftSPI_CLK_Direction  TRISA3
+#define SoftSPI_SDI_Direction  TRISA4
+
+#include &quot;soft_spi.h&quot;
+#include &quot;RC522.h&quot;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;</code></pre></div><div class="dos"><figure class="cap"><a href="img/202.webp" target="_blank"><img src="img/202.webp" alt="Lector de tags RFID RC522 con MPLAB XC8 y método hash" loading="lazy"></a></figure><figure class="cap"><a href="img/239.webp" target="_blank"><img src="img/239.webp" alt="Lector de tags RFID RC522 con MPLAB XC8 y método hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>LEDs y variables</h3><a class="min" href="https://youtu.be/KUBoPqIMqFk?t=251" target="_blank" rel="noopener">&#9654; 4:11</a></div><p>Se copian de MikroC los LEDs y las variables: el buffer del código leído y el tipo de tag.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define led1 LATB7
+#define led2 LATB6
+#define led3 LATB5
+#define led4 LATB4
+
+char UID[10];           // almacena el buffer del codigo de rfid
+unsigned int TagType;   // almacena el tipo de tag
+char cont;              // para for</code></pre></div><div class="uno"><figure class="cap"><a href="img/166.webp" target="_blank"><img src="img/166.webp" alt="Lector de tags RFID RC522 con MPLAB XC8 y método hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Algoritmo hash</h3><a class="min" href="https://youtu.be/KUBoPqIMqFk?t=251" target="_blank" rel="noopener">&#9654; 4:11</a></div><p>El hash FNV recorre los bytes del UID y da un número único por tarjeta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned long Hash_algoritmo()
+{
+  unsigned long hash_acum = FNV_BASIS;
+
+  for (cont = 0; cont &lt; 4; cont++)
+  {
+    // Add value into the hash
+    hash_acum = (hash_acum * FNV_PRIME) ^ UID[cont];
+  }
+  return (hash_acum);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/275.webp" target="_blank"><img src="img/275.webp" alt="Lector de tags RFID RC522 con MPLAB XC8 y método hash" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Inicio</h3><a class="min" href="https://youtu.be/KUBoPqIMqFk?t=287" target="_blank" rel="noopener">&#9654; 4:47</a></div><p>Todo digital, comparador apagado, serial a 9600 y luego se inician el SPI por software y el RC522.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0B1111;   // TODO DIGITAL
+CMCON = 7;         // APAGA EL COMPARADOR
+
+TRISB = 0;
+TRISC = 0;
+TRISC7 = 1;        // entrada rx
+Uart1_Init(9600);
+RCEN = 1;          // recepcion continua
+
+Uart1_write_text(&quot;Iniciando\r\n&quot;);
+
+Soft_SPI_Init();   // inicia modulo SPI
+MFRC522_Init();    // inicializa la tarjeta
+LATB = 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/348.webp" target="_blank"><img src="img/348.webp" alt="Lector de tags RFID RC522 con MPLAB XC8 y método hash" loading="lazy"></a></figure><figure class="cap"><a href="img/385.webp" target="_blank"><img src="img/385.webp" alt="Lector de tags RFID RC522 con MPLAB XC8 y método hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Bits de configuración</h3><a class="min" href="https://youtu.be/KUBoPqIMqFk?t=357" target="_blank" rel="noopener">&#9654; 5:57</a></div><p>Los fusibles se generan en la ventana Configuration Bits (cristal de 20 MHz con PLL para 48 MHz) y se pegan al inicio del archivo.</p><div class="uno"><figure class="cap"><a href="img/312.webp" target="_blank"><img src="img/312.webp" alt="Lector de tags RFID RC522 con MPLAB XC8 y método hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Leer la tarjeta</h3><a class="min" href="https://youtu.be/KUBoPqIMqFk?t=459" target="_blank" rel="noopener">&#9654; 7:39</a></div><p>Si hay tarjeta se lee el serial, se calcula el hash y se envía como texto. Para sprintf con %lu se incluyen stdio y string.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  //si hay lectura de un TAG
+  if (MFRC522_isCard(&amp;TagType))
+  {
+    if (MFRC522_ReadCardSerial(&amp;UID))
+    {
+      codigo_rfid = Hash_algoritmo();
+      sprintf(texto, &quot;%lu&quot;, codigo_rfid);   // lo pasa a unsigned long
+      Uart1_write_text(&quot;CODIGO_RFID=&quot;);
+      Uart1_write_text(texto);
+      // ... compara con los códigos guardados
+    }
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/494.webp" target="_blank"><img src="img/494.webp" alt="Lector de tags RFID RC522 con MPLAB XC8 y método hash" loading="lazy"></a></figure><figure class="cap"><a href="img/567.webp" target="_blank"><img src="img/567.webp" alt="Lector de tags RFID RC522 con MPLAB XC8 y método hash" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Comparar códigos</h3><a class="min" href="https://youtu.be/KUBoPqIMqFk?t=561" target="_blank" rel="noopener">&#9654; 9:21</a></div><p>Cada código conocido cambia el estado de un LED. Como el número está en decimal, se escribe sin 0x.</p><p>Aquí van los códigos de tus propias tarjetas; los de abajo son de ejemplo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (codigo_rfid == 1111111111)        // código de tu tarjeta 1
+{
+  led1 = ~led1;
+  Uart1_write_text(&quot;TAG1\r\n&quot;);
+}
+else if (codigo_rfid == 2222222222)   // código de tu tarjeta 2
+{
+  led2 = ~led2;
+  Uart1_write_text(&quot;TAG2\r\n&quot;);
+}
+// ... igual para TAG3 y TAG4</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/KUBoPqIMqFk?t=593" target="_blank" rel="noopener">&#9654; 9:53</a></div><p>Al pasar cada tarjeta el terminal muestra su código y el nombre del tag, y su LED cambia de estado.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=KUBoPqIMqFk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

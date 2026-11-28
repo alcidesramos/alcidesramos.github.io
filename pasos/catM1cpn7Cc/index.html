@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cómo usar el modo Sleep de un PIC con MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con un PIC16LF1824 de bajo consumo se hace una secuencia de LEDs, el micro entra en modo Sleep y despierta por una interrupción externa o por un dato serial, indicando con un LED cuál fue la causa.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/catM1cpn7Cc/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Cómo usar el modo Sleep de un PIC con MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="Con un PIC16LF1824 de bajo consumo se hace una secuencia de LEDs, el micro entra en modo Sleep y despierta por una interrupción externa o por un dato serial, indicando con un LED cuál fue la causa.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/catM1cpn7Cc/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/catM1cpn7Cc/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>Modo <span>Sleep</span> en XC8</h1>
+    <p class="lead">En equipos con batería, como los médicos, conviene un micro de bajo consumo. Los nanoWatt XLP consumen nanoamperios en Sleep. Con un PIC16LF1824 y el MCC se configuran el oscilador, la EUSART a 9600 con interrupción de recepción, la interrupción externa por flanco de bajada con pull-up interno (hay que habilitar el bit general de pull-ups) y cuatro LEDs: uno por flanco, uno por serial y dos de la secuencia. El programa hace la secuencia, avisa por serial que se duerme y ejecuta SLEEP(). Al despertar enciende un LED, apaga los de causa y vuelve al ciclo. Las interrupciones globales y de periféricos deben estar habilitadas para que despierte.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=catM1cpn7Cc" target="_blank" rel="noopener">&#9654; Ver el video completo (15:56)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/940.webp" alt="Cómo usar el modo Sleep de un PIC con MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC16LF1824 (familia XLP)</li><li>Pulsador</li><li>4 LEDs con resistencias</li><li>Terminal virtual</li><li>MPLAB X con XC8 y MCC</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Teoría</a><a href="#f2">2 · MCC</a><a href="#f3">3 · Programa</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Bajo consumo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Micros XLP</h3><a class="min" href="https://youtu.be/catM1cpn7Cc?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>La tabla de Microchip muestra el consumo en Sleep de los micros eXtreme Low Power, del orden de nanoamperios.</p><div class="uno"><figure class="cap"><a href="img/74.webp" target="_blank"><img src="img/74.webp" alt="Cómo usar el modo Sleep de un PIC con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>MCC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Oscilador</h3><a class="min" href="https://youtu.be/catM1cpn7Cc?t=168" target="_blank" rel="noopener">&#9654; 2:48</a></div><p>Proyecto con el PIC16LF1824 en simulación. En System Module se configuran el oscilador, el watchdog y el reset.</p><div class="uno"><figure class="cap"><a href="img/236.webp" target="_blank"><img src="img/236.webp" alt="Cómo usar el modo Sleep de un PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Serial con interrupción</h3><a class="min" href="https://youtu.be/catM1cpn7Cc?t=234" target="_blank" rel="noopener">&#9654; 3:54</a></div><p>EUSART a 9600 con TX en RA0 y RX en RA1. En Interrupt Module se deja solo la interrupción de recepción.</p><div class="uno"><figure class="cap"><a href="img/291.webp" target="_blank"><img src="img/291.webp" alt="Cómo usar el modo Sleep de un PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Interrupción externa</h3><a class="min" href="https://youtu.be/catM1cpn7Cc?t=301" target="_blank" rel="noopener">&#9654; 5:01</a></div><p>La interrupción externa va en RA2 por flanco de bajada. Se activa su pull-up (WPU) y el bit general de pull-ups.</p><div class="uno"><figure class="cap"><a href="img/345.webp" target="_blank"><img src="img/345.webp" alt="Cómo usar el modo Sleep de un PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>LEDs</h3><a class="min" href="https://youtu.be/catM1cpn7Cc?t=398" target="_blank" rel="noopener">&#9654; 6:38</a></div><p>RC2 es led_f (despertó por flanco), RC3 led_s (despertó por serial), RC4 led1 y RC5 led2.</p><div class="uno"><figure class="cap"><a href="img/507.webp" target="_blank"><img src="img/507.webp" alt="Cómo usar el modo Sleep de un PIC con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Enviar textos</h3><a class="min" href="https://youtu.be/catM1cpn7Cc?t=504" target="_blank" rel="noopener">&#9654; 8:24</a></div><p>El MCC solo crea la función para un carácter; se agrega una para cadenas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void EUSART_Write_text(char* trama)
+{
+  while (*trama) EUSART_Write(*trama++);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/615.webp" target="_blank"><img src="img/615.webp" alt="Cómo usar el modo Sleep de un PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Secuencia y Sleep</h3><a class="min" href="https://youtu.be/catM1cpn7Cc?t=608" target="_blank" rel="noopener">&#9654; 10:08</a></div><p>Se hace una secuencia con led1, se avisa por serial y el micro se duerme. Al despertar enciende led2 un momento y apaga los LEDs de causa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>EUSART_Write_text(&quot;Iniciando\r\n&quot;);
+
+while (1)
+{
+  // SECUENCIA DE INICIACION
+  led1_Toggle(); __delay_ms(200);
+  led1_Toggle(); __delay_ms(200);
+  led1_Toggle(); __delay_ms(200);
+  led1_Toggle(); __delay_ms(200);
+  led1_Toggle(); __delay_ms(200);
+
+  EUSART_Write_text(&quot;Dormido\r\n&quot;);
+  SLEEP();
+  EUSART_Write_text(&quot;Despertado\r\n&quot;);
+  led2_SetHigh();
+  __delay_ms(500);
+  led2_SetLow();
+  led_f_SetLow();
+  led_s_SetLow();
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/669.webp" target="_blank"><img src="img/669.webp" alt="Cómo usar el modo Sleep de un PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Saber quién lo despertó</h3><a class="min" href="https://youtu.be/catM1cpn7Cc?t=746" target="_blank" rel="noopener">&#9654; 12:26</a></div><p>En el manejador de la interrupción externa (ext_int.c) se enciende led_f, y en el de recepción serial (eusart.c) se enciende led_s.</p><div class="uno"><figure class="cap"><a href="img/778.webp" target="_blank"><img src="img/778.webp" alt="Cómo usar el modo Sleep de un PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Habilitar interrupciones</h3><a class="min" href="https://youtu.be/catM1cpn7Cc?t=856" target="_blank" rel="noopener">&#9654; 14:16</a></div><p>Para que el micro despierte hay que descomentar en main.c la habilitación global y la de periféricos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>INTERRUPT_GlobalInterruptEnable();
+INTERRUPT_PeripheralInterruptEnable();</code></pre></div><div class="uno"><figure class="cap"><a href="img/886.webp" target="_blank"><img src="img/886.webp" alt="Cómo usar el modo Sleep de un PIC con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Dormir y despertar</h3><a class="min" href="https://youtu.be/catM1cpn7Cc?t=889" target="_blank" rel="noopener">&#9654; 14:49</a></div><p>Tras la secuencia el micro queda dormido. Con el pulsador despierta y prende el LED verde; con una tecla en el terminal prende el rojo. Hace la secuencia y vuelve a dormir.</p><div class="dos"><figure class="cap"><a href="img/724.webp" target="_blank"><img src="img/724.webp" alt="Cómo usar el modo Sleep de un PIC con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/940.webp" target="_blank"><img src="img/940.webp" alt="Cómo usar el modo Sleep de un PIC con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=catM1cpn7Cc" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

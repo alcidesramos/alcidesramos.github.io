@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El módulo DSM de los PIC modernos mezcla una señal de datos con dos portadoras para hacer modulación ASK, FSK o PSK sin software. Con un PIC16F1824 se usa con entrada externa, por software y con la EUSART.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/dVZlkE7NhNU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="El módulo DSM de los PIC modernos mezcla una señal de datos con dos portadoras para hacer modulación ASK, FSK o PSK sin software. Con un PIC16F1824 se usa con entrada externa, por software y con la EUSART.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/dVZlkE7NhNU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/dVZlkE7NhNU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>Módulo <span>DSM</span> en XC8</h1>
+    <p class="lead">Primero se repasa la modulación digital: ASK (OOK), FSK y PSK, y dónde se usan, como en módems acústicos o en comunicación por la red eléctrica. El DSM del PIC16F1824 tiene una portadora alta (cuando el dato es 1) y una baja (cuando es 0), que pueden ser PWM de los módulos CCP. Con el MCC se configura el reloj interno a 32 MHz, el ECCP1 con el Timer2 a 40 kHz y el CCP4 con el Timer6 a menor frecuencia, ambos al 50 %. Se prueba con la fuente de modulación externa (pin MDMIN), luego manual con el bit MDBIT, y al final con la salida de la EUSART: cada carácter enviado sale modulado en FSK por MDOUT.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=dVZlkE7NhNU" target="_blank" rel="noopener">&#9654; Ver el video completo (33:44)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1919.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC16F1824</li><li>Osciloscopio y analizador lógico de Proteus</li><li>MPLAB X con XC8 y MCC</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Teoría</a><a href="#f2">2 · MCC</a><a href="#f3">3 · Fuentes</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Teoría</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Modulación digital</h3><a class="min" href="https://youtu.be/dVZlkE7NhNU?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>En ASK hay portadora con 1 y no hay con 0. En FSK cada valor tiene su frecuencia. En PSK cambia la fase.</p><div class="uno"><figure class="cap"><a href="img/106.webp" target="_blank"><img src="img/106.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El registro MDCON</h3><a class="min" href="https://youtu.be/dVZlkE7NhNU?t=194" target="_blank" rel="noopener">&#9654; 3:14</a></div><p>MDEN habilita el módulo, MDOE la salida y MDBIT es el bit de datos cuando la fuente es manual.</p><div class="uno"><figure class="cap"><a href="img/279.webp" target="_blank"><img src="img/279.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>MCC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Reloj y DSM</h3><a class="min" href="https://youtu.be/dVZlkE7NhNU?t=400" target="_blank" rel="noopener">&#9654; 6:40</a></div><p>Oscilador interno de 8 MHz con PLL para 32 MHz. En el DSM se elige CCP1 como portadora alta, CCP4 como baja y una fuente externa.</p><div class="uno"><figure class="cap"><a href="img/538.webp" target="_blank"><img src="img/538.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Portadora alta</h3><a class="min" href="https://youtu.be/dVZlkE7NhNU?t=624" target="_blank" rel="noopener">&#9654; 10:24</a></div><p>El ECCP1 en PWM con el Timer2 a 25 µs, es decir 40 kHz, con ciclo útil del 50 %.</p><div class="dos"><figure class="cap"><a href="img/624.webp" target="_blank"><img src="img/624.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/710.webp" target="_blank"><img src="img/710.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Portadora baja</h3><a class="min" href="https://youtu.be/dVZlkE7NhNU?t=764" target="_blank" rel="noopener">&#9654; 12:44</a></div><p>El CCP4 en PWM con el Timer6, de periodo mayor, para una frecuencia más baja, también al 50 %.</p><div class="dos"><figure class="cap"><a href="img/797.webp" target="_blank"><img src="img/797.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/883.webp" target="_blank"><img src="img/883.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Pines</h3><a class="min" href="https://youtu.be/dVZlkE7NhNU?t=911" target="_blank" rel="noopener">&#9654; 15:11</a></div><p>P1A en RC5, CCP4 en RC1, la entrada MDMIN en RC3 y la salida MDOUT en RC4.</p><div class="uno"><figure class="cap"><a href="img/969.webp" target="_blank"><img src="img/969.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Tres fuentes</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Fuente externa</h3><a class="min" href="https://youtu.be/dVZlkE7NhNU?t=982" target="_blank" rel="noopener">&#9654; 16:22</a></div><p>Con una señal en MDMIN, la salida cambia de portadora según el nivel de la entrada.</p><div class="uno"><figure class="cap"><a href="img/1056.webp" target="_blank"><img src="img/1056.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Fuente manual</h3><a class="min" href="https://youtu.be/dVZlkE7NhNU?t=1205" target="_blank" rel="noopener">&#9654; 20:05</a></div><p>Se elige la fuente manual y el dato se pone por software con MDBIT. Al terminar de enviar se puede apagar el módulo para no gastar energía.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>MDEN = 1;   // HABILITA MODULO
+MDBIT = 0;
+__delay_ms(1);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1228.webp" target="_blank"><img src="img/1228.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1401.webp" target="_blank"><img src="img/1401.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1487.webp" target="_blank"><img src="img/1487.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Fuente EUSART</h3><a class="min" href="https://youtu.be/dVZlkE7NhNU?t=1564" target="_blank" rel="noopener">&#9654; 26:04</a></div><p>La EUSART a 9600 se elige como fuente. Cada dato enviado sale modulado; antes de enviar el siguiente se espera a que TRMT indique que terminó.</p><div class="dos"><figure class="cap"><a href="img/1573.webp" target="_blank"><img src="img/1573.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/2005.webp" target="_blank"><img src="img/2005.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1746.webp" target="_blank"><img src="img/1746.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Resultado</h3><a class="min" href="https://youtu.be/dVZlkE7NhNU?t=1904" target="_blank" rel="noopener">&#9654; 31:44</a></div><p>En el analizador se ve que con 0 sale la frecuencia alta y con 1 la baja: modulación FSK del dato serial.</p><div class="dos"><figure class="cap"><a href="img/1660.webp" target="_blank"><img src="img/1660.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1919.webp" target="_blank"><img src="img/1919.webp" alt="Módulo de modulación de señales digitales (DSM) en PIC con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=dVZlkE7NhNU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El medidor True RMS hecho en MikroC se pasa a XC8 con un PIC16F1824: muestra a muestra se suma el cuadrado del voltaje y cada 1500 muestras se saca la raíz. Se ve el problema de memoria y cómo lo resuelve la optimización.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/eACoxIjEUvc/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="El medidor True RMS hecho en MikroC se pasa a XC8 con un PIC16F1824: muestra a muestra se suma el cuadrado del voltaje y cada 1500 muestras se saca la raíz. Se ve el problema de memoria y cómo lo resuelve la optimización.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/eACoxIjEUvc/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/eACoxIjEUvc/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1><span>True RMS</span> con XC8</h1>
+    <p class="lead">Es la traducción a XC8 del medidor de voltaje RMS real hecho en MikroC. En el MCC se pone el oscilador HS de 10 MHz, los pines del LCD en RC0 a RC5 y el ADC en AN0 justificado a la derecha. El código se copia casi igual: se lee el ADC, se suma el cuadrado del voltaje y, al llegar a 1500 muestras (más de tres ciclos de 60 Hz), se saca la raíz del promedio, se aplica el divisor resistivo y la caída del puente rectificador. El problema es la memoria: sprintf con flotantes no cabe, así que primero se muestra el valor entero con una función propia y luego, subiendo la optimización de XC8 a nivel 3, ya se puede mostrar con decimales: 127,55 V.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=eACoxIjEUvc" target="_blank" rel="noopener">&#9654; Ver el video completo (15:15)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/796.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC16F1824</li><li>Cristal de 10 MHz</li><li>LCD 16x2</li><li>Divisor resistivo y puente rectificador</li><li>MPLAB X con XC8 y MCC</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · MCC</a><a href="#f2">2 · Código</a><a href="#f3">3 · Memoria</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>MCC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Oscilador y LCD</h3><a class="min" href="https://youtu.be/eACoxIjEUvc?t=68" target="_blank" rel="noopener">&#9654; 1:08</a></div><p>Proyecto con el PIC16F1824. Oscilador HS de 10 MHz y los pines del LCD en RC0 a RC5 como salidas.</p><div class="uno"><figure class="cap"><a href="img/124.webp" target="_blank"><img src="img/124.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>ADC</h3><a class="min" href="https://youtu.be/eACoxIjEUvc?t=136" target="_blank" rel="noopener">&#9654; 2:16</a></div><p>ADC con reloj FOSC/2, justificado a la derecha. RA0 queda como entrada análoga.</p><div class="uno"><figure class="cap"><a href="img/175.webp" target="_blank"><img src="img/175.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Pasar el código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>El programa de MikroC</h3><a class="min" href="https://youtu.be/eACoxIjEUvc?t=237" target="_blank" rel="noopener">&#9654; 3:57</a></div><p>Se incluyen el LCD, string, stdio y math, y se copian las variables. La inicialización del LCD cambia un poco en XC8.</p><div class="uno"><figure class="cap"><a href="img/331.webp" target="_blank"><img src="img/331.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Muestrear</h3><a class="min" href="https://youtu.be/eACoxIjEUvc?t=368" target="_blank" rel="noopener">&#9654; 6:08</a></div><p>Cada muestra se convierte a voltaje y se suma su cuadrado. Las muestras deben cubrir varios ciclos de la señal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>lectura = ADC_GetConversion(0);   // realiza primera lectura
+__delay_us(10);
+voltaje = lectura * 5.0 / 1023.0;  // calcula el voltaje
+suma += voltaje * voltaje;
+muestras++;</code></pre></div><div class="dos"><figure class="cap"><a href="img/382.webp" target="_blank"><img src="img/382.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/434.webp" target="_blank"><img src="img/434.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Calcular el RMS</h3><a class="min" href="https://youtu.be/eACoxIjEUvc?t=439" target="_blank" rel="noopener">&#9654; 7:19</a></div><p>A las 1500 muestras se saca la raíz del promedio, se aplica el divisor resistivo y se suma la caída del puente rectificador.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (muestras == 1500)
+{
+  voltaje = sqrt(suma / (float)muestras);
+  voltaje = voltaje * (res1 + res2) / res2;   //aplica el divisor resistivo
+  voltaje = voltaje + 1.4;                    //suma caida en el puente rectificador
+  muestras = 0;
+  suma = 0;
+  floattostr(voltaje, texto, 2);
+  Lcd_Set_Cursor(2, 9);
+  Lcd_Write_String(texto);
+  __delay_ms(100);   ///retardo de refresco
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/486.webp" target="_blank"><img src="img/486.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/538.webp" target="_blank"><img src="img/538.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Memoria</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>No cabe</h3><a class="min" href="https://youtu.be/eACoxIjEUvc?t=504" target="_blank" rel="noopener">&#9654; 8:24</a></div><p>Con sprintf la memoria del micro queda al 85 % y luego no compila. Se prueba una función propia para pasar el número a texto.</p><div class="dos"><figure class="cap"><a href="img/589.webp" target="_blank"><img src="img/589.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/641.webp" target="_blank"><img src="img/641.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Valor entero</h3><a class="min" href="https://youtu.be/eACoxIjEUvc?t=607" target="_blank" rel="noopener">&#9654; 10:07</a></div><p>numbertostr, más pequeña, muestra el valor sin decimales: 127 V.</p><div class="uno"><figure class="cap"><a href="img/693.webp" target="_blank"><img src="img/693.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Optimización</h3><a class="min" href="https://youtu.be/eACoxIjEUvc?t=810" target="_blank" rel="noopener">&#9654; 13:30</a></div><p>Para usar los decimales se sube la optimización de XC8 a nivel 3. Ya compila y el LCD muestra 127,55 V estable.</p><div class="uno"><figure class="cap"><a href="img/796.webp" target="_blank"><img src="img/796.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Comparación</h3><a class="min" href="https://youtu.be/eACoxIjEUvc?t=844" target="_blank" rel="noopener">&#9654; 14:04</a></div><p>En MikroC el mismo programa ocupaba el 65 % de la ROM; en XC8 con el MCC, el 95 %. El MCC agrega código que no siempre se necesita.</p><div class="dos"><figure class="cap"><a href="img/745.webp" target="_blank"><img src="img/745.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Cómo leer el valor True RMS de una señal con PIC y MPLAB XC8" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=eACoxIjEUvc" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

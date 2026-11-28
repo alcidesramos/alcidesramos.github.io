@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guardar datos en la memoria flash de programa con MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="En los PIC16F modernos con poca EEPROM se pueden guardar datos en la flash de programa. Con un PIC16F15324 y XC8 se escriben y leen char, int, long, float y texto, manejando bloques de 32 palabras.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/MllJIkpUqKI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Guardar datos en la memoria flash de programa con MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="En los PIC16F modernos con poca EEPROM se pueden guardar datos en la flash de programa. Con un PIC16F15324 y XC8 se escriben y leen char, int, long, float y texto, manejando bloques de 32 palabras.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/MllJIkpUqKI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/MllJIkpUqKI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-xc8">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MPLAB XC8 · Paso a paso</span>
+    <h1>Datos en la memoria <span>flash</span></h1>
+    <p class="lead">Muchos PIC16F nuevos tienen 4K o más de flash y muy poca o ninguna EEPROM. La flash se borra y escribe por filas de 32 palabras de 14 bits, con una secuencia de desbloqueo en NVMCON2 (55h y luego AAh). Sin MCC, con un PIC16F15324, se agregan funciones propias: FLASH_WriteBlock solo acepta direcciones múltiplo de 32; las funciones de alto nivel calculan la fila y la posición dentro de ella, leen toda la fila a un buffer, cambian el dato y la vuelven a escribir. Para int, long y float el dato se parte en bytes con un puntero. Todo se comprueba en el simulador mirando la memoria de programa y las variables. Hay que escribir lejos del código, porque si se pisa el programa el micro se bloquea.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=MllJIkpUqKI" target="_blank" rel="noopener">&#9654; Ver el video completo (47:41)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2743.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8"></figure>
+    <ul class="materiales"><li>PIC16F15324</li><li>MPLAB X con XC8 (simulador y vista de memoria)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Teoría</a><a href="#f2">2 · Bloque</a><a href="#f3">3 · Datos</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La memoria flash</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Secuencia de desbloqueo</h3><a class="min" href="https://youtu.be/MllJIkpUqKI?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Para borrar o escribir la flash se cargan 55h y AAh en NVMCON2 y luego se pone WR, con interrupciones deshabilitadas.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Filas de 32 palabras</h3><a class="min" href="https://youtu.be/MllJIkpUqKI?t=194" target="_blank" rel="noopener">&#9654; 3:14</a></div><p>El PIC16F15324 tiene 4096 palabras de flash. Se borra y escribe por filas de 32 palabras, y cada palabra guarda 14 bits, así que se usa un byte por posición.</p><div class="uno"><figure class="cap"><a href="img/214.webp" target="_blank"><img src="img/214.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Escribir un bloque</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Datos de prueba</h3><a class="min" href="https://youtu.be/MllJIkpUqKI?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>Se crea el proyecto sin MCC, se agregan flashmemory.c y flashmemory.h y un buffer de 32 valores.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define _XTAL_FREQ 8000000
+
+unsigned int buffer[32] =
+{
+  0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
+  0x0008, 0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x000E, 0x000F,
+  0x0010, 0x0011, 0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x0017,
+  0x0018, 0x0019, 0x001A, 0x001B, 0x001C, 0x001D, 0x001E, 0x001F
+};</code></pre></div><div class="uno"><figure class="cap"><a href="img/701.webp" target="_blank"><img src="img/701.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>FLASH_WriteBlock</h3><a class="min" href="https://youtu.be/MllJIkpUqKI?t=730" target="_blank" rel="noopener">&#9654; 12:10</a></div><p>Con una AND contra el tamaño del bloque se ve si la dirección es múltiplo de 32. Si no lo es, la función no escribe.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>signed char FLASH_WriteBlock(unsigned int FLASH_DIR, unsigned int *flashWordArray)
+{
+  unsigned int dir_aux = (unsigned int)(FLASH_DIR &amp; ((END_FLASH - 1) ^ (FLASH_BLOCKSIZE - 1)));
+  unsigned char GIE_Value = GIE;   // captura el valor de gie
+  unsigned char i;
+
+  // analiza si es multiplo de 32
+  if (FLASH_DIR != dir_aux)
+  {
+    return -1;
+  }
+  GIE = 0;   // deshabilita interrupcion
+  // ... borra la fila y escribe las 32 palabras (ver video)
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/798.webp" target="_blank"><img src="img/798.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Probar en el simulador</h3><a class="min" href="https://youtu.be/MllJIkpUqKI?t=1004" target="_blank" rel="noopener">&#9654; 16:44</a></div><p>Con 0x22 no escribe; con 0x20, que es múltiplo de 32, el bloque aparece en la memoria de programa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>FLASH_WriteBlock(0x22, buffer);   // debe ser un multiplo exacto de 32 0x20</code></pre></div><div class="dos"><figure class="cap"><a href="img/992.webp" target="_blank"><img src="img/992.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1090.webp" target="_blank"><img src="img/1090.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Cualquier dirección</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Escribir un char</h3><a class="min" href="https://youtu.be/MllJIkpUqKI?t=1277" target="_blank" rel="noopener">&#9654; 21:17</a></div><p>Para escribir en cualquier posición se calcula el inicio de la fila y el desplazamiento, se lee la fila al buffer, se cambia el dato y se escribe la fila completa.</p><div class="dos"><figure class="cap"><a href="img/1479.webp" target="_blank"><img src="img/1479.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1576.webp" target="_blank"><img src="img/1576.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Escribir un entero</h3><a class="min" href="https://youtu.be/MllJIkpUqKI?t=1688" target="_blank" rel="noopener">&#9654; 28:08</a></div><p>Un int ocupa dos posiciones. Con un puntero tipo char se toma cada byte y se guarda en dos casillas seguidas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char *punte;   // puntero tipo char
+punte = &amp;data_flash;
+
+// captura la direccion inicial multiplo de 32 donde se encuentra la direccion dada
+unsigned int dir_ini = (unsigned int)(flash_dir &amp; ((END_FLASH - 1) ^ (FLASH_BLOCKSIZE - 1)));
+// captura la posicion del dato a guardar dentro de la fila
+unsigned char offset = (unsigned char)(flash_dir &amp; (FLASH_BLOCKSIZE - 1));
+unsigned char i;
+
+//Lee la flash toda la fila y lo guarda en el buffer
+for (i = 0; i &lt; FLASH_BLOCKSIZE; i++)
+{
+  Buf[i] = FLASH_Read((dir_ini + i));
+}
+
+// escribe en el buffer el nuevo dato
+Buf[offset] = *punte;
+punte++;
+offset++;
+Buf[offset] = *punte;
+
+//Guarda la info
+FLASH_WriteBlock(dir_ini, Buf);</code></pre></div><div class="dos"><figure class="cap"><a href="img/1673.webp" target="_blank"><img src="img/1673.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/1965.webp" target="_blank"><img src="img/1965.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Leer</h3><a class="min" href="https://youtu.be/MllJIkpUqKI?t=2048" target="_blank" rel="noopener">&#9654; 34:08</a></div><p>Las funciones de lectura recorren las mismas posiciones y arman el dato. En la ventana Variables se comprueba cada valor.</p><div class="dos"><figure class="cap"><a href="img/2062.webp" target="_blank"><img src="img/2062.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/2159.webp" target="_blank"><img src="img/2159.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>long y float</h3><a class="min" href="https://youtu.be/MllJIkpUqKI?t=2189" target="_blank" rel="noopener">&#9654; 36:29</a></div><p>Long y float ocupan cuatro posiciones: la función es la misma, solo cambia el tipo y se repite el paso del puntero cuatro veces.</p><div class="dos"><figure class="cap"><a href="img/2257.webp" target="_blank"><img src="img/2257.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/2354.webp" target="_blank"><img src="img/2354.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Texto</h3><a class="min" href="https://youtu.be/MllJIkpUqKI?t=2457" target="_blank" rel="noopener">&#9654; 40:57</a></div><p>El texto se escribe carácter por carácter hasta el cero final, máximo 31 caracteres por fila. Se recomienda ponerlo en direcciones altas, lejos del programa.</p><div class="dos"><figure class="cap"><a href="img/2451.webp" target="_blank"><img src="img/2451.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/2548.webp" target="_blank"><img src="img/2548.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.6</span><h3>Programa final</h3><a class="min" href="https://youtu.be/MllJIkpUqKI?t=2591" target="_blank" rel="noopener">&#9654; 43:11</a></div><p>Se guardan y leen los cinco tipos de dato. En Variables aparecen 0x17, 1578, 102365, 19.473 y el texto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>FLASH_Write(0x27, buffer, 0x17);
+FLASH_Write_Int(0x30, buffer, 1578);
+FLASH_Write_Long(0x34, buffer, 102365);
+FLASH_Write_Float(0x61, buffer, 19.473);
+FLASH_Write_Texto(0x900, buffer, &quot;Esto SE ACABO&quot;);
+
+while (1)
+{
+  dato = FLASH_Read(0x27);
+  dato = FLASH_Read_Int(0x30);
+  dato_l = FLASH_Read_Long(0x34);
+  decimal = FLASH_Read_Float(0x61);
+  FLASH_Read_Texto(0x900, &amp;texto);
+  __delay_us(1);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2646.webp" target="_blank"><img src="img/2646.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/2743.webp" target="_blank"><img src="img/2743.webp" alt="Guardar datos en la memoria flash de programa con MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.7</span><h3>Cuidado</h3><a class="min" href="https://youtu.be/MllJIkpUqKI?t=2730" target="_blank" rel="noopener">&#9654; 45:30</a></div><p>Si se escribe en una dirección donde hay código, el programa se daña y el micro se bloquea. Hay que saber qué zona de la flash está libre.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=MllJIkpUqKI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
