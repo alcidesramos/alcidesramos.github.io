@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se diseña en Nextion Editor una interfaz de dos páginas para una pantalla de 2,4 pulgadas: un velocímetro con aguja y valor digital, botones para cambiar de página, un pulsador de dos estados, un termómetro con barra de progreso, un LED y un slider.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/WEqHm_YXfnA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor · Paso a paso">
+  <meta property="og:description" content="Se diseña en Nextion Editor una interfaz de dos páginas para una pantalla de 2,4 pulgadas: un velocímetro con aguja y valor digital, botones para cambiar de página, un pulsador de dos estados, un termómetro con barra de progreso, un LED y un slider.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/WEqHm_YXfnA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/WEqHm_YXfnA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#nextion">&larr; Volver al curso</a>
+    <span class="etiqueta">// Pantallas HMI Nextion · Paso a paso</span>
+    <h1>Diseñar la interfaz <span>Nextion</span></h1>
+    <p class="lead">Las pantallas Nextion son pantallas táctiles HMI: la interfaz se diseña en el PC con Nextion Editor y el microcontrolador solo envía y recibe órdenes por el puerto serial. Además, el editor permite simular la pantalla sin tenerla. En esta primera parte se crea el proyecto, se genera una fuente, se cargan las imágenes y se arman dos páginas con los objetos que después controlará un PIC o un Arduino.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=WEqHm_YXfnA" target="_blank" rel="noopener">&#9654; Ver el video completo (18:04)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1079.webp" alt="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor"></figure>
+    <ul class="materiales"><li>Nextion Editor</li><li>Pantalla Nextion NX3224T024 de 2,4 pulgadas (opcional: se puede simular)</li><li>Imágenes de 320 × 240 píxeles para fondos, aguja, LED, interruptor y termómetro</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Página 0</a><a href="#f3">3 · Página 1</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Modelo de pantalla</h3><a class="min" href="https://youtu.be/WEqHm_YXfnA?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>File, New y se elige el modelo: hay pantallas Basic, Enhanced e Intelligent, de 2,4 a 9 pulgadas. En el video se usa la NX3224T024 (320 × 240) y se escoge la orientación.</p><div class="uno"><figure class="cap"><a href="img/66.webp" target="_blank"><img src="img/66.webp" alt="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Generar una fuente</h3><a class="min" href="https://youtu.be/WEqHm_YXfnA?t=138" target="_blank" rel="noopener">&#9654; 2:18</a></div><p>Para mostrar texto hay que crear al menos una fuente con el generador de fuentes (Tools, Font Generator): se elige el tamaño (16) y el tipo de letra y se agrega al proyecto.</p><div class="uno"><figure class="cap"><a href="img/178.webp" target="_blank"><img src="img/178.webp" alt="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Cargar las imágenes</h3><a class="min" href="https://youtu.be/WEqHm_YXfnA?t=174" target="_blank" rel="noopener">&#9654; 2:54</a></div><p>Se agregan las imágenes en la pestaña Picture. La pantalla es de 320 × 240 píxeles, así que los fondos deben tener ese tamaño. Cada imagen queda con un número que luego se usa en los objetos.</p><div class="uno"><figure class="cap"><a href="img/347.webp" target="_blank"><img src="img/347.webp" alt="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Página 0: velocímetro</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Fondo y botón para cambiar de página</h3><a class="min" href="https://youtu.be/WEqHm_YXfnA?t=351" target="_blank" rel="noopener">&#9654; 5:51</a></div><p>Cada pantalla es una página (aquí pa0 y pa1). A la página 0 se le pone una imagen de fondo y un botón «SIGUIENTE» que llevará a la página 1; se le cambian los colores normal y presionado.</p><div class="uno"><figure class="cap"><a href="img/403.webp" target="_blank"><img src="img/403.webp" alt="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Pulsador de dos estados</h3><a class="min" href="https://youtu.be/WEqHm_YXfnA?t=451" target="_blank" rel="noopener">&#9654; 7:31</a></div><p>Con un Dual-state button se pone un interruptor que en lugar de color sólido usa dos imágenes: una para encendido y otra para apagado. Al tocarlo en la pantalla se le enviará una orden al micro.</p><div class="uno"><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Aguja del velocímetro</h3><a class="min" href="https://youtu.be/WEqHm_YXfnA?t=488" target="_blank" rel="noopener">&#9654; 8:08</a></div><p>Un objeto Gauge hace de aguja encima del dibujo del velocímetro, con fondo de imagen recortada (crop image) para que no tape el dibujo. Su valor es un ángulo de 0 a 360, así que no coincide con la escala del dibujo y hay que linealizar el valor que envía el micro. Se le da un nombre fácil (z0).</p><div class="uno"><figure class="cap"><a href="img/572.webp" target="_blank"><img src="img/572.webp" alt="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Valor digital</h3><a class="min" href="https://youtu.be/WEqHm_YXfnA?t=623" target="_blank" rel="noopener">&#9654; 10:23</a></div><p>Debajo se pone un objeto de número o texto para mostrar la velocidad en digital, también sobre la imagen de fondo.</p><div class="uno"><figure class="cap"><a href="img/685.webp" target="_blank"><img src="img/685.webp" alt="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Página 1: termómetro</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Termómetro con barra de progreso</h3><a class="min" href="https://youtu.be/WEqHm_YXfnA?t=765" target="_blank" rel="noopener">&#9654; 12:45</a></div><p>En la página 1 se pone otro fondo, un botón para volver a la página anterior y una Progress bar vertical que usa dos imágenes: el termómetro vacío y el termómetro lleno. Al cambiar su valor se ve subir el mercurio. También se agrega un valor digital de temperatura.</p><div class="uno"><figure class="cap"><a href="img/853.webp" target="_blank"><img src="img/853.webp" alt="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>LED que controla el micro</h3><a class="min" href="https://youtu.be/WEqHm_YXfnA?t=905" target="_blank" rel="noopener">&#9654; 15:05</a></div><p>Un objeto Picture hace de LED: el micro cambia su imagen entre la del LED encendido y la del LED apagado para dar una alerta.</p><div class="uno"><figure class="cap"><a href="img/966.webp" target="_blank"><img src="img/966.webp" alt="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Slider</h3><a class="min" href="https://youtu.be/WEqHm_YXfnA?t=941" target="_blank" rel="noopener">&#9654; 15:41</a></div><p>Un Slider horizontal con imágenes permite manejar algo deslizando el dedo, por ejemplo la velocidad de un motor, y un número muestra el valor que se está enviando.</p><div class="uno"><figure class="cap"><a href="img/1022.webp" target="_blank"><img src="img/1022.webp" alt="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Interfaz completa</h3><a class="min" href="https://youtu.be/WEqHm_YXfnA?t=1048" target="_blank" rel="noopener">&#9654; 17:28</a></div><p>Con esto queda la interfaz completa. En la siguiente parte se programa el microcontrolador para enviar datos a la pantalla y recibir sus órdenes.</p><div class="uno"><figure class="cap"><a href="img/1079.webp" target="_blank"><img src="img/1079.webp" alt="Interfaz con pantalla Nextion, parte 1: diseñar las páginas en Nextion Editor" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=WEqHm_YXfnA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

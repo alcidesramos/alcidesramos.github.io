@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cómo usar la GAL22V10 en Proteus con WinCUPL · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Las compuertas AND, OR, XOR y NOT se implementan por hardware en una GAL22V10: se escriben las ecuaciones en WinCUPL, se compila el archivo .jed y se carga en el AM22V10 de Proteus.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/5MvzTkgMiIw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Cómo usar la GAL22V10 en Proteus con WinCUPL · Paso a paso">
+  <meta property="og:description" content="Las compuertas AND, OR, XOR y NOT se implementan por hardware en una GAL22V10: se escriben las ecuaciones en WinCUPL, se compila el archivo .jed y se carga en el AM22V10 de Proteus.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/5MvzTkgMiIw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/5MvzTkgMiIw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#digitales">&larr; Volver al curso</a>
+    <span class="etiqueta">// Digitales básicos · Paso a paso</span>
+    <h1>Compuertas lógicas en una <span>GAL22V10</span></h1>
+    <p class="lead">Hacer compuertas lógicas por software en un microcontrolador funciona en la mayoría de casos, pero tiene retardos: primero lee las entradas y luego hace cada operación. Cuando se necesita velocidad sin llegar a una FPGA, se puede usar un dispositivo lógico programable como la GAL22V10, que responde en nanosegundos. Se programa con WinCUPL, el software gratuito de Microchip, y se simula en Proteus con el AM22V10.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=5MvzTkgMiIw" target="_blank" rel="noopener">&#9654; Ver el video completo (10:11)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/551.webp" alt="Cómo usar la GAL22V10 en Proteus con WinCUPL"></figure>
+    <ul class="materiales"><li>WinCUPL (descarga gratuita de Microchip)</li><li>Proteus (componente AM22V10)</li><li>GAL22V10 para el montaje real (opcional)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · WinCUPL</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Por qué una GAL</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Hardware en vez de software</h3><a class="min" href="https://youtu.be/5MvzTkgMiIw?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>En un micro las operaciones lógicas se hacen una tras otra, con retardos de microsegundos. Una FPGA lo hace por hardware pero es mucho más costosa. En medio están los CPLD y las GAL (arreglos lógicos programables): una matriz de compuertas que se configura por software y luego trabaja por hardware.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El circuito en Proteus</h3><a class="min" href="https://youtu.be/5MvzTkgMiIw?t=170" target="_blank" rel="noopener">&#9654; 2:50</a></div><p>En Proteus no aparece buscando FPGA, pero sí como PLD: el AM22V10. Se ponen dos entradas lógicas A y B en los pines 2 y 3 y se miran las salidas en los pines 20 a 23 (rojo es 1, azul es 0).</p><div class="uno"><figure class="cap"><a href="img/226.webp" target="_blank"><img src="img/226.webp" alt="Cómo usar la GAL22V10 en Proteus con WinCUPL" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>WinCUPL</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Diseño nuevo</h3><a class="min" href="https://youtu.be/5MvzTkgMiIw?t=270" target="_blank" rel="noopener">&#9654; 4:30</a></div><p>En WinCUPL: File, New, Design. Se llena el nombre (PRUEBA), el dispositivo g22v10 y se indica cuántos pines de entrada y de salida se usan; los pines internos se dejan en 0.</p><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Cómo usar la GAL22V10 en Proteus con WinCUPL" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Asignar pines y escribir las ecuaciones</h3><a class="min" href="https://youtu.be/5MvzTkgMiIw?t=302" target="_blank" rel="noopener">&#9654; 5:02</a></div><p>Se nombran las entradas (A en el pin 2, B en el pin 3) y las salidas en los pines 20 a 23. En CUPL la AND se escribe &, la OR #, la XOR $ y la NOT !. Se compila y debe terminar sin errores.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Name     PRUEBA ;
+PartNo   00 ;
+Revision 01 ;
+Device   g22v10 ;
+
+/* ****** INPUT PINS ****** */
+PIN  2 = A ;
+PIN  3 = B ;
+
+/* ****** OUTPUT PINS ****** */
+PIN 20 = AND ;
+PIN 21 = OR ;
+PIN 22 = XOR ;
+PIN 23 = NOT ;
+
+AND = A &amp; B;
+OR  = A # B;
+XOR = A $ B;
+NOT = !A;</code></pre></div><div class="dos"><figure class="cap"><a href="img/389.webp" target="_blank"><img src="img/389.webp" alt="Cómo usar la GAL22V10 en Proteus con WinCUPL" loading="lazy"></a></figure><figure class="cap"><a href="img/497.webp" target="_blank"><img src="img/497.webp" alt="Cómo usar la GAL22V10 en Proteus con WinCUPL" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Simulación</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Cargar el .jed en Proteus</h3><a class="min" href="https://youtu.be/5MvzTkgMiIw?t=507" target="_blank" rel="noopener">&#9654; 8:27</a></div><p>WinCUPL también tiene su propio simulador, pero aquí se prueba en Proteus: doble clic en el AM22V10 y se carga el archivo PRUEBA.jed que quedó en la carpeta de WinCUPL, igual que un .hex en un micro.</p><p>Al cambiar A y B se ve la tabla de verdad: la AND solo con ambas en 1, la OR se apaga solo con ambas en 0, la XOR prende cuando son diferentes y la NOT invierte A.</p><div class="uno"><figure class="cap"><a href="img/551.webp" target="_blank"><img src="img/551.webp" alt="Cómo usar la GAL22V10 en Proteus con WinCUPL" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=5MvzTkgMiIw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
