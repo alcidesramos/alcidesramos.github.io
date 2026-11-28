@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se configura la aplicación Virtuino en el celular con un servidor TCP, interruptores, un regulador, LEDs y un indicador de temperatura, y se estudia la trama que envía y recibe usando Hercules en el computador.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/hYOcU9um390/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación · Paso a paso">
+  <meta property="og:description" content="Se configura la aplicación Virtuino en el celular con un servidor TCP, interruptores, un regulador, LEDs y un indicador de temperatura, y se estudia la trama que envía y recibe usando Hercules en el computador.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/hYOcU9um390/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/hYOcU9um390/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1><span>Virtuino</span> con PIC (parte 1)</h1>
+    <p class="lead">Virtuino está pensada para Arduino, pero se puede usar con un PIC si se entiende la trama. Se crea un servidor de tipo propósito general con la IP y el puerto (100), primero apuntando al computador para probar con Hercules como servidor TCP. Todos los elementos usan pines virtuales: V0 y V1 son interruptores, V2 un regulador para el PWM, V3 y V4 LEDs y V5 la temperatura. La aplicación envía tramas como !V00=1$!V01=?$ ... cuyo orden cambia y que traen ? cuando no hay cambio. Para mostrar datos se le envía !V05=32.5$ y así. La actualización es lenta (mínimo 1 s). En la parte 2 se hace el programa del PIC.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=hYOcU9um390" target="_blank" rel="noopener">&#9654; Ver el video completo (22:41)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1340.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación"></figure>
+    <ul class="materiales"><li>Aplicación Virtuino en el celular</li><li>Terminal Hercules (servidor TCP)</li><li>Red WiFi local</li><li>Proteus con el circuito del PIC18F25K20 y el ESP8266 (para la parte 2)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Controles</a><a href="#f3">3 · Indicadores</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué se va a hacer</h3><a class="min" href="https://youtu.be/hYOcU9um390?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Desde el celular se prenden LEDs y se cambia la velocidad de un motor, y en el celular se ve la temperatura y el estado de dos pulsadores. Todo por WiFi con un ESP8266 y un PIC.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Servidor</h3><a class="min" href="https://youtu.be/hYOcU9um390?t=135" target="_blank" rel="noopener">&#9654; 2:15</a></div><p>En Server settings se agrega un servidor nuevo de tipo propósito general, con nombre, IP y puerto 100. Para probar se usa la IP del computador. El refresco mínimo es 1 segundo.</p><div class="uno"><figure class="cap"><a href="img/261.webp" target="_blank"><img src="img/261.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Probar la conexión</h3><a class="min" href="https://youtu.be/hYOcU9um390?t=290" target="_blank" rel="noopener">&#9654; 4:50</a></div><p>Hercules en modo TCP Server, puerto 100. Al conectar, en Client connection status aparece el celular.</p><div class="uno"><figure class="cap"><a href="img/338.webp" target="_blank"><img src="img/338.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Elementos de control</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Interruptores</h3><a class="min" href="https://youtu.be/hYOcU9um390?t=401" target="_blank" rel="noopener">&#9654; 6:41</a></div><p>Se agrega un panel y un switch asociado al servidor, en el pin virtual V0 y otro en V1. Se ponen textos LED1 y LED2.</p><div class="dos"><figure class="cap"><a href="img/415.webp" target="_blank"><img src="img/415.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación" loading="lazy"></a></figure><figure class="cap"><a href="img/492.webp" target="_blank"><img src="img/492.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>La trama que llega</h3><a class="min" href="https://youtu.be/hYOcU9um390?t=637" target="_blank" rel="noopener">&#9654; 10:37</a></div><p>Al correr, la aplicación envía !V00=1$!V01=?$ ... El orden de las variables cambia y si no hay cambio manda ?. El programa del PIC debe entender eso.</p><div class="uno"><figure class="cap"><a href="img/646.webp" target="_blank"><img src="img/646.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Regulador</h3><a class="min" href="https://youtu.be/hYOcU9um390?t=701" target="_blank" rel="noopener">&#9654; 11:41</a></div><p>En vez de slider se usa un regulador en V2 con rango de 0 a 255 para el PWM del motor.</p><div class="dos"><figure class="cap"><a href="img/724.webp" target="_blank"><img src="img/724.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación" loading="lazy"></a></figure><figure class="cap"><a href="img/878.webp" target="_blank"><img src="img/878.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Indicadores</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>LEDs</h3><a class="min" href="https://youtu.be/hYOcU9um390?t=867" target="_blank" rel="noopener">&#9654; 14:27</a></div><p>Se agregan dos LEDs en los pines virtuales V3 y V4, que mostrarán el estado de los pulsadores del circuito.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Temperatura</h3><a class="min" href="https://youtu.be/hYOcU9um390?t=972" target="_blank" rel="noopener">&#9654; 16:12</a></div><p>Un instrumento análogo en V5, de 0 a 100 grados, con un decimal y líneas de escala de 10, 50 y 100.</p><div class="dos"><figure class="cap"><a href="img/1109.webp" target="_blank"><img src="img/1109.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación" loading="lazy"></a></figure><figure class="cap"><a href="img/1186.webp" target="_blank"><img src="img/1186.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Enviar datos</h3><a class="min" href="https://youtu.be/hYOcU9um390?t=1223" target="_blank" rel="noopener">&#9654; 20:23</a></div><p>Desde Hercules se escribe la trama !V03=1$!V04=1$!V05=32.5$ y en el celular cambian los LEDs y la temperatura. En Hercules el signo $ se escribe doble.</p><div class="dos"><figure class="cap"><a href="img/1263.webp" target="_blank"><img src="img/1263.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación" loading="lazy"></a></figure><figure class="cap"><a href="img/1340.webp" target="_blank"><img src="img/1340.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 1: la aplicación" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=hYOcU9um390" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

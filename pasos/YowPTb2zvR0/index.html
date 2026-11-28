@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Emular un teclado USB (HID) con PIC18F y MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC18F con USB se hace pasar por un teclado: Windows lo reconoce sin drivers y cada pulsador envía una tecla, por ejemplo para jugar con un control propio.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/YowPTb2zvR0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Emular un teclado USB (HID) con PIC18F y MikroC · Paso a paso">
+  <meta property="og:description" content="Un PIC18F con USB se hace pasar por un teclado: Windows lo reconoce sin drivers y cada pulsador envía una tecla, por ejemplo para jugar con un control propio.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/YowPTb2zvR0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/YowPTb2zvR0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Teclado <span>USB HID</span> con PIC</h1>
+    <p class="lead">Se usa un PIC18F4550 (sirve el 2550 o el 45K50) a 48 MHz con el USB habilitado. Con la herramienta HID Terminal de MikroC se genera el descriptor USB con el nombre del dispositivo y se modifica para que sea un teclado: tamaño del reporte, clase y el descriptor de reporte de teclado. En el programa se declaran los buffers de lectura y escritura de 8 bytes en posiciones fijas, se llama USB_Interrupt_Proc en la interrupción y con HID_Write se envía el código de la tecla en la tercera posición del buffer. Luego se envía cero para que la tecla deje de repetirse. Los códigos de cada tecla están en la tabla de uso de teclado del estándar USB.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=YowPTb2zvR0" target="_blank" rel="noopener">&#9654; Ver el video completo (22:11)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1009.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librería USB)</li><li>PIC18F4550 o PIC18F2550 a 48 MHz</li><li>Conector USB</li><li>Cuatro pulsadores en RB0 a RB3</li><li>LED de prueba en RB7</li><li>Tabla de códigos de teclado USB (HID Usage Tables)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Circuito</a><a href="#f2">2 · Descriptor</a><a href="#f3">3 · Programa</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El circuito</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>La idea</h3><a class="min" href="https://youtu.be/YowPTb2zvR0?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Con un PIC que tenga USB se puede emular un teclado, un mouse u otro dispositivo HID. Así se puede hacer un control propio para juegos de computador que usan el teclado.</p><div class="dos"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/105.webp" target="_blank"><img src="img/105.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/YowPTb2zvR0?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>PIC18F4550 a 48 MHz con cristal de 20 MHz y PLL, USB habilitado y la parte análoga deshabilitada. Los pulsadores van en los cuatro primeros pines del puerto B con pull-up interna.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Descriptor USB</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Generarlo</h3><a class="min" href="https://youtu.be/YowPTb2zvR0?t=166" target="_blank" rel="noopener">&#9654; 2:46</a></div><p>En Tools, HID Terminal, pestaña Descriptor, se ponen el VID, el PID, el nombre del fabricante y del producto (así lo muestra Windows) y el tamaño del reporte en 8. Se guarda en la carpeta del proyecto.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Cambios para teclado</h3><a class="min" href="https://youtu.be/YowPTb2zvR0?t=290" target="_blank" rel="noopener">&#9654; 4:50</a></div><p>El descriptor generado es genérico. Se cambia el tamaño del reporte (USB_HID_RPT_SIZE) a 63 y en el descriptor del dispositivo el valor de la clase por 0x01, que identifica un teclado.</p><div class="dos"><figure class="cap"><a href="img/331.webp" target="_blank"><img src="img/331.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/406.webp" target="_blank"><img src="img/406.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Descriptor de reporte</h3><a class="min" href="https://youtu.be/YowPTb2zvR0?t=440" target="_blank" rel="noopener">&#9654; 7:20</a></div><p>Se reemplaza el reporte por el del teclado del estándar USB: Usage Page Generic Desktop, Usage Keyboard, las teclas modificadoras (Ctrl, Shift, Alt) y 6 bytes de teclas.</p><div class="dos"><figure class="cap"><a href="img/482.webp" target="_blank"><img src="img/482.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/708.webp" target="_blank"><img src="img/708.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El programa</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Buffers e interrupción</h3><a class="min" href="https://youtu.be/YowPTb2zvR0?t=545" target="_blank" rel="noopener">&#9654; 9:05</a></div><p>Los buffers de 8 bytes van en posiciones fijas de memoria. En la interrupción se atiende el USB. Se activa la librería USB y se agrega el archivo del descriptor al proyecto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned char readbuff[8] absolute 0x500;
+unsigned char writebuff[8] absolute 0x508;
+
+void interrupt()
+{
+  USB_Interrupt_Proc();   // INTERRUPCION POR USB
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/557.webp" target="_blank"><img src="img/557.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/632.webp" target="_blank"><img src="img/632.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Mandar una tecla</h3><a class="min" href="https://youtu.be/YowPTb2zvR0?t=719" target="_blank" rel="noopener">&#9654; 11:59</a></div><p>El byte 0 es el modificador (Shift, Ctrl), el byte 1 siempre es cero y en el byte 2 va el código de la tecla: 4 es la A. Si solo se envía la tecla, se sigue repitiendo; hay que enviar después un cero.</p><div class="uno"><figure class="cap"><a href="img/783.webp" target="_blank"><img src="img/783.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Códigos de teclas</h3><a class="min" href="https://youtu.be/YowPTb2zvR0?t=924" target="_blank" rel="noopener">&#9654; 15:24</a></div><p>En la tabla Keyboard/Keypad Page del estándar USB están todos los códigos: 4 la A, 7 la D, 26 la W, y así con las flechas y las demás teclas.</p><div class="uno"><figure class="cap"><a href="img/934.webp" target="_blank"><img src="img/934.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Programa final</h3><a class="min" href="https://youtu.be/YowPTb2zvR0?t=989" target="_blank" rel="noopener">&#9654; 16:29</a></div><p>Cada pulsador manda su tecla, espera el tiempo de repetición y luego manda cero. El retardo de 500 ms da un movimiento más fluido en el juego.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void main(void)
+{
+  //Initialize ports
+  ADCON1 = 0b1111;   // todo digital
+  TRISC.B6 = 0;
+  TRISB = 0x0F;      // RB0 -RB3 ENTRADAS
+  NOT_RBPU_bit = 0;  //HABILITA PULL UPS
+  HID_Enable(readbuff, writebuff);
+  LATB = 0;
+  while (1)
+  {
+    memset(writebuff, 0, 8);
+    writebuff[0] = 0;  // modificador modifier keys (SHIFT, CTRL, etc)
+    writebuff[1] = 0;  // relleno o padding siempre cero
+    if (RB0_bit == 0)
+    {
+      writebuff[2] = 4;                     //manda la &#x27;A&#x27;
+      while (!HID_Write(writebuff, 8));
+      Delay_ms(500);
+      writebuff[2] = 0;
+      while (!HID_Write(writebuff, 8));     // deja de mandar
+    }
+    if (RB1_bit == 0)
+    {
+      writebuff[2] = 7;                     //manda la &#x27;D&#x27;
+      while (!HID_Write(writebuff, 8));
+      Delay_ms(500);
+      writebuff[2] = 0;
+      while (!HID_Write(writebuff, 8));     // deja de mandar
+    }
+    // ... igual con las otras teclas
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1009.webp" target="_blank"><img src="img/1009.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1084.webp" target="_blank"><img src="img/1084.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/YowPTb2zvR0?t=1158" target="_blank" rel="noopener">&#9654; 19:18</a></div><p>Se programa con el bootloader USB. Windows lo reconoce como teclado y con los pulsadores se mueve el personaje del juego.</p><div class="uno"><figure class="cap"><a href="img/1235.webp" target="_blank"><img src="img/1235.webp" alt="Emular un teclado USB (HID) con PIC18F y MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=YowPTb2zvR0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

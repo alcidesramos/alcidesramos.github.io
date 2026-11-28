@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El PIC18F25K20 configura el ESP8266 como punto de acceso y servidor TCP, captura la trama de Virtuino con la interrupción serial y un timer, saca los valores de los pines virtuales y responde con el estado de los pulsadores y la temperatura.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/X1BTHDG2UUE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC · Paso a paso">
+  <meta property="og:description" content="El PIC18F25K20 configura el ESP8266 como punto de acceso y servidor TCP, captura la trama de Virtuino con la interrupción serial y un timer, saca los valores de los pines virtuales y responde con el estado de los pulsadores y la temperatura.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/X1BTHDG2UUE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/X1BTHDG2UUE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1><span>Virtuino</span> con PIC (parte 2)</h1>
+    <p class="lead">El ESP8266 se baja a 9600 baudios para la simulación con AT+UART_DEF. El PIC lo pone en modo punto de acceso con su propia red, una sola conexión y servidor en el puerto 100. La trama de Virtuino tiene inicio (!) pero no un final fijo ni un tamaño fijo, así que al detectar !V se arranca el Timer1 (50 ms por 4, unos 200 ms) y se guarda todo lo que llegue. Al cumplirse el tiempo se marca la trama como válida. procesarx recorre las variables con strtok: lo que hay entre V y = es el número de pin y lo que hay entre = y $ es el valor (si no es ?). V0 y V1 prenden LEDs y V2 cambia el PWM. Luego se arma con sprintf la respuesta con V3, V4 (pulsadores) y V5 (temperatura de un DS18B20) y se envía con AT+CIPSEND.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=X1BTHDG2UUE" target="_blank" rel="noopener">&#9654; Ver el video completo (57:31)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/3420.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (UART, PWM, One Wire, Software UART, C_String)</li><li>PIC18F25K20</li><li>Módulo ESP8266</li><li>Sensor DS18B20</li><li>Dos pulsadores, LEDs y un motor con L293D</li><li>Proteus con COMPIM</li><li>Aplicación Virtuino (parte 1)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Módulo</a><a href="#f2">2 · Servidor</a><a href="#f3">3 · Trama</a><a href="#f4">4 · Procesar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar el módulo</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Velocidad del ESP8266</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El módulo viene a 115200. Para simular en Proteus conviene 9600. AT+RESTORE lo devuelve a fábrica y AT+UART_DEF=9600,8,1,0,0 cambia la velocidad. Con un módulo real se puede dejar en 115200.</p><div class="dos"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/147.webp" target="_blank"><img src="img/147.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pines y librerías</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=341" target="_blank" rel="noopener">&#9654; 5:41</a></div><p>Pines del motor, LEDs, suiches y el sensor DS18B20. Se activan las librerías UART, PWM, One Wire, C_String y Software UART.</p><div class="dos"><figure class="cap"><a href="img/381.webp" target="_blank"><img src="img/381.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/498.webp" target="_blank"><img src="img/498.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Configuración</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=471" target="_blank" rel="noopener">&#9654; 7:51</a></div><p>Todo digital, pull-ups internas para los suiches, UART a 9600, PWM1 a 1250 Hz con un valor inicial, motor quieto y un serial por software para ver mensajes de prueba.</p><div class="dos"><figure class="cap"><a href="img/614.webp" target="_blank"><img src="img/614.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/731.webp" target="_blank"><img src="img/731.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>ESP8266 como servidor</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Comandos AT</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=745" target="_blank" rel="noopener">&#9654; 12:25</a></div><p>ATE0 quita el eco, CWMODE=2 crea su propia red, se cierra cualquier servidor, una sola conexión, modo normal y se crea la red con nombre y clave.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>manda_AT_COMANDO(&quot;ATE0&quot;);               //SIN ECO
+delay_ms(200);
+manda_AT_COMANDO(&quot;AT+CWMODE=2&quot;);        //ACTUA COMO ROUTER CREA UNA RED PROPIA
+delay_ms(200);
+//BORRA SERVIDOR
+manda_AT_COMANDO(&quot;AT+CIPSERVER=0&quot;);     //cierra servidores
+delay_ms(200);
+manda_AT_COMANDO(&quot;AT+CIPMUX=0&quot;);        //pone conexion en unica
+delay_ms(200);
+manda_AT_COMANDO(&quot;AT+CIPMODE=0&quot;);       //Trabaja en modo normal
+delay_ms(200);
+//Red WIFI como acces point canal 5 clave tipo WPA2_PSK
+manda_AT_COMANDO(&quot;AT+CWSAP=\&quot;ESP8266_ARZ\&quot;,\&quot;tu_clave\&quot;,5,3&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/848.webp" target="_blank"><img src="img/848.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>IP y servidor</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=880" target="_blank" rel="noopener">&#9654; 14:40</a></div><p>Se fija la IP del módulo y la puerta de enlace, se habilitan múltiples conexiones y se abre el servidor en el puerto 100. El celular se conecta a la red del módulo.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Conectar Virtuino</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=1155" target="_blank" rel="noopener">&#9654; 19:15</a></div><p>En la aplicación se cambia la IP del servidor por la del módulo y al conectar llegan las tramas al PIC.</p><div class="dos"><figure class="cap"><a href="img/1199.webp" target="_blank"><img src="img/1199.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1316.webp" target="_blank"><img src="img/1316.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Capturar la trama</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>La estrategia</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=1322" target="_blank" rel="noopener">&#9654; 22:02</a></div><p>La trama tiene inicio pero no un final fijo y su tamaño cambia. Al recibir el inicio se arranca un timer y durante unos 200 ms se guarda todo lo que llegue.</p><div class="uno"><figure class="cap"><a href="img/1433.webp" target="_blank"><img src="img/1433.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=1550" target="_blank" rel="noopener">&#9654; 25:50</a></div><p>trama_rx guarda lo recibido, procesa sirve para extraer valores, puntero apunta a la siguiente posición, flag_rx avisa que hay una trama lista y flag_timer que se cumplió el tiempo. total_variables es el número de pines virtuales usados (6).</p><div class="dos"><figure class="cap"><a href="img/1550.webp" target="_blank"><img src="img/1550.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1667.webp" target="_blank"><img src="img/1667.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1783.webp" target="_blank"><img src="img/1783.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Interrupción serial</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=1966" target="_blank" rel="noopener">&#9654; 32:46</a></div><p>Una máquina de estados espera el !, luego la V. Si llega la V arranca el Timer1 y pasa al estado fin, donde guarda todo hasta que se cumpla el tiempo. Entonces cierra la cadena, desactiva la recepción y activa flag_rx.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (RCIF_bit == 1)          // si es serial
+{
+  datorx = UART1_Read();    //lee el dato
+  switch (estado)           // analiza maquina de estado
+  {
+    case Adm:               // espera signo de admiracion
+      trama_rx[puntero] = datorx;
+      if (datorx != &#x27;!&#x27;) puntero = 0;   //no fue el dato que me interesa
+      else {
+        puntero++;          //incrementa contador para proximo dato
+        estado = V_;        //pasa al estado de capturar la v
+      }
+      break;
+    // case V_: si llega la V arranca el timer y pasa a fin
+    case fin:
+      trama_rx[puntero] = datorx;
+      puntero++;
+      if (puntero &gt; 100) {
+        puntero = 0;
+        estado = Adm;
+      }
+      if (flag_timer == 1) {
+        trama_rx[puntero] = 0;   // agrega final de linea
+        RCIE_bit = 0;            //deshabilita la interrupcion
+        flag_rx = 1;             //activa la bandera de que hay una trama valida
+        estado = Adm;            // RESETEA EL ESTADO
+        flag_timer = 0;          //limpia la bandera timer
+      }
+      break;
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2017.webp" target="_blank"><img src="img/2017.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/2134.webp" target="_blank"><img src="img/2134.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Timer de 200 ms</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=2134" target="_blank" rel="noopener">&#9654; 35:34</a></div><p>El Timer1 interrumpe cada 50 ms. Un contador llega a 4 (200 ms) y activa flag_timer. Si el tiempo es muy largo se pierde tiempo real; si es corto no llega la trama completa. La interrupción debe ir en el vector de alta prioridad.</p><div class="uno"><figure class="cap"><a href="img/2368.webp" target="_blank"><img src="img/2368.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Procesar y responder</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Sacar los valores</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=2514" target="_blank" rel="noopener">&#9654; 41:54</a></div><p>procesarx recorre las variables: con strtok toma lo que hay entre V y = (número de pin) y entre = y $ (valor). Si el valor no es ?, V0 y V1 cambian los LEDs y V2 el ciclo útil del PWM.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>strcpy(procesa, strtok(trama_rx, &quot;V&quot;));   //inicia captura de tokens desde el V
+for (son = 0; son &lt; total_variables - 1; son++)
+{
+  strcpy(procesa, strtok(0, &quot;=&quot;));   //captura hasta el =
+  variable = atoi(procesa);
+  strcpy(procesa, strtok(0, &quot;$&quot;));   //captura hasta el $
+  //procesa lo que lelga
+  if (procesa[0] != &#x27;?&#x27;)
+  {
+    if (variable == 0) led1 = atoi(procesa);
+    else if (variable == 1) led2 = atoi(procesa);
+    else if (variable == 2)
+    {
+      pwm = atof(procesa);
+      PWM1_Set_Duty(pwm);
+    }
+  }
+  strcpy(procesa, strtok(0, &quot;V&quot;));   //apunta a la otra variable
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2602.webp" target="_blank"><img src="img/2602.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/2719.webp" target="_blank"><img src="img/2719.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Probar</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=2810" target="_blank" rel="noopener">&#9654; 46:50</a></div><p>Al mover los controles del celular cambian los LEDs y el ancho de pulso del motor en Proteus. La respuesta tarda por el refresco de Virtuino.</p><div class="dos"><figure class="cap"><a href="img/2836.webp" target="_blank"><img src="img/2836.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/2952.webp" target="_blank"><img src="img/2952.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Armar la respuesta</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=2980" target="_blank" rel="noopener">&#9654; 49:40</a></div><p>Con sprintf se arma !V03=..$!V04=..$!V05=..$ con los suiches (negados, porque presionados dan 0) y la temperatura con un decimal. Las variables enteras se pasan con (unsigned int).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  if (flag_rx == 1)
+  {
+    soft_Uart_write_text_const(&quot;\r\n ME LLEGO=&quot;);
+    soft_Uart_write_text(trama_rx);
+    procesarx();
+    Delay_ms(100);
+    sprintf(trama_tx, &quot;!V03=%d$!V04=%d$!V05=%4.1f$&quot;, (unsigned int)!suiche1, (unsigned int)!suiche2, temperatura);
+    manda_esp8266(trama_tx);
+    // limpia variables y habilita otra vez la recepcion
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/3069.webp" target="_blank"><img src="img/3069.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Enviar con CIPSEND</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=3113" target="_blank" rel="noopener">&#9654; 51:53</a></div><p>manda_esp8266 envía AT+CIPSEND con el número de conexión (0) y el largo de la trama, y luego la trama.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void manda_esp8266(char *info)
+{
+  unsigned int largo;
+  Uart1_write_text_const(&quot;AT+CIPSEND=&quot;);   //manda envia solo constantes
+  UART1_Write(&#x27;0&#x27;);                        //manda el socket el cual se conecta
+  UART1_Write(&#x27;,&#x27;);
+  largo = strlen(info);                     //calcula el largo de la cadena a enviar
+  sprinti(captu, &quot;%u&quot;, largo);              //es el largo de la trama
+  UART1_Write_Text(captu);                  //envia el largo de la trama
+  Uart1_write_text_const(&quot;\r\n&quot;);
+  // ... espera y envia la trama
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/3186.webp" target="_blank"><img src="img/3186.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.5</span><h3>Primera lectura del sensor</h3><a class="min" href="https://youtu.be/X1BTHDG2UUE?t=3245" target="_blank" rel="noopener">&#9654; 54:05</a></div><p>El DS18B20 entrega 85 en la primera lectura. Por eso se lee una vez al inicio y se descarta; después la temperatura sale bien y en el celular cambian los LEDs y el indicador.</p><div class="dos"><figure class="cap"><a href="img/3303.webp" target="_blank"><img src="img/3303.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/3420.webp" target="_blank"><img src="img/3420.webp" alt="Proyecto WiFi con ESP8266, Virtuino y PIC parte 2: el programa en MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=X1BTHDG2UUE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

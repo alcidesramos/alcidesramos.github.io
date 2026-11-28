@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Embedded C code de MATLAB: crear funciones en C para microcontroladores · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con Simulink y el Embedded Coder de MATLAB se genera el código C de un modelo (aquí una suma) y se usa en MikroC con un PIC. El mismo método sirve para un PID o un filtro.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/XiXiKZC5KaM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Embedded C code de MATLAB: crear funciones en C para microcontroladores · Paso a paso">
+  <meta property="og:description" content="Con Simulink y el Embedded Coder de MATLAB se genera el código C de un modelo (aquí una suma) y se usa en MikroC con un PIC. El mismo método sirve para un PID o un filtro.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/XiXiKZC5KaM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/XiXiKZC5KaM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>De <span>Simulink</span> a C para el PIC</h1>
+    <p class="lead">Se hace un modelo de Simulink con dos entradas (uno y dos), un bloque suma y una salida. En la configuración se pone paso fijo, tipo de dato single (float), el vendedor Microchip y el dispositivo PIC18, y se desactiva la generación de main. El código generado (suma.c, suma.h y otros) se copia a la carpeta del proyecto de MikroC, se incluye suma.h y se agrega suma.c. En el programa se cargan las entradas en suma_U, se llama suma_step y el resultado queda en suma_Y. Se prueba con el depurador de MikroC.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=XiXiKZC5KaM" target="_blank" rel="noopener">&#9654; Ver el video completo (17:34)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1030.webp" alt="Embedded C code de MATLAB: crear funciones en C para microcontroladores"></figure>
+    <ul class="materiales"><li>MATLAB y Simulink con Embedded Coder</li><li>MikroC PRO for PIC (depurador)</li><li>Cualquier PIC (en la prueba un PIC16F877A)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Simulink</a><a href="#f2">2 · Código</a><a href="#f3">3 · MikroC</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El modelo en Simulink</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Opciones</h3><a class="min" href="https://youtu.be/XiXiKZC5KaM?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>MATLAB también tiene un paquete para programar dsPIC y PIC32 por bloques, pero aquí se usa solo la generación de código C, que sirve para cualquier compilador.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Bloques</h3><a class="min" href="https://youtu.be/XiXiKZC5KaM?t=135" target="_blank" rel="noopener">&#9654; 2:15</a></div><p>Se crea un modelo con dos entradas (uno y dos), un bloque Add y una salida (salida). Puede ser cualquier cosa: un controlador PID, un filtro, etc.</p><div class="uno"><figure class="cap"><a href="img/204.webp" target="_blank"><img src="img/204.webp" alt="Embedded C code de MATLAB: crear funciones en C para microcontroladores" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Paso fijo y float</h3><a class="min" href="https://youtu.be/XiXiKZC5KaM?t=264" target="_blank" rel="noopener">&#9654; 4:24</a></div><p>En Model configuration parameters el solver es de paso fijo y el tipo de dato por defecto se cambia de double a single, que es el float de los compiladores de 8 bits.</p><div class="uno"><figure class="cap"><a href="img/295.webp" target="_blank"><img src="img/295.webp" alt="Embedded C code de MATLAB: crear funciones en C para microcontroladores" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Hardware</h3><a class="min" href="https://youtu.be/XiXiKZC5KaM?t=299" target="_blank" rel="noopener">&#9654; 4:59</a></div><p>En Hardware Implementation se elige Microchip y PIC18. Muestra cuántos bits tiene cada tipo; si el compilador es diferente se puede personalizar.</p><div class="uno"><figure class="cap"><a href="img/387.webp" target="_blank"><img src="img/387.webp" alt="Embedded C code de MATLAB: crear funciones en C para microcontroladores" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Generar el código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Sin main</h3><a class="min" href="https://youtu.be/XiXiKZC5KaM?t=431" target="_blank" rel="noopener">&#9654; 7:11</a></div><p>En Code Generation, Templates, se quita la opción de generar un main de ejemplo; el main lo hace uno. Se pide empaquetar el código en un .zip.</p><div class="uno"><figure class="cap"><a href="img/479.webp" target="_blank"><img src="img/479.webp" alt="Embedded C code de MATLAB: crear funciones en C para microcontroladores" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Generar</h3><a class="min" href="https://youtu.be/XiXiKZC5KaM?t=465" target="_blank" rel="noopener">&#9654; 7:45</a></div><p>En la pestaña C CODE se da Generate Code y se obtienen suma.c, suma.h y las demás cabeceras.</p><div class="uno"><figure class="cap"><a href="img/571.webp" target="_blank"><img src="img/571.webp" alt="Embedded C code de MATLAB: crear funciones en C para microcontroladores" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Usarlo en MikroC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Agregar archivos</h3><a class="min" href="https://youtu.be/XiXiKZC5KaM?t=600" target="_blank" rel="noopener">&#9654; 10:00</a></div><p>Se crea el proyecto (aunque se configuró para PIC18, funciona en un PIC16F877A), se copian los .h y .c a la carpeta, se incluye suma.h y se agrega suma.c en Sources.</p><div class="uno"><figure class="cap"><a href="img/755.webp" target="_blank"><img src="img/755.webp" alt="Embedded C code de MATLAB: crear funciones en C para microcontroladores" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>La función generada</h3><a class="min" href="https://youtu.be/XiXiKZC5KaM?t=769" target="_blank" rel="noopener">&#9654; 12:49</a></div><p>suma.c tiene suma_step, que calcula la salida con las entradas guardadas en las estructuras suma_U y suma_Y.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>/* Model step function */
+void suma_step(void)
+{
+  /* Outport: &#x27;&lt;Root&gt;/salida&#x27; incorporates:
+   *  Inport: &#x27;&lt;Root&gt;/dos&#x27;
+   *  Inport: &#x27;&lt;Root&gt;/uno&#x27;
+   *  Sum: &#x27;&lt;Root&gt;/Add&#x27;
+   */
+  suma_Y.salida = suma_U.uno + suma_U.dos;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/846.webp" target="_blank"><img src="img/846.webp" alt="Embedded C code de MATLAB: crear funciones en C para microcontroladores" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Probar</h3><a class="min" href="https://youtu.be/XiXiKZC5KaM?t=869" target="_blank" rel="noopener">&#9654; 14:29</a></div><p>Se cargan las entradas, se llama suma_step y se lee la salida. En el depurador, con Watch Values, la salida vale 6.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;suma.h&quot;
+float salida_suma;
+
+void main()
+{
+  suma_U.uno = 2;
+  suma_U.dos = 4;
+  suma_step();
+  salida_suma = suma_Y.salida;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/938.webp" target="_blank"><img src="img/938.webp" alt="Embedded C code de MATLAB: crear funciones en C para microcontroladores" loading="lazy"></a></figure><figure class="cap"><a href="img/1030.webp" target="_blank"><img src="img/1030.webp" alt="Embedded C code de MATLAB: crear funciones en C para microcontroladores" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=XiXiKZC5KaM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
