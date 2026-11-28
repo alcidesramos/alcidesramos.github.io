@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ENC28J60: mini servidor web en un PIC (MikroC) o Arduino · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Una página web guardada en la memoria del micro y servida por un módulo ENC28J60: muestra voltaje, temperatura y dos pulsadores, y maneja dos leds con enlaces. Con la librería SPI_Ethernet de MikroC en un PIC18F25K20 y con UIPEthernet en Arduino.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/ZceQSbxVW8M/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino · Paso a paso">
+  <meta property="og:description" content="Una página web guardada en la memoria del micro y servida por un módulo ENC28J60: muestra voltaje, temperatura y dos pulsadores, y maneja dos leds con enlaces. Con la librería SPI_Ethernet de MikroC en un PIC18F25K20 y con UIPEthernet en Arduino.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/ZceQSbxVW8M/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/ZceQSbxVW8M/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Servidor web con <span>ENC28J60</span></h1>
+    <p class="lead">El ENC28J60 es un módulo Ethernet económico que se comunica por SPI. Con la librería de MikroC se arma un servidor que responde peticiones en el puerto 80. La página se diseña en un editor HTML (KompoZer), se pasa a cadenas de C y se guarda en el micro. Para no recargar toda la página, un script pide solo las variables (temperatura, voltaje, pulsadores) y los enlaces mandan órdenes como led1=on. Luego se hace lo mismo en Arduino, guardando las cadenas en la memoria de programa.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=ZceQSbxVW8M" target="_blank" rel="noopener">&#9654; Ver el video completo (75:42)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/4500.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino"></figure>
+    <ul class="materiales"><li>Módulo ENC28J60</li><li>MikroC PRO for PIC con la librería SPI_Ethernet y PIC18F25K20 a 32 MHz</li><li>Arduino Uno con la librería UIPEthernet</li><li>LM35, potenciómetro, dos pulsadores y dos leds</li><li>KompoZer (editor HTML) y Notepad++</li><li>Proteus y un navegador</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Peticiones</a><a href="#f3">3 · Página</a><a href="#f4">4 · Arduino</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El módulo</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=1" target="_blank" rel="noopener">&#9654; 0:01</a></div><p>El servidor queda dentro del micro: desde un navegador en la red se ve la página y se controlan salidas. El ENC28J60 se conecta por SPI (SCK, MOSI, MISO) más CS y RST, que pueden ir en cualquier pin.</p><div class="uno"><figure class="cap"><a href="img/60.webp" target="_blank"><img src="img/60.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Variables y pines</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=562" target="_blank" rel="noopener">&#9654; 9:22</a></div><p>Se definen las cabeceras HTTP, las variables de voltaje y temperatura, las tramas de recepción y envío, los pulsadores en RB0 y RB1 y los leds en RB6 y RB7.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const char httpHeader[] = &quot;HTTP/1.1 200 OK\nContent-type: &quot;;
+const char httpMimeTypeHTML[] = &quot;text/html\n\n&quot;;
+const char httpMimeTypeScript[] = &quot;text/plain\n\n&quot;;
+unsigned codigo;
+float temperatura, voltaje;
+char trama_rx[30];
+char trama_tx[30];</code></pre></div><div class="uno"><figure class="cap"><a href="img/639.webp" target="_blank"><img src="img/639.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>MAC e IP</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=905" target="_blank" rel="noopener">&#9654; 15:05</a></div><p>Se le da al módulo una MAC y una IP fija acorde a la red (en el ejemplo 192.168.0.37), además de la puerta de enlace y la máscara.</p><div class="uno"><figure class="cap"><a href="img/1025.webp" target="_blank"><img src="img/1025.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Iniciar</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=1102" target="_blank" rel="noopener">&#9654; 18:22</a></div><p>Pulsadores como entrada con pull-up, leds como salida, serial a 115200 para depurar, SPI y luego SPI_Ethernet_Init con la MAC, la IP y modo full duplex. En el ciclo principal se leen voltaje y temperatura y se llama SPI_Ethernet_doPacket.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>UART1_Init(115200);
+UART1_Write_Text(&quot;OK INICIANDO\r\n&quot;);
+SPI1_Init();
+SPI_Ethernet_Init(myMacAddr, myIpAddr, Spi_Ethernet_FULLDUPLEX);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1218.webp" target="_blank"><img src="img/1218.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Atender peticiones</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>SPI_Ethernet_UserTCP</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=1341" target="_blank" rel="noopener">&#9654; 22:21</a></div><p>La librería llama esta función cuando llega una petición TCP. Solo se atiende el puerto 80 y se leen los primeros 30 bytes, suficientes para saber qué pide el navegador.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (localPort != 80) return 0;
+for (cuent = 0; cuent &lt; 30; cuent++)
+  trama_rx[cuent] = SPI_Ethernet_getByte();
+trama_rx[cuent] = 0;
+if (memcmp(trama_rx, &quot;GET /&quot;, 5)) return 0;  // solo GET</code></pre></div><div class="uno"><figure class="cap"><a href="img/1411.webp" target="_blank"><img src="img/1411.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Probar la conexión</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=1572" target="_blank" rel="noopener">&#9654; 26:12</a></div><p>Al conectarse desde el navegador, la terminal muestra la petición GET que llegó. Hay que esperar a que el módulo esté listo (led verde) antes de probar.</p><div class="uno"><figure class="cap"><a href="img/1604.webp" target="_blank"><img src="img/1604.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>La página</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Diseñarla</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=1675" target="_blank" rel="noopener">&#9654; 27:55</a></div><p>La página se arma en un editor visual como KompoZer (gratis): título, una tabla con voltaje, temperatura y pulsadores, y enlaces ENCENDER y APAGAR para cada led que apuntan a led1=on, led1=off, etc.</p><div class="uno"><figure class="cap"><a href="img/1797.webp" target="_blank"><img src="img/1797.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Pasarla a C</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=2185" target="_blank" rel="noopener">&#9654; 36:25</a></div><p>El HTML se copia a Notepad++, se quitan las líneas vacías, se agrega una barra invertida al final de cada línea y se ajustan las comillas para que todo quede como una cadena constante de C.</p><div class="uno"><figure class="cap"><a href="img/2377.webp" target="_blank"><img src="img/2377.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Actualizar solo los datos</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=2753" target="_blank" rel="noopener">&#9654; 45:53</a></div><p>La cabecera de la página se recarga cada 3 segundos y pide un script en /$. Cuando el micro ve el '$' responde solo con las variables en JavaScript y la página las escribe con document.write. Así no se manda toda la página cada vez.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>&lt;meta http-equiv=&quot;refresh&quot; content=&quot;3;url=http://192.168.0.37&quot;&gt;
+&lt;script src=/$&gt;&lt;/script&gt;
+...
+&lt;script&gt;document.write(volt)&lt;/script&gt;</code></pre></div><div class="uno"><figure class="cap"><a href="img/2956.webp" target="_blank"><img src="img/2956.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Responder variables u órdenes</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=2825" target="_blank" rel="noopener">&#9654; 47:05</a></div><p>Si trama_rx[5] es '$' se manda la cabecera de script y las variables (voltaje y temperatura con dos decimales, y pul1/pul2 en ON u OFF). Si no, se buscan órdenes como led1=on en la trama y se manda la página.</p><div class="uno"><figure class="cap"><a href="img/3342.webp" target="_blank"><img src="img/3342.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Partir la página</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=3471" target="_blank" rel="noopener">&#9654; 57:51</a></div><p>El buffer del módulo es limitado, así que la página se divide en pagina1 y pagina2 y se envían por partes.</p><div class="uno"><figure class="cap"><a href="img/3535.webp" target="_blank"><img src="img/3535.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>En Arduino</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>UIPEthernet</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=3667" target="_blank" rel="noopener">&#9654; 61:07</a></div><p>Se instala la librería UIPEthernet, se define la MAC, la IP y un servidor en el puerto 80. El programa sigue la misma lógica: leer 30 bytes, revisar si pide $ o una orden, y responder.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+IPAddress ip(192, 168, 0, 37);
+EthernetServer server(80);</code></pre></div><div class="dos"><figure class="cap"><a href="img/3921.webp" target="_blank"><img src="img/3921.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure><figure class="cap"><a href="img/4307.webp" target="_blank"><img src="img/4307.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Órdenes</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=4071" target="_blank" rel="noopener">&#9654; 67:51</a></div><p>Los pulsadores se mandan como variables de JavaScript y las órdenes se buscan con strstr, igual que en el PIC.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (digitalRead(pulsador2) == 0) client.print(&quot;var pul2=\&quot;ON\&quot;;&quot;);
+else client.print(&quot;var pul2=\&quot;OFF\&quot;;&quot;);
+
+if (strstr(trama_rx, &quot;led1=&quot;)) {
+  if (strstr(trama_rx, &quot;on&quot;)) digitalWrite(led_amarillo, HIGH);
+  else digitalWrite(led_amarillo, LOW);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/4114.webp" target="_blank"><img src="img/4114.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Memoria RAM llena</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=4170" target="_blank" rel="noopener">&#9654; 69:30</a></div><p>Con las páginas como variables globales se llena la RAM del Arduino. Se guardan en la memoria de programa con PROGMEM y se mandan con un macro que usa __FlashStringHelper.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define mandame(x) (__FlashStringHelper*)(x)
+...
+client.print(mandame(pagina1));</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Prueba</h3><a class="min" href="https://youtu.be/ZceQSbxVW8M?t=4452" target="_blank" rel="noopener">&#9654; 74:12</a></div><p>La página muestra voltaje, temperatura y pulsadores actualizados, y los enlaces encienden y apagan los leds.</p><div class="uno"><figure class="cap"><a href="img/4500.webp" target="_blank"><img src="img/4500.webp" alt="ENC28J60: mini servidor web en un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=ZceQSbxVW8M" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

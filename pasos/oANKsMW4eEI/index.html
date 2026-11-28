@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manejo de hasta 8 servomotores con MikroC PRO for PIC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Una librería con el Timer1 y una máquina de estados genera la señal de 50 Hz para hasta ocho servos repartiendo 2.5 ms a cada uno. Se usa en un PIC16F877A y en un PIC12F1822 de 8 pines manejando cinco servos.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/oANKsMW4eEI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Manejo de hasta 8 servomotores con MikroC PRO for PIC · Paso a paso">
+  <meta property="og:description" content="Una librería con el Timer1 y una máquina de estados genera la señal de 50 Hz para hasta ocho servos repartiendo 2.5 ms a cada uno. Se usa en un PIC16F877A y en un PIC12F1822 de 8 pines manejando cinco servos.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/oANKsMW4eEI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/oANKsMW4eEI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Hasta <span>8 servos</span> con un timer</h1>
+    <p class="lead">Un servo necesita un pulso cada 20 ms cuyo ancho (entre 0.5 y 2.5 ms según el modelo) fija el ángulo. Como 20 ms divididos entre 2.5 ms dan 8, un solo timer puede atender ocho servos por turnos. La librería (publicada en Libstock) calcula los valores del Timer1, recorre los estados alto y bajo de cada servo en la interrupción y ofrece servo_valor para dar el ángulo. Los servos que no se usan se ponen en un mismo pin libre.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=oANKsMW4eEI" target="_blank" rel="noopener">&#9654; Ver el video completo (33:46)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2000.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC16F877A o PIC12F1822 a 32 MHz</li><li>Librería de servos (servos_T1.c y servos_T1.h)</li><li>Servomotores</li><li>Proteus con osciloscopio</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Señal</a><a href="#f2">2 · Librería</a><a href="#f3">3 · Usar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La señal</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>50 Hz</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>El servo recibe un pulso cada 20 ms. Con 1 ms (o 0.5 ms en algunos) va a un extremo, con 1.5 ms al centro y con 2 ms (o 2.5 ms) al otro extremo.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Ocho servos</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><p>20 ms entre 2.5 ms da 8: cada servo tiene una ventana de 2.5 ms donde su pulso sube y baja, y el timer pasa al siguiente.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>La librería</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>La librería está publicada en Libstock. Hay una versión para PIC16 y otra para PIC18, porque cambia el manejo de interrupciones.</p><div class="uno"><figure class="cap"><a href="img/262.webp" target="_blank"><img src="img/262.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Servos en Proteus</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=362" target="_blank" rel="noopener">&#9654; 6:02</a></div><p>En Proteus se ajustan en cada servo el ángulo mínimo y máximo y el pulso mínimo y máximo para que coincidan con la librería.</p><div class="uno"><figure class="cap"><a href="img/378.webp" target="_blank"><img src="img/378.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Cómo funciona</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Cálculos del timer</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=496" target="_blank" rel="noopener">&#9654; 8:16</a></div><p>Con la frecuencia del cristal se calcula cuánto cargar en el Timer1 para 2.5 ms y para 1.5 ms. Los estados alto y bajo de cada servo se definen con un enum.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>const unsigned long cristal = Clock_kHz();
+const float tmr1_reg = 65536.0 - ((cristal*2.5)/(4.0));
+const float tmr1_reg_ini = 65536.0 - ((cristal*1.5)/(4.0));
+enum servo_estado {hi_1, lo_1, hi_2, lo_2, ..., hi_8, lo_8};</code></pre></div><div class="uno"><figure class="cap"><a href="img/494.webp" target="_blank"><img src="img/494.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>init_servos</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=665" target="_blank" rel="noopener">&#9654; 11:05</a></div><p>Recibe el pulso mínimo y máximo, calcula la pendiente para pasar de ángulo a tiempo y deja todos los servos en el centro.</p><div class="uno"><figure class="cap"><a href="img/609.webp" target="_blank"><img src="img/609.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Configurar el Timer1</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=701" target="_blank" rel="noopener">&#9654; 11:41</a></div><p>Timer1 con prescaler 1, se carga casi lleno para forzar la primera interrupción y se habilita su interrupción.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>T1CON = 0;
+T1CKPS1_bit = 0; T1CKPS0_bit = 0;
+TMR1IF_bit = 0;
+TMR1L = 254;   // fuerza la primera interrupción
+TMR1H = 255;
+TMR1IE_bit = 1;
+TMR1ON_bit = 1;</code></pre></div><div class="uno"><figure class="cap"><a href="img/725.webp" target="_blank"><img src="img/725.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Máquina de estados</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=766" target="_blank" rel="noopener">&#9654; 12:46</a></div><p>En cada interrupción se ve en qué estado va: en el alto se pone el pin en 1 y se carga el tiempo de ese servo; en el bajo se pone en 0 y se carga lo que falta para completar 2.5 ms. Luego pasa al siguiente servo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>case hi_2:
+  servo2 = 1;
+  int_tempo = servos[1];
+  tmr1h = hi(int_tempo);
+  tmr1l = lo(int_tempo);
+  estado_servos = lo_2;
+  break;</code></pre></div><div class="uno"><figure class="cap"><a href="img/841.webp" target="_blank"><img src="img/841.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Usarla</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Pines</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=934" target="_blank" rel="noopener">&#9654; 15:34</a></div><p>En el programa se declaran los ocho pines y sus direcciones. Pueden ir en cualquier pin; los servos que no se usan se ponen todos en un mismo pin libre.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;servos_T1.h&quot;
+sbit servo1 at portb.b0;
+sbit servo2 at portb.b1;
+sbit servo3 at portb.b2;
+sbit servo4 at portb.b3;
+...
+sbit servo1_direction at trisb.b0;
+...</code></pre></div><div class="dos"><figure class="cap"><a href="img/957.webp" target="_blank"><img src="img/957.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/1189.webp" target="_blank"><img src="img/1189.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Main</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=1069" target="_blank" rel="noopener">&#9654; 17:49</a></div><p>Se inicia con el rango de pulso, se habilita la interrupción global y con servo_valor(número, ángulo) se mueve cada servo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>init_servos(0.5, 2.5);
+GIE_bit = 1;
+while (1) {
+  servo_valor(1, 0);
+  servo_valor(2, 90);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1073.webp" target="_blank"><img src="img/1073.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Cinco servos con 8 pines</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=1271" target="_blank" rel="noopener">&#9654; 21:11</a></div><p>Con un PIC12F1822 a 32 MHz (oscilador interno con PLL) se manejan cinco servos. Se usa LATA, y los servos sobrantes se asignan a bits que no existen en el puerto.</p><div class="dos"><figure class="cap"><a href="img/1536.webp" target="_blank"><img src="img/1536.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/1652.webp" target="_blank"><img src="img/1652.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Barrido</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=1742" target="_blank" rel="noopener">&#9654; 29:02</a></div><p>En el ciclo principal un for mueve un servo de -90 a 90 grados y otro en sentido contrario, mientras los demás quedan fijos.</p><div class="dos"><figure class="cap"><a href="img/1768.webp" target="_blank"><img src="img/1768.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure><figure class="cap"><a href="img/1884.webp" target="_blank"><img src="img/1884.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/oANKsMW4eEI?t=1882" target="_blank" rel="noopener">&#9654; 31:22</a></div><p>En el osciloscopio se ven los pulsos de cada servo y los ángulos cambian según el programa.</p><div class="uno"><figure class="cap"><a href="img/2000.webp" target="_blank"><img src="img/2000.webp" alt="Manejo de hasta 8 servomotores con MikroC PRO for PIC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=oANKsMW4eEI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

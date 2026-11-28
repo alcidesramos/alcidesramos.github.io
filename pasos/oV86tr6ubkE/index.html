@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control por Bluetooth con el celular: PIC (MikroC) o Arduino · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El mismo programa full duplex de LabVIEW se maneja desde una app de celular por Bluetooth. Los botones mandan las órdenes de siempre y el micro responde con tramas que la app entiende para el termómetro y el led indicador.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/oV86tr6ubkE/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Control por Bluetooth con el celular: PIC (MikroC) o Arduino · Paso a paso">
+  <meta property="og:description" content="El mismo programa full duplex de LabVIEW se maneja desde una app de celular por Bluetooth. Los botones mandan las órdenes de siempre y el micro responde con tramas que la app entiende para el termómetro y el led indicador.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/oV86tr6ubkE/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/oV86tr6ubkE/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Control por <span>Bluetooth</span> desde el celular</h1>
+    <p class="lead">En vez de LabVIEW se usa una app de panel para Bluetooth (Bluetooth Electronics) donde se arrastran botones, un slider, un termómetro y un led. Cada control se configura para mandar exactamente las órdenes que el micro ya conoce (led1=on*, mder*, mpwm=valor*). Para mostrar datos, el micro manda la temperatura y el estado del switch con el formato de la app. Se hace en PIC18F25K20 con MikroC y en Arduino.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=oV86tr6ubkE" target="_blank" rel="noopener">&#9654; Ver el video completo (23:23)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/750.webp" alt="Control por Bluetooth con el celular: PIC (MikroC) o Arduino"></figure>
+    <ul class="materiales"><li>Celular con una app de panel Bluetooth (Bluetooth Electronics)</li><li>Módulo Bluetooth serial (HC-05 o similar)</li><li>PIC18F25K20 con MikroC o Arduino Uno</li><li>LM35, L293D con motor, leds y switch</li><li>Proteus con COMPIM</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · App</a><a href="#f2">2 · Órdenes</a><a href="#f3">3 · Datos</a><a href="#f4">4 · Arduino</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La app</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Mismo circuito</h3><a class="min" href="https://youtu.be/oV86tr6ubkE?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se usa el circuito de la serie full duplex: LM35, motor con L293D, dos leds y un switch. Ahora el puerto serial va a un módulo Bluetooth.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Control por Bluetooth con el celular: PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Armar el panel</h3><a class="min" href="https://youtu.be/oV86tr6ubkE?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>En la app se arrastran un termómetro, un led indicador, botones de izquierda, derecha y stop, un slider de velocidad y dos switches para los leds.</p><div class="uno"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Control por Bluetooth con el celular: PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Órdenes</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>No se cambia el micro</h3><a class="min" href="https://youtu.be/oV86tr6ubkE?t=340" target="_blank" rel="noopener">&#9654; 5:40</a></div><p>El micro ya entiende led1=on*, mder*, mizq*, mstop* y mpwm=valor*. Solo hay que configurar la app para que mande esas mismas tramas.</p><div class="uno"><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Control por Bluetooth con el celular: PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Botones y switches</h3><a class="min" href="https://youtu.be/oV86tr6ubkE?t=442" target="_blank" rel="noopener">&#9654; 7:22</a></div><p>El switch amarillo manda led1=on* al presionar y led1=off* al soltar; el rojo, led2. Los botones del motor mandan mizq*, mder* y mstop*.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Slider</h3><a class="min" href="https://youtu.be/oV86tr6ubkE?t=576" target="_blank" rel="noopener">&#9654; 9:36</a></div><p>El slider se configura de 0 a 255 y para que empiece con mpwm= y termine con '*'. Así manda mpwm=valor* cada vez que cambia.</p><div class="uno"><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="Control por Bluetooth con el celular: PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Prueba</h3><a class="min" href="https://youtu.be/oV86tr6ubkE?t=677" target="_blank" rel="noopener">&#9654; 11:17</a></div><p>Se conecta el celular al módulo y desde el panel se encienden leds, se gira el motor y se cambia su velocidad.</p><div class="uno"><figure class="cap"><a href="img/750.webp" target="_blank"><img src="img/750.webp" alt="Control por Bluetooth con el celular: PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Datos hacia el celular</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Temperatura</h3><a class="min" href="https://youtu.be/oV86tr6ubkE?t=778" target="_blank" rel="noopener">&#9654; 12:58</a></div><p>La app espera un carácter de inicio y uno de fin según el indicador. Para el termómetro se manda *T, el valor y *.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;*T%.2f*&quot;, temperatura);
+UART1_Write_Text(texto);</code></pre></div><div class="uno"><figure class="cap"><a href="img/910.webp" target="_blank"><img src="img/910.webp" alt="Control por Bluetooth con el celular: PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Led indicador</h3><a class="min" href="https://youtu.be/oV86tr6ubkE?t=847" target="_blank" rel="noopener">&#9654; 14:07</a></div><p>Para el led se manda el color: *LR255G0B0* lo pone rojo y con todo en 0 queda apagado. Conviene un retardo entre envíos para que los comandos no se peguen.</p><div class="uno"><figure class="cap"><a href="img/1070.webp" target="_blank"><img src="img/1070.webp" alt="Control por Bluetooth con el celular: PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Arduino</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Mismo programa</h3><a class="min" href="https://youtu.be/oV86tr6ubkE?t=1082" target="_blank" rel="noopener">&#9654; 18:02</a></div><p>El programa full duplex de Arduino funciona igual con la app.</p><div class="uno"><figure class="cap"><a href="img/1230.webp" target="_blank"><img src="img/1230.webp" alt="Control por Bluetooth con el celular: PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Tramas de la app</h3><a class="min" href="https://youtu.be/oV86tr6ubkE?t=1268" target="_blank" rel="noopener">&#9654; 21:08</a></div><p>Se cambia el envío: la temperatura con *T y dtostrf, y el switch con el color del led.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>Serial.print(&quot;*T&quot;);
+dtostrf(temperatura, 5, 3, texto);
+Serial.print(texto);
+Serial.print(&quot;*&quot;);
+if (digitalRead(suiche) == 1) Serial.print(&quot;*LR255G0B0*&quot;);
+else Serial.print(&quot;*LR0G0B0*&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1310.webp" target="_blank"><img src="img/1310.webp" alt="Control por Bluetooth con el celular: PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/oV86tr6ubkE?t=1370" target="_blank" rel="noopener">&#9654; 22:50</a></div><p>La temperatura y el led cambian en el celular mientras se manejan motor y leds.</p><div class="uno"><figure class="cap"><a href="img/1390.webp" target="_blank"><img src="img/1390.webp" alt="Control por Bluetooth con el celular: PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=oV86tr6ubkE" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

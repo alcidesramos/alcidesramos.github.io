@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Función millis en PIC con MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se crea en MikroC una función millis como la de Arduino: un Timer0 que interrumpe cada milisegundo y suma un contador unsigned long. Con ella dos leds parpadean a tiempos distintos sin usar Delay.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/IF7PctWlLGg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Función millis en PIC con MikroC · Paso a paso">
+  <meta property="og:description" content="Se crea en MikroC una función millis como la de Arduino: un Timer0 que interrumpe cada milisegundo y suma un contador unsigned long. Con ella dos leds parpadean a tiempos distintos sin usar Delay.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/IF7PctWlLGg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/IF7PctWlLGg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>La función <span>millis</span> en un PIC</h1>
+    <p class="lead">En Arduino millis devuelve los milisegundos desde que arrancó el micro y permite hacer tareas a distintos tiempos sin bloquear. Aquí se hace lo mismo en un PIC16F876A a 20 MHz: Timer Calculator genera la configuración del Timer0 para una interrupción de casi 1 ms, en la interrupción se incrementa un contador y la función millis lo retorna. En el ciclo principal se compara el tiempo actual con el guardado.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=IF7PctWlLGg" target="_blank" rel="noopener">&#9654; Ver el video completo (13:48)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/739.webp" alt="Función millis en PIC con MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC16F876A con cristal de 20 MHz (sirve cualquier PIC)</li><li>Timer Calculator</li><li>Dos leds</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Preparar</a><a href="#f2">2 · millis</a><a href="#f3">3 · Usar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito</h3><a class="min" href="https://youtu.be/IF7PctWlLGg?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>Dos leds en RB0 y RB1: uno parpadea cada segundo y el otro cada 3 segundos, usando millis.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/IF7PctWlLGg?t=70" target="_blank" rel="noopener">&#9654; 1:10</a></div><p>Proyecto nuevo con el PIC16F876A, oscilador HS a 20 MHz y Power-up Timer habilitado.</p><div class="uno"><figure class="cap"><a href="img/101.webp" target="_blank"><img src="img/101.webp" alt="Función millis en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Contador unsigned long</h3><a class="min" href="https://youtu.be/IF7PctWlLGg?t=134" target="_blank" rel="noopener">&#9654; 2:14</a></div><p>Igual que en Arduino se usa un unsigned long, que llega hasta 4294967295. En milisegundos eso son unos 49.7 días antes de volver a cero.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit led1 at RB0_bit;
+sbit led2 at RB1_bit;
+unsigned long millis_count = 0;
+unsigned long time1, time2;</code></pre></div><div class="dos"><figure class="cap"><a href="img/172.webp" target="_blank"><img src="img/172.webp" alt="Función millis en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/243.webp" target="_blank"><img src="img/243.webp" alt="Función millis en PIC con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Crear millis</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Timer Calculator</h3><a class="min" href="https://youtu.be/IF7PctWlLGg?t=340" target="_blank" rel="noopener">&#9654; 5:40</a></div><p>Timer Calculator (gratis, en los programas de soporte de MikroElektronika) se elige la familia del PIC, la frecuencia y 1 ms. Da el código del Timer0: prescaler 1:32 y precarga 100, para una interrupción de 998.4 µs.</p><div class="uno"><figure class="cap"><a href="img/385.webp" target="_blank"><img src="img/385.webp" alt="Función millis en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Interrupción</h3><a class="min" href="https://youtu.be/IF7PctWlLGg?t=404" target="_blank" rel="noopener">&#9654; 6:44</a></div><p>Se pega el código generado y dentro de la interrupción se incrementa el contador.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void InitTimer0() {
+  OPTION_REG = 0x84;
+  TMR0 = 100;
+  INTCON = 0xA0;
+}
+
+void Interrupt() {
+  if (TMR0IF_bit) {
+    TMR0IF_bit = 0;
+    TMR0 = 100;
+    millis_count++;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/455.webp" target="_blank"><img src="img/455.webp" alt="Función millis en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>La función</h3><a class="min" href="https://youtu.be/IF7PctWlLGg?t=436" target="_blank" rel="noopener">&#9654; 7:16</a></div><p>millis solo retorna el valor del contador.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned long millis() {
+  return (millis_count);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/526.webp" target="_blank"><img src="img/526.webp" alt="Función millis en PIC con MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Usarla</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Antes del ciclo</h3><a class="min" href="https://youtu.be/IF7PctWlLGg?t=532" target="_blank" rel="noopener">&#9654; 8:52</a></div><p>Se inicia el timer y se guardan los tiempos iniciales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TRISB = 0;
+InitTimer0();
+time1 = millis();
+time2 = millis();</code></pre></div><div class="dos"><figure class="cap"><a href="img/597.webp" target="_blank"><img src="img/597.webp" alt="Función millis en PIC con MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/668.webp" target="_blank"><img src="img/668.webp" alt="Función millis en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Comparar tiempos</h3><a class="min" href="https://youtu.be/IF7PctWlLGg?t=631" target="_blank" rel="noopener">&#9654; 10:31</a></div><p>Si pasó un segundo desde time1 se invierte el led 1 y se actualiza time1. Lo mismo con time2 y 3 segundos. Nada bloquea el programa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  if (millis() - time1 &gt;= 1000) {
+    led1 = ~led1;
+    time1 = millis();
+  }
+  if (millis() - time2 &gt;= 3000) {
+    led2 = ~led2;
+    time2 = millis();
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/739.webp" target="_blank"><img src="img/739.webp" alt="Función millis en PIC con MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/IF7PctWlLGg?t=791" target="_blank" rel="noopener">&#9654; 13:11</a></div><p>En la simulación cada led parpadea a su propio ritmo.</p><div class="uno"><figure class="cap"><a href="img/810.webp" target="_blank"><img src="img/810.webp" alt="Función millis en PIC con MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=IF7PctWlLGg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

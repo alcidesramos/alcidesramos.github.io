@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Control de fase con triac: se detecta el cruce por cero con un puente rectificador y un optoacoplador, se espera un tiempo proporcional al potenciómetro con un timer y se dispara el triac. En un PIC12F1822 y en Arduino.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/2Cz3NnE00_o/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino · Paso a paso">
+  <meta property="og:description" content="Control de fase con triac: se detecta el cruce por cero con un puente rectificador y un optoacoplador, se espera un tiempo proporcional al potenciómetro con un timer y se dispara el triac. En un PIC12F1822 y en Arduino.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/2Cz3NnE00_o/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/2Cz3NnE00_o/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Dimmer AC con <span>cruce por cero</span></h1>
+    <p class="lead">Para regular la energía de una carga AC (bombillo, motor universal) se dispara un triac un tiempo después de cada cruce por cero: mientras más tarde, menos energía. La red se rectifica y un optoacoplador entrega un pulso en cada cruce. El micro lee un potenciómetro, convierte ese valor en un retardo con el Timer0 (o Timer1 en Arduino) y luego da un pulso corto al triac. Se agregan límites para no disparar dos veces cerca de los extremos.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=2Cz3NnE00_o" target="_blank" rel="noopener">&#9654; Ver el video completo (25:08)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/717.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC y PIC12F1822 a 32 MHz</li><li>Arduino Uno</li><li>Puente rectificador, optoacoplador (4N25 o similar) y resistencias</li><li>Triac con su optoacoplador de disparo</li><li>Potenciómetro</li><li>Proteus con osciloscopio</li><li>Excel para calcular el timer</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · PIC</a><a href="#f3">3 · Arduino</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La idea</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Control de fase</h3><a class="min" href="https://youtu.be/2Cz3NnE00_o?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>La red es de 120 V y 60 Hz. Si el triac se dispara al inicio de cada semiciclo la carga recibe casi toda la energía; si se dispara más tarde, recibe menos. Así funcionan muchos dimmers y controles de velocidad.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Detector de cruce por cero</h3><a class="min" href="https://youtu.be/2Cz3NnE00_o?t=103" target="_blank" rel="noopener">&#9654; 1:43</a></div><p>La señal AC pasa por un puente rectificador y un optoacoplador. Su salida da un pulso cada vez que la onda pasa por cero, es decir, cada 8.33 ms, porque la señal rectificada tiene dos semiciclos por periodo.</p><div class="uno"><figure class="cap"><a href="img/116.webp" target="_blank"><img src="img/116.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Circuito de control</h3><a class="min" href="https://youtu.be/2Cz3NnE00_o?t=203" target="_blank" rel="noopener">&#9654; 3:23</a></div><p>El PIC12F1822 lee un potenciómetro, recibe el pulso de cruce por cero y maneja la salida de disparo. El osciloscopio muestra la red y la salida.</p><div class="uno"><figure class="cap"><a href="img/202.webp" target="_blank"><img src="img/202.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Calcular el timer</h3><a class="min" href="https://youtu.be/2Cz3NnE00_o?t=241" target="_blank" rel="noopener">&#9654; 4:01</a></div><p>En Excel se calcula con qué prescaler el Timer0 de 8 bits alcanza unos 8 ms con el micro a 32 MHz.</p><div class="uno"><figure class="cap"><a href="img/288.webp" target="_blank"><img src="img/288.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa en el PIC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Retardo con el timer</h3><a class="min" href="https://youtu.be/2Cz3NnE00_o?t=416" target="_blank" rel="noopener">&#9654; 6:56</a></div><p>La función espera carga un valor en el Timer0 y espera a que se desborde. Mientras más alto el valor, menos espera y más energía.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define opto  RA2_bit
+#define triac LATA1_bit
+
+void espera(char t) {
+  TMR0 = t;
+  TMR0IF_bit = 0;
+  while (TMR0IF_bit == 0);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/374.webp" target="_blank"><img src="img/374.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configuración</h3><a class="min" href="https://youtu.be/2Cz3NnE00_o?t=449" target="_blank" rel="noopener">&#9654; 7:29</a></div><p>Oscilador interno a 8 MHz con PLL para llegar a 32 MHz, RA0 analógico para el potenciómetro, RA2 entrada del cruce por cero, RA1 salida al triac, ADC iniciado y Timer0 con su prescaler.</p><div class="uno"><figure class="cap"><a href="img/459.webp" target="_blank"><img src="img/459.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Disparo</h3><a class="min" href="https://youtu.be/2Cz3NnE00_o?t=563" target="_blank" rel="noopener">&#9654; 9:23</a></div><p>Se lee el potenciómetro, se divide entre 4 para pasar de 0-1023 a 0-255, se espera el cruce por cero, se espera el retardo y se da un pulso de 100 µs al triac.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = ADC_Get_Sample(0);
+while (opto == 1);          // espera cruce por cero
+velocidad = codigo &gt;&gt; 2;    // 0-1023 a 0-255
+espera(velocidad);
+triac = 1;
+Delay_us(100);
+triac = 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/631.webp" target="_blank"><img src="img/631.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure><figure class="cap"><a href="img/717.webp" target="_blank"><img src="img/717.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Límites</h3><a class="min" href="https://youtu.be/2Cz3NnE00_o?t=739" target="_blank" rel="noopener">&#9654; 12:19</a></div><p>Cerca de los extremos el retardo es casi un semiciclo y el triac se puede disparar dos veces. Por eso, por debajo de 200 se deja apagado y por encima de 900 se deja encendido todo el tiempo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (codigo &lt; 200) triac = 0;
+else if (codigo &gt; 900) triac = 1;
+else {
+  while (opto == 1);
+  velocidad = codigo &gt;&gt; 2;
+  espera(velocidad);
+  triac = 1;
+  Delay_us(100);
+  triac = 0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/975.webp" target="_blank"><img src="img/975.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>En Arduino</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Por qué Timer1</h3><a class="min" href="https://youtu.be/2Cz3NnE00_o?t=982" target="_blank" rel="noopener">&#9654; 16:22</a></div><p>En Arduino el Timer0 lo usa millis, así que se trabaja con el Timer1 de 16 bits. El circuito es el mismo con un Arduino Uno.</p><div class="uno"><figure class="cap"><a href="img/1061.webp" target="_blank"><img src="img/1061.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Funciones del timer</h3><a class="min" href="https://youtu.be/2Cz3NnE00_o?t=1100" target="_blank" rel="noopener">&#9654; 18:20</a></div><p>Se reutilizan las funciones de escritura del Timer1 de otros videos y una función espera que carga el valor y espera la bandera de desborde (TOV1).</p><div class="uno"><figure class="cap"><a href="img/1146.webp" target="_blank"><img src="img/1146.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prescaler y escala</h3><a class="min" href="https://youtu.be/2Cz3NnE00_o?t=1246" target="_blank" rel="noopener">&#9654; 20:46</a></div><p>Con prescaler 8 el Timer1 se desborda en 32 ms. Para 8 ms hay que cargar desde 49536, así que el potenciómetro se escala con map entre 49536 y 65535.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = analogRead(0);
+if (codigo &lt; 200) digitalWrite(triac, LOW);
+else if (codigo &gt; 900) digitalWrite(triac, HIGH);
+else {
+  velocidad = map(codigo, 0, 1023, 49536, 65535);
+  while (digitalRead(opto) == 1);
+  espera(velocidad);
+  digitalWrite(triac, HIGH);
+  delayMicroseconds(100);
+  digitalWrite(triac, LOW);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1318.webp" target="_blank"><img src="img/1318.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Prueba</h3><a class="min" href="https://youtu.be/2Cz3NnE00_o?t=1458" target="_blank" rel="noopener">&#9654; 24:18</a></div><p>Al mover el potenciómetro el disparo se corre dentro de cada semiciclo y la carga recibe más o menos energía, igual que con el PIC.</p><div class="uno"><figure class="cap"><a href="img/1490.webp" target="_blank"><img src="img/1490.webp" alt="Dimmer: control de energía de una carga AC con PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=2Cz3NnE00_o" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
