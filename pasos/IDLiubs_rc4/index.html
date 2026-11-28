@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Control de velocidad de un motor DC con Arduino: primero en lazo abierto con un potenciómetro, luego midiendo la frecuencia del encoder con interrupción y el Timer1 (micros no tiene buena resolución), y al final un PID calibrado y visto en LabVIEW.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/IDLiubs_rc4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1 · Paso a paso">
+  <meta property="og:description" content="Control de velocidad de un motor DC con Arduino: primero en lazo abierto con un potenciómetro, luego midiendo la frecuencia del encoder con interrupción y el Timer1 (micros no tiene buena resolución), y al final un PID calibrado y visto en LabVIEW.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/IDLiubs_rc4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/IDLiubs_rc4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#arduino">&larr; Volver al curso</a>
+    <span class="etiqueta">// Arduino · Paso a paso</span>
+    <h1>Control <span>PID</span> de velocidad con Arduino</h1>
+    <p class="lead">Es el mismo control que se hizo con PIC y MikroC, ahora en Arduino. El PWM sale por el pin 3 y el encoder entra por el pin 2 con interrupción. Medir el tiempo entre pulsos con micros() da lecturas malas porque tiene resolución de 4 µs, así que se usa el Timer1 directamente con preescalador de 8. Con el motor al mínimo y al máximo se mide el rango de frecuencias (unos 42 a 390 Hz) y en Excel se saca la ecuación del set point. Luego se pega el PID del proyecto de MikroC y se ajustan kp, ki y kd viendo la respuesta en LabVIEW. Al final se muestra que si el PWM se pone en el pin 10, que es del Timer1, el control se daña.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=IDLiubs_rc4" target="_blank" rel="noopener">&#9654; Ver el video completo (23:26)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1221.webp" alt="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1"></figure>
+    <ul class="materiales"><li>Arduino IDE</li><li>Arduino (en Proteus)</li><li>Motor DC con encoder</li><li>Transistor de potencia para el motor</li><li>Potenciómetro para el set point</li><li>Excel</li><li>LabVIEW para ver la respuesta</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Lazo abierto</a><a href="#f2">2 · Frecuencia</a><a href="#f3">3 · PID</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Lazo abierto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/IDLiubs_rc4?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El motor DC con encoder se maneja con un transistor desde el pin 3 (PWM). El encoder entra al pin 2 para leer por interrupción, un potenciómetro da el set point y el serial va a la interfaz. Se trabaja en revoluciones por segundo (Hz); para RPM se multiplica por 60.</p><div class="uno"><figure class="cap"><a href="img/10.webp" target="_blank"><img src="img/10.webp" alt="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/IDLiubs_rc4?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>Se definen los pines, las variables para la lectura análoga, el texto que se envía, el contador de la interrupción, la frecuencia y las del PID.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define sbi(x, y) x |= _BV(y)    // set bit
+#define cbi(x, y) x &amp;= ~(_BV(y)) // clear bit
+#define tbi(x, y) x ^= _BV(y)    // toggle bit
+#define is_high(x, y) ((x &amp; _BV(y)) == _BV(y))
+
+#define pwm_pin 3
+#define rpm_pin 2
+unsigned int codigo;
+char texto[20];
+const byte interruptPin = 2;
+unsigned long contador,micros1;
+char flag_cero=0;
+
+float frecuencia;
+float rpm;
+
+//variables pid
+float kp=30,ki=2,kd=0;
+float salida;
+
+float error,up,ui=0.0,ui_=0.0,error_=0.0,ud,ut;
+float set_point=0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1086.webp" target="_blank"><img src="img/1086.webp" alt="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Potenciómetro al PWM</h3><a class="min" href="https://youtu.be/IDLiubs_rc4?t=140" target="_blank" rel="noopener">&#9654; 2:20</a></div><p>El lazo abierto es leer el canal análogo y sacarlo por el PWM (el ADC es de 10 bits y el PWM de 8, por eso se corre dos bits). Al mover el potenciómetro la señal en el osciloscopio cambia de ancho.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo=analogRead(0);
+analogWrite(pwm_pin,codigo&gt;&gt;2);</code></pre></div><div class="uno"><figure class="cap"><a href="img/189.webp" target="_blank"><img src="img/189.webp" alt="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Medir la frecuencia</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Primer intento con micros()</h3><a class="min" href="https://youtu.be/IDLiubs_rc4?t=209" target="_blank" rel="noopener">&#9654; 3:29</a></div><p>Se crea la interrupción del pin 2 y se mide cuántos microsegundos pasan entre un pulso y otro con micros(). La frecuencia leída no coincide con la del motor: micros() tiene resolución de 4 µs y no sirve para esto.</p><div class="uno"><figure class="cap"><a href="img/368.webp" target="_blank"><img src="img/368.webp" alt="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Usar el Timer1</h3><a class="min" href="https://youtu.be/IDLiubs_rc4?t=415" target="_blank" rel="noopener">&#9654; 6:55</a></div><p>Se hace como con el PIC: se configura el Timer1 a mano y se crean funciones para leerlo y escribirlo (read_tmr1 y write_tmr1). En cada pulso del encoder se lee el timer, se pone en cero y se activa una bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void interrupcion()
+{
+  contador=read_tmr1();
+  write_tmr1(0);
+  flag_cero=1;
+}
+
+void setup()
+{
+  pinMode(pwm_pin,OUTPUT);
+  pinMode(rpm_pin,INPUT);
+
+  pinMode(interruptPin, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(interruptPin), interrupcion, RISING);
+
+  Serial.begin(19200);
+  Serial.println(&quot;INICIANDO&quot;);
+  analogWrite(pwm_pin,0);
+
+  //Configura registroA
+  TCCR1A=0;
+  //configura registroB
+  TCCR1B=0;
+  TCCR1B=0b010;// Configura el preescalador a 8
+  write_tmr1(0);
+  sbi(TIFR1,TOV1); // pone un uno para limpiar bandera de desborde
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/593.webp" target="_blank"><img src="img/593.webp" alt="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Escoger el preescalador</h3><a class="min" href="https://youtu.be/IDLiubs_rc4?t=590" target="_blank" rel="noopener">&#9654; 9:50</a></div><p>Con preescalador de 64 se leían frecuencias desde unos 3 Hz; con 8 se leen desde unos 30 Hz con mejor resolución. Se escoge según la frecuencia más baja que entregue el motor. La tabla de Excel ayuda a ver el rango de cada preescalador.</p><p>La frecuencia se calcula con el cristal de 16 MHz y el preescalador: 16000000 / (8 · contador).</p><div class="uno"><figure class="cap"><a href="img/638.webp" target="_blank"><img src="img/638.webp" alt="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Rango del motor</h3><a class="min" href="https://youtu.be/IDLiubs_rc4?t=727" target="_blank" rel="noopener">&#9654; 12:07</a></div><p>Se lleva el motor al máximo y al mínimo para ver qué frecuencias da: en este caso de unos 42 a 390 Hz. Ese es el rango que va a recorrer el set point.</p><div class="uno"><figure class="cap"><a href="img/772.webp" target="_blank"><img src="img/772.webp" alt="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Ecuación del set point</h3><a class="min" href="https://youtu.be/IDLiubs_rc4?t=835" target="_blank" rel="noopener">&#9654; 13:55</a></div><p>En Excel, con el ADC de 0 a 1023 y las frecuencias mínima y máxima, se saca la ecuación que lleva el potenciómetro al rango del motor.</p><div class="uno"><figure class="cap"><a href="img/862.webp" target="_blank"><img src="img/862.webp" alt="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El control PID</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>El loop con PID</h3><a class="min" href="https://youtu.be/IDLiubs_rc4?t=874" target="_blank" rel="noopener">&#9654; 14:34</a></div><p>Se pega la función pid del proyecto de MikroC (es C estándar). En el loop se calcula la frecuencia si hubo pulso, se escala el set point, se aplica el PID y su salida ut va al PWM. Se envían el set point y la frecuencia por el serial para graficarlos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void loop() {
+  codigo=analogRead(0);
+
+  // se lee la frecuencia
+  if (flag_cero!=0) frecuencia=(16000000/(8*contador)); //16.0 ES EL CRISTAL DE LA ARDUINO
+  flag_cero=0;
+  //rpm=frecuencia*60.0;
+
+  set_point=0.3402*codigo + 42.0;// escala en rango de min frec y max frec
+
+  pid(frecuencia);
+  salida=ut;
+  analogWrite(pwm_pin,ut);
+
+  floattostr_(set_point,texto,2);
+  Serial.print(&quot;SP=&quot;);
+  Serial.print(texto);
+  Serial.print(&quot;/&quot;);
+
+  floattostr_(frecuencia,texto,2);
+  Serial.print(&quot;RPM=&quot;);
+  Serial.print(texto);
+  Serial.println(&quot;/&quot;);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/952.webp" target="_blank"><img src="img/952.webp" alt="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Ajustar las constantes</h3><a class="min" href="https://youtu.be/IDLiubs_rc4?t=1013" target="_blank" rel="noopener">&#9654; 16:53</a></div><p>Con las constantes del PIC el sistema oscila. Se quita la parte derivativa y se baja la integral más o menos a la mitad; luego se agrega un poco de proporcional y se ajusta hasta que llega al set point sin sobreimpulso.</p><p>Al cambiar el set point con el potenciómetro, la velocidad sube y se mantiene: el PID queda calibrado.</p><div class="uno"><figure class="cap"><a href="img/1221.webp" target="_blank"><img src="img/1221.webp" alt="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Ojo con los timers</h3><a class="min" href="https://youtu.be/IDLiubs_rc4?t=1218" target="_blank" rel="noopener">&#9654; 20:18</a></div><p>Timer0 lo usan millis y micros, Timer1 la librería Servo y Timer2 la función tone; además analogWrite usa los pines 5 y 6 (Timer0), 9 y 10 (Timer1) y 3 y 11 (Timer2).</p><p>Como aquí el Timer1 mide la frecuencia, si el PWM se pone en el pin 10 la respuesta se daña. Con el PWM en el pin 3 todo funciona bien.</p><div class="uno"><figure class="cap"><a href="img/1356.webp" target="_blank"><img src="img/1356.webp" alt="Arduino: control PID de velocidad de un motor DC midiendo la frecuencia con el Timer1" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=IDLiubs_rc4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

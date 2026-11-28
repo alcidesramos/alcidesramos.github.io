@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arduino: compuertas lógicas por software (AND, OR, XOR y NOT) simuladas en Proteus · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Las compuertas AND, OR, XOR y NOT hechas por software con un Arduino: dos pulsadores como entradas con pull-up interno, cuatro LEDs como salidas y los operadores de bits de C, probado en Proteus.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/1x4n9cgr_kg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Arduino: compuertas lógicas por software (AND, OR, XOR y NOT) simuladas en Proteus · Paso a paso">
+  <meta property="og:description" content="Las compuertas AND, OR, XOR y NOT hechas por software con un Arduino: dos pulsadores como entradas con pull-up interno, cuatro LEDs como salidas y los operadores de bits de C, probado en Proteus.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/1x4n9cgr_kg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/1x4n9cgr_kg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#arduino">&larr; Volver al curso</a>
+    <span class="etiqueta">// Arduino · Paso a paso</span>
+    <h1>Compuertas <span>lógicas</span> con Arduino</h1>
+    <p class="lead">Las compuertas lógicas se pueden hacer por hardware (circuitos TTL o CMOS, o una FPGA) o por software. Por software es más lento, pero se pueden tener muchas entradas y cualquier combinación sin comprar un chip por compuerta. Se usan dos pulsadores en los pines 0 y 1 con la resistencia de pull-up interna, cuatro LEDs en los pines 8 a 11 y los operadores de C: & para AND, | para OR, ^ para XOR y ! para NOT. Al final se guarda una ecuación booleana en una variable y se saca por un LED.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=1x4n9cgr_kg" target="_blank" rel="noopener">&#9654; Ver el video completo (18:22)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/860.webp" alt="Arduino: compuertas lógicas por software (AND, OR, XOR y NOT) simuladas en Proteus"></figure>
+    <ul class="materiales"><li>Proteus con Arduino (proyecto de Arduino en Proteus)</li><li>Dos pulsadores</li><li>Cuatro LEDs con resistencias</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · Código</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Compuertas por software</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Hardware o software</h3><a class="min" href="https://youtu.be/1x4n9cgr_kg?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Las compuertas AND, OR, XOR y NOT se conocen por sus símbolos y vienen en chips TTL o CMOS. También se pueden hacer en una FPGA o, como aquí, por software con un Arduino.</p><div class="uno"><figure class="cap"><a href="img/10.webp" target="_blank"><img src="img/10.webp" alt="Arduino: compuertas lógicas por software (AND, OR, XOR y NOT) simuladas en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Los operadores de C</h3><a class="min" href="https://youtu.be/1x4n9cgr_kg?t=70" target="_blank" rel="noopener">&#9654; 1:10</a></div><p>En C cada compuerta tiene su operador de bits:</p><ul><li>AND: &</li><li>OR: |</li><li>XOR: ^</li><li>NOT: ! (para un solo bit)</li></ul><div class="uno"><figure class="cap"><a href="img/104.webp" target="_blank"><img src="img/104.webp" alt="Arduino: compuertas lógicas por software (AND, OR, XOR y NOT) simuladas en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>El circuito</h3><a class="min" href="https://youtu.be/1x4n9cgr_kg?t=104" target="_blank" rel="noopener">&#9654; 1:44</a></div><p>En Proteus se crea un proyecto con Arduino (hay que tener Arduino instalado en el computador). Las entradas A y B son dos pulsadores en los pines 0 y 1, sin resistencia, porque se usa el pull-up interno. Los LEDs de AND, OR, XOR y NOT van en los pines 8, 9, 10 y 11.</p><div class="uno"><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Arduino: compuertas lógicas por software (AND, OR, XOR y NOT) simuladas en Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Definiciones y setup</h3><a class="min" href="https://youtu.be/1x4n9cgr_kg?t=398" target="_blank" rel="noopener">&#9654; 6:38</a></div><p>Se definen los pines, dos variables boolean para las entradas y cuatro para las salidas. Las entradas usan INPUT_PULLUP y los LEDs son salidas. Conviene compilar seguido para no acumular errores.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//DEFINICIONES DE LOS PINES USADOS
+#define IN_A 0
+#define IN_B 1
+
+#define AND_LED 8
+#define OR_LED 9
+#define XOR_LED 10
+#define NOT_LED 11
+
+boolean  A,B; //variables entrada
+boolean and1,or1,xor1,not1; // variables salidas
+
+void setup()
+{
+  pinMode(IN_A,INPUT_PULLUP);
+  pinMode(IN_B,INPUT_PULLUP);
+  pinMode(AND_LED,OUTPUT);
+  pinMode(OR_LED,OUTPUT);
+  pinMode(XOR_LED,OUTPUT);
+  pinMode(NOT_LED,OUTPUT);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/482.webp" target="_blank"><img src="img/482.webp" alt="Arduino: compuertas lógicas por software (AND, OR, XOR y NOT) simuladas en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/577.webp" target="_blank"><img src="img/577.webp" alt="Arduino: compuertas lógicas por software (AND, OR, XOR y NOT) simuladas en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Las operaciones</h3><a class="min" href="https://youtu.be/1x4n9cgr_kg?t=574" target="_blank" rel="noopener">&#9654; 9:34</a></div><p>En el loop se leen las dos entradas y se escribe en cada LED el resultado de la operación directamente.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void loop()
+{
+  A=digitalRead(IN_A);
+  B=digitalRead(IN_B);
+
+  digitalWrite(AND_LED, A &amp;B);
+  digitalWrite(OR_LED, A |B);
+  digitalWrite(XOR_LED, A ^B);
+  digitalWrite(NOT_LED, !A);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/766.webp" target="_blank"><img src="img/766.webp" alt="Arduino: compuertas lógicas por software (AND, OR, XOR y NOT) simuladas en Proteus" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba y variantes</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Simular</h3><a class="min" href="https://youtu.be/1x4n9cgr_kg?t=825" target="_blank" rel="noopener">&#9654; 13:45</a></div><p>Con las dos entradas en 1 prende la AND y la OR, y la XOR queda apagada porque son iguales. Cambiando los pulsadores se recorre la tabla de verdad. Si un LED no responde, revisar que el pin del #define sea el correcto (aquí el XOR estaba mal puesto).</p><div class="uno"><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Arduino: compuertas lógicas por software (AND, OR, XOR y NOT) simuladas en Proteus" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Guardar la operación en una variable</h3><a class="min" href="https://youtu.be/1x4n9cgr_kg?t=907" target="_blank" rel="noopener">&#9654; 15:07</a></div><p>Otra forma es calcular primero el resultado en una variable y después sacarlo. Así se puede escribir cualquier ecuación booleana (por ejemplo, una ya reducida por Karnaugh) y sacarla por un LED.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>boolean and1,or1,xor1,not1,operacion; // variables salidas
+// ...
+void loop()
+{
+  A=digitalRead(IN_A);
+  B=digitalRead(IN_B);
+
+  and1=A &amp;B;
+  operacion= A&amp;B | (!B ^A);
+
+  digitalWrite(AND_LED, and1);
+  digitalWrite(OR_LED,operacion);
+  digitalWrite(XOR_LED, A ^ B);
+  digitalWrite(NOT_LED, !A );
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1002.webp" target="_blank"><img src="img/1002.webp" alt="Arduino: compuertas lógicas por software (AND, OR, XOR y NOT) simuladas en Proteus" loading="lazy"></a></figure><figure class="cap"><a href="img/1049.webp" target="_blank"><img src="img/1049.webp" alt="Arduino: compuertas lógicas por software (AND, OR, XOR y NOT) simuladas en Proteus" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=1x4n9cgr_kg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

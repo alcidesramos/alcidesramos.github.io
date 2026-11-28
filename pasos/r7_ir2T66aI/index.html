@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se pasa a Arduino el programa de motores paso a paso hecho antes en MikroC para PIC: casi todo se copia igual por ser C estándar; cambian los pines, la salida de la secuencia, el timer (se usa el Timer1 con la librería TimerOne) y la interrupción serial (serialEvent). Se controla desde LabVIEW.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/r7_ir2T66aI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino · Paso a paso">
+  <meta property="og:description" content="Se pasa a Arduino el programa de motores paso a paso hecho antes en MikroC para PIC: casi todo se copia igual por ser C estándar; cambian los pines, la salida de la secuencia, el timer (se usa el Timer1 con la librería TimerOne) y la interrupción serial (serialEvent). Se controla desde LabVIEW.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/r7_ir2T66aI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/r7_ir2T66aI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#arduino">&larr; Volver al curso</a>
+    <span class="etiqueta">// Arduino · Paso a paso</span>
+    <h1>Motores <span>paso a paso</span> con Arduino y LabVIEW</h1>
+    <p class="lead">Dos motores paso a paso se mueven con un Arduino Uno y se mandan órdenes desde una interfaz en LabVIEW: dirección, modo continuo o por pasos, número de pasos y velocidad de 0 a 255. Las variables, las secuencias, las funciones de derecha e izquierda y el procesamiento de la trama se copian casi iguales del programa de MikroC. Lo que cambia: los pines se definen con #define, cada bobina se escribe con digitalWrite según el bit de la secuencia, la interrupción del timer usa el Timer1 (el Timer0 lo usan millis y micros) y la recepción serial usa serialEvent. Ojo: al usar el Timer1 se pierden el PWM de los pines 9 y 10 y la librería Servo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=r7_ir2T66aI" target="_blank" rel="noopener">&#9654; Ver el video completo (15:39)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/853.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino"></figure>
+    <ul class="materiales"><li>Arduino IDE</li><li>Librería TimerOne</li><li>Arduino Uno (en Proteus)</li><li>Dos motores paso a paso con su driver</li><li>LabVIEW (interfaz por puerto serial)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Inicio</a><a href="#f2">2 · Cambios</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar el programa</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/r7_ir2T66aI?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>En Proteus hay un Arduino Uno con dos motores paso a paso, un LED en el pin 2 y el puerto serial conectado a la interfaz. La idea es pasar el programa de MikroC a Arduino usando que los dos son C estándar.</p><div class="uno"><figure class="cap"><a href="img/10.webp" target="_blank"><img src="img/10.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Librería del Timer1 y macros</h3><a class="min" href="https://youtu.be/r7_ir2T66aI?t=36" target="_blank" rel="noopener">&#9654; 0:36</a></div><p>Se incluye la librería TimerOne (se descarga de internet). No se usa el Timer0 como en el PIC porque en Arduino lo usan millis, micros y delay.</p><p>Ojo: con el Timer1 ya no se puede usar PWM en los pines 9 y 10 ni la librería Servo (ver el video de conflictos de librerías).</p><p>Se pegan las macros para poner, borrar, invertir y preguntar por un bit.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;TimerOne.h&quot;
+
+#define sbi(x, y) x |= _BV(y)    // set bit
+#define cbi(x, y) x &amp;= ~(_BV(y)) // clear bit
+#define tbi(x, y) x ^= _BV(y)    // toggle bit
+#define is_high(x, y) ((x &amp; _BV(y)) == _BV(y))</code></pre></div><div class="uno"><figure class="cap"><a href="img/90.webp" target="_blank"><img src="img/90.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Secuencias y variables</h3><a class="min" href="https://youtu.be/r7_ir2T66aI?t=135" target="_blank" rel="noopener">&#9654; 2:15</a></div><p>Las secuencias y las variables se copian de MikroC. Hay tres secuencias: paso simple, paso doble (más torque) y medio paso; se deja activa una y las otras como comentario. n_pasos_m dice cuántos códigos tiene la secuencia.</p><p>Lo único que cambia es usar signed char o unsigned char en vez de char, para que sean compatibles con Arduino.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//paso simple
+char codigo1[]={0b0001,0b0010,0b0100,0b1000};
+char codigo2[]={0b0001,0b0010,0b0100,0b1000};
+
+//paso doble
+//char codigo1[]={0b1100,0b0110,0b0011,0b1001};
+//char codigo2[]={0b1100,0b0110,0b0011,0b1001};
+
+//medio paso
+//char codigo1[]={0b1000,0b1100,0b0100,0b0110,0b0010,0b0011,0b0001,0b1001};
+//char codigo2[]={0b1000,0b1100,0b0100,0b0110,0b0010,0b0011,0b0001,0b1001};
+
+const char n_pasos_m=4; //colocar numero de secuencias del motor</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Pines de los motores</h3><a class="min" href="https://youtu.be/r7_ir2T66aI?t=201" target="_blank" rel="noopener">&#9654; 3:21</a></div><p>Los pines se definen con #define y pueden ser los que uno quiera: el motor 1 en 13, 12, 11 y 10, y el motor 2 en 7, 6, 5 y 4.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//pines del motor 1
+#define m11 13
+#define m12 12
+#define m13 11
+#define m14 10
+
+//pines del motor 2
+#define m21 7
+#define m22 6
+#define m23 5
+#define m24 4
+
+//acumulan la posicion de la secuencia
+signed char secuencia1=0;
+signed char secuencia2=0;
+
+//variables del sentido de giro de los motores
+unsigned char giro_m1,giro_m2;
+//variable de la velocidad de los motores de 0 -255
+unsigned char velo_m1=0,velo_m2=0;
+//variable almacena numero pasos a dar en modo pasos
+unsigned long n_pasos1,n_pasos2;
+//contador de numeros de pasos dado por los motores
+unsigned long pasos1=0,pasos2=0;
+//variable para retardo extra dentro de la interrupcion
+unsigned char velo1=0,velo2=0;
+
+const char n_pasos=n_pasos_m-1;//como arranca en cero resta uno</code></pre></div><div class="uno"><figure class="cap"><a href="img/251.webp" target="_blank"><img src="img/251.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Lo que cambia en Arduino</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Sacar la secuencia</h3><a class="min" href="https://youtu.be/r7_ir2T66aI?t=305" target="_blank" rel="noopener">&#9654; 5:05</a></div><p>En MikroC se le asignaba a cada pin el bit de la secuencia directamente. En Arduino eso no se puede: se pregunta si el bit está en alto y se escribe un 1 o un 0 en la bobina con digitalWrite. El bit 0 va a la bobina 1, el bit 1 a la bobina 2, y así.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void saca_secuencia1()
+{
+  pasos1++;
+  if (is_high(codigo1[secuencia1], 0)) digitalWrite(m11,1); else digitalWrite(m11,0);
+  if (is_high(codigo1[secuencia1], 1)) digitalWrite(m12,1); else digitalWrite(m12,0);
+  if (is_high(codigo1[secuencia1], 2)) digitalWrite(m13,1); else digitalWrite(m13,0);
+  if (is_high(codigo1[secuencia1], 3)) digitalWrite(m14,1); else digitalWrite(m14,0);
+}
+// saca_secuencia2() es igual con codigo2, secuencia2 y m21..m24</code></pre></div><div class="uno"><figure class="cap"><a href="img/331.webp" target="_blank"><img src="img/331.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Derecha, izquierda y procesar</h3><a class="min" href="https://youtu.be/r7_ir2T66aI?t=365" target="_blank" rel="noopener">&#9654; 6:05</a></div><p>Las funciones de derecha, izquierda y la que procesa la trama se copian tal cual de MikroC y compilan sin cambios.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void derecha1()
+{
+  secuencia1++;
+  if (secuencia1&gt;n_pasos) secuencia1=0;
+  saca_secuencia1();
+}
+
+void izquierda1()
+{
+  secuencia1--;
+  if (secuencia1&lt;0) secuencia1=n_pasos;
+  saca_secuencia1();
+}
+// derecha2() e izquierda2() igual con secuencia2</code></pre></div><div class="uno"><figure class="cap"><a href="img/813.webp" target="_blank"><img src="img/813.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Setup</h3><a class="min" href="https://youtu.be/r7_ir2T66aI?t=399" target="_blank" rel="noopener">&#9654; 6:39</a></div><p>Los pines de los motores y el del LED van como salida, el serial a 9600 y se envía «Iniciando» para comprobar la comunicación. Al simular en Proteus aparece la palabra en el terminal.</p><p>Los dos motores arrancan a la derecha en modo continuo con velocidad 180. El Timer1 se configura para interrumpir cada 10 ms (en el PIC eran unos 8,3 ms).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void setup()
+{
+  pinMode(m11,OUTPUT);
+  // ... m12 a m24 igual
+  pinMode(2,OUTPUT);//salida el led
+
+  Serial.begin(9600);
+  Serial.println(&quot;Iniciando&quot;);
+
+  estado_giro1=derecha;
+  estado_giro2=derecha;
+  estado_modo1=continuo;
+  estado_modo2=continuo;
+  velo_m1=180;
+  velo_m2=180;
+
+  Timer1.initialize(10000); // que se interrumpa cada 10.000 microsegundos o sea 10ms
+  Timer1.attachInterrupt( interrupcion_timer ); // attach the service routine here
+  digitalWrite(2,0);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/451.webp" target="_blank"><img src="img/451.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure><figure class="cap"><a href="img/492.webp" target="_blank"><img src="img/492.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Interrupción del timer</h3><a class="min" href="https://youtu.be/r7_ir2T66aI?t=533" target="_blank" rel="noopener">&#9654; 8:53</a></div><p>Se crea la función interrupcion_timer arriba del setup y adentro se pega el código de la interrupción de MikroC (solo el código, no la parte de limpiar banderas, que en Arduino la hace la librería).</p></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Interrupción serial</h3><a class="min" href="https://youtu.be/r7_ir2T66aI?t=597" target="_blank" rel="noopener">&#9654; 9:57</a></div><p>En Arduino la recepción serial ya tiene su función, serialEvent. Va guardando cada dato en trama_rx; si pasa de 30 reinicia el puntero, y cuando llega el asterisco activa la bandera de trama válida.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void serialEvent()
+{
+  while (Serial.available())
+  {
+    datorx= (char)Serial.read();
+    trama_rx[puntero]=datorx;
+    puntero++;
+    if (puntero&gt;=30)
+    {
+      puntero=0;
+    }
+    if (datorx== &#x27;*&#x27;)
+    {
+      flag_rx=1;
+    }
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/652.webp" target="_blank"><img src="img/652.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>El loop</h3><a class="min" href="https://youtu.be/r7_ir2T66aI?t=663" target="_blank" rel="noopener">&#9654; 11:03</a></div><p>Si hay trama válida la procesa y limpia la bandera, el puntero y el vector. Además hace titilar el LED del pin 2 cada medio segundo invirtiendo el bit del puerto D.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void loop()
+{
+  if (flag_rx==1)
+  {
+    procesarx();
+    flag_rx=0;// borra la bandera
+    puntero=0;  //reseta contador de datos
+    memset(trama_rx,0,30);  // borra el vector de datos recibidos en la trama
+  }
+  //pone a titilar el led
+  tbi(PORTD, 2);
+  delay(500);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/692.webp" target="_blank"><img src="img/692.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba con LabVIEW</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Corregir el sentido</h3><a class="min" href="https://youtu.be/r7_ir2T66aI?t=740" target="_blank" rel="noopener">&#9654; 12:20</a></div><p>Al correr, los motores se mueven, pero al pedir derecha giran a la izquierda. Si pasa eso, se intercambian los nombres de las funciones derecha e izquierda de cada motor y se compila de nuevo.</p><div class="uno"><figure class="cap"><a href="img/773.webp" target="_blank"><img src="img/773.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Controlar los motores</h3><a class="min" href="https://youtu.be/r7_ir2T66aI?t=837" target="_blank" rel="noopener">&#9654; 13:57</a></div><p>Desde LabVIEW se sube la velocidad, se cambia el sentido, se piden 5 pasos (el motor da 5 pasos y se queda quieto) o se para.</p><p>Si la velocidad es muy alta (cerca de 255) el motor se queda pegado porque las bobinas no alcanzan a energizarse; hay que buscar el rango de cada motor. El LED sigue titilando mientras se reciben las órdenes.</p><div class="dos"><figure class="cap"><a href="img/853.webp" target="_blank"><img src="img/853.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure><figure class="cap"><a href="img/893.webp" target="_blank"><img src="img/893.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure><figure class="cap"><a href="img/934.webp" target="_blank"><img src="img/934.webp" alt="Arduino: control de dos motores paso a paso desde LabVIEW, pasando el código de MikroC a Arduino" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=r7_ir2T66aI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
