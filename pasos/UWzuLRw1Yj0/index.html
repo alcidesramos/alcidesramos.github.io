@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comunicación full duplex más interrupción de timer en PIC (MikroC) o Arduino · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="A la comunicación serial full duplex se le agrega un juego de luces de cinco leds manejado por la interrupción de un timer, con TimerOne en Arduino y Timer1 en el PIC18F25K20, sin frenar lo demás.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/UWzuLRw1Yj0/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Comunicación full duplex más interrupción de timer en PIC (MikroC) o Arduino · Paso a paso">
+  <meta property="og:description" content="A la comunicación serial full duplex se le agrega un juego de luces de cinco leds manejado por la interrupción de un timer, con TimerOne en Arduino y Timer1 en el PIC18F25K20, sin frenar lo demás.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/UWzuLRw1Yj0/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/UWzuLRw1Yj0/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Full duplex más <span>timer</span></h1>
+    <p class="lead">Sobre el proyecto de transmisión y recepción serial se agrega una tarea más: un juego de luces que se abre desde el centro. En Arduino se usa la librería TimerOne con una interrupción cada 100 ms; en el PIC se configura Timer1 con los valores de Timer Calculator. Un contador dentro de la interrupción permite hacer tareas más lentas con el mismo timer.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=UWzuLRw1Yj0" target="_blank" rel="noopener">&#9654; Ver el video completo (24:45)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1376.webp" alt="Comunicación full duplex más interrupción de timer en PIC (MikroC) o Arduino"></figure>
+    <ul class="materiales"><li>Arduino Uno y librería TimerOne</li><li>MikroC PRO for PIC y PIC18F25K20</li><li>Timer Calculator</li><li>Cinco leds más el montaje de la serie (LM35, motor, leds)</li><li>Proteus y LabVIEW</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Arduino</a><a href="#f2">2 · PIC</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Arduino con TimerOne</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Cinco leds más</h3><a class="min" href="https://youtu.be/UWzuLRw1Yj0?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se agregan cinco leds para un juego de luces que debe correr a la vez que el micro transmite y recibe.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Comunicación full duplex más interrupción de timer en PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Instalar TimerOne</h3><a class="min" href="https://youtu.be/UWzuLRw1Yj0?t=76" target="_blank" rel="noopener">&#9654; 1:16</a></div><p>Se descarga la librería TimerOne y se agrega desde Programa, Incluir librería, o copiando la carpeta en libraries (sin guiones en el nombre).</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Configurar la interrupción</h3><a class="min" href="https://youtu.be/UWzuLRw1Yj0?t=184" target="_blank" rel="noopener">&#9654; 3:04</a></div><p>En el setup se inicia el timer en microsegundos y se le asocia la función que se ejecutará en cada desborde.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &lt;TimerOne.h&gt;
+...
+Timer1.initialize(100000); // cada 100 ms
+Timer1.attachInterrupt(timerInterpcion);</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Patrón de luces</h3><a class="min" href="https://youtu.be/UWzuLRw1Yj0?t=610" target="_blank" rel="noopener">&#9654; 10:10</a></div><p>Los patrones se guardan en un vector y la interrupción saca uno por vez al puerto: primero el centro y luego se va abriendo. Cuando el índice llega a 4 vuelve a cero.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void timerInterpcion() {
+  veces++;
+  if (veces &gt;= 10) {        // tarea más lenta
+    sacar = luces[recorre];
+    sacar = sacar &lt;&lt; 1;     // los leds empiezan en PC1
+    PORTC = sacar;
+    recorre++;
+    if (recorre &gt;= 4) recorre = 0;
+    veces = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/703.webp" target="_blank"><img src="img/703.webp" alt="Comunicación full duplex más interrupción de timer en PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Más lento</h3><a class="min" href="https://youtu.be/UWzuLRw1Yj0?t=916" target="_blank" rel="noopener">&#9654; 15:16</a></div><p>Con un contador (veces) dentro de la interrupción se ejecuta el patrón cada 10 desbordes, es decir, cada segundo, sin cambiar el timer.</p><div class="uno"><figure class="cap"><a href="img/787.webp" target="_blank"><img src="img/787.webp" alt="Comunicación full duplex más interrupción de timer en PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>PIC con Timer1</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Salidas con LAT</h3><a class="min" href="https://youtu.be/UWzuLRw1Yj0?t=1043" target="_blank" rel="noopener">&#9654; 17:23</a></div><p>En el PIC18 se usan los registros LAT para las salidas. Los leds van en el puerto A.</p><div class="uno"><figure class="cap"><a href="img/1039.webp" target="_blank"><img src="img/1039.webp" alt="Comunicación full duplex más interrupción de timer en PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Timer Calculator</h3><a class="min" href="https://youtu.be/UWzuLRw1Yj0?t=1076" target="_blank" rel="noopener">&#9654; 17:56</a></div><p>Con el programa gratuito Timer Calculator se elige el micro, la frecuencia y el tiempo, y se copia la función InitTimer1 que genera. En la interrupción se revisa también TMR1IF y se recargan TMR1H y TMR1L.</p><div class="uno"><figure class="cap"><a href="img/1124.webp" target="_blank"><img src="img/1124.webp" alt="Comunicación full duplex más interrupción de timer en PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Mismo patrón</h3><a class="min" href="https://youtu.be/UWzuLRw1Yj0?t=1284" target="_blank" rel="noopener">&#9654; 21:24</a></div><p>El vector de luces y la lógica de recorrido se copian del Arduino; solo cambia que la salida va a LATA.</p><div class="uno"><figure class="cap"><a href="img/1292.webp" target="_blank"><img src="img/1292.webp" alt="Comunicación full duplex más interrupción de timer en PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Prueba</h3><a class="min" href="https://youtu.be/UWzuLRw1Yj0?t=1355" target="_blank" rel="noopener">&#9654; 22:35</a></div><p>El juego de luces corre mientras el panel recibe temperatura y switch y sigue mandando órdenes.</p><div class="dos"><figure class="cap"><a href="img/1376.webp" target="_blank"><img src="img/1376.webp" alt="Comunicación full duplex más interrupción de timer en PIC (MikroC) o Arduino" loading="lazy"></a></figure><figure class="cap"><a href="img/1460.webp" target="_blank"><img src="img/1460.webp" alt="Comunicación full duplex más interrupción de timer en PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=UWzuLRw1Yj0" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

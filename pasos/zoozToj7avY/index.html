@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LabVIEW: comunicación serial full duplex con un PIC (MikroC) o Arduino · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Programa de LabVIEW que manda órdenes al micro con botones y, al mismo tiempo, lee lo que el micro le envía (temperatura y estado de un switch) separando cada valor de la trama.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/zoozToj7avY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="LabVIEW: comunicación serial full duplex con un PIC (MikroC) o Arduino · Paso a paso">
+  <meta property="og:description" content="Programa de LabVIEW que manda órdenes al micro con botones y, al mismo tiempo, lee lo que el micro le envía (temperatura y estado de un switch) separando cada valor de la trama.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/zoozToj7avY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/zoozToj7avY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>LabVIEW <span>full duplex</span> con un micro</h1>
+    <p class="lead">Parte de LabVIEW de la serie de comunicación serial full duplex. Un ciclo con estructura de eventos manda órdenes cuando cambia un control (leds, giro y velocidad del motor) y otro ciclo lee continuamente el puerto, busca cada palabra clave en la trama que manda el micro y extrae el valor que viene entre el '=' y la '/'. El micro (PIC en MikroC o Arduino) manda la temperatura de un LM35 y el estado de un switch.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=zoozToj7avY" target="_blank" rel="noopener">&#9654; Ver el video completo (10:23)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/600.webp" alt="LabVIEW: comunicación serial full duplex con un PIC (MikroC) o Arduino"></figure>
+    <ul class="materiales"><li>LabVIEW con VISA</li><li>PIC16F876A/PIC18F25K20 en MikroC o Arduino Uno</li><li>Proteus con COMPIM y un puerto virtual (VSPE)</li><li>LM35, L293D con motor DC, leds y un switch</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Enviar</a><a href="#f2">2 · Recibir</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Enviar órdenes</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Estructura de eventos</h3><a class="min" href="https://youtu.be/zoozToj7avY?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Cada botón del panel (leds, izquierda, derecha, parar, velocidad) tiene un caso en la estructura de eventos. Cuando cambia su valor se escribe la orden por el puerto serial, por ejemplo mpwm=valor*.</p><div class="uno"><figure class="cap"><a href="img/125.webp" target="_blank"><img src="img/125.webp" alt="LabVIEW: comunicación serial full duplex con un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Configurar el puerto</h3><a class="min" href="https://youtu.be/zoozToj7avY?t=76" target="_blank" rel="noopener">&#9654; 1:16</a></div><p>Se configura el puerto serial con VISA a 9600 baudios y se elige el COM desde el control PUERTO.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Recibir datos</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Ciclo de lectura</h3><a class="min" href="https://youtu.be/zoozToj7avY?t=111" target="_blank" rel="noopener">&#9654; 1:51</a></div><p>En un segundo ciclo, en paralelo, se pregunta cuántos bytes hay en el puerto (Bytes at Port) y se leen. Así se recibe mientras se envía.</p><div class="uno"><figure class="cap"><a href="img/389.webp" target="_blank"><img src="img/389.webp" alt="LabVIEW: comunicación serial full duplex con un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>El circuito</h3><a class="min" href="https://youtu.be/zoozToj7avY?t=231" target="_blank" rel="noopener">&#9654; 3:51</a></div><p>El micro lee la temperatura con un LM35 y un switch, maneja dos leds y un motor con L293D, y se conecta a LabVIEW por el COMPIM.</p><div class="uno"><figure class="cap"><a href="img/442.webp" target="_blank"><img src="img/442.webp" alt="LabVIEW: comunicación serial full duplex con un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Separar los valores</h3><a class="min" href="https://youtu.be/zoozToj7avY?t=305" target="_blank" rel="noopener">&#9654; 5:05</a></div><p>El micro manda algo como temp=30.34/led=on/. Con Match Pattern se busca la palabra (temp, led), se toma lo que viene entre el '=' y la '/' y se convierte a número para el termómetro, o se compara para el indicador del switch.</p><div class="dos"><figure class="cap"><a href="img/495.webp" target="_blank"><img src="img/495.webp" alt="LabVIEW: comunicación serial full duplex con un PIC (MikroC) o Arduino" loading="lazy"></a></figure><figure class="cap"><a href="img/547.webp" target="_blank"><img src="img/547.webp" alt="LabVIEW: comunicación serial full duplex con un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Prueba</h3><a class="min" href="https://youtu.be/zoozToj7avY?t=410" target="_blank" rel="noopener">&#9654; 6:50</a></div><p>Al cambiar la temperatura en Proteus el termómetro se actualiza y al pulsar el switch se enciende el indicador, mientras los botones siguen manejando leds y motor.</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="LabVIEW: comunicación serial full duplex con un PIC (MikroC) o Arduino" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=zoozToj7avY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

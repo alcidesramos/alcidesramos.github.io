@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recepción serial con interrupción en Arduino y PIC (MikroC) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="La lectura serial bloqueante deja al micro esperando. Con interrupción se guarda cada byte en la trama y una bandera avisa cuando llega el &#x27;*&#x27;, así el programa principal sigue libre (un led parpadea todo el tiempo).">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/Osg5r5_t7IY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Recepción serial con interrupción en Arduino y PIC (MikroC) · Paso a paso">
+  <meta property="og:description" content="La lectura serial bloqueante deja al micro esperando. Con interrupción se guarda cada byte en la trama y una bandera avisa cuando llega el &#x27;*&#x27;, así el programa principal sigue libre (un led parpadea todo el tiempo).">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/Osg5r5_t7IY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Osg5r5_t7IY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Recepción serial con <span>interrupción</span></h1>
+    <p class="lead">Continuación del video de órdenes seriales. Ahora cada byte que llega se recibe en la interrupción (serialEvent en Arduino, vector de interrupción en el PIC), se guarda en la trama y, al llegar el '*', se levanta una bandera. El programa principal procesa la orden solo cuando la bandera está activa y mientras tanto hace otras cosas. Se controla desde LabVIEW por un puerto virtual.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Osg5r5_t7IY" target="_blank" rel="noopener">&#9654; Ver el video completo (21:19)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1250.webp" alt="Recepción serial con interrupción en Arduino y PIC (MikroC)"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC y PIC16F876A</li><li>Arduino Uno</li><li>LabVIEW (panel de control de la serie)</li><li>VSPE para crear el puerto COM virtual</li><li>Proteus con COMPIM, L293D, motor y leds</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · Arduino</a><a href="#f3">3 · PIC</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La idea</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El problema</h3><a class="min" href="https://youtu.be/Osg5r5_t7IY?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Leer hasta el asterisco deja al micro detenido esperando datos. Una interrupción detiene el programa principal solo un momento cuando llega un dato y luego regresa.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Led de prueba</h3><a class="min" href="https://youtu.be/Osg5r5_t7IY?t=64" target="_blank" rel="noopener">&#9654; 1:04</a></div><p>Se agrega un tercer led que debe parpadear cada 200 ms. Con la lectura bloqueante solo cambia cuando llega una orden.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>LabVIEW y puerto virtual</h3><a class="min" href="https://youtu.be/Osg5r5_t7IY?t=235" target="_blank" rel="noopener">&#9654; 3:55</a></div><p>La terminal se cambia por un COMPIM y con VSPE se crea un puerto virtual para que el panel de LabVIEW maneje leds y motor.</p><div class="uno"><figure class="cap"><a href="img/245.webp" target="_blank"><img src="img/245.webp" alt="Recepción serial con interrupción en Arduino y PIC (MikroC)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Arduino</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Antes</h3><a class="min" href="https://youtu.be/Osg5r5_t7IY?t=369" target="_blank" rel="noopener">&#9654; 6:09</a></div><p>El loop esperaba con while(Serial.available()==0) y luego leía hasta el '*'.</p><div class="uno"><figure class="cap"><a href="img/461.webp" target="_blank"><img src="img/461.webp" alt="Recepción serial con interrupción en Arduino y PIC (MikroC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>serialEvent</h3><a class="min" href="https://youtu.be/Osg5r5_t7IY?t=465" target="_blank" rel="noopener">&#9654; 7:45</a></div><p>serialEvent se ejecuta cuando hay datos. Cada byte se guarda en la trama; si se pasa de 30 se limpia y si llega el '*' se levanta flag_rx.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void serialEvent() {
+  while (Serial.available()) {
+    datorx = (char)Serial.read();
+    trama[puntero] = datorx;
+    puntero++;
+    if (puntero &gt;= 30) { memset(trama, 0, 30); puntero = 0; }
+    if (datorx == &#x27;*&#x27;) flag_rx = 1;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/604.webp" target="_blank"><img src="img/604.webp" alt="Recepción serial con interrupción en Arduino y PIC (MikroC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>En el loop</h3><a class="min" href="https://youtu.be/Osg5r5_t7IY?t=668" target="_blank" rel="noopener">&#9654; 11:08</a></div><p>Si flag_rx vale 1 se llama procesarx(), se reinicia el puntero, se limpia la trama y se baja la bandera. El led sigue parpadeando todo el tiempo.</p><div class="uno"><figure class="cap"><a href="img/748.webp" target="_blank"><img src="img/748.webp" alt="Recepción serial con interrupción en Arduino y PIC (MikroC)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>PIC</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Mismo procesamiento</h3><a class="min" href="https://youtu.be/Osg5r5_t7IY?t=836" target="_blank" rel="noopener">&#9654; 13:56</a></div><p>Las variables y procesarx() se copian igual desde el Arduino.</p><div class="uno"><figure class="cap"><a href="img/389.webp" target="_blank"><img src="img/389.webp" alt="Recepción serial con interrupción en Arduino y PIC (MikroC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Habilitar la interrupción</h3><a class="min" href="https://youtu.be/Osg5r5_t7IY?t=900" target="_blank" rel="noopener">&#9654; 15:00</a></div><p>Toda interrupción tiene bandera y habilitador. Se habilitan las de periféricos en INTCON, se limpia RCIF, se activa RCIE y al final GIE.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>INTCON = 0b01000000; // interrupciones de periféricos
+RCIF_bit = 0;        // limpia bandera serial
+RCIE_bit = 1;        // habilita interrupción serial
+GIE_bit = 1;         // autoriza todas</code></pre></div><div class="uno"><figure class="cap"><a href="img/963.webp" target="_blank"><img src="img/963.webp" alt="Recepción serial con interrupción en Arduino y PIC (MikroC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Rutina de interrupción</h3><a class="min" href="https://youtu.be/Osg5r5_t7IY?t=1062" target="_blank" rel="noopener">&#9654; 17:42</a></div><p>Se revisa que la bandera sea la del serial, se guarda el dato y, al llegar el '*', se apaga la interrupción y se levanta flag_rx.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void interrupcion() iv 0x0004 ics ICS_AUTO {
+  if (RCIF_bit == 1) {
+    datorx = UART1_Read();
+    trama[puntero] = datorx;
+    puntero++;
+    if (puntero &gt;= 30) puntero = 0;
+    if (datorx == &#x27;*&#x27;) {
+      RCIE_bit = 0;
+      flag_rx = 1;
+    }
+    RCIF_bit = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1106.webp" target="_blank"><img src="img/1106.webp" alt="Recepción serial con interrupción en Arduino y PIC (MikroC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Programa principal</h3><a class="min" href="https://youtu.be/Osg5r5_t7IY?t=1158" target="_blank" rel="noopener">&#9654; 19:18</a></div><p>Se procesa la orden, se limpian puntero y trama y se vuelve a habilitar la interrupción. Deshabilitarla mientras se procesa evita recibir basura.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  if (flag_rx == 1) {
+    procesarx();
+    puntero = 0;
+    memset(trama, 0, 30);
+    flag_rx = 0;
+    RCIF_bit = 0;
+    RCIE_bit = 1;
+  }
+  led3 = ~led3;
+  Delay_ms(200);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1178.webp" target="_blank"><img src="img/1178.webp" alt="Recepción serial con interrupción en Arduino y PIC (MikroC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/Osg5r5_t7IY?t=1227" target="_blank" rel="noopener">&#9654; 20:27</a></div><p>Desde LabVIEW se manejan leds, sentido y velocidad mientras el led 3 parpadea sin detenerse.</p><div class="uno"><figure class="cap"><a href="img/1250.webp" target="_blank"><img src="img/1250.webp" alt="Recepción serial con interrupción en Arduino y PIC (MikroC)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Osg5r5_t7IY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El micro recibe órdenes por interrupción y a la vez manda la temperatura de un LM35 y el estado de un switch con el formato temp=valor/ y led=on/. Se pasa el proyecto a un PIC18F25K20 y se hace lo mismo en Arduino.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/a9GovfdeyLs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino · Paso a paso">
+  <meta property="og:description" content="El micro recibe órdenes por interrupción y a la vez manda la temperatura de un LM35 y el estado de un switch con el formato temp=valor/ y led=on/. Se pasa el proyecto a un PIC18F25K20 y se hace lo mismo en Arduino.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/a9GovfdeyLs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/a9GovfdeyLs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Serial <span>full duplex</span> en PIC y Arduino</h1>
+    <p class="lead">Se toma el programa de recepción por interrupción y se le agrega transmisión: el micro lee un LM35 y un pulsador y manda los datos en una trama que LabVIEW sabe separar. Primero se migra el proyecto a un PIC18F25K20, más moderno, y luego se arma la trama con FloatToStr y con sprintf. En Arduino se hace con Serial.print y dtostrf, porque su sprintf no maneja flotantes.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=a9GovfdeyLs" target="_blank" rel="noopener">&#9654; Ver el video completo (34:19)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/383.webp" alt="Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC y PIC18F25K20</li><li>Arduino Uno</li><li>LM35 y un pulsador</li><li>LabVIEW con el panel de la serie</li><li>Proteus con COMPIM y puerto virtual</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Migrar</a><a href="#f2">2 · Transmisión</a><a href="#f3">3 · Arduino</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Migrar el micro</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Un PIC más moderno</h3><a class="min" href="https://youtu.be/a9GovfdeyLs?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El mismo programa se pasa a un PIC18F25K20, más actual y con más recursos. En la configuración del proyecto solo se cambia el micro.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Cambios necesarios</h3><a class="min" href="https://youtu.be/a9GovfdeyLs?t=237" target="_blank" rel="noopener">&#9654; 3:57</a></div><p>Los PIC18 tienen dos vectores de interrupción, así que el de alta prioridad pasa a 0x0008. También hay que poner los pines como digitales con ANSEL y ANSELH.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Funciona igual</h3><a class="min" href="https://youtu.be/a9GovfdeyLs?t=349" target="_blank" rel="noopener">&#9654; 5:49</a></div><p>Con esos cambios el programa compila y funciona igual en el nuevo micro.</p><div class="uno"><figure class="cap"><a href="img/383.webp" target="_blank"><img src="img/383.webp" alt="Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Agregar transmisión</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Sensor y pulsador</h3><a class="min" href="https://youtu.be/a9GovfdeyLs?t=464" target="_blank" rel="noopener">&#9654; 7:44</a></div><p>Se agregan un LM35 en el canal analógico 0 y un pulsador. Solo ese canal queda analógico; el resto, digital.</p><div class="uno"><figure class="cap"><a href="img/618.webp" target="_blank"><img src="img/618.webp" alt="Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/a9GovfdeyLs?t=716" target="_blank" rel="noopener">&#9654; 11:56</a></div><p>Se agregan el código del ADC, la temperatura y una cadena para pasar el número a texto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define suiche RB7_bit
+unsigned int codigo;
+float temperatura;
+char texto[20]; // número a cadena</code></pre></div><div class="uno"><figure class="cap"><a href="img/736.webp" target="_blank"><img src="img/736.webp" alt="Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Mandar la temperatura</h3><a class="min" href="https://youtu.be/a9GovfdeyLs?t=786" target="_blank" rel="noopener">&#9654; 13:06</a></div><p>Se lee el canal, se calcula la temperatura del LM35 (500/1023 por cuenta) y se manda con el formato temp=valor/ para que LabVIEW lo encuentre.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = ADC_Read(0);
+temperatura = codigo*500.0/1023.0;
+FloatToStr_FixLen(temperatura, texto, 5);
+UART1_Write_Text(&quot;temp=&quot;);
+UART1_Write_Text(texto);
+UART1_Write(&#x27;/&#x27;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/971.webp" target="_blank"><img src="img/971.webp" alt="Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Mandar el switch</h3><a class="min" href="https://youtu.be/a9GovfdeyLs?t=1058" target="_blank" rel="noopener">&#9654; 17:38</a></div><p>Si el pulsador está en 1 se manda led=on/; si no, led=off/. LabVIEW enciende el indicador según lo que haya entre el '=' y la '/'.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (suiche == 1) UART1_Write_Text(&quot;led=on/&quot;);
+else UART1_Write_Text(&quot;led=off/&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1089.webp" target="_blank"><img src="img/1089.webp" alt="Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/a9GovfdeyLs?t=1184" target="_blank" rel="noopener">&#9654; 19:44</a></div><p>El panel muestra la temperatura y el switch mientras sigue mandando órdenes al micro: transmisión y recepción al mismo tiempo.</p><div class="uno"><figure class="cap"><a href="img/1206.webp" target="_blank"><img src="img/1206.webp" alt="Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Con sprintf</h3><a class="min" href="https://youtu.be/a9GovfdeyLs?t=1219" target="_blank" rel="noopener">&#9654; 20:19</a></div><p>sprintf arma la trama completa con el formato que uno quiera, incluidos los decimales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sprintf(texto, &quot;temp=%4.2f/&quot;, temperatura);
+UART1_Write_Text(texto);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1324.webp" target="_blank"><img src="img/1324.webp" alt="Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Arduino</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Con Serial.print</h3><a class="min" href="https://youtu.be/a9GovfdeyLs?t=1393" target="_blank" rel="noopener">&#9654; 23:13</a></div><p>En Arduino se lee con analogRead y digitalRead y se manda con Serial.print, que convierte el flotante solo (con dos decimales).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = analogRead(0);
+temperatura = codigo*500.0/1023.0;
+Serial.print(&quot;temp=&quot;);
+Serial.print(temperatura);
+Serial.print(&quot;/&quot;);
+if (digitalRead(suiche) == 1) Serial.print(&quot;led=on/&quot;);
+else Serial.print(&quot;led=off/&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1795.webp" target="_blank"><img src="img/1795.webp" alt="Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>sprintf y flotantes</h3><a class="min" href="https://youtu.be/a9GovfdeyLs?t=1966" target="_blank" rel="noopener">&#9654; 32:46</a></div><p>El sprintf de Arduino no maneja %f y manda un signo de interrogación. La solución es convertir primero con dtostrf y luego mandar el texto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>dtostrf(temperatura, 5, 2, texto);
+Serial.print(&quot;temp=&quot;);
+Serial.print(texto);</code></pre></div><div class="uno"><figure class="cap"><a href="img/2030.webp" target="_blank"><img src="img/2030.webp" alt="Transmisión y recepción serial full duplex en PIC (MikroC) y Arduino" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=a9GovfdeyLs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

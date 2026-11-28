@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Órdenes de texto que terminan en asterisco (led1=on*, mder*, mpwm=150*) se reciben y se interpretan con strstr, strtok y atoi. El mismo código en C estándar funciona en MikroC y en Arduino.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/I2zYvOchwv4/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino · Paso a paso">
+  <meta property="og:description" content="Órdenes de texto que terminan en asterisco (led1=on*, mder*, mpwm=150*) se reciben y se interpretan con strstr, strtok y atoi. El mismo código en C estándar funciona en MikroC y en Arduino.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/I2zYvOchwv4/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/I2zYvOchwv4/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Recibir <span>órdenes seriales</span> en PIC y Arduino</h1>
+    <p class="lead">En vez de mandar una sola letra, se mandan órdenes legibles que terminan en '*'. El micro lee la trama hasta el asterisco y con funciones estándar de C (strstr para buscar, strtok para separar y atoi para convertir) decide qué hacer: encender leds, girar un motor y cambiar su velocidad con PWM. Se hace el mismo programa en Arduino y en un PIC16F876A con MikroC para mostrar que el código casi no cambia.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=I2zYvOchwv4" target="_blank" rel="noopener">&#9654; Ver el video completo (26:27)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1290.webp" alt="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC y PIC16F876A a 4 MHz</li><li>Arduino Uno e IDE de Arduino</li><li>L293D con motor DC, dos leds</li><li>Proteus con Virtual Terminal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Órdenes</a><a href="#f2">2 · Proyecto</a><a href="#f3">3 · Interpretar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Las órdenes</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Trama con final</h3><a class="min" href="https://youtu.be/I2zYvOchwv4?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Lo más básico es una trama con un carácter de final. Aquí todas las órdenes terminan en '*', que le dice al micro que la orden llegó completa.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>El circuito</h3><a class="min" href="https://youtu.be/I2zYvOchwv4?t=98" target="_blank" rel="noopener">&#9654; 1:38</a></div><p>Un motor con L293D (dos pines de sentido y uno de PWM), dos leds y el puerto serial conectado a una terminal.</p><div class="uno"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Lista de órdenes</h3><a class="min" href="https://youtu.be/I2zYvOchwv4?t=164" target="_blank" rel="noopener">&#9654; 2:44</a></div><p>led1=on* y led1=off* manejan un led; led2 igual. mder* gira a la derecha, mizq* a la izquierda y mstop* detiene. mpwm=valor* cambia la velocidad.</p><div class="uno"><figure class="cap"><a href="img/210.webp" target="_blank"><img src="img/210.webp" alt="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Pines y variables</h3><a class="min" href="https://youtu.be/I2zYvOchwv4?t=330" target="_blank" rel="noopener">&#9654; 5:30</a></div><p>Se definen los pines del motor y de los leds, y dos cadenas: trama para lo que llega y procesa para lo que se separa. En Arduino se usan números de pin; en MikroC, bits de puerto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char trama[30];
+char procesa[30];
+char dato;</code></pre></div><div class="uno"><figure class="cap"><a href="img/480.webp" target="_blank"><img src="img/480.webp" alt="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Funciones del motor</h3><a class="min" href="https://youtu.be/I2zYvOchwv4?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>mderecha(), mizquierda() y mquieto() ponen los dos pines del puente H en 1-0, 0-1 o 0-0.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void mderecha()  { m11 = 1; m12 = 0; }
+void mizquierda(){ m11 = 0; m12 = 1; }
+void mquieto()   { m11 = 0; m12 = 0; }</code></pre></div><div class="uno"><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Configuración</h3><a class="min" href="https://youtu.be/I2zYvOchwv4?t=583" target="_blank" rel="noopener">&#9654; 9:43</a></div><p>Serial a 9600, pines de motor y leds como salida, PWM iniciado con una velocidad básica y el motor quieto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>UART1_Init(9600);
+PWM1_Init(1000);
+PWM1_Set_Duty(100);
+PWM1_Start();
+mquieto();</code></pre></div><div class="uno"><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Interpretar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Leer hasta el asterisco</h3><a class="min" href="https://youtu.be/I2zYvOchwv4?t=826" target="_blank" rel="noopener">&#9654; 13:46</a></div><p>En MikroC UART1_Read_Text guarda en trama todo hasta el '*' (máximo 30). En Arduino se usa Serial.readBytesUntil('*', trama, 30). Esta forma deja al micro esperando; con interrupciones se mejora en el siguiente video.</p><div class="uno"><figure class="cap"><a href="img/930.webp" target="_blank"><img src="img/930.webp" alt="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Buscar con strstr</h3><a class="min" href="https://youtu.be/I2zYvOchwv4?t=933" target="_blank" rel="noopener">&#9654; 15:33</a></div><p>strstr dice si una cadena contiene otra. Si llega led1= y además on, se enciende; si no, se apaga. Lo mismo para el resto de órdenes.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>UART1_Read_Text(trama, &quot;*&quot;, 30);
+if (strstr(trama, &quot;led1=&quot;)) {
+  if (strstr(trama, &quot;on&quot;)) led1 = 1;
+  else led1 = 0;
+}
+else if (strstr(trama, &quot;led2=&quot;)) { ... }
+else if (strstr(trama, &quot;mder&quot;))  mderecha();
+else if (strstr(trama, &quot;mizq&quot;))  mizquierda();
+else if (strstr(trama, &quot;mstop&quot;)) mquieto();</code></pre></div><div class="dos"><figure class="cap"><a href="img/1020.webp" target="_blank"><img src="img/1020.webp" alt="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino" loading="lazy"></a></figure><figure class="cap"><a href="img/1200.webp" target="_blank"><img src="img/1200.webp" alt="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Mismo código</h3><a class="min" href="https://youtu.be/I2zYvOchwv4?t=1210" target="_blank" rel="noopener">&#9654; 20:10</a></div><p>El bloque de órdenes se copia del Arduino a MikroC casi igual, porque strstr es de C estándar.</p><div class="uno"><figure class="cap"><a href="img/1290.webp" target="_blank"><img src="img/1290.webp" alt="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Valor numérico</h3><a class="min" href="https://youtu.be/I2zYvOchwv4?t=1384" target="_blank" rel="noopener">&#9654; 23:04</a></div><p>Para mpwm=valor* se separa lo que hay entre el '=' y el '*' con strtok, se convierte con atoi y se aplica al PWM (analogWrite en Arduino).</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>else if (strstr(trama, &quot;mpwm=&quot;)) {
+  strcpy(procesa, strtok(trama, &quot;=&quot;));
+  strcpy(procesa, strtok(0, &quot;*&quot;));
+  dato = atoi(procesa);
+  PWM1_Set_Duty(dato);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1470.webp" target="_blank"><img src="img/1470.webp" alt="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Prueba</h3><a class="min" href="https://youtu.be/I2zYvOchwv4?t=1516" target="_blank" rel="noopener">&#9654; 25:16</a></div><p>Con mpwm=200* el motor gira más rápido, y los leds y el sentido responden a sus órdenes.</p><div class="uno"><figure class="cap"><a href="img/1560.webp" target="_blank"><img src="img/1560.webp" alt="Recepción de órdenes seriales con micros en MikroC for PIC o con Arduino" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=I2zYvOchwv4" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
