@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 33: interrupciones por timers · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo funcionan los timers del PIC (bits, pasos, cristal y prescalador) y cómo configurar a mano la interrupción del Timer1 cada 200 ms y la del Timer0 cada 10 ms, alargada a un segundo con una variable.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/eYLvaGV-ubU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 33: interrupciones por timers · Paso a paso">
+  <meta property="og:description" content="Cómo funcionan los timers del PIC (bits, pasos, cristal y prescalador) y cómo configurar a mano la interrupción del Timer1 cada 200 ms y la del Timer0 cada 10 ms, alargada a un segundo con una variable.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/eYLvaGV-ubU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/eYLvaGV-ubU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Interrupciones por <span>timer</span> desde los registros</h1>
+    <p class="lead">Lección 33 del curso. En la 31 Timer Calculator hacía el trabajo, pero al usar varios timers puede haber conflictos, así que aquí se configuran desde los registros. Se explican los timers 0, 1 y los pares (2, 4, 6), cuántos pasos da un timer según el valor inicial, el tiempo de ciclo con cristal de 4 MHz y el prescalador. Con una hoja de Excel se calculan los valores y se programan las interrupciones del Timer1 y del Timer0.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=eYLvaGV-ubU" target="_blank" rel="noopener">&#9654; Ver el video completo (28:43)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/950.webp" alt="Curso MikroC PRO for PIC, lección 33: interrupciones por timers"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Hoja de datos del PIC16F87XA</li><li>Hoja de Excel para cálculo de timers</li><li>Proteus con PIC16F876A y leds</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Timers</a><a href="#f2">2 · Timer1</a><a href="#f3">3 · Timer0</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Cómo funcionan los timers</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Timer0, Timer1 y timers pares</h3><a class="min" href="https://youtu.be/eYLvaGV-ubU?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>El Timer0 comparte el prescalador con el watchdog, es de 8 bits en los PIC16 y de 8 o 16 en los PIC18, y puede contar pulsos de un pin externo (normalmente RA4). El Timer1 es de 16 bits con prescalador. Los timers 2, 4 y 6 son de 8 bits con prescalador y postscaler.</p><div class="uno"><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Curso MikroC PRO for PIC, lección 33: interrupciones por timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pasos</h3><a class="min" href="https://youtu.be/eYLvaGV-ubU?t=249" target="_blank" rel="noopener">&#9654; 4:09</a></div><p>Un timer de 8 bits cuenta hasta 255 y uno de 16 hasta 65535; la interrupción ocurre al desbordarse. Si el Timer0 arranca en 200, da 56 pasos hasta desbordarse: los pasos son el conteo máximo menos el valor inicial.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Cristal y prescalador</h3><a class="min" href="https://youtu.be/eYLvaGV-ubU?t=386" target="_blank" rel="noopener">&#9654; 6:26</a></div><p>El micro trabaja a la cuarta parte del cristal: con 4 MHz cada paso dura 1 µs. El prescalador multiplica ese tiempo, así que el tiempo total es pasos por prescalador por tiempo de ciclo.</p><div class="uno"><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Curso MikroC PRO for PIC, lección 33: interrupciones por timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Timers con PR</h3><a class="min" href="https://youtu.be/eYLvaGV-ubU?t=556" target="_blank" rel="noopener">&#9654; 9:16</a></div><p>En los timers pares no se carga un valor inicial: cuentan desde cero hasta el valor del registro PR (PR2, PR4...) y se reinician solos, así que no hay que recargarlos para mantener el tiempo.</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Curso MikroC PRO for PIC, lección 33: interrupciones por timers" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Timer1 cada 200 ms</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Calcular en Excel</h3><a class="min" href="https://youtu.be/eYLvaGV-ubU?t=688" target="_blank" rel="noopener">&#9654; 11:28</a></div><p>En la hoja de cálculo se pone la frecuencia del cristal y el tiempo deseado. Para 200 ms el Timer1 cumple con prescalador de 4 y valores 60 en TMR1H y 175 en TMR1L.</p><div class="dos"><figure class="cap"><a href="img/740.webp" target="_blank"><img src="img/740.webp" alt="Curso MikroC PRO for PIC, lección 33: interrupciones por timers" loading="lazy"></a></figure><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Curso MikroC PRO for PIC, lección 33: interrupciones por timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Configurar el Timer1</h3><a class="min" href="https://youtu.be/eYLvaGV-ubU?t=851" target="_blank" rel="noopener">&#9654; 14:11</a></div><p>Primero el valor inicial, luego el prescalador con los bits T1CKPS1 y T1CKPS0, después la interrupción (limpiar bandera y habilitar) y por último prender el timer. Como es de periférico, PEIE debe estar en 1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// CONFIGURACION TIMER1
+// 1) valor inicial para 200 ms
+TMR1H = 60;
+TMR1L = 175;
+// 2) prescalador 4
+T1CKPS1_bit = 1;
+T1CKPS0_bit = 0;
+// 3) configura interrupcion timer
+TMR1IF_bit = 0;   // limpia bandera
+TMR1IE_bit = 1;   // habilita la interrupcion
+TMR1ON_bit = 1;   // prende</code></pre></div><div class="uno"><figure class="cap"><a href="img/950.webp" target="_blank"><img src="img/950.webp" alt="Curso MikroC PRO for PIC, lección 33: interrupciones por timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>En la interrupción</h3><a class="min" href="https://youtu.be/eYLvaGV-ubU?t=1128" target="_blank" rel="noopener">&#9654; 18:48</a></div><p>El Timer1 sigue desde cero al desbordarse, así que hay que volver a cargarle el valor inicial para mantener los 200 ms. Luego se hace la tarea y se limpia la bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (TMR1IF_bit == 1)
+{
+  TMR1H = 60;   // valor inicial para 200 ms
+  TMR1L = 175;
+  led1 = ~led1;
+  TMR1IF_bit = 0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1580.webp" target="_blank"><img src="img/1580.webp" alt="Curso MikroC PRO for PIC, lección 33: interrupciones por timers" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Timer0 cada 10 ms</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>OPTION_REG</h3><a class="min" href="https://youtu.be/eYLvaGV-ubU?t=1232" target="_blank" rel="noopener">&#9654; 20:32</a></div><p>El Timer0 se configura en OPTION_REG. Se pone en cero y se ajustan los bits: T0CS en 0 para contar con el oscilador, PSA en 0 para que el prescalador quede en el timer y no en el watchdog, y PS2 a PS0 para el valor del prescalador.</p><div class="uno"><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Curso MikroC PRO for PIC, lección 33: interrupciones por timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Valores</h3><a class="min" href="https://youtu.be/eYLvaGV-ubU?t=1330" target="_blank" rel="noopener">&#9654; 22:10</a></div><p>A 4 MHz el Timer0 llega a unos 65 ms como máximo. Para 10 ms la hoja da prescalador de 64 y valor inicial 100.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// timer cero
+OPTION_REG = 0;
+TMR0 = 100;
+// prescalador 64, 10 ms
+PS2_bit = 1;
+PS1_bit = 0;
+PS0_bit = 1;
+// INTERRUPCION
+TMR0IF_bit = 0;
+TMR0IE_bit = 1;
+
+GIE_bit = 1;   // autoriza las interrupciones</code></pre></div><div class="dos"><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="Curso MikroC PRO for PIC, lección 33: interrupciones por timers" loading="lazy"></a></figure><figure class="cap"><a href="img/1510.webp" target="_blank"><img src="img/1510.webp" alt="Curso MikroC PRO for PIC, lección 33: interrupciones por timers" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Alargar a un segundo</h3><a class="min" href="https://youtu.be/eYLvaGV-ubU?t=1540" target="_blank" rel="noopener">&#9654; 25:40</a></div><p>En la interrupción se recarga el Timer0 y se cuenta con una variable: cien veces 10 ms es un segundo. Al final hay un led cada 200 ms con el Timer1 y otro cada segundo con el Timer0.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (TMR0IF_bit == 1)
+{
+  TMR0 = 100;
+  alargue++;
+  if (alargue &gt;= 100)   // 10ms*100 = 1 seg
+  {
+    led2 = ~led2;
+    alargue = 0;
+  }
+  TMR0IF_bit = 0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1650.webp" target="_blank"><img src="img/1650.webp" alt="Curso MikroC PRO for PIC, lección 33: interrupciones por timers" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=eYLvaGV-ubU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

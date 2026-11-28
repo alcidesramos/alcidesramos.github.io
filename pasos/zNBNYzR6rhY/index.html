@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se configuran las interrupciones a mano: tipos de interrupción, bandera (IF) y habilitador (IE), el registro INTCON con PEIE y GIE, y una interrupción por flanco en RB0 que cambia un led sin bloquear la recepción serial.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/zNBNYzR6rhY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco) · Paso a paso">
+  <meta property="og:description" content="Se configuran las interrupciones a mano: tipos de interrupción, bandera (IF) y habilitador (IE), el registro INTCON con PEIE y GIE, y una interrupción por flanco en RB0 que cambia un led sin bloquear la recepción serial.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/zNBNYzR6rhY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/zNBNYzR6rhY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Interrupción por <span>flanco</span> con INTCON</h1>
+    <p class="lead">Lección 32 del curso. Una interrupción es un procedimiento que no se llama desde el programa: el micro salta a él cuando ocurre el evento y luego regresa. Se repasan los tipos (flanco, cambio de nivel, timers y periféricos), la diferencia entre bandera y habilitador, y los pasos para habilitar una interrupción: PEIE, limpiar la bandera, habilitar la propia, configurarla y por último GIE. Con eso se hace una interrupción por flanco en RB0/INT.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=zNBNYzR6rhY" target="_blank" rel="noopener">&#9654; Ver el video completo (28:57)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1230.webp" alt="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco)"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Hoja de datos del PIC16F87XA</li><li>Proteus con PIC16F876A, pulsador, leds y COMPIM</li><li>Hercules u otra terminal serial</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Tipos</a><a href="#f2">2 · IF e IE</a><a href="#f3">3 · Flanco</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Tipos de interrupción</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Vector de interrupción</h3><a class="min" href="https://youtu.be/zNBNYzR6rhY?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Cuando ocurre una interrupción el micro salta a una posición fija de memoria: 0x0004 en los PIC16 y 0x0008 en los PIC18. El compilador lo maneja, pero conviene saberlo.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Flanco, nivel, timers y periféricos</h3><a class="min" href="https://youtu.be/zNBNYzR6rhY?t=98" target="_blank" rel="noopener">&#9654; 1:38</a></div><p>Por flanco (INT0 a INT3, normalmente en RB0, RB1, RB2) se interrumpe en subida o bajada. Por cambio de nivel en RB4 a RB7 en los micros antiguos, o en casi cualquier pin en los modernos. Por timer cuando se desborda, y por periféricos como el puerto serial, SPI, I2C o USB.</p><div class="dos"><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco)" loading="lazy"></a></figure><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Bandera y habilitador</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>El registro INTCON</h3><a class="min" href="https://youtu.be/zNBNYzR6rhY?t=262" target="_blank" rel="noopener">&#9654; 4:22</a></div><p>En la hoja de datos el registro principal es INTCON. Más que el nombre de cada registro importa encontrar dos bits por interrupción: la bandera y el habilitador.</p><div class="uno"><figure class="cap"><a href="img/600.webp" target="_blank"><img src="img/600.webp" alt="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>IF: la bandera</h3><a class="min" href="https://youtu.be/zNBNYzR6rhY?t=368" target="_blank" rel="noopener">&#9654; 6:08</a></div><p>La bandera (flag) se pone en 1 cada vez que ocurre el evento, esté o no habilitada la interrupción. No se borra sola: el programador la limpia.</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>IE: el habilitador</h3><a class="min" href="https://youtu.be/zNBNYzR6rhY?t=435" target="_blank" rel="noopener">&#9654; 7:15</a></div><p>El habilitador permite que esa interrupción haga saltar al micro. Cada fuente tiene su par: INTF e INTE, RBIF y RBIE, TMR0IF y TMR0IE, RCIF y RCIE.</p><div class="uno"><figure class="cap"><a href="img/530.webp" target="_blank"><img src="img/530.webp" alt="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>PEIE y GIE</h3><a class="min" href="https://youtu.be/zNBNYzR6rhY?t=570" target="_blank" rel="noopener">&#9654; 9:30</a></div><p>El bit 6 de INTCON, PEIE, autoriza las interrupciones de periféricos, y el bit 7, GIE, autoriza todas. Para que haya interrupción tienen que estar habilitadas la propia y las de arriba. En el video se explica con una analogía de permisos por niveles.</p><div class="uno"><figure class="cap"><a href="img/810.webp" target="_blank"><img src="img/810.webp" alt="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Interrupción por flanco</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Los cinco pasos</h3><a class="min" href="https://youtu.be/zNBNYzR6rhY?t=799" target="_blank" rel="noopener">&#9654; 13:19</a></div><p>1) PEIE en 1. 2) Limpiar la bandera, porque si quedó en 1 el micro saltaría apenas se habilite. 3) Habilitar la interrupción propia. 4) Configurarla si tiene opciones, como el flanco. 5) GIE en 1.</p><div class="uno"><figure class="cap"><a href="img/950.webp" target="_blank"><img src="img/950.webp" alt="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>En código</h3><a class="min" href="https://youtu.be/zNBNYzR6rhY?t=975" target="_blank" rel="noopener">&#9654; 16:15</a></div><p>PEIE se deja en 1 desde el inicio con INTCON. Antes del while se limpia INTF, se habilita INTE, se elige flanco de bajada con INTEDG y se autorizan todas con GIE.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>INTCON = 0b01000000;   // bit 6 = 1 autoriza int perifericos
+
+// AUTORIZAR INT
+INTF_bit = 0;     // limpia la bandera
+INTE_bit = 1;     // autoriza int propia
+INTEDG_bit = 0;   // flanco de bajada
+
+GIE_bit = 1;      // autoriza las interrupciones</code></pre></div><div class="dos"><figure class="cap"><a href="img/1020.webp" target="_blank"><img src="img/1020.webp" alt="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco)" loading="lazy"></a></figure><figure class="cap"><a href="img/1230.webp" target="_blank"><img src="img/1230.webp" alt="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>La función de interrupción</h3><a class="min" href="https://youtu.be/zNBNYzR6rhY?t=1237" target="_blank" rel="noopener">&#9654; 20:37</a></div><p>Con el asistente de interrupciones de MikroC se crea la función. Dentro se revisa la bandera para saber qué interrupción ocurrió y se hace la tarea; el pin RB0 debe quedar como entrada.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void INTERRUPCION() iv 0x0004 ics ICS_AUTO
+{
+  if (INTF_bit)
+  {
+    led3 = ~led3;
+    INTF_bit = 0;   // limpia la bandera
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1300.webp" target="_blank"><img src="img/1300.webp" alt="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Limpiar la bandera al salir</h3><a class="min" href="https://youtu.be/zNBNYzR6rhY?t=1437" target="_blank" rel="noopener">&#9654; 23:57</a></div><p>Si la bandera no se limpia al final, el micro vuelve a entrar sin parar y el programa se queda pegado. Es uno de los errores más comunes.</p><div class="uno"><figure class="cap"><a href="img/1440.webp" target="_blank"><img src="img/1440.webp" alt="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Pruebas</h3><a class="min" href="https://youtu.be/zNBNYzR6rhY?t=1509" target="_blank" rel="noopener">&#9654; 25:09</a></div><p>Con GIE en 0 no hay ninguna interrupción; con INTE en 0 tampoco esta. La de flanco no es de periférico, así que PEIE no la afecta, pero sí afecta a la serial. Por eso se recomienda dejar PEIE en 1 y manejar GIE y la propia.</p><div class="uno"><figure class="cap"><a href="img/1510.webp" target="_blank"><img src="img/1510.webp" alt="Curso MikroC PRO for PIC, lección 32: interrupciones, parte 2 (registro INTCON e interrupción por flanco)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.6</span><h3>Ser rápido</h3><a class="min" href="https://youtu.be/zNBNYzR6rhY?t=1575" target="_blank" rel="noopener">&#9654; 26:15</a></div><p>La interrupción debe ser corta: el micro deja el programa principal, atiende y vuelve tan rápido que parece simultáneo. Si hay algo largo que hacer, se deja una bandera y se hace en el programa principal.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=zNBNYzR6rhY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

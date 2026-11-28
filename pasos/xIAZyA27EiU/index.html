@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Introducción práctica a las interrupciones del PIC: con Timer Calculator se genera la interrupción del Timer1 cada 200 ms y dentro de ella se hace parpadear un led, se lee un pulsador y se corre un juego de luces, mientras el programa principal sigue recibiendo tramas.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/xIAZyA27EiU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1 · Paso a paso">
+  <meta property="og:description" content="Introducción práctica a las interrupciones del PIC: con Timer Calculator se genera la interrupción del Timer1 cada 200 ms y dentro de ella se hace parpadear un led, se lee un pulsador y se corre un juego de luces, mientras el programa principal sigue recibiendo tramas.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/xIAZyA27EiU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/xIAZyA27EiU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Primeras <span>interrupciones</span> con Timer Calculator</h1>
+    <p class="lead">Lección 31 del curso. Una interrupción es algo que el micro atiende tan rápido que parece que hiciera varias cosas a la vez. Para empezar sin registros se usa Timer Calculator de MikroElektronika, que genera la configuración del Timer1 y la función de interrupción. Con una variable se alarga el tiempo a un segundo, se revisa un pulsador y se arma un juego de luces con un arreglo, todo sin bloquear la recepción serial de la lección 30.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=xIAZyA27EiU" target="_blank" rel="noopener">&#9654; Ver el video completo (24:33)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/360.webp" alt="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Timer Calculator de MikroElektronika</li><li>Proteus con PIC16F876A, leds, pulsador y COMPIM</li><li>Hercules u otra terminal serial</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Concepto</a><a href="#f2">2 · Timer1</a><a href="#f3">3 · Tareas</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Qué es una interrupción</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El problema</h3><a class="min" href="https://youtu.be/xIAZyA27EiU?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>En la lección anterior la recepción se quedaba esperando la trama. Si además se quiere que un led parpadee solo o atender otras cosas, se necesitan interrupciones: el micro deja un momento lo que hace, atiende el evento y vuelve.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Timer Calculator</h3><a class="min" href="https://youtu.be/xIAZyA27EiU?t=103" target="_blank" rel="noopener">&#9654; 1:43</a></div><p>Es un programa gratuito de MikroElektronika que calcula y genera el código de los timers. Se elige el micro, el cristal de 4 MHz, el timer y el tiempo. El Timer0 de 8 bits no alcanza 200 ms a 4 MHz, así que se usa el Timer1 de 16 bits.</p><div class="uno"><figure class="cap"><a href="img/280.webp" target="_blank"><img src="img/280.webp" alt="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Timer1 cada 200 ms</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Código generado</h3><a class="min" href="https://youtu.be/xIAZyA27EiU?t=319" target="_blank" rel="noopener">&#9654; 5:19</a></div><p>Timer Calculator crea dos funciones: InitTimer1, que configura el timer y se llama antes del while, y la función de interrupción, que el micro llama solo. Ahí se recarga el timer y se pone lo que se quiere hacer, por ejemplo cambiar el led.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void InitTimer1(){
+  T1CON = 0x21;
+  TMR1IF_bit = 0;
+  TMR1H = 0x3C;
+  TMR1L = 0xB0;
+  TMR1IE_bit = 1;
+  INTCON = 0xC0;
+}
+
+void Interrupt(){
+  if (TMR1IF_bit){
+    TMR1IF_bit = 0;
+    TMR1H = 0x3C;
+    TMR1L = 0xB0;
+    //Enter your code here
+    led = ~led;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Probar</h3><a class="min" href="https://youtu.be/xIAZyA27EiU?t=391" target="_blank" rel="noopener">&#9654; 6:31</a></div><p>El led parpadea solo mientras desde la terminal se siguen mandando tramas como led1=on*. La recepción sigue esperando la trama, pero el parpadeo ya no depende de ella.</p><div class="uno"><figure class="cap"><a href="img/440.webp" target="_blank"><img src="img/440.webp" alt="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Alargar el tiempo</h3><a class="min" href="https://youtu.be/xIAZyA27EiU?t=459" target="_blank" rel="noopener">&#9654; 7:39</a></div><p>Para un segundo no se cambia el timer: se cuenta cuántas veces entra la interrupción. Cinco veces 200 ms es un segundo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>cuenta++;
+if (cuenta &gt;= 5)   /// si va 1 segundo
+{
+  led = ~led;
+  cuenta = 0;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/680.webp" target="_blank"><img src="img/680.webp" alt="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Más tareas en la interrupción</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Pulsador</h3><a class="min" href="https://youtu.be/xIAZyA27EiU?t=577" target="_blank" rel="noopener">&#9654; 9:37</a></div><p>Se agrega un pulsador en RA1 y un led en RA0. El puerto A se pone todo digital con ADCON1 y el pin del pulsador como entrada. En cada interrupción se revisa el pulsador, fuera del bloque del segundo para que responda rápido.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit led3 at RA0_bit;
+sbit sw at RA1_bit;
+
+// dentro de la interrupcion
+if (sw == 0) led3 = 1;
+else led3 = 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Sin retardos</h3><a class="min" href="https://youtu.be/xIAZyA27EiU?t=924" target="_blank" rel="noopener">&#9654; 15:24</a></div><p>Dentro de una interrupción no se ponen retardos: la idea es hacer lo necesario rápido y volver al programa principal.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Juego de luces</h3><a class="min" href="https://youtu.be/xIAZyA27EiU?t=989" target="_blank" rel="noopener">&#9654; 16:29</a></div><p>Se crea un arreglo con los patrones del juego de luces y una variable que recorre las posiciones. En cada interrupción se saca un patrón por el puerto B y se pasa al siguiente; al llegar al último se vuelve a cero.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char luces[] = {0b00000001, 0b00000010, 0b00000100, 0b00001000,
+                0b00010000, 0b00100000, 0b01000000, 0b10000000};
+char cuenta1 = 0;
+
+// dentro de la interrupcion
+PORTB = luces[cuenta1];
+cuenta1++;
+if (cuenta1 &gt; 7) cuenta1 = 0;   // 7 es el numero de efectos empezando en cero</code></pre></div><div class="dos"><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/1240.webp" target="_blank"><img src="img/1240.webp" alt="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1" loading="lazy"></a></figure><figure class="cap"><a href="img/1400.webp" target="_blank"><img src="img/1400.webp" alt="Curso MikroC PRO for PIC, lección 31: interrupciones, parte 1" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Cambiar la base de tiempo</h3><a class="min" href="https://youtu.be/xIAZyA27EiU?t=1346" target="_blank" rel="noopener">&#9654; 22:26</a></div><p>Para que las luces vayan más rápido se baja el timer a 100 ms y, para que el led siga en un segundo, la cuenta pasa de 5 a 10. Así varios procesos con tiempos distintos salen de un solo timer.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=xIAZyA27EiU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 29: recepción serial bloqueante con comandos sencillos · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Primera forma de recibir datos por el puerto serial del PIC: leer un carácter con UART1_Data_Ready y UART1_Read, decidir con un switch qué hacer con leds y un motor, y ver por qué esta lectura se vuelve bloqueante.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/dLz9zk4wHrw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 29: recepción serial bloqueante con comandos sencillos · Paso a paso">
+  <meta property="og:description" content="Primera forma de recibir datos por el puerto serial del PIC: leer un carácter con UART1_Data_Ready y UART1_Read, decidir con un switch qué hacer con leds y un motor, y ver por qué esta lectura se vuelve bloqueante.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/dLz9zk4wHrw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/dLz9zk4wHrw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Recibir <span>comandos</span> por el UART</h1>
+    <p class="lead">Lección 29 del curso. Con un PIC16F876A, un L293D con un motor, dos leds y el Virtual Terminal de Proteus se reciben órdenes de un solo carácter: letras para prender y apagar leds y números para girar o parar el motor. Se ve el problema de los retardos largos en el programa principal, la versión que se queda esperando el dato y por qué un solo carácter no es la forma más segura de mandar órdenes.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=dLz9zk4wHrw" target="_blank" rel="noopener">&#9654; Ver el video completo (17:08)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/755.webp" alt="Curso MikroC PRO for PIC, lección 29: recepción serial bloqueante con comandos sencillos"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librerías UART y PWM)</li><li>Proteus con PIC16F876A, L293D, motor DC, leds, osciloscopio y Virtual Terminal</li><li>Cristal de 4 MHz</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Leer</a><a href="#f3">3 · Bloqueo</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar el proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/dLz9zk4wHrw?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El circuito tiene un PIC16F876A, un L293D que mueve un motor, dos leds y el Virtual Terminal conectado al puerto serial. La idea es mandar órdenes por serial para prender y apagar los leds y cambiar el giro del motor.</p><div class="uno"><figure class="cap"><a href="img/755.webp" target="_blank"><img src="img/755.webp" alt="Curso MikroC PRO for PIC, lección 29: recepción serial bloqueante con comandos sencillos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Configuración inicial</h3><a class="min" href="https://youtu.be/dLz9zk4wHrw?t=105" target="_blank" rel="noopener">&#9654; 1:45</a></div><p>Proyecto nuevo a 4 MHz. Los puertos quedan como salida y el pin RC7 (RX) como entrada. Se inicia el UART a 9600, un PWM de baja frecuencia para el motor y se manda un HOLA MUNDO para comprobar la transmisión.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TRISB = 0;
+TRISC = 0;
+TRISC7_bit = 1;   // entrada rx
+
+UART1_Init(9600);
+PWM1_Init(300);
+PWM1_Set_Duty(127);
+PWM1_Start();
+UART1_Write_Text(&quot;HOLA MUNDO&quot;);</code></pre></div><div class="uno"><figure class="cap"><a href="img/315.webp" target="_blank"><img src="img/315.webp" alt="Curso MikroC PRO for PIC, lección 29: recepción serial bloqueante con comandos sencillos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Recepción continua</h3><a class="min" href="https://youtu.be/dLz9zk4wHrw?t=312" target="_blank" rel="noopener">&#9654; 5:12</a></div><p>En el registro de recepción hay un bit que habilita la recepción continua. Aunque la librería lo maneja, se deja explícito para recordar que el micro queda listo para recibir varios caracteres seguidos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>CREN_bit = 1;   // habilita la recepcion continua</code></pre></div><div class="uno"><figure class="cap"><a href="img/425.webp" target="_blank"><img src="img/425.webp" alt="Curso MikroC PRO for PIC, lección 29: recepción serial bloqueante con comandos sencillos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Funciones del motor</h3><a class="min" href="https://youtu.be/dLz9zk4wHrw?t=378" target="_blank" rel="noopener">&#9654; 6:18</a></div><p>El motor va en RB0 y RB1. Se hacen tres funciones: m1derecha, m1izquierda y m1quieto, que ponen las combinaciones 1-0, 0-1 y 0-0 en esos pines.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Leer y decidir</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Leer si hay dato</h3><a class="min" href="https://youtu.be/dLz9zk4wHrw?t=522" target="_blank" rel="noopener">&#9654; 8:42</a></div><p>En el ciclo principal un led parpadea con un retardo corto. Se pregunta con <b>UART1_Data_Ready</b> si llegó algo y, si llegó, se lee con <b>UART1_Read</b>.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  if (UART1_Data_Ready() == 1)
+  {
+    dato_rx = UART1_Read();
+    // aqui se analiza el dato
+  }
+  led = ~led;
+  Delay_ms(200);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="Curso MikroC PRO for PIC, lección 29: recepción serial bloqueante con comandos sencillos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Switch de órdenes</h3><a class="min" href="https://youtu.be/dLz9zk4wHrw?t=591" target="_blank" rel="noopener">&#9654; 9:51</a></div><p>Con un switch se decide qué hacer según el carácter: a y b prenden y apagan el led 1, c y d el led 2, y los números 0, 1 y 2 mandan el motor a la derecha, a la izquierda o lo paran.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>switch (dato_rx)
+{
+  case &#x27;a&#x27;: led1 = 1; break;
+  case &#x27;b&#x27;: led1 = 0; break;
+  case &#x27;c&#x27;: led2 = 1; break;
+  case &#x27;d&#x27;: led2 = 0; break;
+  case &#x27;0&#x27;: m1derecha(); break;
+  case &#x27;1&#x27;: m1izquierda(); break;
+  case &#x27;2&#x27;: m1quieto(); break;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/645.webp" target="_blank"><img src="img/645.webp" alt="Curso MikroC PRO for PIC, lección 29: recepción serial bloqueante con comandos sencillos" loading="lazy"></a></figure><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Curso MikroC PRO for PIC, lección 29: recepción serial bloqueante con comandos sencillos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Probar en Proteus</h3><a class="min" href="https://youtu.be/dLz9zk4wHrw?t=731" target="_blank" rel="noopener">&#9654; 12:11</a></div><p>Desde el Virtual Terminal se mandan las letras y los números y se ve cómo responden los leds y el motor.</p><div class="dos"><figure class="cap"><a href="img/755.webp" target="_blank"><img src="img/755.webp" alt="Curso MikroC PRO for PIC, lección 29: recepción serial bloqueante con comandos sencillos" loading="lazy"></a></figure><figure class="cap"><a href="img/865.webp" target="_blank"><img src="img/865.webp" alt="Curso MikroC PRO for PIC, lección 29: recepción serial bloqueante con comandos sencillos" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>El problema del bloqueo</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Retardos largos</h3><a class="min" href="https://youtu.be/dLz9zk4wHrw?t=763" target="_blank" rel="noopener">&#9654; 12:43</a></div><p>Si el programa principal se demora, por ejemplo con un retardo de 5 segundos, las órdenes que lleguen en ese tiempo no se atienden porque el micro no está revisando el puerto.</p><div class="uno"><figure class="cap"><a href="img/810.webp" target="_blank"><img src="img/810.webp" alt="Curso MikroC PRO for PIC, lección 29: recepción serial bloqueante con comandos sencillos" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Esperar el dato</h3><a class="min" href="https://youtu.be/dLz9zk4wHrw?t=830" target="_blank" rel="noopener">&#9654; 13:50</a></div><p>Otra forma es quedarse esperando hasta que llegue un dato. Así no se pierde ninguna orden, pero el programa queda bloqueado: el led del ciclo principal deja de parpadear y solo cambia cuando llega una orden.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (UART1_Data_Ready() == 0);   // espera un dato
+dato_rx = UART1_Read();</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Limitaciones</h3><a class="min" href="https://youtu.be/dLz9zk4wHrw?t=960" target="_blank" rel="noopener">&#9654; 16:00</a></div><p>Esta forma sirve si el micro solo va a recibir órdenes y actuar. Un solo carácter es fácil de confundir con ruido, así que en la siguiente lección se usan tramas, y más adelante interrupciones para poder hacer varias cosas a la vez.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=dLz9zk4wHrw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

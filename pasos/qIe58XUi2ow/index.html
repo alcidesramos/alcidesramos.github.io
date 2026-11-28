@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 30: recepción serial bloqueante por tramas · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Las órdenes por serial dejan de ser un carácter y pasan a ser tramas terminadas en asterisco: se leen con UART1_Read_Text, se buscan palabras con strstr y se extrae un número con strtok y atoi para cambiar la velocidad de un motor.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/qIe58XUi2ow/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 30: recepción serial bloqueante por tramas · Paso a paso">
+  <meta property="og:description" content="Las órdenes por serial dejan de ser un carácter y pasan a ser tramas terminadas en asterisco: se leen con UART1_Read_Text, se buscan palabras con strstr y se extrae un número con strtok y atoi para cambiar la velocidad de un motor.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/qIe58XUi2ow/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/qIe58XUi2ow/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Recibir <span>tramas</span> por el UART</h1>
+    <p class="lead">Lección 30 del curso, continuación de la 29. Cada orden es una trama que termina en *, por ejemplo led1=on*. El micro la lee con UART1_Read_Text, revisa con strstr qué palabras trae y, para la velocidad del motor, separa el número entre el igual y el asterisco y lo convierte con atoi. Las tramas se mandan desde un programa en LabVIEW por puertos virtuales y COMPIM.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=qIe58XUi2ow" target="_blank" rel="noopener">&#9654; Ver el video completo (16:41)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/464.webp" alt="Curso MikroC PRO for PIC, lección 30: recepción serial bloqueante por tramas"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librerías UART, PWM, C_String y Conversions)</li><li>Proteus con PIC16F876A, L293D, motor, leds y COMPIM</li><li>Programa en LabVIEW para mandar las tramas</li><li>Par de puertos seriales virtuales</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Trama</a><a href="#f2">2 · Órdenes</a><a href="#f3">3 · Valores</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Leer la trama</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Por qué tramas</h3><a class="min" href="https://youtu.be/qIe58XUi2ow?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Un solo carácter se puede confundir con ruido. Con una trama la orden es una palabra completa que termina en un carácter fijo, y además puede llevar valores.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Variables</h3><a class="min" href="https://youtu.be/qIe58XUi2ow?t=64" target="_blank" rel="noopener">&#9654; 1:04</a></div><p>Se crean dos arreglos: uno para guardar la trama que llega y otro para procesar partes de ella.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char trama_rx[30];
+char procesa[30];
+char dato_rx;</code></pre></div><div class="uno"><figure class="cap"><a href="img/93.webp" target="_blank"><img src="img/93.webp" alt="Curso MikroC PRO for PIC, lección 30: recepción serial bloqueante por tramas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>UART1_Read_Text</h3><a class="min" href="https://youtu.be/qIe58XUi2ow?t=96" target="_blank" rel="noopener">&#9654; 1:36</a></div><p>La función guarda lo que llegue hasta encontrar el *, o hasta 30 caracteres. Es una lectura que espera, así que el programa se queda ahí hasta que llegue la trama.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// lee la trama hasta que llegue el * o 30 datos
+UART1_Read_Text(trama_rx, &quot;*&quot;, 30);   // semibloqueante</code></pre></div><div class="uno"><figure class="cap"><a href="img/146.webp" target="_blank"><img src="img/146.webp" alt="Curso MikroC PRO for PIC, lección 30: recepción serial bloqueante por tramas" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Interpretar órdenes</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Buscar palabras con strstr</h3><a class="min" href="https://youtu.be/qIe58XUi2ow?t=199" target="_blank" rel="noopener">&#9654; 3:19</a></div><p>Se agrega la librería C_String. <b>strstr</b> dice si una palabra está dentro de la trama: si trae led1 y además on, se prende el led; si no, se apaga. Lo mismo para el led 2.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (strstr(trama_rx, &quot;led1&quot;))     // led1=on*
+{
+  if (strstr(trama_rx, &quot;on&quot;)) led1 = 1;
+  else led1 = 0;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/199.webp" target="_blank"><img src="img/199.webp" alt="Curso MikroC PRO for PIC, lección 30: recepción serial bloqueante por tramas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Probar con LabVIEW</h3><a class="min" href="https://youtu.be/qIe58XUi2ow?t=301" target="_blank" rel="noopener">&#9654; 5:01</a></div><p>Un programa en LabVIEW manda las tramas al presionar botones. En Proteus el COMPIM se conecta a un puerto virtual a 9600. El Virtual Terminal se desconecta de TX porque solo puede transmitir uno.</p><div class="dos"><figure class="cap"><a href="img/411.webp" target="_blank"><img src="img/411.webp" alt="Curso MikroC PRO for PIC, lección 30: recepción serial bloqueante por tramas" loading="lazy"></a></figure><figure class="cap"><a href="img/464.webp" target="_blank"><img src="img/464.webp" alt="Curso MikroC PRO for PIC, lección 30: recepción serial bloqueante por tramas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Órdenes del motor</h3><a class="min" href="https://youtu.be/qIe58XUi2ow?t=539" target="_blank" rel="noopener">&#9654; 8:59</a></div><p>Con la misma idea, otras palabras mandan el motor a la derecha, a la izquierda o lo paran.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>else if (strstr(trama_rx, &quot;m1der&quot;)) m1derecha();
+else if (strstr(trama_rx, &quot;m1izq&quot;)) m1izquierda();
+else if (strstr(trama_rx, &quot;m1stop&quot;)) m1quieto();</code></pre></div><div class="uno"><figure class="cap"><a href="img/570.webp" target="_blank"><img src="img/570.webp" alt="Curso MikroC PRO for PIC, lección 30: recepción serial bloqueante por tramas" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Mandar valores</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Separar el número</h3><a class="min" href="https://youtu.be/qIe58XUi2ow?t=604" target="_blank" rel="noopener">&#9654; 10:04</a></div><p>Para la velocidad llega una trama como m1pwm=90*. LabVIEW ya convierte el 0 a 100 de la perilla a 0 a 255. Con <b>strtok</b> se corta la trama: primero hasta el igual y luego, desde donde quedó (con 0 como primer argumento), hasta el asterisco. Lo que queda es el número en texto.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>else if (strstr(trama_rx, &quot;m1pwm=&quot;))   // m1pwm=90*
+{
+  strcpy(procesa, strtok(trama_rx, &quot;=&quot;));   // inicia captura de tokens desde el =
+  strcpy(procesa, strtok(0, &quot;*&quot;));          // captura hasta el *
+  dato_rx = atoi(procesa);                  // pasa la cadena a numero
+  PWM1_Set_Duty(dato_rx);                   // aplica la velocidad al pwm
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/676.webp" target="_blank"><img src="img/676.webp" alt="Curso MikroC PRO for PIC, lección 30: recepción serial bloqueante por tramas" loading="lazy"></a></figure><figure class="cap"><a href="img/835.webp" target="_blank"><img src="img/835.webp" alt="Curso MikroC PRO for PIC, lección 30: recepción serial bloqueante por tramas" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>atoi y atof</h3><a class="min" href="https://youtu.be/qIe58XUi2ow?t=742" target="_blank" rel="noopener">&#9654; 12:22</a></div><p>El número llega como caracteres. <b>atoi</b>, de la librería Conversions, lo pasa a entero. Si se necesitaran decimales existe atof.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/qIe58XUi2ow?t=841" target="_blank" rel="noopener">&#9654; 14:01</a></div><p>Desde LabVIEW se cambia la velocidad y el sentido del motor y se prenden los leds. Sigue siendo una recepción que espera la trama; con interrupciones el micro podrá hacer otras cosas mientras tanto.</p><div class="uno"><figure class="cap"><a href="img/941.webp" target="_blank"><img src="img/941.webp" alt="Curso MikroC PRO for PIC, lección 30: recepción serial bloqueante por tramas" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=qIe58XUi2ow" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

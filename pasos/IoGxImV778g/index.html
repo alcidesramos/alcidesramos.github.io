@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El programa con interrupciones por timer y por flanco se pasa de un PIC16F876A a un PIC18F4550: vector 0x0008, INT0 en vez de INT, registros del Timer0 que cambian y el Timer0 a 16 bits para lograr un segundo sin variable.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/IoGxImV778g/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F · Paso a paso">
+  <meta property="og:description" content="El programa con interrupciones por timer y por flanco se pasa de un PIC16F876A a un PIC18F4550: vector 0x0008, INT0 en vez de INT, registros del Timer0 que cambian y el Timer0 a 16 bits para lograr un segundo sin variable.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/IoGxImV778g/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/IoGxImV778g/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Pasar las interrupciones a un <span>PIC18F</span></h1>
+    <p class="lead">Lección 34 del curso. Se toma el programa de las lecciones 31 a 33 y se lleva a un PIC18F4550. Hay que mover los leds porque RC4 y RC5 son del USB, cambiar el vector de interrupción a 0x0008 (alta prioridad), renombrar los bits de la interrupción por flanco y del Timer0, poner el puerto digital y prender el Timer0. Al final se aprovecha que el Timer0 del PIC18 puede ser de 16 bits para sacar un segundo directo.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=IoGxImV778g" target="_blank" rel="noopener">&#9654; Ver el video completo (20:05)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/820.webp" alt="Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Hoja de datos del PIC18F4550</li><li>Hoja de Excel para cálculo de timers</li><li>Proteus con PIC18F4550, leds, pulsador y COMPIM</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · PIC18</a><a href="#f2">2 · Código</a><a href="#f3">3 · 16 bits</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Cambiar de micro</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/IoGxImV778g?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>Se cambia el micro en Proteus por un PIC18F4550. RC4 y RC5 son del USB y solo funcionan como entrada, así que los leds pasan a RD5, RD4 y RD3. Se ponen etiquetas TX y RX para el puerto serial.</p><div class="dos"><figure class="cap"><a href="img/105.webp" target="_blank"><img src="img/105.webp" alt="Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F" loading="lazy"></a></figure><figure class="cap"><a href="img/170.webp" target="_blank"><img src="img/170.webp" alt="Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/IoGxImV778g?t=246" target="_blank" rel="noopener">&#9654; 4:06</a></div><p>En Edit Project se cambia el micro a PIC18F4550 a 4 MHz y se actualizan los defines de los leds.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Corregir el código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Vector 0x0008</h3><a class="min" href="https://youtu.be/IoGxImV778g?t=356" target="_blank" rel="noopener">&#9654; 5:56</a></div><p>Al compilar sale error en el vector 0x0004. Los PIC18 tienen dos vectores: alta prioridad en 0x0008 y baja en 0x0018. Para trabajar como en un PIC16 todo va a la alta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void INTERRPCION() iv 0x0008 ics ICS_AUTO</code></pre></div><div class="dos"><figure class="cap"><a href="img/365.webp" target="_blank"><img src="img/365.webp" alt="Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F" loading="lazy"></a></figure><figure class="cap"><a href="img/495.webp" target="_blank"><img src="img/495.webp" alt="Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>INT0 y Timer0</h3><a class="min" href="https://youtu.be/IoGxImV778g?t=459" target="_blank" rel="noopener">&#9654; 7:39</a></div><p>El PIC18 tiene INT0, INT1 e INT2, así que INTF e INTE pasan a INT0IF e INT0IE (se pueden reemplazar con Ctrl+R). El Timer0 puede ser de 16 bits: TMR0 pasa a TMR0L, OPTION_REG a T0CON y los bits del prescalador a T0PS2 a T0PS0. Además el Timer0 se debe prender con TMR0ON.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// timer cero
+T0CON = 0;
+// cargar timer
+TMR0L = 100;
+// prescalador 64, 10 ms
+T0PS2_bit = 1;
+T0PS1_bit = 0;
+T0PS0_bit = 1;
+// INTERRUPCION
+TMR0IF_bit = 0;
+TMR0IE_bit = 1;
+T08BIT_bit = 1;   // trabaja 8 bit
+TMR0ON_bit = 1;   // prende timer 0</code></pre></div><div class="uno"><figure class="cap"><a href="img/625.webp" target="_blank"><img src="img/625.webp" alt="Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Puertos</h3><a class="min" href="https://youtu.be/IoGxImV778g?t=805" target="_blank" rel="noopener">&#9654; 13:25</a></div><p>El puerto D debe quedar como salida para los leds y ADCON1 se ajusta para que los pines sean digitales. El Timer1 y la interrupción por flanco se configuran igual que antes.</p><div class="dos"><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F" loading="lazy"></a></figure><figure class="cap"><a href="img/885.webp" target="_blank"><img src="img/885.webp" alt="Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Timer0 a 8 bits</h3><a class="min" href="https://youtu.be/IoGxImV778g?t=873" target="_blank" rel="noopener">&#9654; 14:33</a></div><p>El bit T08BIT en 1 hace que el Timer0 trabaje a 8 bits como en el PIC16. Con eso el programa funciona igual que en el PIC16F876A.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Timer0 a 16 bits</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Un segundo directo</h3><a class="min" href="https://youtu.be/IoGxImV778g?t=979" target="_blank" rel="noopener">&#9654; 16:19</a></div><p>A 16 bits y con prescalador de hasta 256, el Timer0 llega a un segundo sin variable auxiliar. La hoja de cálculo da prescalador de 16 y valores 11 en TMR0H y 220 en TMR0L. Se carga primero la parte alta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TMR0H = 11;
+TMR0L = 220;
+// prescalador 16, 1 s
+T0PS2_bit = 0;
+T0PS1_bit = 1;
+T0PS0_bit = 1;
+T08BIT_bit = 0;   // trabaja 16 bit</code></pre></div><div class="dos"><figure class="cap"><a href="img/1015.webp" target="_blank"><img src="img/1015.webp" alt="Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F" loading="lazy"></a></figure><figure class="cap"><a href="img/1080.webp" target="_blank"><img src="img/1080.webp" alt="Curso MikroC PRO for PIC, lección 34: interrupciones por timer y flanco en PIC18F" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>En la interrupción</h3><a class="min" href="https://youtu.be/IoGxImV778g?t=1084" target="_blank" rel="noopener">&#9654; 18:04</a></div><p>En la interrupción se recargan los mismos valores y ya no hace falta contar con una variable. El Timer0 da hasta unos 16 segundos y el Timer1 solo medio segundo, así que se elige el timer según el tiempo que se necesite.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (TMR0IF_bit == 1)
+{
+  TMR0H = 11;
+  TMR0L = 220;
+  led2 = ~led2;
+  TMR0IF_bit = 0;
+}</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Siguiente paso</h3><a class="min" href="https://youtu.be/IoGxImV778g?t=1153" target="_blank" rel="noopener">&#9654; 19:13</a></div><p>Aquí todo quedó en alta prioridad, como en un PIC16. Los PIC18 permiten usar alta y baja prioridad al mismo tiempo, tema de la siguiente lección.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=IoGxImV778g" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
