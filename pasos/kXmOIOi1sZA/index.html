@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Una librería para PIC que recibe por interrupción serial las tramas de una pantalla Nextion con inicio IN= y final FF FF FF, y decodifica órdenes puntuales, bytes, números largos, textos y órdenes para arreglos de elementos.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/kXmOIOi1sZA/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones · Paso a paso">
+  <meta property="og:description" content="Una librería para PIC que recibe por interrupción serial las tramas de una pantalla Nextion con inicio IN= y final FF FF FF, y decodifica órdenes puntuales, bytes, números largos, textos y órdenes para arreglos de elementos.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/kXmOIOi1sZA/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/kXmOIOi1sZA/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Recibir órdenes de <span>Nextion</span> por interrupción</h1>
+    <p class="lead">Lección 39 del curso. La librería de Nextion que antes era para dsPIC se pasa a PIC18F4550. La recepción usa una máquina de estados en la interrupción serial con protección contra desbordes por ruido. En la Nextion cada botón manda IN=, la información y FF FF FF. En el PIC se decodifican órdenes como onle1, un byte para el PWM, números de hasta 4 bytes armados según su largo, textos y órdenes con elemento y estado para controlar varios leds.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=kXmOIOi1sZA" target="_blank" rel="noopener">&#9654; Ver el video completo (50:05)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1945.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librerías UART, LCD, PWM, C_String y Conversions)</li><li>Nextion Editor</li><li>Proteus con PIC18F4550, LCD, leds y COMPIM</li><li>Par de puertos seriales virtuales</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Librería</a><a href="#f3">3 · Órdenes</a><a href="#f4">4 · Arreglos</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar el proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto base</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=38" target="_blank" rel="noopener">&#9654; 0:38</a></div><p>Proyecto con PIC18F4550 a 8 MHz. Se configuran TX como salida y RX como entrada, la salida PWM, tres leds y el LCD, y se agregan las librerías de UART, LCD, PWM, C_String y Conversions.</p><div class="uno"><figure class="cap"><a href="img/186.webp" target="_blank"><img src="img/186.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Incluir la librería</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=282" target="_blank" rel="noopener">&#9654; 4:42</a></div><p>Los archivos Nextion.h y Nextion.c se copian a la carpeta del proyecto y se agregan desde el administrador del proyecto.</p><div class="uno"><figure class="cap"><a href="img/311.webp" target="_blank"><img src="img/311.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Máquina de estados</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=314" target="_blank" rel="noopener">&#9654; 5:14</a></div><p>La trama empieza con IN= y termina con tres FF, como las tramas propias de la Nextion. Los tres caracteres de inicio se pueden cambiar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>enum trama_rx_es {inicio1, inicio2, inicio3, fin1, fin2, fin3};
+char nextion_trama_estado = inicio1;   // estado inicial de la maquina de estado
+unsigned char trama_rx_nextion[50];
+unsigned char trama_rx_cont = 0;
+char flag_rx1 = 0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/437.webp" target="_blank"><img src="img/437.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>nextion_init</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=380" target="_blank" rel="noopener">&#9654; 6:20</a></div><p>Inicia el UART a 9600 (en la pantalla real suele usarse 115200), limpia la bandera, habilita la interrupción serial y reinicia la recepción continua.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void nextion_init()
+{
+  UART1_Init(9600);   // inicia la nextion a 9600
+  RCIF_bit = 0;       // limpia bandera recepcion serial
+  RCIE_bit = 1;       // activa la interrupcion de recepcion serial
+  // borra errores de recepcion e inicia recepcion continua
+  CREN_bit = 0;
+  CREN_bit = 1;
+}</code></pre></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Recepción robusta</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=449" target="_blank" rel="noopener">&#9654; 7:29</a></div><p>Si llegan las letras de inicio en orden se avanza; si no, se vuelve al inicio. Entre el = y los FF se guarda todo, y si el contador llega al tamaño del arreglo se vuelve a empezar para que el ruido no desborde la memoria. Al final se agrega un cero para cerrar la cadena, se desactiva la interrupción y se levanta la bandera.</p><div class="uno"><figure class="cap"><a href="img/563.webp" target="_blank"><img src="img/563.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Interrupción y main</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=617" target="_blank" rel="noopener">&#9654; 10:17</a></div><p>La función de interrupción solo llama a nextion_interrupcion. En el main, si la bandera está activa se procesa la trama, se limpian errores, se vuelve a habilitar la interrupción y se baja la bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void interrupciones() iv 0x0008 ics ICS_AUTO
+{
+  nextion_interrupcion();
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/688.webp" target="_blank"><img src="img/688.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/814.webp" target="_blank"><img src="img/814.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Órdenes desde la Nextion</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Orden puntual</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=995" target="_blank" rel="noopener">&#9654; 16:35</a></div><p>En la Nextion un botón de dos estados manda una orden al soltarlo. En el PIC se busca con strstr y se actúa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// en la Nextion
+print &quot;IN=onle1&quot;
+printh ff ff ff
+
+// en el PIC
+if (strstr(trama_rx_nextion, &quot;onle1&quot;)) led1 = 1;
+else if (strstr(trama_rx_nextion, &quot;offle1&quot;)) led1 = 0;</code></pre></div><div class="dos"><figure class="cap"><a href="img/1191.webp" target="_blank"><img src="img/1191.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/1442.webp" target="_blank"><img src="img/1442.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Un byte</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=1197" target="_blank" rel="noopener">&#9654; 19:57</a></div><p>Para valores de 0 a 255 se manda el número como un byte con prints, encerrado entre /. En el PIC se captura con strtok y se saca por el PWM. Se puede usar un número con teclado o un slider.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// en la Nextion
+print &quot;IN=pwm1/&quot;
+prints pwm.val,1   // imprime un solo byte de la variable
+print &quot;/&quot;          // imprime token para encerrar el valor
+printh ff ff ff
+
+// en el PIC
+if (strstr(trama_rx_nextion, &quot;pwm1&quot;))   // analiza la orden
+{
+  strcpy(captura_nextion, strtok(trama_rx_nextion, &quot;/&quot;));
+  strcpy(captura_nextion, strtok(0, &quot;/&quot;));   // captura hasta el 1 dato
+  nextion_var_corta = captura_nextion[0];
+  PWM1_Set_Duty(nextion_var_corta);   // saca el valor capturado
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1317.webp" target="_blank"><img src="img/1317.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/1568.webp" target="_blank"><img src="img/1568.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/1693.webp" target="_blank"><img src="img/1693.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Números largos</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=1702" target="_blank" rel="noopener">&#9654; 28:22</a></div><p>Con prints var1.val,4 la Nextion manda los 4 bytes. Como un byte cero corta la cadena, el largo dice cuántos bytes llegaron y se arma el número multiplicando cada uno por 256, 65536 o 16777216. Luego se muestra en el LCD.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>largo_cap = strlen(captura_nextion);
+switch (largo_cap)
+{
+  case 1:
+    nextion_var_larga = (unsigned long)captura_nextion[0];
+    break;
+  case 2:
+    nextion_var_larga = (unsigned long)captura_nextion[0]
+                      + (unsigned long)captura_nextion[1] * 256;
+    break;
+  case 3:
+    nextion_var_larga = (unsigned long)captura_nextion[0]
+                      + (unsigned long)captura_nextion[1] * 256
+                      + (unsigned long)captura_nextion[2] * 65536;
+    break;
+  // case 4 suma el cuarto byte por 16777216
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1945.webp" target="_blank"><img src="img/1945.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/2070.webp" target="_blank"><img src="img/2070.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Decimales</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=2105" target="_blank" rel="noopener">&#9654; 35:05</a></div><p>Un Xfloat de la Nextion se manda como entero; en el PIC se divide entre 10, 100 o lo que corresponda a los decimales configurados.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Texto</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=2171" target="_blank" rel="noopener">&#9654; 36:11</a></div><p>Con prints texto.txt,10 se mandan hasta 10 caracteres. En el PIC se captura lo que está entre / y se escribe en el LCD.</p><div class="dos"><figure class="cap"><a href="img/2196.webp" target="_blank"><img src="img/2196.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/2322.webp" target="_blank"><img src="img/2322.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Arreglos de elementos</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Orden, elemento y estado</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=2549" target="_blank" rel="noopener">&#9654; 42:29</a></div><p>Para controlar muchos leds o válvulas se manda la orden, el número del elemento y el estado, por ejemplo IN=led/2/1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if (led1.val == 1)
+{
+  print &quot;IN=led/1/1&quot;
+  printh ff ff ff
+}else
+{
+  print &quot;IN=led/1/0&quot;
+  printh ff ff ff
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/2573.webp" target="_blank"><img src="img/2573.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/2699.webp" target="_blank"><img src="img/2699.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Decodificar</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=2766" target="_blank" rel="noopener">&#9654; 46:06</a></div><p>En el PIC se captura la posición y el estado con strtok y atoi, y un switch decide qué elemento cambiar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>else if (strstr(trama_rx_nextion, &quot;led&quot;))
+{
+  strcpy(captura_nextion, strtok(trama_rx_nextion, &quot;/&quot;));
+  strcpy(captura_nextion, strtok(0, &quot;/&quot;));
+  nextion_var = atoi(captura_nextion);         // captura la posicion
+  strcpy(captura_nextion, strtok(0, &quot;/&quot;));
+  nextion_var_corta = atoi(captura_nextion);   // captura el estado
+  switch (nextion_var)
+  {
+    case 1: led1 = nextion_var_corta; break;
+    case 2: led2 = nextion_var_corta; break;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/2824.webp" target="_blank"><img src="img/2824.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/kXmOIOi1sZA?t=2937" target="_blank" rel="noopener">&#9654; 48:57</a></div><p>Desde la Nextion se prenden los leds, se cambia el PWM, se manda un número grande y un texto al LCD, todo recibido por interrupción y con protección contra ruido.</p><div class="uno"><figure class="cap"><a href="img/2950.webp" target="_blank"><img src="img/2950.webp" alt="Curso MikroC PRO for PIC, lección 39: recibir órdenes de una pantalla Nextion con interrupciones" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=kXmOIOi1sZA" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

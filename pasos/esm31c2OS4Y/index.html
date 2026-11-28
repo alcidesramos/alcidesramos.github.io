@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 36: interrupción serial · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="La recepción por UART deja de bloquear el programa: la interrupción RCIF guarda cada byte en un búfer hasta el asterisco y avisa con una bandera para que el programa principal procese la trama.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/esm31c2OS4Y/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 36: interrupción serial · Paso a paso">
+  <meta property="og:description" content="La recepción por UART deja de bloquear el programa: la interrupción RCIF guarda cada byte en un búfer hasta el asterisco y avisa con una bandera para que el programa principal procese la trama.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/esm31c2OS4Y/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/esm31c2OS4Y/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Recibir tramas con <span>interrupción serial</span></h1>
+    <p class="lead">Lección 36 del curso. El programa de las lecciones anteriores leía la trama con UART1_Read_Text y se quedaba esperando. Ahora la interrupción de recepción, en alta prioridad, guarda los bytes en un arreglo con un puntero, detecta el * final, desactiva la interrupción y levanta una bandera. El procesamiento se hace en el programa principal, que luego limpia errores y vuelve a habilitar la recepción.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=esm31c2OS4Y" target="_blank" rel="noopener">&#9654; Ver el video completo (18:59)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/669.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Proteus con PIC18F4550, leds, COMPIM y osciloscopio</li><li>Par de puertos seriales virtuales</li><li>Hercules u otra terminal serial</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · RCIE</a><a href="#f2">2 · Búfer</a><a href="#f3">3 · Procesar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Habilitar la interrupción</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El problema</h3><a class="min" href="https://youtu.be/esm31c2OS4Y?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se agregan tres leds: dos se controlan por serial y otro parpadea en el programa principal. Mientras UART1_Read_Text espera la trama, ese led se queda quieto.</p><div class="dos"><figure class="cap"><a href="img/103.webp" target="_blank"><img src="img/103.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial" loading="lazy"></a></figure><figure class="cap"><a href="img/166.webp" target="_blank"><img src="img/166.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Configurar RC</h3><a class="min" href="https://youtu.be/esm31c2OS4Y?t=165" target="_blank" rel="noopener">&#9654; 2:45</a></div><p>Primero la prioridad, luego se limpia la bandera RCIF y se habilita RCIE. Se recomienda activar también la recepción continua con CREN.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// configuracion int serial
+RCIP_bit = 1;   // alta prioridad
+RCIF_bit = 0;   // limpia la bandera
+RCIE_bit = 1;   // habilita la interrupcion
+CREN_bit = 1;   // habilita la recepcion continua</code></pre></div><div class="uno"><figure class="cap"><a href="img/229.webp" target="_blank"><img src="img/229.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Primera prueba</h3><a class="min" href="https://youtu.be/esm31c2OS4Y?t=238" target="_blank" rel="noopener">&#9654; 3:58</a></div><p>En la función de alta prioridad se pregunta por RCIF, se lee el dato con UART1_Read y se cambia un led. Cada carácter que llega cambia el led.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Guardar la trama</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Búfer y puntero</h3><a class="min" href="https://youtu.be/esm31c2OS4Y?t=494" target="_blank" rel="noopener">&#9654; 8:14</a></div><p>Los datos llegan uno a uno, así que se guardan en un arreglo. Una variable puntero_rx indica en qué posición va.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char trama_rx[100];
+char procesa[100];
+char dato_rx;
+char puntero_rx = 0;   // recorre el vector trama_rx</code></pre></div><div class="uno"><figure class="cap"><a href="img/544.webp" target="_blank"><img src="img/544.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Guardar y detectar el final</h3><a class="min" href="https://youtu.be/esm31c2OS4Y?t=560" target="_blank" rel="noopener">&#9654; 9:20</a></div><p>Cada dato se guarda y el puntero avanza. Si llega al tamaño del arreglo vuelve a cero para no desbordar la RAM. Cuando llega el *, la trama está completa y se desactiva la interrupción serial mientras se procesa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void INTERRPCION_altas() iv 0x0008 ics ICS_AUTO
+{
+  if (RCIF_bit == 1)
+  {
+    dato_rx = UART1_Read();
+    trama_rx[puntero_rx] = dato_rx;   // lo almacena en la trama
+    puntero_rx++;
+    if (puntero_rx &gt;= 100) puntero_rx = 0;
+    if (dato_rx == &#x27;*&#x27;)   // si dato es igual final trama
+    {
+      RCIE_bit = 0;   // deshabilito la int serial
+      flag_rx = 1;
+    }
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/669.webp" target="_blank"><img src="img/669.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial" loading="lazy"></a></figure><figure class="cap"><a href="img/732.webp" target="_blank"><img src="img/732.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Volver a habilitar</h3><a class="min" href="https://youtu.be/esm31c2OS4Y?t=765" target="_blank" rel="noopener">&#9654; 12:45</a></div><p>Después de procesar se limpia la bandera, el puntero vuelve a cero y se habilita otra vez la interrupción. Antes se apaga y prende CREN para borrar errores de recepción y datos que llegaron mientras se procesaba.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>RCIF_bit = 0;
+puntero_rx = 0;
+CREN_bit = 0;   // limpia buffer
+CREN_bit = 1;   // habilitar la recepcion
+RCIE_bit = 1;   // habilita la interrupcion</code></pre></div><div class="uno"><figure class="cap"><a href="img/858.webp" target="_blank"><img src="img/858.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Procesar fuera de la interrupción</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Reentrada</h3><a class="min" href="https://youtu.be/esm31c2OS4Y?t=871" target="_blank" rel="noopener">&#9654; 14:31</a></div><p>Si se procesa dentro de la interrupción y la misma función (aquí PWM1_Set_Duty) también se llama desde el main, MikroC avisa que no permite reentrada. Además una interrupción larga no es recomendable.</p><div class="uno"><figure class="cap"><a href="img/795.webp" target="_blank"><img src="img/795.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Probar</h3><a class="min" href="https://youtu.be/esm31c2OS4Y?t=903" target="_blank" rel="noopener">&#9654; 15:03</a></div><p>El led del main parpadea solo y desde la terminal se prenden y apagan los leds con led1=on* o se cambia el PWM con m1pwm=127*, sin bloquear el programa.</p><div class="dos"><figure class="cap"><a href="img/921.webp" target="_blank"><img src="img/921.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial" loading="lazy"></a></figure><figure class="cap"><a href="img/984.webp" target="_blank"><img src="img/984.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Bandera propia</h3><a class="min" href="https://youtu.be/esm31c2OS4Y?t=1005" target="_blank" rel="noopener">&#9654; 16:45</a></div><p>La forma correcta es que la interrupción solo levante una bandera flag_rx y el programa principal la revise, procese la trama, vuelva a habilitar la recepción y baje la bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+  ledmain = ~ledmain;
+  Delay_ms(500);
+  if (flag_rx == 1)
+  {
+    procesa_rx();
+    RCIF_bit = 0;
+    puntero_rx = 0;
+    CREN_bit = 0;
+    CREN_bit = 1;
+    RCIE_bit = 1;
+    flag_rx = 0;
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1047.webp" target="_blank"><img src="img/1047.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial" loading="lazy"></a></figure><figure class="cap"><a href="img/1110.webp" target="_blank"><img src="img/1110.webp" alt="Curso MikroC PRO for PIC, lección 36: interrupción serial" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=esm31c2OS4Y" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

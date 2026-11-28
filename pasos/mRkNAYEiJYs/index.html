@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Para tramas con inicio y final, como las NMEA de un GPS, la interrupción serial usa una máquina de estados que busca PGGA y guarda hasta el asterisco. Luego se extraen latitud y longitud con strtok y atof.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/mRkNAYEiJYs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS · Paso a paso">
+  <meta property="og:description" content="Para tramas con inicio y final, como las NMEA de un GPS, la interrupción serial usa una máquina de estados que busca PGGA y guarda hasta el asterisco. Luego se extraen latitud y longitud con strtok y atof.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/mRkNAYEiJYs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/mRkNAYEiJYs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Leer un <span>GPS</span> por interrupción serial</h1>
+    <p class="lead">Lección 37 del curso. Se usa el Virtual GPS de Proteus, que manda varias tramas NMEA. Solo interesa la $GPGGA, que trae latitud y longitud. En la interrupción una máquina de estados acepta la trama solo si llegan en orden P, G, G y A, y la guarda hasta el *. En el programa principal se separan los campos, se pasan grados y minutos a grados decimales, se corrige el signo para sur y oeste y se manda el resultado por serial. Al final se enciende un led cuando la posición está dentro de una zona.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=mRkNAYEiJYs" target="_blank" rel="noopener">&#9654; Ver el video completo (18:04)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/400.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librerías UART, C_String, Conversions y sprintf)</li><li>Proteus con PIC18F4550, Virtual GPS y Virtual Terminal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · NMEA</a><a href="#f2">2 · Estados</a><a href="#f3">3 · Posición</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La trama del GPS</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Virtual GPS</h3><a class="min" href="https://youtu.be/mRkNAYEiJYs?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Se pone el Virtual GPS de Proteus con su TX en el RX del micro. Se quitan el motor y el COMPIM para aligerar la simulación.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>La trama GPGGA</h3><a class="min" href="https://youtu.be/mRkNAYEiJYs?t=67" target="_blank" rel="noopener">&#9654; 1:07</a></div><p>El GPS manda varias tramas. En la $GPGGA, entre comas, vienen la latitud con N o S y la longitud con E o W. Toda trama termina en *. Se recomienda estudiar el protocolo NMEA.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Máquina de estados</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Estados</h3><a class="min" href="https://youtu.be/mRkNAYEiJYs?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>Para detectar un inicio de varios caracteres se usa una máquina de estados: capturar P, luego G, otra G, luego A, y después esperar el final.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>enum estados {cap_P, cap_G, cap_G2, cap_A, esp_final};
+char estado_rec = cap_P;   // estado inicial
+
+float grados, minutos;
+float latitud, longitud;
+char texto[30];
+char c_grados[10];   // grados en cadena</code></pre></div><div class="uno"><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>En la interrupción</h3><a class="min" href="https://youtu.be/mRkNAYEiJYs?t=331" target="_blank" rel="noopener">&#9654; 5:31</a></div><p>Cada dato se guarda. Si no es la letra esperada, el puntero vuelve a cero y se regresa al primer estado; si lo es, avanza el puntero y pasa al siguiente. Así se descartan las tramas que no interesan.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>dato_rx = UART1_Read();
+// ANALIZA LOS ESTADOS
+switch (estado_rec)
+{
+  case cap_P:
+    trama_rx[puntero_rx] = dato_rx;
+    if (dato_rx != &#x27;P&#x27;) puntero_rx = 0;   // no fue el dato que me interesa
+    else
+    {
+      puntero_rx++;           // incrementa contador para proximo dato
+      estado_rec = cap_G;     // pasa al estado de capturar la G
+    }
+    break;
+  // cap_G, cap_G2 y cap_A igual, regresando a cap_P si falla
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS" loading="lazy"></a></figure><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Estado final</h3><a class="min" href="https://youtu.be/mRkNAYEiJYs?t=504" target="_blank" rel="noopener">&#9654; 8:24</a></div><p>En el último estado se guarda todo hasta el *. Entonces se vuelve al estado inicial, se desactiva la interrupción serial, el puntero vuelve a cero y se levanta la bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>case esp_final:
+  trama_rx[puntero_rx] = dato_rx;
+  puntero_rx++;
+  if (dato_rx == &#x27;*&#x27;)
+  {
+    RCIE_bit = 0;
+    estado_rec = cap_P;   // regresa al estado inicial
+    puntero_rx = 0;
+    flag_rx = 1;
+  }
+  break;</code></pre></div><div class="uno"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Procesar la posición</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Llamar al proceso</h3><a class="min" href="https://youtu.be/mRkNAYEiJYs?t=537" target="_blank" rel="noopener">&#9654; 8:57</a></div><p>En el programa principal, si la bandera está activa se llama a procesa_GPS y luego se vuelve a habilitar la recepción como en la lección 36.</p><div class="dos"><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS" loading="lazy"></a></figure><figure class="cap"><a href="img/820.webp" target="_blank"><img src="img/820.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Latitud</h3><a class="min" href="https://youtu.be/mRkNAYEiJYs?t=604" target="_blank" rel="noopener">&#9654; 10:04</a></div><p>Con strtok se avanza hasta el campo de la latitud. Los dos primeros caracteres son los grados y el resto los minutos, que se dividen entre 60 y se suman. Si el siguiente campo es S, la latitud se vuelve negativa.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// captura la latitud
+strcpy(procesa, strtok(trama_rx, &quot;,&quot;));
+strcpy(procesa, strtok(0, &quot;,&quot;));   // captura hasta segunda coma
+strcpy(procesa, strtok(0, &quot;,&quot;));   // tercera coma, es decir latitud
+memset(c_grados, 0, 10);            // limpia los grados
+strncpy(c_grados, procesa, 2);      // captura los grados
+grados = atof(c_grados);            // pasa de cadena a flotante
+minutos = atof(&amp;procesa[2]) / 60.0; // lo pasa a grados
+latitud = grados + minutos;
+strcpy(procesa, strtok(0, &quot;,&quot;));   // orientacion o signo de la lat
+if (procesa[0] == &#x27;S&#x27;) latitud = -latitud;
+// ACONDICIONA PARA ENVIAR
+sprintf(texto, &quot;lat=%f\r\n&quot;, latitud);
+UART1_Write_Text(texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS" loading="lazy"></a></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Longitud</h3><a class="min" href="https://youtu.be/mRkNAYEiJYs?t=766" target="_blank" rel="noopener">&#9654; 12:46</a></div><p>La longitud es igual, pero los grados son tres caracteres, así que los minutos empiezan en la posición 3. Si el campo siguiente es W, se vuelve negativa.</p></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Alarma por zona</h3><a class="min" href="https://youtu.be/mRkNAYEiJYs?t=926" target="_blank" rel="noopener">&#9654; 15:26</a></div><p>Con los valores reales de una zona se arma una condición: si la latitud y la longitud están entre los límites, se enciende un led; si no, se apaga. Con números negativos hay que cuidar el sentido de la comparación. Queda de tarea revisar el campo que indica si el dato del GPS es válido.</p><div class="dos"><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS" loading="lazy"></a></figure><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Curso MikroC PRO for PIC, lección 37: interrupción serial para leer un GPS" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=mRkNAYEiJYs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

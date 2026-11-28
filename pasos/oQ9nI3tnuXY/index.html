@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 35: vectores de interrupción de alta y baja prioridad en PIC18F · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Los PIC18 tienen dos vectores de interrupción. Con IPEN se activan las prioridades, cada fuente se asigna a alta o baja con su bit IP y se escriben dos funciones de interrupción, en 0x0008 y en 0x0018.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/oQ9nI3tnuXY/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 35: vectores de interrupción de alta y baja prioridad en PIC18F · Paso a paso">
+  <meta property="og:description" content="Los PIC18 tienen dos vectores de interrupción. Con IPEN se activan las prioridades, cada fuente se asigna a alta o baja con su bit IP y se escriben dos funciones de interrupción, en 0x0008 y en 0x0018.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/oQ9nI3tnuXY/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/oQ9nI3tnuXY/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Interrupciones de <span>alta y baja</span> prioridad</h1>
+    <p class="lead">Lección 35 del curso, continuación de la 34. Allí todo se trabajó en alta prioridad como en un PIC16. Aquí se activa IPEN, con lo que GIE pasa a habilitar las de alta (GIEH) y PEIE las de baja (GIEL). El Timer1 queda en alta, el Timer0 en baja e INT0, que no tiene bit de prioridad, siempre en alta. Luego se agrega INT1 en baja prioridad con un segundo pulsador.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=oQ9nI3tnuXY" target="_blank" rel="noopener">&#9654; Ver el video completo (12:17)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/430.webp" alt="Curso MikroC PRO for PIC, lección 35: vectores de interrupción de alta y baja prioridad en PIC18F"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>Hoja de datos del PIC18F2550/4550</li><li>Proteus con PIC18F4550, pulsadores y leds</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Vectores</a><a href="#f2">2 · Prioridades</a><a href="#f3">3 · INT1</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Dos vectores</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Bits de prioridad</h3><a class="min" href="https://youtu.be/oQ9nI3tnuXY?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>En el diagrama de lógica de interrupciones cada fuente tiene, además de IF e IE, un bit IP: con 1 es de alta prioridad y con 0 de baja. INT0 no tiene IP y siempre es de alta.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>0x0008 y 0x0018</h3><a class="min" href="https://youtu.be/oQ9nI3tnuXY?t=34" target="_blank" rel="noopener">&#9654; 0:34</a></div><p>El vector de alta prioridad está en 0x0008 y el de baja en 0x0018. Una interrupción de baja puede ser interrumpida por una de alta.</p><div class="uno"><figure class="cap"><a href="img/70.webp" target="_blank"><img src="img/70.webp" alt="Curso MikroC PRO for PIC, lección 35: vectores de interrupción de alta y baja prioridad en PIC18F" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>IPEN, GIEH y GIEL</h3><a class="min" href="https://youtu.be/oQ9nI3tnuXY?t=68" target="_blank" rel="noopener">&#9654; 1:08</a></div><p>Con IPEN en 0 el micro funciona como un PIC16. Con IPEN en 1, GIE (GIEH) habilita las de alta prioridad y PEIE (GIEL) las de baja, en lugar de las de periféricos.</p><div class="dos"><figure class="cap"><a href="img/110.webp" target="_blank"><img src="img/110.webp" alt="Curso MikroC PRO for PIC, lección 35: vectores de interrupción de alta y baja prioridad en PIC18F" loading="lazy"></a></figure><figure class="cap"><a href="img/150.webp" target="_blank"><img src="img/150.webp" alt="Curso MikroC PRO for PIC, lección 35: vectores de interrupción de alta y baja prioridad en PIC18F" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar prioridades</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Asignar cada fuente</h3><a class="min" href="https://youtu.be/oQ9nI3tnuXY?t=135" target="_blank" rel="noopener">&#9654; 2:15</a></div><p>Se activa IPEN, se deja INTCON en cero y se asigna la prioridad de cada timer. Antes de GIE se habilitan las bajas con GIEL.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TMR1IP_bit = 1;   // prioridad alta
+TMR0IP_bit = 0;   // prioridad baja
+
+IPEN_bit = 1;   // autoriza prioridades
+GIEL_bit = 1;   // autoriza las bajas
+GIE_bit = 1;    // autoriza las interrupciones altas</code></pre></div><div class="dos"><figure class="cap"><a href="img/270.webp" target="_blank"><img src="img/270.webp" alt="Curso MikroC PRO for PIC, lección 35: vectores de interrupción de alta y baja prioridad en PIC18F" loading="lazy"></a></figure><figure class="cap"><a href="img/430.webp" target="_blank"><img src="img/430.webp" alt="Curso MikroC PRO for PIC, lección 35: vectores de interrupción de alta y baja prioridad en PIC18F" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Función de baja prioridad</h3><a class="min" href="https://youtu.be/oQ9nI3tnuXY?t=314" target="_blank" rel="noopener">&#9654; 5:14</a></div><p>Con el asistente de interrupciones se crea la de baja prioridad, que MikroC ubica en 0x0018. El código del Timer0 se pasa a esa función; el nombre no puede llevar espacios.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void int_bajas() iv 0x0018 ics ICS_AUTO
+{
+  if (TMR0IF_bit == 1)
+  {
+    TMR0H = 11;
+    TMR0L = 220;
+    led2 = ~led2;
+    TMR0IF_bit = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/350.webp" target="_blank"><img src="img/350.webp" alt="Curso MikroC PRO for PIC, lección 35: vectores de interrupción de alta y baja prioridad en PIC18F" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Probar</h3><a class="min" href="https://youtu.be/oQ9nI3tnuXY?t=380" target="_blank" rel="noopener">&#9654; 6:20</a></div><p>Con GIEL en 0 deja de funcionar solo el Timer0, que está en baja; el Timer1 y el pulsador siguen. Si el Timer1 se pasa a baja y su código sigue en la función alta, deja de funcionar: cada fuente debe atenderse en la función de su prioridad.</p></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>INT1 en baja prioridad</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Segundo pulsador</h3><a class="min" href="https://youtu.be/oQ9nI3tnuXY?t=477" target="_blank" rel="noopener">&#9654; 7:57</a></div><p>Se agrega un pulsador en RB1 como entrada y se configura INT1 igual que INT0, pero con su bit de prioridad en 0.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>TRISB1_bit = 1;   // entrada pulsador
+
+// AUTORIZAR INT1
+INT1IF_bit = 0;    // limpia la bandera
+INT1IE_bit = 1;    // autoriza int propia
+INTEDG1_bit = 0;   // flanco de bajada
+INT1IP_bit = 0;    // prioridad baja</code></pre></div><div class="uno"><figure class="cap"><a href="img/590.webp" target="_blank"><img src="img/590.webp" alt="Curso MikroC PRO for PIC, lección 35: vectores de interrupción de alta y baja prioridad en PIC18F" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Resultado</h3><a class="min" href="https://youtu.be/oQ9nI3tnuXY?t=613" target="_blank" rel="noopener">&#9654; 10:13</a></div><p>En baja quedan el Timer0 e INT1, y en alta INT0 y el Timer1. Lo más importante va en alta y lo menos importante en baja.</p><div class="uno"><figure class="cap"><a href="img/670.webp" target="_blank"><img src="img/670.webp" alt="Curso MikroC PRO for PIC, lección 35: vectores de interrupción de alta y baja prioridad en PIC18F" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=oQ9nI3tnuXY" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
