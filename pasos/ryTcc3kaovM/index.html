@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con un dsPIC33FJ32MC202 a 80 MHz se prenden dos LEDs por interrupción: uno con el Timer1 cada 200 ms y otro con los Timer2 y Timer3 unidos en 32 bits cada 4 segundos, mientras el programa principal manda texto por el serial.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/ryTcc3kaovM/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones · Paso a paso">
+  <meta property="og:description" content="Con un dsPIC33FJ32MC202 a 80 MHz se prenden dos LEDs por interrupción: uno con el Timer1 cada 200 ms y otro con los Timer2 y Timer3 unidos en 32 bits cada 4 segundos, mientras el programa principal manda texto por el serial.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/ryTcc3kaovM/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/ryTcc3kaovM/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#dspic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// MikroC para dsPIC · Paso a paso</span>
+    <h1>Timers de 16 y <span>32 bits</span> en dsPIC</h1>
+    <p class="lead">Se arma un programa con tres LEDs: uno lo maneja el while y los otros dos los timers. Primero se configura el PLL para pasar de un cristal de 4 MHz a 80 MHz y se remapea el TX del UART. Luego se repasa en el manual de referencia cómo funcionan las interrupciones del dsPIC: tabla de vectores, una dirección por interrupción, trampas del núcleo, prioridades de 0 a 7 y anidamiento. Con dos librerías se dejan listas las funciones para habilitar y deshabilitar interrupciones y para configurar los timers. Con una hoja de Excel se calculan el PR y el prescaler: 200 ms en el Timer1 de 16 bits y 4 segundos uniendo Timer2 y Timer3 en uno de 32 bits.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=ryTcc3kaovM" target="_blank" rel="noopener">&#9654; Ver el video completo (30:01)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1780.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones"></figure>
+    <ul class="materiales"><li>dsPIC33FJ32MC202 con cristal de 4 MHz (80 MHz con PLL)</li><li>3 LEDs</li><li>MikroC PRO for dsPIC</li><li>Proteus con Virtual Terminal</li><li>Hoja de Excel para calcular PR y prescaler</li><li>Manual de referencia de la familia dsPIC33F</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Base</a><a href="#f2">2 · Interrupciones</a><a href="#f3">3 · Timer1</a><a href="#f4">4 · 32 bits</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto base</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito y proyecto</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El circuito tiene el dsPIC33FJ32MC202, tres LEDs y un terminal serial. En MikroC se crea el proyecto con ese micro a 80 MHz, aunque el cristal es de 4 MHz: el PLL hace la diferencia.</p><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/97.webp" target="_blank"><img src="img/97.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>PLL a 80 MHz y serial</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=138" target="_blank" rel="noopener">&#9654; 2:18</a></div><p>Se configura el PLL como en la clase 1, todo el puerto B como digital y salida, y se remapea el TX del UART al pin RP0. El remapeo se hace entre el desbloqueo y el bloqueo de los pines.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//VELOCIDAD= 4M*M/(N1*N2)= 4M*80/4=80M
+CLKDIVbits.PLLPRE = 0;   // N1 = 2
+CLKDIVbits.PLLPOST = 0;  // N2 = 2
+PLLFBD=78; // selecciona M=80; siempre lo deseado menos 2;
+
+AD1PCFGL=0xffff; // todo digital
+TRISB=0x0;
+LATB=0;
+Unlock_IOLOCK();
+PPS_Mapping(0,_OUTPUT,_U1TX);
+UART1_Init(9600);
+Lock_IOLOCK();</code></pre></div><div class="dos"><figure class="cap"><a href="img/173.webp" target="_blank"><img src="img/173.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/250.webp" target="_blank"><img src="img/250.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>LED del programa principal</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=271" target="_blank" rel="noopener">&#9654; 4:31</a></div><p>El while cambia el LED de RB13 cada 200 ms y manda Procesando por el serial.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>UART1_Write_Text(&quot;INCICIANDO\r\n&quot;);
+while(1){
+  LATB13_bit=!LATB13_bit;
+  Delay_ms(200);
+  UART1_Write_Text(&quot;Procesando\r\n&quot;);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/326.webp" target="_blank"><img src="img/326.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Interrupciones del dsPIC</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Tabla de vectores</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=373" target="_blank" rel="noopener">&#9654; 6:13</a></div><p>A diferencia de los PIC, cada interrupción tiene su propia dirección en la tabla de vectores. Además están las trampas del núcleo: error matemático, falla del oscilador, error de pila o de dirección.</p><div class="dos"><figure class="cap"><a href="img/479.webp" target="_blank"><img src="img/479.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/403.webp" target="_blank"><img src="img/403.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Prioridades y anidamiento</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>Las interrupciones de periféricos tienen prioridad de 0 a 7. Con el anidamiento, una interrupción más importante puede cortar a otra que se está atendiendo; eso se activa o no con un bit de INTCON1.</p><div class="uno"><figure class="cap"><a href="img/556.webp" target="_blank"><img src="img/556.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Librería de interrupciones</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=606" target="_blank" rel="noopener">&#9654; 10:06</a></div><p>La librería Config_Interrupcion.h limpia las trampas del núcleo para que el micro no se bloquee. deshabilita pone la CPU en prioridad 7, más alta que cualquier periférico; habilita la baja a 0 para que pasen todas las que tengan prioridad de 1 en adelante.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void deshabilita(){
+  intcon1.b15=0;
+  IPL3_bit=1;
+  IPL_2_bit=1;
+  IPL_1_bit=1;
+  IPL_0_bit=1;
+  intcon1.b15=1;
+}
+
+void habilita(){
+  //0 habilita interrupciones
+  // ... pone en cero los bits IPL
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/709.webp" target="_blank"><img src="img/709.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Timer1 de 16 bits</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Tipos de timer</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=773" target="_blank" rel="noopener">&#9654; 12:53</a></div><p>El Timer1 es tipo A y admite un cristal de 32 kHz para reloj de tiempo real. Los tipo B y C se pueden unir de a dos (2 con 3, 4 con 5...) para tener timers de 32 bits.</p><div class="uno"><figure class="cap"><a href="img/785.webp" target="_blank"><img src="img/785.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Cálculo con Excel</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=1008" target="_blank" rel="noopener">&#9654; 16:48</a></div><p>En la hoja se pone la frecuencia de 80 MHz y el tiempo deseado, 200 ms. Solo el prescaler de 256 cumple, con PR1 = 31250.</p><div class="uno"><figure class="cap"><a href="img/1015.webp" target="_blank"><img src="img/1015.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Configurar el Timer1</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=1042" target="_blank" rel="noopener">&#9654; 17:22</a></div><p>En Config_timers.h se cargan PR1 y el prescaler, se da prioridad 1, se limpia la bandera, se habilita la interrupción y se prende el timer.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void confi_timer_1(){ //30ms
+  tmr1=0;
+  pr1=31250;
+  t1con=0;
+  //preescalador 256
+  T1CONbits.TCKPS1=1;
+  T1CONbits.TCKPS0=1;
+  //prioridad timer1
+  T1IP_2_bit=0;
+  T1IP_1_bit=0;
+  T1IP_0_bit=1;
+  T1IF_bit=0;
+  T1IE_bit=1;
+  T1CONbits.TON=1;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1168.webp" target="_blank"><img src="img/1168.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Rutina de interrupción</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=1139" target="_blank" rel="noopener">&#9654; 18:59</a></div><p>Con el asistente de interrupciones de MikroC se crea la rutina del Timer1. Dentro se cambia el LED y se limpia la bandera. Ojo: hay que guardar el .h antes de compilar o MikroC no toma los cambios.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void timer1() iv IVT_ADDR_T1INTERRUPT ics ICS_AUTO {
+  tmr1=0;
+  led1=!led1;
+  T1IF_bit=0; // limpia bandera inetrrupcion
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1244.webp" target="_blank"><img src="img/1244.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Timer de 32 bits</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>4 segundos con 32 bits</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=1403" target="_blank" rel="noopener">&#9654; 23:23</a></div><p>Con 16 bits a 80 MHz el máximo ronda los 400 ms. Uniendo Timer2 y Timer3 cualquier prescaler sirve para 4 segundos, y se puede llegar a varios minutos sin variables de conteo.</p><div class="dos"><figure class="cap"><a href="img/1091.webp" target="_blank"><img src="img/1091.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/1321.webp" target="_blank"><img src="img/1321.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Configurar Timer2 + Timer3</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=1469" target="_blank" rel="noopener">&#9654; 24:29</a></div><p>El PR de 32 bits se reparte: la parte alta va al timer impar (PR3) y la baja al par (PR2). El prescaler y el encendido van en el timer par, con el bit de 32 bits activo, pero la interrupción la da el Timer3.</p><div class="dos"><figure class="cap"><a href="img/1397.webp" target="_blank"><img src="img/1397.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/1627.webp" target="_blank"><img src="img/1627.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Interrupción del Timer3</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=1642" target="_blank" rel="noopener">&#9654; 27:22</a></div><p>La rutina se asocia al Timer3: limpia los dos timers, cambia el segundo LED y limpia la bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void timer32_int() iv IVT_ADDR_T3INTERRUPT ics ICS_AUTO {
+  tmr2=0;
+  tmr3=0;
+  led2=!led2;
+  // ... limpia la bandera del Timer3
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1703.webp" target="_blank"><img src="img/1703.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Programa final</h3><a class="min" href="https://youtu.be/ryTcc3kaovM?t=1707" target="_blank" rel="noopener">&#9654; 28:27</a></div><p>El main deshabilita las interrupciones al arrancar, configura los dos timers y las habilita justo antes del while. En la simulación un LED cambia cada 200 ms y el otro cada 4 segundos, sin cargar el programa principal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &quot;Config_timers.h&quot;
+#include &quot;Config_Interrupcion.h&quot;
+// ... configuración de reloj y pines
+confi_timer_1();
+confi_timer_32();
+habilita();
+while(1){
+  LATB13_bit=~LATB13_bit;
+  Delay_ms(200);
+  UART1_Write_Text(&quot;HOLA MUNDO\r\n&quot;);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1550.webp" target="_blank"><img src="img/1550.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure><figure class="cap"><a href="img/1780.webp" target="_blank"><img src="img/1780.webp" alt="Curso de MikroC para dsPIC, clase 2: timers de 16 y 32 bits con interrupciones" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=ryTcc3kaovM" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

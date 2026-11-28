@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso de MikroC para dsPIC, clase 5: módulo input capture · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con los cuatro módulos de captura del dsPIC33FJ32MC202 y un solo timer se leen al mismo tiempo cuatro sensores ultrasónicos, y quedan libres los demás timers.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/IjOaM7vzqqs/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso de MikroC para dsPIC, clase 5: módulo input capture · Paso a paso">
+  <meta property="og:description" content="Con los cuatro módulos de captura del dsPIC33FJ32MC202 y un solo timer se leen al mismo tiempo cuatro sensores ultrasónicos, y quedan libres los demás timers.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/IjOaM7vzqqs/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/IjOaM7vzqqs/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#dspic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// MikroC para dsPIC · Paso a paso</span>
+    <h1>Módulo <span>input capture</span> en dsPIC</h1>
+    <p class="lead">En la clase anterior se usaron tres timers para tres sensores. Ahora el módulo input capture hace lo mismo con un solo timer (Timer2) para cuatro señales. Cada módulo (IC1, IC2, IC7 e IC8) guarda el valor del timer en cada flanco de subida y de bajada; en la interrupción del flanco de bajada se resta la captura anterior, y si el timer desbordó en medio se corrige con PR2. Los cuatro pines de captura son remapeables, así que se ponen en RB2 a RB5. Con prescaler 64 se miden pulsos de hasta unos 100 ms.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=IjOaM7vzqqs" target="_blank" rel="noopener">&#9654; Ver el video completo (26:38)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1512.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture"></figure>
+    <ul class="materiales"><li>dsPIC33FJ32MC202 a 80 MHz</li><li>4 sensores ultrasónicos SRF04 o HC-SR04</li><li>MikroC PRO for dsPIC</li><li>Proteus con Virtual Terminal</li><li>Datasheet y manual de referencia (sección input capture)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Captura</a><a href="#f2">2 · Librería</a><a href="#f3">3 · Interrupciones</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>El módulo de captura</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Cuarto sensor</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=73" target="_blank" rel="noopener">&#9654; 1:13</a></div><p>Se agrega un cuarto sensor al circuito y se etiquetan las entradas ECO1 a ECO4 para llevarlas a pines remapeables (RP2 a RP5).</p><div class="dos"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure><figure class="cap"><a href="img/156.webp" target="_blank"><img src="img/156.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Cuatro canales</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=139" target="_blank" rel="noopener">&#9654; 2:19</a></div><p>El datasheet indica cuatro módulos de captura que pueden capturar en flanco de subida, de bajada o en ambos. Curiosamente se llaman IC1, IC2, IC7 e IC8.</p><div class="uno"><figure class="cap"><a href="img/223.webp" target="_blank"><img src="img/223.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Registro ICxCON</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=242" target="_blank" rel="noopener">&#9654; 4:02</a></div><p>El bit ICTMR elige el timer: 1 para Timer2 y 0 para Timer3. Los bits ICM en 0b001 capturan en cada flanco, que es lo que se necesita para medir un ancho de pulso.</p><div class="uno"><figure class="cap"><a href="img/291.webp" target="_blank"><img src="img/291.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>La librería</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Agregar los archivos</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=313" target="_blank" rel="noopener">&#9654; 5:13</a></div><p>Se quita la configuración de la clase anterior, se define el prescaler en 64 y se agrega al proyecto config_Input_capture_33f_util con su .h y su .c.</p><div class="dos"><figure class="cap"><a href="img/359.webp" target="_blank"><img src="img/359.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure><figure class="cap"><a href="img/495.webp" target="_blank"><img src="img/495.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Variables externas</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=475" target="_blank" rel="noopener">&#9654; 7:55</a></div><p>Las variables de pulso y los pines de entrada se declaran en el programa principal y en la librería van como extern. Para cada canal hay dos capturas: la anterior y la actual.</p><div class="dos"><figure class="cap"><a href="img/427.webp" target="_blank"><img src="img/427.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure><figure class="cap"><a href="img/563.webp" target="_blank"><img src="img/563.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Timer2 y módulos</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=757" target="_blank" rel="noopener">&#9654; 12:37</a></div><p>El Timer2 cuenta hasta 65535 con prescaler 64, unos 100 ms. Luego se limpian los cuatro módulos, se asocian al Timer2, se pone captura en cada flanco, se habilitan sus interrupciones y se les da prioridad 3.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern unsigned int pulso_1,pulso_2,pulso_3,pulso_4;
+extern sfr sbit in_pulso_1;
+// ... in_pulso_2 a in_pulso_4
+unsigned int pul1_1=0,pul1_2=0;
+// ... pul2_x, pul3_x, pul4_x
+
+void confi_timer_2(){
+  //configuracion timer 2
+  //100ms
+  tmr2=0;
+  pr2=65535;
+  t2con=0;
+  //preescalador 64
+  t2con.b5=1;
+  t2con.b4=0;
+  T2CONbits.TON=1; //prendo
+}
+
+void config_inputcapure(){
+  confi_timer_2();
+  IC1CON=IC2CON=IC7CON=IC8CON=0; //limpia registo
+  ICTMR_IC1CON_bit=ICTMR_IC2CON_bit=ICTMR_IC7CON_bit=ICTMR_IC8CON_bit=1; //1=timer 2 es la fuente de reloj 0= timer 3
+  //  Captura cada flanco de subida o bajada
+  IC1CONbits.ICM=IC2CONbits.ICM=IC7CONbits.ICM=IC8CONbits.ICM=0b001;
+  //habilita la interrupcion
+  IC1IF_bit=IC2IF_bit=IC7IF_bit=IC8IF_bit=0;
+  IC1IE_bit=IC2IE_bit=IC7IE_bit=IC8IE_bit=1;
+  //Prioridad de la interrupcion
+  IC1IP_2_bit=IC2IP_2_bit=IC7IP_2_bit=IC8IP_2_bit=0;
+  IC1IP_1_bit=IC2IP_1_bit=IC7IP_1_bit=IC8IP_1_bit=1;
+  IC1IP_0_bit=IC2IP_0_bit=IC7IP_0_bit=IC8IP_0_bit=1;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/698.webp" target="_blank"><img src="img/698.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure><figure class="cap"><a href="img/766.webp" target="_blank"><img src="img/766.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure><figure class="cap"><a href="img/902.webp" target="_blank"><img src="img/902.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Interrupciones de captura</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Restar capturas</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=935" target="_blank" rel="noopener">&#9654; 15:35</a></div><p>En cada interrupción se lee ICxBUF. Si el pin ya está en cero, fue el flanco de bajada: el ancho es la captura actual menos la anterior.</p><div class="uno"><figure class="cap"><a href="img/970.webp" target="_blank"><img src="img/970.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Desborde del timer</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=1004" target="_blank" rel="noopener">&#9654; 16:44</a></div><p>Si la resta da negativa es porque el timer pasó por cero entre las dos capturas. En ese caso se suma lo que faltaba hasta PR2.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void INTIC1() iv IVT_ADDR_IC1INTERRUPT ics ICS_AUTO {
+  pul1_2=IC1BUF;
+  if (in_pulso_1==0) {
+    //Para medir ancho de pulso
+    if (pul1_2&gt;pul1_1) pulso_1=(pul1_2-pul1_1);
+    else pulso_1=(PR2 - pul1_1) + pul1_2;   //desborde del timer
+  }
+  pul1_1=pul1_2;
+  IC1IF_bit=0; // limpia la bandera
+}
+// ... igual para IC2, IC7 (pulso_3) e IC8 (pulso_4)</code></pre></div><div class="dos"><figure class="cap"><a href="img/1105.webp" target="_blank"><img src="img/1105.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure><figure class="cap"><a href="img/1173.webp" target="_blank"><img src="img/1173.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Los otros canales</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=1170" target="_blank" rel="noopener">&#9654; 19:30</a></div><p>Se repite la rutina para IC2, IC7 e IC8, cada una con sus variables. Al compilar sale un error de llaves que se corrige.</p><div class="uno"><figure class="cap"><a href="img/1241.webp" target="_blank"><img src="img/1241.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Llamar la configuración</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=1268" target="_blank" rel="noopener">&#9654; 21:08</a></div><p>En el main se llama config_inputcapure antes del while. Las distancias se calculan igual que en la clase 4, ahora con pulso_1 a pulso_4.</p><div class="uno"><figure class="cap"><a href="img/1444.webp" target="_blank"><img src="img/1444.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Remapear las entradas</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=1302" target="_blank" rel="noopener">&#9654; 21:42</a></div><p>Al principio no mide nada: falta remapear los pines de captura. Se asignan IC1, IC2, IC7 e IC8 a RP2, RP3, RP4 y RP5 con PPS_Mapping.</p><div class="uno"><figure class="cap"><a href="img/1309.webp" target="_blank"><img src="img/1309.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Cuatro sensores</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=1339" target="_blank" rel="noopener">&#9654; 22:19</a></div><p>El terminal muestra las cuatro distancias. Dos salían iguales por un error en la trama (se imprimía la misma variable dos veces); corregido eso, los cuatro sensores responden por separado.</p><div class="dos"><figure class="cap"><a href="img/1377.webp" target="_blank"><img src="img/1377.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure><figure class="cap"><a href="img/1512.webp" target="_blank"><img src="img/1512.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.4</span><h3>Para qué sirve</h3><a class="min" href="https://youtu.be/IjOaM7vzqqs?t=1524" target="_blank" rel="noopener">&#9654; 25:24</a></div><p>Con un solo timer se leen cuatro señales en paralelo y quedan timers libres. Lo mismo serviría para leer el receptor de un radio control y manejar los motores de un vehículo o un dron propio.</p><div class="uno"><figure class="cap"><a href="img/1580.webp" target="_blank"><img src="img/1580.webp" alt="Curso de MikroC para dsPIC, clase 5: módulo input capture" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=IjOaM7vzqqs" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

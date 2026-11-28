@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manejo de 8 servos con un solo timer en CCS · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="La librería de MikroC para mover 8 servos con el Timer1 se pasa al compilador CCS con un PIC16F877A: proyecto con el asistente, tipos de 16 bits, interrupción del timer y comparación de memoria.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/Mfv4yIHB7u8/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Manejo de 8 servos con un solo timer en CCS · Paso a paso">
+  <meta property="og:description" content="La librería de MikroC para mover 8 servos con el Timer1 se pasa al compilador CCS con un PIC16F877A: proyecto con el asistente, tipos de 16 bits, interrupción del timer y comparación de memoria.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/Mfv4yIHB7u8/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/Mfv4yIHB7u8/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-ccs">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con CCS · Paso a paso</span>
+    <h1>Ocho <span>servos</span> con CCS</h1>
+    <p class="lead">Un usuario pidió llevar a CCS el programa de 8 servos que antes se hizo en MikroC. Se crea el proyecto con el asistente de CCS (PIC16F877A a 4 MHz, Timer1 con prescaler 1 y su interrupción, pines de los servos en los puertos B y C). Luego se adapta la librería: en CCS el int es de 8 bits, así que las variables pasan a int16 e int32; los valores del timer se cargan directo con set_timer1 porque una variable temporal dentro de la interrupción daba retardos, y las constantes se vuelven variables normales porque CCS no dejaba usarlas igual que MikroC. Al final se simula en Proteus con el osciloscopio y se compara cuánta memoria gasta cada compilador.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=Mfv4yIHB7u8" target="_blank" rel="noopener">&#9654; Ver el video completo (16:41)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/815.webp" alt="Manejo de 8 servos con un solo timer en CCS"></figure>
+    <ul class="materiales"><li>PIC16F877A con cristal de 4 MHz</li><li>8 servomotores (simulados)</li><li>Compilador CCS (PCM)</li><li>Proteus con osciloscopio</li><li>Librería de servos hecha antes en MikroC</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Librería</a><a href="#f3">3 · Programa</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto con el asistente</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/Mfv4yIHB7u8?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Es el mismo montaje del video de MikroC: un PIC16F877A con ocho servos, seis en RB0 a RB5 y dos en RC0 y RC1. La idea es ver qué cambia al pasar el código a CCS.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Timer1 e interrupción</h3><a class="min" href="https://youtu.be/Mfv4yIHB7u8?t=165" target="_blank" rel="noopener">&#9654; 2:45</a></div><p>En el asistente se elige el PIC16F877A a 4 MHz y se habilita el Timer1 con prescaler 1: cada paso es 1 µs y desborda en unos 65,5 ms. También se marca la interrupción del Timer1.</p><div class="uno"><figure class="cap"><a href="img/190.webp" target="_blank"><img src="img/190.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Pines de salida</h3><a class="min" href="https://youtu.be/Mfv4yIHB7u8?t=235" target="_blank" rel="noopener">&#9654; 3:55</a></div><p>En la pestaña de entradas y salidas se ponen como salida RB0 a RB5 y RC0, RC1, y se les da nombre. El asistente guarda todo en un archivo .h.</p><div class="uno"><figure class="cap"><a href="img/247.webp" target="_blank"><img src="img/247.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>El archivo .h que crea CCS</h3><a class="min" href="https://youtu.be/Mfv4yIHB7u8?t=292" target="_blank" rel="noopener">&#9654; 4:52</a></div><p>El .h trae el micro, el cristal, los pines fijos y los nombres de los servos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &lt;16F877A.h&gt;
+#device ADC=10
+#use delay(crystal=4MHz)
+#use FIXED_IO( B_outputs=PIN_B5,PIN_B4,PIN_B3,PIN_B2,PIN_B1,PIN_B0 )
+#use FIXED_IO( C_outputs=PIN_C1,PIN_C0 )
+#define SERVO1 PIN_B0
+// ... SERVO2 a SERVO6 en PIN_B1 a PIN_B5
+#define SERVO7 PIN_C0
+#define SERVO8 PIN_C1</code></pre></div><div class="uno"><figure class="cap"><a href="img/304.webp" target="_blank"><img src="img/304.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Pasar la librería a CCS</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Tipos de datos distintos</h3><a class="min" href="https://youtu.be/Mfv4yIHB7u8?t=362" target="_blank" rel="noopener">&#9654; 6:02</a></div><p>En MikroC las variables eran unsigned int de 16 bits. En CCS el int es de 8 bits, el long de 16 y el long long de 32, así que todas se cambian a int16 e int32.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>int16 servos[8];
+const int32 cristal=4000; //colocar e valor del cristal en kiloHZ
+float tmr1_reg=65536.0 -((cristal*2.5)/(4.0));
+float tmr1_reg_ini=65536.0 -((cristal*1.5)/(4.0));
+int16 tmr1_1_5ms=tmr1_reg_ini;
+int16 tmr1_2_5ms=tmr1_reg;
+int32 tmr1_periodo=65536+ tmr1_2_5ms;</code></pre></div><div class="dos"><figure class="cap"><a href="img/417.webp" target="_blank"><img src="img/417.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure><figure class="cap"><a href="img/361.webp" target="_blank"><img src="img/361.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Arranque de la librería</h3><a class="min" href="https://youtu.be/Mfv4yIHB7u8?t=437" target="_blank" rel="noopener">&#9654; 7:17</a></div><p>init_servos recibe el pulso mínimo y máximo en milisegundos, calcula la pendiente para pasar de grados a tiempo y pone todos los pines en cero con output_bit.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void init_servos(float pwm_min_,float pwm_max_){
+  if(pwm_max_&gt;=2.5) pwm_max_=2.49;
+  _m=(pwm_max_-pwm_min_)/180.0;
+  pwm_min=pwm_min_;
+  //COLOC LOS PINES EN CERO
+  output_bit(SERVO1,0);
+  // ... igual para SERVO2 a SERVO8
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/474.webp" target="_blank"><img src="img/474.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>La máquina de estados</h3><a class="min" href="https://youtu.be/Mfv4yIHB7u8?t=475" target="_blank" rel="noopener">&#9654; 7:55</a></div><p>Cada interrupción sube o baja un servo. En MikroC el valor del timer pasaba por una variable temporal, pero en CCS eso metía retardos dentro de la interrupción, así que se carga directo con set_timer1.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>case hi_1: {
+  output_bit(SERVO1,1);
+  set_timer1(servos[0]);
+  estado_servos=lo_1;
+}break;
+case lo_1: {
+  output_bit(SERVO1,0);
+  set_timer1(tmr1_periodo-servos[0]);
+  estado_servos=hi_2;
+}break;
+// ... igual hasta hi_8 / lo_8</code></pre></div><div class="uno"><figure class="cap"><a href="img/531.webp" target="_blank"><img src="img/531.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Programa principal y prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Interrupción y main</h3><a class="min" href="https://youtu.be/Mfv4yIHB7u8?t=572" target="_blank" rel="noopener">&#9654; 9:32</a></div><p>La interrupción del Timer1 solo llama a servos_interrupcion. En el main se ponen los puertos como salida, se configura el timer con prescaler 1, se inicia la librería entre 0,5 y 2,5 ms y se habilitan las interrupciones. El while es el mismo del programa de MikroC: un servo_valor por cada servo.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#include &lt;servoscc.h&gt;
+#include &lt;Servos_T1.h&gt; //incluye la libreroa de servo
+
+#INT_TIMER1
+void TIMER1_isr(void){
+  servos_interrupcion();
+}
+
+void main(){
+  //salida port b y c
+  set_tris_b(0);
+  set_tris_c(0);
+  output_c(0);
+  setup_timer_1(T1_INTERNAL|T1_DIV_BY_1); //65,5 ms overflow
+  init_servos(0.5,2.5);
+  set_timer1(0);
+  enable_interrupts(INT_TIMER1);
+  clear_interrupt(INT_TIMER1);
+  enable_interrupts(GLOBAL);
+  while(TRUE){
+    // servo_valor(...) para cada servo, igual que en MikroC
+  }
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/644.webp" target="_blank"><img src="img/644.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure><figure class="cap"><a href="img/701.webp" target="_blank"><img src="img/701.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Constantes como variables</h3><a class="min" href="https://youtu.be/Mfv4yIHB7u8?t=822" target="_blank" rel="noopener">&#9654; 13:42</a></div><p>En MikroC algunos valores eran constantes para guardarlos en la memoria de programa. CCS daba conflictos con eso, así que se dejan como variables normales en RAM.</p><div class="uno"><figure class="cap"><a href="img/758.webp" target="_blank"><img src="img/758.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Simulación</h3><a class="min" href="https://youtu.be/Mfv4yIHB7u8?t=856" target="_blank" rel="noopener">&#9654; 14:16</a></div><p>En el osciloscopio de Proteus salen las señales de los servos. Si un servo no llega al ángulo exacto, se ajustan los límites de init_servos, por ejemplo 0,6 y 2,4 ms.</p><div class="uno"><figure class="cap"><a href="img/815.webp" target="_blank"><img src="img/815.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>MikroC contra CCS</h3><a class="min" href="https://youtu.be/Mfv4yIHB7u8?t=910" target="_blank" rel="noopener">&#9654; 15:10</a></div><p>En las estadísticas, CCS usa cerca del 25 % de la RAM y MikroC el 12,5 %. CCS trabaja con funciones ya hechas para cada periférico, y eso suele gastar algo más de memoria que escribir en los registros directamente.</p><div class="dos"><figure class="cap"><a href="img/928.webp" target="_blank"><img src="img/928.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure><figure class="cap"><a href="img/985.webp" target="_blank"><img src="img/985.webp" alt="Manejo de 8 servos con un solo timer en CCS" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=Mfv4yIHB7u8" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

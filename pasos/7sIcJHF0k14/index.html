@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recepción serial por tramas con detección de línea libre en CCS · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se recibe una trama serial de largo variable en CCS con un PIC18F2550: cada byte reinicia el Timer0 y, cuando la línea queda libre unos 8 ms, se procesa la trama y se busca el comando led=on.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/7sIcJHF0k14/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Recepción serial por tramas con detección de línea libre en CCS · Paso a paso">
+  <meta property="og:description" content="Se recibe una trama serial de largo variable en CCS con un PIC18F2550: cada byte reinicia el Timer0 y, cuando la línea queda libre unos 8 ms, se procesa la trama y se busca el comando led=on.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/7sIcJHF0k14/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/7sIcJHF0k14/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-ccs">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con CCS · Paso a paso</span>
+    <h1>UART <span>idle line</span> en CCS</h1>
+    <p class="lead">Es el mismo método de línea libre (idle line) hecho antes en MikroC, ahora en CCS. La interrupción serial guarda cada byte en un arreglo y reinicia el Timer0; si el timer alcanza a desbordar es porque no llegaron más datos, entonces se marca la trama como completa y se apaga la recepción. En el while se imprime la trama, se busca el texto led= y luego on para prender o apagar un LED, se limpia el buffer y se vuelve a habilitar la recepción. Se prueba en Proteus con el terminal Hercules y se compara la memoria con MikroC.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=7sIcJHF0k14" target="_blank" rel="noopener">&#9654; Ver el video completo (10:37)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/585.webp" alt="Recepción serial por tramas con detección de línea libre en CCS"></figure>
+    <ul class="materiales"><li>PIC18F2550 con cristal de 4 MHz</li><li>2 LEDs (RC0 parpadeo, RC1 comando)</li><li>Compilador CCS</li><li>Proteus con COMPIM</li><li>Terminal serial Hercules y puertos virtuales</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Código</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Micro y cristal</h3><a class="min" href="https://youtu.be/7sIcJHF0k14?t=60" target="_blank" rel="noopener">&#9654; 1:00</a></div><p>Con el asistente de CCS se elige el PIC18F2550 con cristal de 4 MHz.</p><div class="uno"><figure class="cap"><a href="img/91.webp" target="_blank"><img src="img/91.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Timer0 de 8 bits</h3><a class="min" href="https://youtu.be/7sIcJHF0k14?t=110" target="_blank" rel="noopener">&#9654; 1:50</a></div><p>El Timer0 se configura interno, de 8 bits y con prescaler 32: desborda en unos 8,1 ms. Ese es el tiempo de silencio que marca el fin de una trama a 9600 baudios.</p><div class="uno"><figure class="cap"><a href="img/126.webp" target="_blank"><img src="img/126.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Interrupciones</h3><a class="min" href="https://youtu.be/7sIcJHF0k14?t=150" target="_blank" rel="noopener">&#9654; 2:30</a></div><p>Se habilitan la interrupción del Timer0 y la de recepción serial (RDA).</p><div class="uno"><figure class="cap"><a href="img/161.webp" target="_blank"><img src="img/161.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Código</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Variables</h3><a class="min" href="https://youtu.be/7sIcJHF0k14?t=180" target="_blank" rel="noopener">&#9654; 3:00</a></div><p>Se incluyen stdio.h y string.h y se declara el arreglo de la trama, un texto auxiliar, el contador y la bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>//#device PASS_STRINGS=IN_RAM
+#include &lt;uartlinemain.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+char trama_rx[50];
+char texto[20];
+char cont_trama=0;
+char flag_rx=0;
+char dato_rx;</code></pre></div><div class="uno"><figure class="cap"><a href="img/196.webp" target="_blank"><img src="img/196.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Interrupción serial</h3><a class="min" href="https://youtu.be/7sIcJHF0k14?t=225" target="_blank" rel="noopener">&#9654; 3:45</a></div><p>Cada byte se guarda en el arreglo y se reinicia el Timer0. Mientras sigan llegando datos, el timer nunca alcanza a desbordar.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#INT_RDA
+void RDA_isr(void){
+  dato_rx=getc();
+  trama_rx[cont_trama]=dato_rx;
+  cont_trama++;
+  if (cont_trama&gt;=50) cont_trama=0;
+  set_timer0(0);
+  setup_timer_0(RTCC_INTERNAL|RTCC_DIV_32|RTCC_8_BIT);
+  clear_interrupt(INT_TIMER0);
+  enable_interrupts(INT_TIMER0);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/232.webp" target="_blank"><img src="img/232.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure><figure class="cap"><a href="img/302.webp" target="_blank"><img src="img/302.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Fin de trama por Timer0</h3><a class="min" href="https://youtu.be/7sIcJHF0k14?t=300" target="_blank" rel="noopener">&#9654; 5:00</a></div><p>Si el Timer0 desborda, la línea quedó libre: se levanta la bandera, se reinicia el contador y se apagan la recepción y el timer hasta procesar la trama.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#INT_TIMER0
+void TIMER0_isr(void){
+  flag_rx=1;
+  cont_trama=0;
+  disable_interrupts(INT_RDA);
+  disable_interrupts(INT_TIMER0);
+  setup_timer_0(T0_OFF);
+  clear_interrupt(INT_TIMER0);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/338.webp" target="_blank"><img src="img/338.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Procesar el comando</h3><a class="min" href="https://youtu.be/7sIcJHF0k14?t=370" target="_blank" rel="noopener">&#9654; 6:10</a></div><p>En el while se imprime la trama y se busca led= y luego on. CCS guarda las constantes en ROM, así que strstr no acepta el texto directo: primero se copia a una cadena en RAM con strcpy. Al final se limpia el buffer y se vuelve a habilitar la recepción.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>setup_adc_ports(NO_ANALOGS, VSS_VDD);
+// setup_timer_0(...) como en el asistente
+enable_interrupts(INT_RDA);
+enable_interrupts(GLOBAL);
+printf(&quot;INICIANDO\r\n&quot;);
+
+while(TRUE){
+  if(flag_rx==1){
+    cont_trama=0;
+    printf(trama_rx);
+    strcpy(texto,&quot;led=&quot;);
+    if(strstr(trama_rx,texto)){
+      strcpy(texto,&quot;on&quot;);
+      if(strstr(trama_rx,texto)) output_bit(PIN_C1,1);
+      else output_bit(PIN_C1,0);
+    }
+    memset(trama_rx,0,50);
+    clear_interrupt(INT_RDA);
+    enable_interrupts(INT_RDA);
+    flag_rx=0;
+  }
+  output_toggle(PIN_C0);
+  delay_ms(300);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/373.webp" target="_blank"><img src="img/373.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure><figure class="cap"><a href="img/408.webp" target="_blank"><img src="img/408.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba y comparación</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Comparación con MikroC</h3><a class="min" href="https://youtu.be/7sIcJHF0k14?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>El programa de MikroC hace lo mismo escribiendo en los registros. En memoria, CCS usa 6 % de RAM y 2 % de ROM; MikroC, 4,3 % de RAM y 2,7 % de ROM.</p><div class="dos"><figure class="cap"><a href="img/479.webp" target="_blank"><img src="img/479.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure><figure class="cap"><a href="img/514.webp" target="_blank"><img src="img/514.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Simulación con Hercules</h3><a class="min" href="https://youtu.be/7sIcJHF0k14?t=560" target="_blank" rel="noopener">&#9654; 9:20</a></div><p>Desde Hercules se mandan tramas de cualquier largo. El micro devuelve la trama completa y con led=on o led=off prende o apaga el LED, mientras el otro LED sigue parpadeando.</p><div class="dos"><figure class="cap"><a href="img/585.webp" target="_blank"><img src="img/585.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure><figure class="cap"><a href="img/620.webp" target="_blank"><img src="img/620.webp" alt="Recepción serial por tramas con detección de línea libre en CCS" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=7sIcJHF0k14" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

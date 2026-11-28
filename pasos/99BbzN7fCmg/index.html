@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con los timers en modo TGATE de la clase anterior se leen al mismo tiempo tres sensores ultrasónicos: un solo pulso de disparo y tres anchos de pulso medidos por hardware, pasados a centímetros.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/99BbzN7fCmg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo · Paso a paso">
+  <meta property="og:description" content="Con los timers en modo TGATE de la clase anterior se leen al mismo tiempo tres sensores ultrasónicos: un solo pulso de disparo y tres anchos de pulso medidos por hardware, pasados a centímetros.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/99BbzN7fCmg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/99BbzN7fCmg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#dspic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// MikroC para dsPIC · Paso a paso</span>
+    <h1>Tres <span>HC-SR04</span> a la vez con dsPIC</h1>
+    <p class="lead">Es la aplicación de la clase 3. Un pin (RA1) da el pulso de disparo de 10 µs a los tres sensores a la vez, y cada eco entra a un timer: T1CK fijo y T2CK y T3CK remapeados a RB3 y RB5. Como el eco de 4 metros de ida y vuelta tarda unos 23 ms, se configura el timer para medir hasta 50 ms con prescaler 64. La distancia sale de dividir el tiempo entre 58 µs por centímetro. Un error común: si no se fuerza el cálculo a float, el compilador lo hace con enteros y la medida sale mal.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=99BbzN7fCmg" target="_blank" rel="noopener">&#9654; Ver el video completo (9:10)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/505.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo"></figure>
+    <ul class="materiales"><li>dsPIC33FJ32MC202 a 80 MHz</li><li>3 sensores ultrasónicos HC-SR04 o SRF04</li><li>MikroC PRO for dsPIC</li><li>Proteus con Virtual Terminal</li><li>Hoja de Excel de cálculo de timers</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Montaje</a><a href="#f2">2 · Distancia</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Montaje y tiempos</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito</h3><a class="min" href="https://youtu.be/99BbzN7fCmg?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Los tres sensores comparten el disparo por RA1. Los ecos van a T1CK y a los pines RB3 y RB5, que se remapean a T2CK y T3CK.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Pin de disparo</h3><a class="min" href="https://youtu.be/99BbzN7fCmg?t=31" target="_blank" rel="noopener">&#9654; 0:31</a></div><p>Se declara el pin de disparo con sbit y el puerto A como salida, salvo la entrada T1CK.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>sbit disparo at LATA1_bit;
+
+unsigned int pwm_in1,pwm_in2,pwm_in3;
+float ancho1,ancho2,ancho3;
+float dis1,dis2,dis3;
+char texto[50];</code></pre></div><div class="uno"><figure class="cap"><a href="img/202.webp" target="_blank"><img src="img/202.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Tiempo máximo del eco</h3><a class="min" href="https://youtu.be/99BbzN7fCmg?t=65" target="_blank" rel="noopener">&#9654; 1:05</a></div><p>El sonido va a 340 m/s. Para 4 metros de ida y 4 de regreso tarda unos 23 ms, así que se mide hasta 50 ms, entre 1,5 y 2 veces ese valor.</p><div class="dos"><figure class="cap"><a href="img/81.webp" target="_blank"><img src="img/81.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure><figure class="cap"><a href="img/111.webp" target="_blank"><img src="img/111.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Prescaler 64</h3><a class="min" href="https://youtu.be/99BbzN7fCmg?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><p>Para 50 ms la hoja de Excel da prescaler 64 con PR = 31250. Se cambian esos valores y el define del prescaler en Config_timer_frec.h.</p><div class="dos"><figure class="cap"><a href="img/141.webp" target="_blank"><img src="img/141.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure><figure class="cap"><a href="img/171.webp" target="_blank"><img src="img/171.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Distancia</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>De tiempo a centímetros</h3><a class="min" href="https://youtu.be/99BbzN7fCmg?t=198" target="_blank" rel="noopener">&#9654; 3:18</a></div><p>El sensor entrega 58 µs por centímetro, así que la distancia es el ancho del pulso dividido entre 58e-6. Se cambia la trama para mostrar las tres distancias con un decimal.</p><div class="dos"><figure class="cap"><a href="img/262.webp" target="_blank"><img src="img/262.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure><figure class="cap"><a href="img/323.webp" target="_blank"><img src="img/323.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>El disparo</h3><a class="min" href="https://youtu.be/99BbzN7fCmg?t=337" target="_blank" rel="noopener">&#9654; 5:37</a></div><p>Faltaba disparar: un pulso de 10 µs en RA1 arranca los tres sensores al mismo tiempo.</p><div class="uno"><figure class="cap"><a href="img/384.webp" target="_blank"><img src="img/384.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Cálculo en float</h3><a class="min" href="https://youtu.be/99BbzN7fCmg?t=402" target="_blank" rel="noopener">&#9654; 6:42</a></div><p>Con enteros el compilador redondea y la distancia sale mal. Hay que forzar el cálculo con (float) en la cuenta y en el prescaler.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>disparo=0;
+Delay_us(10);
+disparo=1;
+LATB13_bit=!LATB13_bit;
+Delay_ms(200);
+
+ancho1=((float)pwm_in1*(float)prescalador)/40e6;  // 40 es la velocidad de operacion/2
+dis1=ancho1/58e-6;
+// ... igual para ancho2/dis2 y ancho3/dis3
+
+sprintf(texto,&quot;dis1=%.1fcm   dis2=%.1fcm   dis3=%.1fcm\r\n&quot;, dis1,dis2,dis3);
+UART1_Write_Text(texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/444.webp" target="_blank"><img src="img/444.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure><figure class="cap"><a href="img/474.webp" target="_blank"><img src="img/474.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Simulación</h3><a class="min" href="https://youtu.be/99BbzN7fCmg?t=470" target="_blank" rel="noopener">&#9654; 7:50</a></div><p>En Proteus se cambia la distancia de cada sensor y el terminal muestra las tres medidas al mismo tiempo. El dsPIC también tiene un módulo de captura, más eficiente para esto, que se ve en la siguiente clase.</p><div class="dos"><figure class="cap"><a href="img/414.webp" target="_blank"><img src="img/414.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure><figure class="cap"><a href="img/505.webp" target="_blank"><img src="img/505.webp" alt="Curso de MikroC para dsPIC, clase 4: lectura de varios sensores HC-SR04 al tiempo" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=99BbzN7fCmg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

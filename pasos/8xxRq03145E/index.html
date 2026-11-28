@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Con el bit TGATE de los timers del dsPIC33FJ32MC202 se miden al mismo tiempo tres anchos de pulso, uno por cada timer, sin carga para el programa, y se mandan en milisegundos por el serial.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/8xxRq03145E/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez · Paso a paso">
+  <meta property="og:description" content="Con el bit TGATE de los timers del dsPIC33FJ32MC202 se miden al mismo tiempo tres anchos de pulso, uno por cada timer, sin carga para el programa, y se mandan en milisegundos por el serial.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/8xxRq03145E/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/8xxRq03145E/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#dspic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// MikroC para dsPIC · Paso a paso</span>
+    <h1>Medir <span>anchos de pulso</span> con timers en dsPIC</h1>
+    <p class="lead">Los timers del dsPIC tienen un modo de acumulación por compuerta (TGATE): el timer cuenta solo mientras la entrada TxCK está en alto, y al bajar genera la interrupción con el ancho del pulso ya medido. Sirve para receptores de radio control, sensores ultrasónicos o brújulas que entregan su dato como ancho de pulso. Se usan los tres timers del micro: Timer1 en su pin fijo T1CK y Timer2 y Timer3 remapeados a RP3 y RP5. Con la hoja de Excel se elige prescaler 8 para medir hasta 2 ms, y en el main se pasa la cuenta a milisegundos.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=8xxRq03145E" target="_blank" rel="noopener">&#9654; Ver el video completo (17:55)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/999.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez"></figure>
+    <ul class="materiales"><li>dsPIC33FJ32MC202 a 80 MHz</li><li>Generadores de pulso en Proteus</li><li>Interruptores para cambiar de señal</li><li>MikroC PRO for dsPIC</li><li>Proteus con Virtual Terminal</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Idea</a><a href="#f2">2 · Timers</a><a href="#f3">3 · Mostrar</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>La idea</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El bit TGATE</h3><a class="min" href="https://youtu.be/8xxRq03145E?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>En el registro de control de cada timer está TGATE. Con él activo el timer acumula cuenta solo mientras la entrada está en alto: así mide el ancho del pulso por hardware.</p><div class="uno"><figure class="cap"><a href="img/20.webp" target="_blank"><img src="img/20.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Ancho de pulso</h3><a class="min" href="https://youtu.be/8xxRq03145E?t=33" target="_blank" rel="noopener">&#9654; 0:33</a></div><p>Muchos dispositivos entregan su dato como ancho de pulso: receptores de radio control, el sensor ultrasónico SRF04 o algunas brújulas. En un PIC normal hay que medirlo por software; aquí se mide en paralelo y sin carga.</p><div class="uno"><figure class="cap"><a href="img/81.webp" target="_blank"><img src="img/81.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Configurar los timers</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Nueva librería</h3><a class="min" href="https://youtu.be/8xxRq03145E?t=132" target="_blank" rel="noopener">&#9654; 2:12</a></div><p>Se quitan las funciones de timer de la clase anterior y se incluye Config_timer_frec.h. Las variables de lectura se declaran extern porque viven en el programa principal.</p><div class="uno"><figure class="cap"><a href="img/142.webp" target="_blank"><img src="img/142.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Cálculo del PR</h3><a class="min" href="https://youtu.be/8xxRq03145E?t=298" target="_blank" rel="noopener">&#9654; 4:58</a></div><p>Para pulsos de hasta 2 ms la hoja de Excel indica prescaler 8 y un PR de 10000 (en el código final se dejó 18750).</p><div class="uno"><figure class="cap"><a href="img/326.webp" target="_blank"><img src="img/326.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Configuración de los tres timers</h3><a class="min" href="https://youtu.be/8xxRq03145E?t=398" target="_blank" rel="noopener">&#9654; 6:38</a></div><p>Los tres timers se configuran en una sola línea por registro: TGATE en 1, prescaler 8 (0b01), prioridad 1, bandera limpia e interrupción habilitada. Si solo se usa un timer, se deja únicamente ese.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>extern unsigned int pwm_in1,pwm_in2,pwm_in3;
+#define prescalador 8 // prescalador a usar
+
+void config_timer_frec(){
+  //configura timer medir frecuencia
+  TMR1=TMR2=TMR3=0;
+  PR1=PR2=PR3=18750; // para 30ms
+  T1CON=T2CON=T3CON=0;
+  T1CONbits.TGATE=T2CONbits.TGATE=T3CONbits.TGATE=1; //para medir ancho pulso
+  T1CONbits.TCKPS=T2CONbits.TCKPS=T3CONbits.TCKPS=0b01; // preescalador de 8
+  T1CONbits.TON=T2CONbits.TON=T3CONbits.TON=1; //prende timer
+  T1IP_2_bit=T2IP_2_bit=T3IP_2_bit=0;
+  T1IP_1_bit=T2IP_1_bit=T3IP_1_bit=0;
+  T1IP_0_bit=T2IP_0_bit=T3IP_0_bit=1;
+  T1IF_bit=T2IF_bit=T3IF_bit=0;
+  T1IE_bit=T2IE_bit=T3IE_bit=1;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/204.webp" target="_blank"><img src="img/204.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/265.webp" target="_blank"><img src="img/265.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Interrupciones</h3><a class="min" href="https://youtu.be/8xxRq03145E?t=465" target="_blank" rel="noopener">&#9654; 7:45</a></div><p>Cuando el pulso baja salta la interrupción: se guarda la cuenta del timer, se pone el timer en cero y se limpia la bandera. Hay una rutina por timer.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void Int_frecuencia1() iv IVT_ADDR_T1INTERRUPT ics ICS_AUTO {
+  pwm_in1=TMR1;
+  TMR1=0;
+  T1IF_bit=0; // Limpia la bandera
+}
+
+void Int_frecuencia2() iv IVT_ADDR_T2INTERRUPT ics ICS_AUTO {
+  pwm_in2=TMR2;
+  TMR2=0;
+  // ... limpia T2IF_bit
+}
+// ... igual para el Timer3</code></pre></div><div class="dos"><figure class="cap"><a href="img/387.webp" target="_blank"><img src="img/387.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/509.webp" target="_blank"><img src="img/509.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Calcular y mostrar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Pasar a milisegundos</h3><a class="min" href="https://youtu.be/8xxRq03145E?t=533" target="_blank" rel="noopener">&#9654; 8:53</a></div><p>La cuenta por el prescaler, dividida entre 40 MHz (la mitad de los 80 MHz, que es la velocidad real de instrucción), da el ancho en segundos; por mil queda en milisegundos. Con sprintf se arma la trama con los tres valores.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int pwm_in1,pwm_in2,pwm_in3;
+float ancho1,ancho2,ancho3;
+char texto[50];
+
+ancho2=(pwm_in2*prescalador)/40e6;   // 40 es la velocidad de operacion/2
+//para pasarlo a milisegundos
+ancho2=ancho2*1000.0;
+// ... igual para ancho1 y ancho3
+
+sprintf(texto,&quot;Ciclo1=%.2fms    Ciclo2=%.2fms    Ciclo3=%.2fms\r\n&quot;, ancho1,ancho2,ancho3);
+UART1_Write_Text(texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/448.webp" target="_blank"><img src="img/448.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/571.webp" target="_blank"><img src="img/571.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Pin de entrada</h3><a class="min" href="https://youtu.be/8xxRq03145E?t=702" target="_blank" rel="noopener">&#9654; 11:42</a></div><p>La entrada del Timer1 (T1CK) es fija y solo hay que ponerla como entrada en TRIS. Las del Timer2 y Timer3 son remapeables.</p><div class="dos"><figure class="cap"><a href="img/632.webp" target="_blank"><img src="img/632.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/693.webp" target="_blank"><img src="img/693.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba con un pulso</h3><a class="min" href="https://youtu.be/8xxRq03145E?t=771" target="_blank" rel="noopener">&#9654; 12:51</a></div><p>En Proteus se mete un pulso de 500 Hz (periodo de 2 ms) con 10 % de ciclo útil y el terminal muestra 0,2 ms. Al cambiar al 50 % o al 90 % la medida cambia igual.</p><div class="uno"><figure class="cap"><a href="img/754.webp" target="_blank"><img src="img/754.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Tres señales a la vez</h3><a class="min" href="https://youtu.be/8xxRq03145E?t=869" target="_blank" rel="noopener">&#9654; 14:29</a></div><p>Se copian tres generadores con 10, 50 y 90 % y un interruptor de tres posiciones. Luego se remapean T2CK al pin RP3 y T3CK al RP5 con PPS_Mapping, y se leen las tres señales al mismo tiempo.</p><div class="dos"><figure class="cap"><a href="img/876.webp" target="_blank"><img src="img/876.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/938.webp" target="_blank"><img src="img/938.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure><figure class="cap"><a href="img/999.webp" target="_blank"><img src="img/999.webp" alt="Curso de MikroC para dsPIC, clase 3: timers para medir varios anchos de pulso a la vez" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=8xxRq03145E" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
