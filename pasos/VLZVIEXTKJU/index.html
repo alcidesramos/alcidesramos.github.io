@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 24: módulo DAC interno · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo usar el DAC que traen micros como el PIC12F1822 (5 bits) y el PIC16F1705 (8 bits, dos salidas) para sacar un voltaje análogo sin PWM ni filtro, y cómo usar el operacional interno del 16F1705.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/VLZVIEXTKJU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 24: módulo DAC interno · Paso a paso">
+  <meta property="og:description" content="Cómo usar el DAC que traen micros como el PIC12F1822 (5 bits) y el PIC16F1705 (8 bits, dos salidas) para sacar un voltaje análogo sin PWM ni filtro, y cómo usar el operacional interno del 16F1705.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/VLZVIEXTKJU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/VLZVIEXTKJU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>El <span>DAC interno</span> de los PIC modernos</h1>
+    <p class="lead">Lección 24 del curso. Los micros más nuevos, y a menudo más económicos, ya traen DAC. Primero se usa el PIC12F1822, de 8 pines, cuyo DAC es de 5 bits (32 niveles): un potenciómetro en RA1 controla el voltaje en RA0. Después el mismo programa pasa casi sin cambios al PIC16F1705, que tiene un DAC de 8 bits con dos salidas, gracias a la compatibilidad entre micros de Microchip. Por último se usa el operacional interno del 16F1705 como seguidor, así que ya no hace falta un operacional externo; solo queda el transistor para dar corriente.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=VLZVIEXTKJU" target="_blank" rel="noopener">&#9654; Ver el video completo (21:07)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1240.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librería ADC)</li><li>Proteus con PIC12F1822 y PIC16F1705</li><li>Potenciómetro, operacional LM358, transistor TIP41 y motor DC</li><li>Hojas de datos de los dos micros (registros DACCON y OPAxCON)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · 12F1822</a><a href="#f2">2 · 16F1705</a><a href="#f3">3 · Operacional</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>DAC de 5 bits en el 12F1822</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El circuito</h3><a class="min" href="https://youtu.be/VLZVIEXTKJU?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Es el circuito de la lección 23 sin el PWM ni el filtro: la salida del DAC va al operacional con ganancia, al transistor TIP41 y al motor. El 12F1822 tiene un DAC de 5 bits, es decir, 32 niveles. Para controlar un motor alcanza; si se necesita más precisión, hay que usar otro micro o un DAC externo.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Configurar el micro</h3><a class="min" href="https://youtu.be/VLZVIEXTKJU?t=108" target="_blank" rel="noopener">&#9654; 1:48</a></div><p>Proyecto a 8 MHz con oscilador interno. El potenciómetro va en RA1, que se pone análogo y como entrada. La salida del DAC sale por RA0, y según la hoja de datos ese pin se pone como entrada para que el DAC lo maneje.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int codigo;
+float dac;
+
+// oscilador interno a 8 MHz
+SCS1_bit = 1;  SCS0_bit = 0;
+IRCF3_bit = 1; IRCF2_bit = 1;
+IRCF1_bit = 1; IRCF0_bit = 0;
+
+ANSELA = 0;
+ANSELA.B1 = 1;   // entrada análoga
+TRISA.B1 = 1;
+TRISA.B0 = 1;    // salida del DAC</code></pre></div><div class="dos"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure><figure class="cap"><a href="img/240.webp" target="_blank"><img src="img/240.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Registros del DAC</h3><a class="min" href="https://youtu.be/VLZVIEXTKJU?t=278" target="_blank" rel="noopener">&#9654; 4:38</a></div><p>DACCON0 configura el DAC: <b>DACEN</b> lo habilita y <b>DACOE</b> conecta el voltaje al pin DACOUT (RA0). En DACCON1 se escribe el valor de salida, de 0 a 31.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>DACCON0 = 0;      // limpia los registros
+DACCON1 = 0;
+DACEN_bit = 1;    // habilita el DAC
+DACOE_bit = 1;    // conecta el DAC a RA0</code></pre></div><div class="dos"><figure class="cap"><a href="img/290.webp" target="_blank"><img src="img/290.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>De 10 bits a 5 bits</h3><a class="min" href="https://youtu.be/VLZVIEXTKJU?t=379" target="_blank" rel="noopener">&#9654; 6:19</a></div><p>El ADC da 1024 códigos y el DAC tiene 32, así que se divide entre 32.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  codigo = ADC_Read(1);
+  dac = codigo / 32.0;
+  DACCON1 = dac;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure><figure class="cap"><a href="img/460.webp" target="_blank"><img src="img/460.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Resultado</h3><a class="min" href="https://youtu.be/VLZVIEXTKJU?t=478" target="_blank" rel="noopener">&#9654; 7:58</a></div><p>Al mover el potenciómetro, el motor recibe casi 10 V con la ganancia del operacional. Se ahorra el PWM y el filtro de la lección 23.</p><div class="uno"><figure class="cap"><a href="img/500.webp" target="_blank"><img src="img/500.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>DAC de 8 bits en el 16F1705</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Dos salidas de DAC</h3><a class="min" href="https://youtu.be/VLZVIEXTKJU?t=544" target="_blank" rel="noopener">&#9654; 9:04</a></div><p>El PIC16F1705 tiene un DAC de 8 bits con dos salidas: DAC1OUT1 en RA0 y DAC1OUT2 en RA2. Sus registros son DAC1CON0 y DAC1CON1; el potenciómetro puede seguir en RA1.</p><div class="uno"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Pasar el programa</h3><a class="min" href="https://youtu.be/VLZVIEXTKJU?t=742" target="_blank" rel="noopener">&#9654; 12:22</a></div><p>Los micros de Microchip son muy compatibles: se copia el programa del 12F1822 y solo se agregan los registros del puerto C y se cambian los nombres del DAC. Como el DAC es de 8 bits, se divide entre 4.0 y hay más resolución: 256 niveles.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ANSELA = 0;
+ANSELC = 0;
+ANSELA.B1 = 1;   // entrada análoga
+TRISA.B1 = 1;
+TRISA.B0 = 1;    // salida DAC
+TRISC = 0;
+
+DAC1CON0 = 0;
+DAC1CON1 = 0;
+DAC1EN_bit = 1;   // habilita el DAC
+DAC1OE1_bit = 1;  // conecta el DAC a RA0
+
+while (1) {
+  codigo = ADC_Read(1);
+  dac = codigo / 4.0;
+  DAC1CON1 = dac;
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/800.webp" target="_blank"><img src="img/800.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure><figure class="cap"><a href="img/860.webp" target="_blank"><img src="img/860.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure><figure class="cap"><a href="img/920.webp" target="_blank"><img src="img/920.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Operacional interno</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>OPA1 del 16F1705</h3><a class="min" href="https://youtu.be/VLZVIEXTKJU?t=976" target="_blank" rel="noopener">&#9654; 16:16</a></div><p>El 16F1705 también trae operacionales. El OPA1 tiene la entrada positiva en RC0, la negativa en RC1 y la salida en RC2. Se configura con el registro OPA1CON: primero se limpia y luego se habilita.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// configurar operacional
+TRISC0_bit = 1;   // entrada +
+TRISC1_bit = 1;   // entrada -
+TRISC2_bit = 0;   // salida
+OPA1CON = 0;
+OPA1EN_bit = 1;</code></pre></div><div class="dos"><figure class="cap"><a href="img/1050.webp" target="_blank"><img src="img/1050.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure><figure class="cap"><a href="img/1110.webp" target="_blank"><img src="img/1110.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Sin operacional externo</h3><a class="min" href="https://youtu.be/VLZVIEXTKJU?t=1181" target="_blank" rel="noopener">&#9654; 19:41</a></div><p>Se quita el LM358: la salida del DAC se cablea a la entrada positiva del operacional interno y su salida va al transistor. El operacional del micro es rail to rail, así que llega casi a 5 V. Solo queda el transistor para dar corriente al motor.</p><div class="dos"><figure class="cap"><a href="img/1200.webp" target="_blank"><img src="img/1200.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure><figure class="cap"><a href="img/1240.webp" target="_blank"><img src="img/1240.webp" alt="Curso MikroC PRO for PIC, lección 24: módulo DAC interno" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=VLZVIEXTKJU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

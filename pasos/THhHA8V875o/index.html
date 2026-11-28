@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8 · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Video corto con un tip: cuando MikroC no tiene librería para un periférico, como el DAC del PIC16F1705, se puede generar la configuración con el MPLAB Code Configurator (MCC) en MPLAB X con XC8 y usar ese código como guía.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/THhHA8V875o/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8 · Paso a paso">
+  <meta property="og:description" content="Video corto con un tip: cuando MikroC no tiene librería para un periférico, como el DAC del PIC16F1705, se puede generar la configuración con el MPLAB Code Configurator (MCC) en MPLAB X con XC8 y usar ese código como guía.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/THhHA8V875o/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/THhHA8V875o/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Configurar el DAC con <span>MCC</span> de MPLAB X</h1>
+    <p class="lead">Lección 25 del curso, complemento de la 24. MikroC no trae librería para el DAC, pero el MPLAB Code Configurator (MCC) de MPLAB X sí genera su código. Con el mismo circuito del PIC16F1705 (potenciómetro en RA1, DAC en RA0) se crea un proyecto en MPLAB X, se configura en MCC el reloj, el DAC de 8 bits y el ADC, se generan los archivos y se escribe el programa con ADC_GetConversion y DAC_SetOutput. Como los compiladores son muy compatibles, ese código sirve de base para llevar las funciones a MikroC.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=THhHA8V875o" target="_blank" rel="noopener">&#9654; Ver el video completo (8:12)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/220.webp" alt="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8"></figure>
+    <ul class="materiales"><li>MPLAB X con XC8 y el plugin MPLAB Code Configurator (MCC)</li><li>Proteus con PIC16F1705 y potenciómetro</li><li>Circuito de la lección 24</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · MCC</a><a href="#f2">2 · Programa</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Configurar con MCC</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El mismo circuito</h3><a class="min" href="https://youtu.be/THhHA8V875o?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El potenciómetro en RA1 cambia el voltaje del DAC en RA0, como en la lección 24. El ADC es de 10 bits y el DAC de 8, así que se divide entre 4. Se crea un proyecto estándar en MPLAB X para el PIC16F1705 y se abre el MCC.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Reloj del sistema</h3><a class="min" href="https://youtu.be/THhHA8V875o?t=103" target="_blank" rel="noopener">&#9654; 1:43</a></div><p>En <b>System Module</b> se escoge el oscilador interno a 8 MHz, como en el proyecto de MikroC.</p><div class="uno"><figure class="cap"><a href="img/100.webp" target="_blank"><img src="img/100.webp" alt="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>DAC y ADC</h3><a class="min" href="https://youtu.be/THhHA8V875o?t=138" target="_blank" rel="noopener">&#9654; 2:18</a></div><p>Se agregan los módulos DAC (8 bits) y ADC desde Device Resources. En el DAC se marca <b>Enable DAC</b>, referencia positiva VDD y negativa VSS, y se habilita la salida DACOUT1. En el ADC se escoge el reloj (FOSC/4) y la justificación a la derecha.</p><div class="dos"><figure class="cap"><a href="img/140.webp" target="_blank"><img src="img/140.webp" alt="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/180.webp" target="_blank"><img src="img/180.webp" alt="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Pines</h3><a class="min" href="https://youtu.be/THhHA8V875o?t=206" target="_blank" rel="noopener">&#9654; 3:26</a></div><p>En <b>Pin Module</b> se revisa que RA0 quede como salida del DAC (DACOUT1) y RA1 como entrada análoga del ADC. Luego se pulsa <b>Generate</b> y MCC crea main.c y los archivos de cada módulo.</p><div class="dos"><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Leer y escribir</h3><a class="min" href="https://youtu.be/THhHA8V875o?t=275" target="_blank" rel="noopener">&#9654; 4:35</a></div><p>En el while del main.c generado se lee el canal con ADC_GetConversion y se escribe el DAC con DAC_SetOutput. Las funciones salen de los archivos que generó MCC.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1)
+{
+    codigo = ADC_GetConversion(channel_AN1);
+    DAC_SetOutput(codigo / 4);
+    __delay_ms(200);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/340.webp" target="_blank"><img src="img/340.webp" alt="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/380.webp" target="_blank"><img src="img/380.webp" alt="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Llevarlo a MikroC</h3><a class="min" href="https://youtu.be/THhHA8V875o?t=374" target="_blank" rel="noopener">&#9654; 6:14</a></div><p>El código generado muestra qué registros hay que configurar. Como XC8 y MikroC son muy compatibles, esa configuración se puede copiar al proyecto de MikroC cuando este no trae librería para el periférico.</p><p class="ojo">En Proteus el DAC funcionó configurando el pin como salida en MCC, aunque MCC advierte que debe ser entrada. Conviene probarlo con el micro físico.</p><div class="dos"><figure class="cap"><a href="img/420.webp" target="_blank"><img src="img/420.webp" alt="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8" loading="lazy"></a></figure><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Curso MikroC PRO for PIC, lección 25: usar código generado en MPLAB XC8" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=THhHA8V875o" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

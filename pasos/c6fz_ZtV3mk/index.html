@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Los condensadores que hacen robusto un circuito con motores (220 µF y 100 nF en las fuentes, 100 nF en cada VDD del micro y en MCLR) y cómo cambiar el rango de una variable, de 0 a 255 a 20 a 80 %, con la ecuación de la recta sacada en Excel o con una función map.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/c6fz_ZtV3mk/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware · Paso a paso">
+  <meta property="og:description" content="Los condensadores que hacen robusto un circuito con motores (220 µF y 100 nF en las fuentes, 100 nF en cada VDD del micro y en MCLR) y cómo cambiar el rango de una variable, de 0 a 255 a 20 a 80 %, con la ecuación de la recta sacada en Excel o con una función map.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/c6fz_ZtV3mk/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/c6fz_ZtV3mk/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Tips de <span>hardware</span> y remapeo de valores</h1>
+    <p class="lead">Lección 22 del curso, sobre el circuito de motores de la lección 21. Primera parte, hardware: con cargas inductivas como motores, relés o electroválvulas el circuito puede resetearse o mostrar caracteres raros en la LCD. Se evita poniendo un electrolítico de al menos 100 µF (mejor 220 µF) y un cerámico de 100 nF a la entrada de cada fuente, un cerámico de 100 nF en cada pin VDD del micro y otro en MCLR. Segunda parte, software: para mostrar la velocidad de 20 a 80 % en vez de 0 a 100 % se saca la ecuación de la recta con una gráfica de dispersión en Excel, o se usa una función map que hace el cálculo con cualquier rango.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=c6fz_ZtV3mk" target="_blank" rel="noopener">&#9654; Ver el video completo (20:27)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/960.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware"></figure>
+    <ul class="materiales"><li>Proteus con el circuito de la lección 21 (PIC16F877A, L298, motores, LCD)</li><li>Regulador 7805, condensadores de 220 µF y 100 nF</li><li>Excel para sacar la ecuación de la recta</li><li>MikroC PRO for PIC</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Hardware</a><a href="#f2">2 · Remapeo</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Hardware robusto</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>El problema de las cargas inductivas</h3><a class="min" href="https://youtu.be/c6fz_ZtV3mk?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>En simulación todo funciona, pero en el montaje real los motores, relés y electroválvulas meten picos de corriente y ruido. Los síntomas típicos son que el micro se resetea, la pantalla se traba o la LCD muestra caracteres raros. Se parte de una fuente de buena calidad y con la corriente necesaria.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Electrolítico a la entrada de cada fuente</h3><a class="min" href="https://youtu.be/c6fz_ZtV3mk?t=100" target="_blank" rel="noopener">&#9654; 1:40</a></div><p>En la entrada de cada fuente (o regulador, como el 7805) va un condensador electrolítico de al menos 100 µF; 220 µF está bien. Funciona como un pulmón: está cargado y, cuando un motor arranca y pide un pico de corriente, ayuda a entregarlo. Entre más grande, mejor, pero ocupa más espacio en la PCB.</p><div class="uno"><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Cerámico de 100 nF contra el ruido</h3><a class="min" href="https://youtu.be/c6fz_ZtV3mk?t=305" target="_blank" rel="noopener">&#9654; 5:05</a></div><p>Junto al electrolítico va un condensador cerámico (de lenteja) de 100 nF, código 104. A frecuencias altas se comporta como un corto, así que el ruido inducido se va a tierra en vez de entrar al sistema. Placas como Arduino traen estos dos condensadores en cada entrada de fuente.</p><p class="ojo">Ponga cada condensador lo más cerca posible del pin positivo y desde ahí busque la tierra.</p><div class="uno"><figure class="cap"><a href="img/360.webp" target="_blank"><img src="img/360.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Uno por cada VDD del micro</h3><a class="min" href="https://youtu.be/c6fz_ZtV3mk?t=437" target="_blank" rel="noopener">&#9654; 7:17</a></div><p>Proteus no muestra los pines de alimentación, pero el 16F877A tiene dos pines VDD. Cada uno lleva su condensador de 100 nF a tierra, aunque estén unidos por dentro. Los micros de 64 pines o más tienen cuatro o seis VDD, y todos lo llevan.</p><div class="uno"><figure class="cap"><a href="img/450.webp" target="_blank"><img src="img/450.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.5</span><h3>Condensador en MCLR</h3><a class="min" href="https://youtu.be/c6fz_ZtV3mk?t=503" target="_blank" rel="noopener">&#9654; 8:23</a></div><p>Para que el ruido no resetee el micro por MCLR, se pone un condensador entre ese pin y tierra, como recomiendan las tarjetas de desarrollo. Un valor muy grande puede impedir programar el micro en la tarjeta; con 100 nF se puede programar y se filtra el ruido.</p><div class="dos"><figure class="cap"><a href="img/540.webp" target="_blank"><img src="img/540.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Remapear valores</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>De 0 a 255 a 20 a 80 %</h3><a class="min" href="https://youtu.be/c6fz_ZtV3mk?t=670" target="_blank" rel="noopener">&#9654; 11:10</a></div><p>La velocidad del PWM va de 0 a 255 y hasta ahora se mostraba de 0 a 100 % con una regla de tres. Ahora se quiere que la LCD muestre de 20 % a 80 %, algo que también pasa al linealizar sensores.</p><div class="uno"><figure class="cap"><a href="img/700.webp" target="_blank"><img src="img/700.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>La ecuación con Excel</h3><a class="min" href="https://youtu.be/c6fz_ZtV3mk?t=800" target="_blank" rel="noopener">&#9654; 13:20</a></div><p>En Excel se ponen los puntos (x = 0, y = 20) y (x = 255, y = 80), se inserta una gráfica de dispersión, se agrega una línea de tendencia lineal y se marca <b>Presentar ecuación en el gráfico</b> y el valor de R². Si R² vale 1 la ecuación es exacta. Aquí da y = 0.2353x + 20.</p><p class="ojo">Con más puntos, Excel también da líneas de tendencia polinómicas o exponenciales cuando la relación no es lineal.</p><div class="dos"><figure class="cap"><a href="img/840.webp" target="_blank"><img src="img/840.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure><figure class="cap"><a href="img/880.webp" target="_blank"><img src="img/880.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure><figure class="cap"><a href="img/1000.webp" target="_blank"><img src="img/1000.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Pegarla en el programa</h3><a class="min" href="https://youtu.be/c6fz_ZtV3mk?t=900" target="_blank" rel="noopener">&#9654; 15:00</a></div><p>La ecuación se copia al programa con la velocidad como x. Escriba 20.0 para que la operación sea decimal.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>floattostr_(0.2353 * velo1 + 20.0, texto, 1);
+Lcd_Out(1, 5, texto);
+floattostr_(0.2353 * velo2 + 20.0, texto, 1);
+Lcd_Out(2, 5, texto);</code></pre></div><div class="dos"><figure class="cap"><a href="img/920.webp" target="_blank"><img src="img/920.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure><figure class="cap"><a href="img/960.webp" target="_blank"><img src="img/960.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Una función map</h3><a class="min" href="https://youtu.be/c6fz_ZtV3mk?t=1007" target="_blank" rel="noopener">&#9654; 16:47</a></div><p>Sin Excel, una función hace la ecuación de la recta con los rangos de entrada y de salida, como map en Arduino. Se guarda el resultado en una variable para no enredar el código.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>float map1(float x, float in_min, float in_max,
+           float out_min, float out_max)
+{
+  float pendiente;
+  pendiente = (out_max - out_min) / (in_max - in_min);
+  pendiente = pendiente * (x - in_min);
+  pendiente = pendiente + out_min;
+  return (pendiente);
+}
+
+remapeo = map1(velo1, 0, 255, 20, 80);
+floattostr_(remapeo, texto, 1);
+Lcd_Out(1, 5, texto);</code></pre></div><p class="ojo">La función sirve solo cuando la relación es lineal. Si no lo es, use la línea de tendencia de Excel con más puntos.</p><div class="dos"><figure class="cap"><a href="img/1060.webp" target="_blank"><img src="img/1060.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure><figure class="cap"><a href="img/1120.webp" target="_blank"><img src="img/1120.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure><figure class="cap"><a href="img/1160.webp" target="_blank"><img src="img/1160.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure><figure class="cap"><a href="img/1200.webp" target="_blank"><img src="img/1200.webp" alt="Curso MikroC PRO for PIC, lección 22: remapeo de valores y tips de diseño de hardware" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=c6fz_ZtV3mk" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

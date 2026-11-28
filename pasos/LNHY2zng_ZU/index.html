@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Curso MikroC PRO for PIC, lección 23: DAC con PWM · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Cómo sacar un voltaje análogo de un PIC que no tiene DAC (como el 16F877A o el 18F2550): PWM de alta frecuencia filtrado con un RC pasa bajos, un seguidor con operacional, un transistor para dar corriente y un amplificador no inversor para subir el rango.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/LNHY2zng_ZU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Curso MikroC PRO for PIC, lección 23: DAC con PWM · Paso a paso">
+  <meta property="og:description" content="Cómo sacar un voltaje análogo de un PIC que no tiene DAC (como el 16F877A o el 18F2550): PWM de alta frecuencia filtrado con un RC pasa bajos, un seguidor con operacional, un transistor para dar corriente y un amplificador no inversor para subir el rango.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/LNHY2zng_ZU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/LNHY2zng_ZU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc">&larr; Volver al curso</a>
+    <span class="etiqueta">// Curso MikroC PRO for PIC · Paso a paso</span>
+    <h1>Un <span>DAC</span> hecho con PWM y un filtro</h1>
+    <p class="lead">Lección 23 del curso. Muchos micros antiguos no tienen conversor digital a análogo. Se puede hacer uno generando un PWM de alta frecuencia y filtrándolo con un RC pasa bajos de primer orden, que deja pasar solo el valor medio. Se compara el efecto de distintos condensadores (más capacidad, menos rizado pero respuesta más lenta). Luego, con un PIC18F2550, un potenciómetro controla el voltaje de salida. Para conectarlo a otro circuito se agrega un seguidor de voltaje, un transistor TIP41 para manejar un motor y un amplificador no inversor para llevar la salida de 0 a 5 V hasta casi 10 V.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=LNHY2zng_ZU" target="_blank" rel="noopener">&#9654; Ver el video completo (24:11)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1050.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librerías PWM y ADC)</li><li>Proteus con PIC18F2550, potenciómetro, R de 1 kΩ y C de 220 nF</li><li>Operacionales LM358 y AD8031 (rail to rail), transistor TIP41, motor DC</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Filtro</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Salida</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Filtro pasa bajos</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Idea: PWM filtrado</h3><a class="min" href="https://youtu.be/LNHY2zng_ZU?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>El objetivo es que el micro saque por un pin un voltaje análogo que siga a un potenciómetro, para controlar un motor, un PLC o un variador. Se genera un PWM de frecuencia alta y se filtra; el analogWrite de Arduino también es un PWM, no una salida análoga real.</p><div class="uno"><figure class="cap"><a href="img/40.webp" target="_blank"><img src="img/40.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Filtro RC de primer orden</h3><a class="min" href="https://youtu.be/LNHY2zng_ZU?t=98" target="_blank" rel="noopener">&#9654; 1:38</a></div><p>Una resistencia en serie y un condensador a tierra forman un filtro pasa bajos de primer orden (un solo condensador). La reactancia del condensador es Xc = 1/(2πfC): a frecuencias altas es casi un corto y la señal se va a tierra; a frecuencias bajas es un circuito abierto y la señal pasa.</p><div class="uno"><figure class="cap"><a href="img/120.webp" target="_blank"><img src="img/120.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Escoger el condensador</h3><a class="min" href="https://youtu.be/LNHY2zng_ZU?t=197" target="_blank" rel="noopener">&#9654; 3:17</a></div><p>Con la misma señal se prueban condensadores de 10 nF, 100 nF, 220 nF y 470 nF. Más capacidad baja la frecuencia de corte y quita más rizado, pero el circuito tarda más en responder. Es un compromiso que escoge el ingeniero; aquí se usan 220 nF con 1 kΩ, que dan una frecuencia de corte de unos 723 Hz.</p><div class="dos"><figure class="cap"><a href="img/220.webp" target="_blank"><img src="img/220.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/300.webp" target="_blank"><img src="img/300.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/400.webp" target="_blank"><img src="img/400.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>El programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>PWM a 100 kHz</h3><a class="min" href="https://youtu.be/LNHY2zng_ZU?t=428" target="_blank" rel="noopener">&#9654; 7:08</a></div><p>Proyecto con un PIC18F2550 a 8 MHz. El potenciómetro entra por AN0 y el PWM sale por CCP1 (RC2). Se inicia el PWM a 100 kHz para que el filtro lo deje bien liso.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int codigo;
+float DAC;
+
+ADCON1 = 0;            // todo análogo
+TRISA = 0b11111111;    // todo entrada
+TRISC = 0;             // salida
+PWM1_Init(100000);
+PWM1_Start();</code></pre></div><div class="dos"><figure class="cap"><a href="img/520.webp" target="_blank"><img src="img/520.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/580.webp" target="_blank"><img src="img/580.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>De 10 bits a 8 bits</h3><a class="min" href="https://youtu.be/LNHY2zng_ZU?t=599" target="_blank" rel="noopener">&#9654; 9:59</a></div><p>El ADC va de 0 a 1023 y el ciclo útil de 0 a 255: hay 4 veces de diferencia, así que basta dividir entre 4.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>while (1) {
+  codigo = ADC_Read(0);
+  DAC = codigo / 4.0;
+  PWM1_Set_Duty(DAC);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/640.webp" target="_blank"><img src="img/640.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Resultado</h3><a class="min" href="https://youtu.be/LNHY2zng_ZU?t=702" target="_blank" rel="noopener">&#9654; 11:42</a></div><p>Al mover el potenciómetro, el voltímetro después del filtro va de 0 a casi 5 V. Es un DAC de unos 8 bits de resolución.</p><div class="dos"><figure class="cap"><a href="img/720.webp" target="_blank"><img src="img/720.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/760.webp" target="_blank"><img src="img/760.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Etapa de salida</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Seguidor de voltaje</h3><a class="min" href="https://youtu.be/LNHY2zng_ZU?t=736" target="_blank" rel="noopener">&#9654; 12:16</a></div><p>Si se conecta otro circuito directo al filtro, su impedancia cambia el voltaje. Lo mínimo es un seguidor de voltaje con un operacional de una sola fuente, como el LM358.</p><div class="uno"><figure class="cap"><a href="img/900.webp" target="_blank"><img src="img/900.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Transistor para dar corriente</h3><a class="min" href="https://youtu.be/LNHY2zng_ZU?t=909" target="_blank" rel="noopener">&#9654; 15:09</a></div><p>El operacional no da corriente para un motor y se puede dañar. Se agrega un transistor TIP41 como seguidor de emisor, alimentado con una fuente mayor (12 V). Para no perder la caída del transistor, la realimentación del operacional se toma del emisor.</p><div class="dos"><figure class="cap"><a href="img/980.webp" target="_blank"><img src="img/980.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1050.webp" target="_blank"><img src="img/1050.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Operacional rail to rail</h3><a class="min" href="https://youtu.be/LNHY2zng_ZU?t=1114" target="_blank" rel="noopener">&#9654; 18:34</a></div><p>El LM358 alimentado a 5 V no llega a 5 V en la salida. Un operacional rail to rail, como el AD8031, sí llega a todo el rango de su alimentación.</p><div class="uno"><figure class="cap"><a href="img/1160.webp" target="_blank"><img src="img/1160.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Subir el rango</h3><a class="min" href="https://youtu.be/LNHY2zng_ZU?t=1185" target="_blank" rel="noopener">&#9654; 19:45</a></div><p>Si el sistema necesita 0 a 10 V, se usa un amplificador no inversor. Su ganancia es 1 + R1/R3: con dos resistencias iguales la ganancia es 2 y la salida va de 0 a casi 10 V. Con un potenciómetro en R1 la ganancia es ajustable; hay que alimentar el operacional con más voltaje, por ejemplo 15 V.</p><div class="dos"><figure class="cap"><a href="img/1260.webp" target="_blank"><img src="img/1260.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure><figure class="cap"><a href="img/1380.webp" target="_blank"><img src="img/1380.webp" alt="Curso MikroC PRO for PIC, lección 23: DAC con PWM" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>Micros más nuevos</h3><a class="min" href="https://youtu.be/LNHY2zng_ZU?t=1415" target="_blank" rel="noopener">&#9654; 23:35</a></div><p>En la siguiente lección se usan micros que ya traen DAC, así que no hace falta el filtro, y algunos incluso traen el operacional.</p></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=LNHY2zng_ZU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
