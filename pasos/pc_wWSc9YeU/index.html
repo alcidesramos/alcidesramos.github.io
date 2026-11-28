@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control de dos motores paso a paso con LabVIEW y PIC en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC16F1824 a 32 MHz mueve dos motores paso a paso con secuencias, controla dirección, velocidad y número de pasos dentro de la interrupción del Timer0, y recibe las órdenes por serial desde LabVIEW.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/pc_wWSc9YeU/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Control de dos motores paso a paso con LabVIEW y PIC en MikroC · Paso a paso">
+  <meta property="og:description" content="Un PIC16F1824 a 32 MHz mueve dos motores paso a paso con secuencias, controla dirección, velocidad y número de pasos dentro de la interrupción del Timer0, y recibe las órdenes por serial desde LabVIEW.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/pc_wWSc9YeU/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/pc_wWSc9YeU/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Motores paso a paso con <span>LabVIEW</span></h1>
+    <p class="lead">Cada motor tiene su secuencia (paso simple de 4 códigos o medio paso de 8) y funciones para avanzar a la derecha o a la izquierda. El Timer0 interrumpe cada 8 ms y unos contadores deciden cuándo dar el siguiente paso según la velocidad (0 a 255). Cada motor puede estar quieto, girar continuo o dar un número de pasos. Las órdenes llegan por serial terminadas en asterisco y se procesan con strstr y strtok.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=pc_wWSc9YeU" target="_blank" rel="noopener">&#9654; Ver el video completo (43:37)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/2256.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC16F1824 a 32 MHz (oscilador interno con PLL)</li><li>Dos motores paso a paso con ULN2003 o L298</li><li>Proteus con COMPIM</li><li>LabVIEW</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Secuencias</a><a href="#f2">2 · Timer</a><a href="#f3">3 · Serial</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Secuencias</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Paso simple y medio paso</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=66" target="_blank" rel="noopener">&#9654; 1:06</a></div><p>En paso simple se energiza una bobina a la vez (4 códigos). En medio paso se alterna una y dos bobinas (8 códigos): más precisión. El circuito tiene dos motores con sus drivers.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Códigos y pines</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=274" target="_blank" rel="noopener">&#9654; 4:34</a></div><p>Cada motor tiene su arreglo de códigos y cuatro pines. Se usa LAT para las salidas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>// paso simple
+char codigo1[] = {0b0001, 0b0010, 0b0100, 0b1000};
+char codigo2[] = {0b0001, 0b0010, 0b0100, 0b1000};
+
+sbit m11 at LATA.b0;
+sbit m12 at LATA.b1;
+sbit m13 at LATA.b2;
+sbit m14 at LATA.b4;
+sbit m21 at LATC.b0;
+sbit m22 at LATC.b1;
+sbit m23 at LATC.b2;
+sbit m24 at LATC.b3;</code></pre></div><div class="uno"><figure class="cap"><a href="img/364.webp" target="_blank"><img src="img/364.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Variables</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=481" target="_blank" rel="noopener">&#9654; 8:01</a></div><p>La secuencia actual de cada motor, el sentido, la velocidad (0 a 255), el número de pasos pedido, el contador de pasos dados y un contador para el retardo dentro de la interrupción.</p><div class="uno"><figure class="cap"><a href="img/587.webp" target="_blank"><img src="img/587.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Funciones de giro</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=616" target="_blank" rel="noopener">&#9654; 10:16</a></div><p>Cada función mueve la secuencia una posición y saca el código por los pines. n_pasos es 3 en paso simple y 7 en medio paso.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void saca_secuencia1() {
+  pasos1++;
+  m11 = codigo1[secuencia1].b0;
+  m12 = codigo1[secuencia1].b1;
+  m13 = codigo1[secuencia1].b2;
+  m14 = codigo1[secuencia1].b3;
+}
+void izquierda1() {
+  secuencia1++;
+  if (secuencia1 &gt; n_pasos) secuencia1 = 0;
+  saca_secuencia1();
+}
+void derecha1() {
+  secuencia1--;
+  if (secuencia1 &lt; 0) secuencia1 = n_pasos;
+  saca_secuencia1();
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/698.webp" target="_blank"><img src="img/698.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/809.webp" target="_blank"><img src="img/809.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Timer0</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Oscilador a 32 MHz</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=816" target="_blank" rel="noopener">&#9654; 13:36</a></div><p>Oscilador interno con el PLL por 4 para llegar a 32 MHz, esperando que el PLL esté estable. Todo digital, todo salida menos RX (RC5).</p><div class="uno"><figure class="cap"><a href="img/920.webp" target="_blank"><img src="img/920.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Probar con retardos</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=956" target="_blank" rel="noopener">&#9654; 15:56</a></div><p>Llamar derecha1 con un retardo en el while funciona, pero no sirve para dar órdenes mientras el motor se mueve. Por eso todo pasa a la interrupción del timer.</p><div class="uno"><figure class="cap"><a href="img/1032.webp" target="_blank"><img src="img/1032.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Interrupción cada 8 ms</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=1088" target="_blank" rel="noopener">&#9654; 18:08</a></div><p>Timer0 con prescaler 256: a 32 MHz se desborda cada 8 ms. Se habilita su interrupción y las globales.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>INTCON = 0b01000000;   // perifericos
+OPTION_REG = 0;        // prescaler asociado al timer0
+PS2_bit = 1; PS1_bit = 1; PS0_bit = 1;   // 256: 8 ms a 32 MHz
+TMR0 = 0;
+TMR0IF_bit = 0;
+TMR0IE_bit = 1;
+GIE_bit = 1;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1143.webp" target="_blank"><img src="img/1143.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Estados del motor</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=1305" target="_blank" rel="noopener">&#9654; 21:45</a></div><p>Cada motor puede estar a la derecha, a la izquierda o quieto, y en modo continuo o por pasos.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>#define derecha 1
+#define izquierda 2
+#define quieto 3
+#define continuo 1
+#define pasos 2
+char estado_giro1 = quieto, estado_giro2 = quieto;
+char estado_modo1 = continuo, estado_modo2 = continuo;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1366.webp" target="_blank"><img src="img/1366.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Dentro de la interrupción</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=1376" target="_blank" rel="noopener">&#9654; 22:56</a></div><p>En cada interrupción suben los contadores. Cuando el de un motor llega a 256 menos su velocidad, se da un paso. En modo pasos, al completar los pedidos el motor queda quieto. Luego se recarga el timer y se limpia la bandera.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>velo1++;
+if (velo1 &gt;= 256 - velo_m1) {
+  velo1 = 0;
+  if (estado_modo1 == pasos) {
+    if (pasos1 &gt;= n_pasos1) {
+      estado_giro1 = quieto;   // llego a los pasos pedidos
+      pasos1 = 0;
+    }
+  }
+  switch (estado_giro1) {
+    case derecha: derecha1(); break;
+    case izquierda: izquierda1(); break;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1477.webp" target="_blank"><img src="img/1477.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.6</span><h3>Ejemplo</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=1582" target="_blank" rel="noopener">&#9654; 26:22</a></div><p>Con solo cambiar estado, modo, velocidad y número de pasos en el main, los motores hacen lo que se pide sin retardos en la interrupción.</p><div class="dos"><figure class="cap"><a href="img/1588.webp" target="_blank"><img src="img/1588.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1700.webp" target="_blank"><img src="img/1700.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Órdenes por serial</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Configurar el serial</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=1717" target="_blank" rel="noopener">&#9654; 28:37</a></div><p>Se inicia el UART, se habilita su interrupción y se limpian errores. Al arrancar envía INICIANDO.</p><div class="uno"><figure class="cap"><a href="img/1811.webp" target="_blank"><img src="img/1811.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Variables de recepción</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=1920" target="_blank" rel="noopener">&#9654; 32:00</a></div><p>La trama de recepción, una cadena para procesar, el dato, el puntero y la bandera que avisa que llegó una trama completa.</p><div class="uno"><figure class="cap"><a href="img/1922.webp" target="_blank"><img src="img/1922.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Procesar la orden</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=1991" target="_blank" rel="noopener">&#9654; 33:11</a></div><p>procesarx busca cada orden en la trama: m1der*, m1izq*, m1stop*, lo mismo para m2, la velocidad y los pasos. El valor numérico se saca con strtok y atoi.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void procesarx() {
+  if (strstr(trama_rx, &quot;m1der*&quot;)) estado_giro1 = derecha;
+  else if (strstr(trama_rx, &quot;m1izq*&quot;)) estado_giro1 = izquierda;
+  else if (strstr(trama_rx, &quot;m1stop*&quot;)) estado_giro1 = quieto;
+  else if (strstr(trama_rx, &quot;m2der*&quot;)) estado_giro2 = derecha;
+  else if (strstr(trama_rx, &quot;m2izq*&quot;)) estado_giro2 = izquierda;
+  else if (strstr(trama_rx, &quot;m2stop*&quot;)) estado_giro2 = quieto;
+  else if (strstr(trama_rx, &quot;vel1&quot;)) {
+    strcpy(procesa, strtok(trama_rx, &quot;=&quot;));
+    strcpy(procesa, strtok(0, &quot;*&quot;));
+    dato = atoi(procesa);
+    estado_modo1 = continuo;
+    velo_m1 = dato;
+  }
+  // ... vel2 y los pasos de cada motor igual
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/2033.webp" target="_blank"><img src="img/2033.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Interrupción serial</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=2062" target="_blank" rel="noopener">&#9654; 34:22</a></div><p>La interrupción guarda los datos y, al llegar el asterisco, desactiva la recepción y activa la bandera. Si hay error de desbordamiento (OERR) se reinicia CREN.</p><div class="uno"><figure class="cap"><a href="img/2145.webp" target="_blank"><img src="img/2145.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.5</span><h3>En el main</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=2125" target="_blank" rel="noopener">&#9654; 35:25</a></div><p>Si la bandera está activa se procesa la orden, se limpian la trama y el puntero y se habilita otra vez la interrupción serial.</p><div class="uno"><figure class="cap"><a href="img/2479.webp" target="_blank"><img src="img/2479.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Desde LabVIEW</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=2204" target="_blank" rel="noopener">&#9654; 36:44</a></div><p>El panel tiene, por motor, la velocidad, el modo pasos, el número de pasos y botones de izquierda, derecha y parar. Cada botón envía la orden por el puerto COM.</p><div class="dos"><figure class="cap"><a href="img/2256.webp" target="_blank"><img src="img/2256.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/2367.webp" target="_blank"><img src="img/2367.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>Medio paso</h3><a class="min" href="https://youtu.be/pc_wWSc9YeU?t=2546" target="_blank" rel="noopener">&#9654; 42:26</a></div><p>Para medio paso se comenta el arreglo de paso simple, se habilita el de 8 códigos y n_pasos pasa a 7.</p><div class="uno"><figure class="cap"><a href="img/2590.webp" target="_blank"><img src="img/2590.webp" alt="Control de dos motores paso a paso con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=pc_wWSc9YeU" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

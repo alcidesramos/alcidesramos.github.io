@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Se leen cuatro dígitos del teclado y al presionar = se convierten en el tiempo de parpadeo de un LED. Una función de retardo propia sigue leyendo el teclado mientras espera.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/1JhMrIEoKik/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC · Paso a paso">
+  <meta property="og:description" content="Se leen cuatro dígitos del teclado y al presionar = se convierten en el tiempo de parpadeo de un LED. Una función de retardo propia sigue leyendo el teclado mientras espera.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/1JhMrIEoKik/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/1JhMrIEoKik/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Teclado 4x4 con <span>máquina de estados</span></h1>
+    <p class="lead">Con la librería Keypad4x4 de MikroC se lee la tecla y una función la traduce al carácter real. Una máquina de estados guarda cuatro dígitos y espera el igual; con atoi el texto pasa a número y se usa como retardo del LED con Vdelay_ms. Como un retardo largo bloquea el teclado, se crea miretardo, que espera de a 1 ms y en cada vuelta revisa el teclado.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=1JhMrIEoKik" target="_blank" rel="noopener">&#9654; Ver el video completo (28:46)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/914.webp" alt="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC18F45K50 a 4 MHz</li><li>Teclado matricial 4x4 con resistencias de 1 kΩ a tierra</li><li>LCD 16x2</li><li>Dos LEDs</li><li>Proteus</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Preparar</a><a href="#f2">2 · Teclas</a><a href="#f3">3 · Estados</a><a href="#f4">4 · Retardo</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Idea</h3><a class="min" href="https://youtu.be/1JhMrIEoKik?t=1" target="_blank" rel="noopener">&#9654; 0:01</a></div><p>La idea es escribir un número de cuatro dígitos, presionar igual y que el micro lo use, por ejemplo como el tiempo de parpadeo de un LED.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Librerías y LCD</h3><a class="min" href="https://youtu.be/1JhMrIEoKik?t=118" target="_blank" rel="noopener">&#9654; 1:58</a></div><p>Se activan las librerías LCD y Keypad4x4. Los pines del LCD se toman del ejemplo de la ayuda y se ajustan; ANSELA a ANSELE en 0.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Conexión del teclado</h3><a class="min" href="https://youtu.be/1JhMrIEoKik?t=388" target="_blank" rel="noopener">&#9654; 6:28</a></div><p>El teclado va al puerto D: las columnas en la primera mitad y las filas en la segunda, con resistencias a tierra (pull down).</p><div class="uno"><figure class="cap"><a href="img/718.webp" target="_blank"><img src="img/718.webp" alt="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Leer teclas</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Keypad_Key_Click</h3><a class="min" href="https://youtu.be/1JhMrIEoKik?t=498" target="_blank" rel="noopener">&#9654; 8:18</a></div><p>Keypad_Key_Click devuelve 0 si no hay tecla, o un número de 1 a 16. Para mostrarlo se convierte a texto con ByteToStr (librería de conversiones).</p></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Traducir la tecla</h3><a class="min" href="https://youtu.be/1JhMrIEoKik?t=683" target="_blank" rel="noopener">&#9654; 11:23</a></div><p>La función teclado_deco usa Keypad_Key_Press y un switch para convertir el número en el carácter impreso en la tecla. Así se puede escribir con Lcd_Chr.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char teclado_deco() {
+  char tec = 0;
+  tec = Keypad_Key_Press();
+  if (tec != 0) {
+    switch (tec) {
+      case 1: tec = &#x27;7&#x27;; break;
+      case 2: tec = &#x27;8&#x27;; break;
+      case 3: tec = &#x27;9&#x27;; break;
+      // ... una linea por tecla, segun el teclado
+      case 15: tec = &#x27;=&#x27;; break;
+      case 16: tec = &#x27;+&#x27;; break;
+    }
+  }
+  return tec;
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/816.webp" target="_blank"><img src="img/816.webp" alt="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Máquina de estados</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Estados</h3><a class="min" href="https://youtu.be/1JhMrIEoKik?t=914" target="_blank" rel="noopener">&#9654; 15:14</a></div><p>Los estados son n1 a n4 (cada dígito) y en (esperar el igual). Se guarda en retardo_cad y se usa isdigit de la librería C_Type para aceptar solo números.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>unsigned int retardo = 100;
+char retardo_cad[5];
+enum teclado_estado {n1, n2, n3, n4, en};
+char estado_teclado = n1;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1111.webp" target="_blank"><img src="img/1111.webp" alt="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Cada dígito</h3><a class="min" href="https://youtu.be/1JhMrIEoKik?t=1095" target="_blank" rel="noopener">&#9654; 18:15</a></div><p>En cada estado, si llegó un número se prende un LED indicador, se guarda, se muestra y se pasa al siguiente. Un retardo de 400 ms sirve de antirrebote.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void teclado_estado() {
+  tecla = teclado_deco();
+  switch (estado_teclado) {
+    case n1:
+      if ((tecla != 0) &amp;&amp; (isdigit(tecla))) {
+        led1 = 1;
+        retardo_cad[0] = tecla;
+        estado_teclado = n2;
+        Lcd_Chr(2, 8, tecla);
+        Delay_ms(400);   // antirrebote
+      }
+      break;
+    // n2, n3 y n4 igual con las posiciones 1, 2 y 3</code></pre></div><div class="dos"><figure class="cap"><a href="img/1012.webp" target="_blank"><img src="img/1012.webp" alt="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1209.webp" target="_blank"><img src="img/1209.webp" alt="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>El igual</h3><a class="min" href="https://youtu.be/1JhMrIEoKik?t=1237" target="_blank" rel="noopener">&#9654; 20:37</a></div><p>En el último estado, si la tecla no es igual se descarta todo. Si es igual se cierra la cadena, atoi la convierte en número y se vuelve al primer estado.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>    case en:
+      if ((tecla != 0) &amp;&amp; (tecla != &#x27;=&#x27;)) {
+        led1 = 0;
+        estado_teclado = n1;      // descarta
+        Lcd_Out(2, 6, &quot;      &quot;);
+        Delay_ms(400);
+      }
+      else if ((tecla != 0) &amp;&amp; (tecla == &#x27;=&#x27;)) {
+        led1 = 0;
+        retardo_cad[4] = 0;       // fin de cadena
+        retardo = atoi(retardo_cad);
+        estado_teclado = n1;
+        Lcd_Out(2, 6, &quot;      &quot;);
+        Delay_ms(400);
+      }
+      break;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1307.webp" target="_blank"><img src="img/1307.webp" alt="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Retardo sin bloquear</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Vdelay_ms</h3><a class="min" href="https://youtu.be/1JhMrIEoKik?t=1342" target="_blank" rel="noopener">&#9654; 22:22</a></div><p>En el while se llama la máquina de estados y se invierte el LED. Delay_ms solo acepta constantes, así que para una variable se usa Vdelay_ms. El problema: con 5 segundos el teclado no responde durante la espera.</p><div class="dos"><figure class="cap"><a href="img/1405.webp" target="_blank"><img src="img/1405.webp" alt="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1504.webp" target="_blank"><img src="img/1504.webp" alt="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.2</span><h3>miretardo</h3><a class="min" href="https://youtu.be/1JhMrIEoKik?t=1566" target="_blank" rel="noopener">&#9654; 26:06</a></div><p>La solución es una función que espera de a 1 ms y en cada milisegundo revisa el teclado. Ahora el LED parpadea con el tiempo pedido y el teclado responde siempre.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void miretardo(signed int valor) {
+  while (valor &gt; 0) {
+    Delay_ms(1);
+    teclado_estado();
+    valor--;
+  }
+}
+
+while (1) {
+  teclado_estado();
+  led = ~led;
+  miretardo(retardo);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/1602.webp" target="_blank"><img src="img/1602.webp" alt="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">4.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/1JhMrIEoKik?t=1682" target="_blank" rel="noopener">&#9654; 28:02</a></div><p>Si se presiona otra tecla en vez del igual se borra el número; con el igual el parpadeo cambia al nuevo tiempo.</p><div class="uno"><figure class="cap"><a href="img/914.webp" target="_blank"><img src="img/914.webp" alt="Teclado matricial 4x4: leer varias teclas con una máquina de estados en MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=1JhMrIEoKik" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

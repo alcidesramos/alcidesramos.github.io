@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alarma de posición con GPS y PIC en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC18F25K50 lee la trama GPGGA de un GPS, saca la latitud y la longitud en grados decimales, las muestra en un LCD y prende un LED si la posición está dentro de una zona.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/dyJQsEtPMRw/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Alarma de posición con GPS y PIC en MikroC · Paso a paso">
+  <meta property="og:description" content="Un PIC18F25K50 lee la trama GPGGA de un GPS, saca la latitud y la longitud en grados decimales, las muestra en un LCD y prende un LED si la posición está dentro de una zona.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/dyJQsEtPMRw/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/dyJQsEtPMRw/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Alarma de posición con <span>GPS</span></h1>
+    <p class="lead">Los GPS envían frases NMEA que empiezan con $ y separan los datos por comas. Con una máquina de estados (la misma del video de Ubidots) se captura la frase GPGGA hasta el asterisco. Luego strtok recorre las comas, se separan grados y minutos, los minutos se dividen entre 60 y el signo sale de N/S y E/W. Comparando con los límites de una zona, sacados de Google Maps, se activa una alarma.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=dyJQsEtPMRw" target="_blank" rel="noopener">&#9654; Ver el video completo (33:39)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1875.webp" alt="Alarma de posición con GPS y PIC en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC</li><li>PIC18F25K50 a 4 MHz</li><li>Módulo GPS (en Proteus, Virtual GPS)</li><li>LCD 16x2 y LED</li><li>Google Maps para sacar coordenadas</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · NMEA</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Decodificar</a><a href="#f4">4 · Alarma</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Las tramas NMEA</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Qué envía un GPS</h3><a class="min" href="https://youtu.be/dyJQsEtPMRw?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>Cada frase empieza con $ y un nombre (GPGGA, GPRMC, GPVTG...), trae datos separados por comas y termina con * y un checksum. GPGGA trae la hora, la latitud con N o S y la longitud con E o W.</p><div class="uno"><figure class="cap"><a href="img/145.webp" target="_blank"><img src="img/145.webp" alt="Alarma de posición con GPS y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Grados y minutos</h3><a class="min" href="https://youtu.be/dyJQsEtPMRw?t=207" target="_blank" rel="noopener">&#9654; 3:27</a></div><p>En la latitud los dos primeros números son grados y el resto minutos; en la longitud son tres de grados. Los minutos se dividen entre 60 y se suman a los grados. Sur y oeste son negativos.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Delimitar una zona</h3><a class="min" href="https://youtu.be/dyJQsEtPMRw?t=408" target="_blank" rel="noopener">&#9654; 6:48</a></div><p>En Google Maps se hace clic en las esquinas de la zona que interesa y se anotan las coordenadas. Con el mínimo y el máximo de latitud y de longitud queda un rectángulo.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Proyecto y LCD</h3><a class="min" href="https://youtu.be/dyJQsEtPMRw?t=596" target="_blank" rel="noopener">&#9654; 9:56</a></div><p>PIC18F25K50 a 4 MHz. Se activan las librerías de LCD, conversiones, C_String, sprintf y UART. Los pines del LCD se copian del ejemplo de la ayuda y se ajustan a la conexión.</p><div class="dos"><figure class="cap"><a href="img/376.webp" target="_blank"><img src="img/376.webp" alt="Alarma de posición con GPS y PIC en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/722.webp" target="_blank"><img src="img/722.webp" alt="Alarma de posición con GPS y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Todo digital y textos</h3><a class="min" href="https://youtu.be/dyJQsEtPMRw?t=853" target="_blank" rel="noopener">&#9654; 14:13</a></div><p>Se pone todo digital, se inicia el LCD y se escriben LAT= y LON=. Si el LCD no responde, revisar que los pines estén en el orden correcto.</p><div class="uno"><figure class="cap"><a href="img/952.webp" target="_blank"><img src="img/952.webp" alt="Alarma de posición con GPS y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Variables</h3><a class="min" href="https://youtu.be/dyJQsEtPMRw?t=959" target="_blank" rel="noopener">&#9654; 15:59</a></div><p>Grados y minutos en flotante, la latitud y la longitud, una cadena para los grados y los estados de la máquina: capturar P, G, G, A y esperar el final (el asterisco). La variable demora evita que el programa se bloquee si el GPS no responde.</p><div class="uno"><figure class="cap"><a href="img/1068.webp" target="_blank"><img src="img/1068.webp" alt="Alarma de posición con GPS y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Máquina de estados</h3><a class="min" href="https://youtu.be/dyJQsEtPMRw?t=1091" target="_blank" rel="noopener">&#9654; 18:11</a></div><p>Es la función de lectura del ESP8266 adaptada: busca la P, luego G, G y A, y guarda todo hasta el asterisco. Si un carácter no es el esperado vuelve al inicio. El límite de demora se subió para esperar 3 a 4 segundos.</p><div class="uno"><figure class="cap"><a href="img/1183.webp" target="_blank"><img src="img/1183.webp" alt="Alarma de posición con GPS y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.5</span><h3>Serial y espera inicial</h3><a class="min" href="https://youtu.be/dyJQsEtPMRw?t=1231" target="_blank" rel="noopener">&#9654; 20:31</a></div><p>El GPS trabaja a 9600 baudios. Se deja un retardo de unos 5 segundos al inicio para que el GPS se sincronice.</p><div class="uno"><figure class="cap"><a href="img/1298.webp" target="_blank"><img src="img/1298.webp" alt="Alarma de posición con GPS y PIC en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Decodificar</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Latitud</h3><a class="min" href="https://youtu.be/dyJQsEtPMRw?t=1336" target="_blank" rel="noopener">&#9654; 22:16</a></div><p>strtok con la coma va avanzando campo por campo; la tercera vez queda la latitud. strncpy toma los dos primeros caracteres (grados) y atof convierte. Desde la posición 2 están los minutos, que se dividen entre 60. El siguiente campo dice si es S.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>lee_trama();
+strcpy(captura_ca, strtok(trama_rx, &quot;,&quot;));
+strcpy(captura_ca, strtok(0, &quot;,&quot;));      // hora
+strcpy(captura_ca, strtok(0, &quot;,&quot;));      // latitud
+memset(c_grados, 0, 10);
+strncpy(c_grados, captura_ca, 2);           // grados
+grados = atof(c_grados);
+minutos = atof(&amp;captura_ca[2]) / 60.0;      // minutos a grados
+latitud = grados + minutos;
+strcpy(captura_ca, strtok(0, &quot;,&quot;));      // N o S
+if (captura_ca[0] == &#x27;S&#x27;) latitud = -latitud;
+sprintf(texto, &quot;%f&quot;, latitud);
+Lcd_Out(1, 5, &quot;           &quot;);
+Lcd_Out(1, 5, texto);</code></pre></div><div class="uno"><figure class="cap"><a href="img/1529.webp" target="_blank"><img src="img/1529.webp" alt="Alarma de posición con GPS y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Longitud</h3><a class="min" href="https://youtu.be/dyJQsEtPMRw?t=1715" target="_blank" rel="noopener">&#9654; 28:35</a></div><p>Es igual, pero se toman tres caracteres para los grados, los minutos empiezan en la posición 3 y el signo negativo es W. Se escribe en la segunda línea del LCD.</p><div class="uno"><figure class="cap"><a href="img/1759.webp" target="_blank"><img src="img/1759.webp" alt="Alarma de posición con GPS y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Prueba</h3><a class="min" href="https://youtu.be/dyJQsEtPMRw?t=1789" target="_blank" rel="noopener">&#9654; 29:49</a></div><p>Al mover el GPS virtual entre ciudades cambian la latitud y la longitud en el LCD.</p><div class="uno"><figure class="cap"><a href="img/1644.webp" target="_blank"><img src="img/1644.webp" alt="Alarma de posición con GPS y PIC en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Alarma</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Zona</h3><a class="min" href="https://youtu.be/dyJQsEtPMRw?t=1823" target="_blank" rel="noopener">&#9654; 30:23</a></div><p>Si la latitud y la longitud están entre los límites de la zona se prende el LED; si no, se apaga. Con más decimales la zona es más precisa. Enviando estos datos a la nube se tiene un rastreador.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>if ((latitud &gt; lat_min) &amp;&amp; (latitud &lt; lat_max) &amp;&amp;
+    (longitud &gt; lon_min) &amp;&amp; (longitud &lt; lon_max)) led = 1;
+else led = 0;</code></pre></div><div class="uno"><figure class="cap"><a href="img/1875.webp" target="_blank"><img src="img/1875.webp" alt="Alarma de posición con GPS y PIC en MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=dyJQsEtPMRw" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

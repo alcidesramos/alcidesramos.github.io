@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lectura por USB HID con LabVIEW y PIC en MikroC · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Un PIC18F2550 envía por USB HID la temperatura, un voltaje y dos pulsadores en una trama de texto, y LabVIEW la lee con una librería HID y la separa con Scan From String.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/ezllZGu8duI/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Lectura por USB HID con LabVIEW y PIC en MikroC · Paso a paso">
+  <meta property="og:description" content="Un PIC18F2550 envía por USB HID la temperatura, un voltaje y dos pulsadores en una trama de texto, y LabVIEW la lee con una librería HID y la separa con Scan From String.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/ezllZGu8duI/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/ezllZGu8duI/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>USB HID con <span>LabVIEW</span></h1>
+    <p class="lead">HID es la clase de los teclados y ratones: no necesita driver. Con el HID Terminal de MikroC se generan los descriptores con el VID y PID. El micro lee dos canales análogos y dos pulsadores, arma una trama separada por barras y la envía con HID_Write. En LabVIEW una librería HID se conecta al dispositivo, lee la trama y Scan From String la convierte en números para indicadores.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=ezllZGu8duI" target="_blank" rel="noopener">&#9654; Ver el video completo (33:29)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1870.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC (librería USB y HID Terminal)</li><li>PIC18F2550 a 48 MHz con cristal de 8 MHz</li><li>Sensor LM35, potenciómetro y dos pulsadores</li><li>LabVIEW con una librería HID</li><li>Proteus con USB Analyzer</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Preparar</a><a href="#f2">2 · HID</a><a href="#f3">3 · LabVIEW</a><a href="#f4">4 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito y proyecto</h3><a class="min" href="https://youtu.be/ezllZGu8duI?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>PIC18F2550 con oscilador HS y PLL a 48 MHz, regulador de USB habilitado. RA0 lee el LM35 y RA1 un potenciómetro; dos pulsadores en el puerto B con pull-up.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Entradas</h3><a class="min" href="https://youtu.be/ezllZGu8duI?t=137" target="_blank" rel="noopener">&#9654; 2:17</a></div><p>Dos canales análogos, puertos A y B como entradas y pull-up del puerto B habilitadas.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0b1101;   // dos canales analogos
+TRISA = 255;
+TRISB = 255;
+RBPU_bit = 0;      // habilita pull up</code></pre></div><div class="uno"><figure class="cap"><a href="img/260.webp" target="_blank"><img src="img/260.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Descriptor</h3><a class="min" href="https://youtu.be/ezllZGu8duI?t=207" target="_blank" rel="noopener">&#9654; 3:27</a></div><p>Con Tools > HID Terminal se genera el archivo descriptor: VID y PID (cuatro dígitos hexadecimales), nombre del fabricante y del producto. Se agrega al proyecto.</p></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Enviar por HID</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Buffers y HID_Enable</h3><a class="min" href="https://youtu.be/ezllZGu8duI?t=272" target="_blank" rel="noopener">&#9654; 4:32</a></div><p>Del ejemplo de la ayuda se copian los buffers de lectura y escritura y la interrupción. HID_Enable inicia el USB. En Proteus el USB Analyzer muestra la enumeración.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char readbuff[64] absolute 0x500;
+char writebuff[64] absolute 0x540;
+
+void interrupt() {
+  USB_Interrupt_Proc();
+}
+
+HID_Enable(&amp;readbuff, &amp;writebuff);</code></pre></div><div class="dos"><figure class="cap"><a href="img/375.webp" target="_blank"><img src="img/375.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/490.webp" target="_blank"><img src="img/490.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Leer los sensores</h3><a class="min" href="https://youtu.be/ezllZGu8duI?t=1022" target="_blank" rel="noopener">&#9654; 17:02</a></div><p>Se usa ADC_Get_Sample, más rápido que ADC_Read, después de iniciar el ADC. Se calcula la temperatura y el voltaje.</p><div class="dos"><figure class="cap"><a href="img/1065.webp" target="_blank"><img src="img/1065.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1180.webp" target="_blank"><img src="img/1180.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Armar la trama</h3><a class="min" href="https://youtu.be/ezllZGu8duI?t=1156" target="_blank" rel="noopener">&#9654; 19:16</a></div><p>Se limpia el buffer, sprintf pone la temperatura con tres decimales y el voltaje con dos, y strcat agrega el estado de cada pulsador. Todo separado por barras: T/V/SW/SW1. Luego se envía.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>codigo = ADC_Get_Sample(0);
+temperatura = codigo * 500.0 / 1023.0;
+Delay_us(10);
+codigo = ADC_Get_Sample(1);
+voltaje = codigo * 5.0 / 1023.0;
+memset(&amp;writebuff, 0, 64);
+// T/V/SW/SW1
+sprintf(&amp;writebuff, &quot;%.3f/%.2f/&quot;, temperatura, voltaje);
+if (sw == 0) strcat(&amp;writebuff, &quot;1/&quot;); else strcat(&amp;writebuff, &quot;0/&quot;);
+if (sw1 == 0) strcat(&amp;writebuff, &quot;1/&quot;); else strcat(&amp;writebuff, &quot;0/&quot;);
+while (!HID_Write(&amp;writebuff, 64));</code></pre></div><div class="dos"><figure class="cap"><a href="img/1295.webp" target="_blank"><img src="img/1295.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1410.webp" target="_blank"><img src="img/1410.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>LabVIEW</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Librería HID</h3><a class="min" href="https://youtu.be/ezllZGu8duI?t=541" target="_blank" rel="noopener">&#9654; 9:01</a></div><p>Se usa una librería HID para LabVIEW que se copia en user.lib (con LabVIEW como administrador). En la paleta aparecen Connect, Read, Write, Disconnect y otras.</p><div class="uno"><figure class="cap"><a href="img/835.webp" target="_blank"><img src="img/835.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Conectar</h3><a class="min" href="https://youtu.be/ezllZGu8duI?t=679" target="_blank" rel="noopener">&#9654; 11:19</a></div><p>Se pone el VID y el PID en Connect; si el handle es distinto de cero el dispositivo está conectado y se prende un LED.</p><div class="uno"><figure class="cap"><a href="img/950.webp" target="_blank"><img src="img/950.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Leer y separar</h3><a class="min" href="https://youtu.be/ezllZGu8duI?t=813" target="_blank" rel="noopener">&#9654; 13:33</a></div><p>Read trae el arreglo de bytes, Byte Array To String lo pasa a texto y Scan From String con el formato %f/%f/%u/%u/%s separa los valores. Ojo con el primer carácter en blanco y con el separador decimal: MikroC envía punto.</p><div class="dos"><figure class="cap"><a href="img/1525.webp" target="_blank"><img src="img/1525.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1755.webp" target="_blank"><img src="img/1755.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f4"><div class="contenedor"><span class="etiqueta">Fase 4</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">4.1</span><h3>Adquisición</h3><a class="min" href="https://youtu.be/ezllZGu8duI?t=1571" target="_blank" rel="noopener">&#9654; 26:11</a></div><p>La temperatura va a un termómetro, el voltaje a un medidor de 0 a 5 y los pulsadores a dos LEDs, todo en tiempo real. Después se hará que LabVIEW también envíe al micro.</p><div class="dos"><figure class="cap"><a href="img/1870.webp" target="_blank"><img src="img/1870.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure><figure class="cap"><a href="img/1985.webp" target="_blank"><img src="img/1985.webp" alt="Lectura por USB HID con LabVIEW y PIC en MikroC" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=ezllZGu8duI" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

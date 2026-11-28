@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC) · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="El PIC18F2550 crea un puerto serie virtual por USB (clase CDC) con la librería USB Device: recibe por interrupción y responde lo que llega, sin conversor USB-serial.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/9TBZKIv4XXQ/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC) · Paso a paso">
+  <meta property="og:description" content="El PIC18F2550 crea un puerto serie virtual por USB (clase CDC) con la librería USB Device: recibe por interrupción y responde lo que llega, sin conversor USB-serial.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/9TBZKIv4XXQ/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/9TBZKIv4XXQ/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#pic-mikroc-proyectos">&larr; Volver al curso</a>
+    <span class="etiqueta">// Proyectos con MikroC · Paso a paso</span>
+    <h1>Puerto COM por <span>USB (CDC)</span></h1>
+    <p class="lead">Con la clase CDC el micro aparece en Windows como un puerto COM y sirve para LabVIEW, Hercules o cualquier programa serial. Se instala el paquete USB Device de Libstock, se agrega el descriptor VCP al proyecto y se incluye la librería. En el main se inicia el USB y en el ciclo se revisa el buffer; lo recibido se procesa y aquí se devuelve como eco.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=9TBZKIv4XXQ" target="_blank" rel="noopener">&#9654; Ver el video completo (19:10)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1125.webp" alt="Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC)"></figure>
+    <ul class="materiales"><li>MikroC PRO for PIC con el paquete USB Device (Libstock)</li><li>PIC18F2550 con cristal de 8 MHz</li><li>Conector USB y capacitor de más de 10 µF en VUSB</li><li>Driver VCP para Windows</li><li>Hercules</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Preparar</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Prueba</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Preparar</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Circuito</h3><a class="min" href="https://youtu.be/9TBZKIv4XXQ?t=32" target="_blank" rel="noopener">&#9654; 0:32</a></div><p>El micro se alimenta por el mismo USB. Hay que poner un capacitor de más de 10 µF del pin 14 (VUSB) a tierra.</p><div class="uno"><figure class="cap"><a href="img/30.webp" target="_blank"><img src="img/30.webp" alt="Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Proyecto</h3><a class="min" href="https://youtu.be/9TBZKIv4XXQ?t=130" target="_blank" rel="noopener">&#9654; 2:10</a></div><p>PIC18F2550 con cristal de 8 MHz. En la vida real se configura el PLL para que el USB tenga sus 48 MHz; también se habilita el regulador de USB.</p><div class="uno"><figure class="cap"><a href="img/229.webp" target="_blank"><img src="img/229.webp" alt="Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>Descriptor y librería</h3><a class="min" href="https://youtu.be/9TBZKIv4XXQ?t=234" target="_blank" rel="noopener">&#9654; 3:54</a></div><p>Se agrega al proyecto el archivo VCP_Descriptor.c (ahí va el nombre del dispositivo) y se incluye la librería usb_cdc_lib.h. Si da error, se instala el paquete USB Device desde Libstock y se activa en el Library Manager.</p><div class="uno"><figure class="cap"><a href="img/329.webp" target="_blank"><img src="img/329.webp" alt="Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Buffers y funciones</h3><a class="min" href="https://youtu.be/9TBZKIv4XXQ?t=579" target="_blank" rel="noopener">&#9654; 9:39</a></div><p>Buffers de 64 bytes, la bandera de dato recibido y las funciones que pide la librería. cdc_analiza prepara el buffer de recepción cuando el dispositivo se configura.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>char buffer[64] absolute 0x500;
+char trama[64] absolute 0x555;   // transmision
+void USBDev_CDCParamsChanged() { }
+extern const uint8_t _USB_CDC_BULK_EP_IN;
+extern const uint8_t _USB_CDC_BULK_EP_OUT;
+uint8_t datoRecibido = 0;
+uint16_t dataReceivedSize;
+
+void USBDev_CDCDataReceived(uint16_t size) {
+  datoRecibido = 1;
+  dataReceivedSize = size;
+}
+void cdc_analiza() {
+  if (USB_CDC_DeviceConfigured) {
+    USBDev_CDCSetReceiveBuffer(buffer);
+    USB_CDC_DeviceConfigured = 0;
+  }
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/428.webp" target="_blank"><img src="img/428.webp" alt="Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Interrupción y proceso</h3><a class="min" href="https://youtu.be/9TBZKIv4XXQ?t=614" target="_blank" rel="noopener">&#9654; 10:14</a></div><p>La interrupción llama al manejador del USB; si se usan otras interrupciones van ahí también. procesa_recibido es donde se decodifica la trama; en el ejemplo solo devuelve lo que llegó.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>void interrupt() {
+  USBDev_IntHandler();
+  // aqui otras interrupciones
+}
+void procesa_recibido() {
+  datoRecibido = 0;
+  manda_cdc_text(buffer);           // eco
+  USBDev_CDCSetReceiveBuffer(buffer);
+  memset(buffer, 0, 64);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/627.webp" target="_blank"><img src="img/627.webp" alt="Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Main</h3><a class="min" href="https://youtu.be/9TBZKIv4XXQ?t=697" target="_blank" rel="noopener">&#9654; 11:37</a></div><p>Todo digital, un retardo para que Windows cree el puerto, se inicia el USB y en el ciclo siempre se llama cdc_analiza.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>ADCON1 = 0b1111;
+Delay_ms(1000);
+usb_cdc_init();
+Delay_ms(1000);
+while (1) {
+  cdc_analiza();
+  if (datoRecibido == 1) procesa_recibido();
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/727.webp" target="_blank"><img src="img/727.webp" alt="Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC)" loading="lazy"></a></figure><figure class="cap"><a href="img/926.webp" target="_blank"><img src="img/926.webp" alt="Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC)" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Prueba</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>En Proteus y en la tarjeta</h3><a class="min" href="https://youtu.be/9TBZKIv4XXQ?t=765" target="_blank" rel="noopener">&#9654; 12:45</a></div><p>En el administrador de dispositivos aparece un puerto COM nuevo. La primera vez el retardo debe ser de al menos 2 segundos para que se instale el driver.</p><div class="uno"><figure class="cap"><a href="img/826.webp" target="_blank"><img src="img/826.webp" alt="Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC)" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Enviar texto</h3><a class="min" href="https://youtu.be/9TBZKIv4XXQ?t=1035" target="_blank" rel="noopener">&#9654; 17:15</a></div><p>Con una función propia se envía texto y un fin de línea. Abriendo el puerto en Hercules llega el mensaje y lo que se escribe vuelve como eco, solo con el cable USB.</p><div class="dos"><figure class="cap"><a href="img/1025.webp" target="_blank"><img src="img/1025.webp" alt="Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC)" loading="lazy"></a></figure><figure class="cap"><a href="img/1125.webp" target="_blank"><img src="img/1125.webp" alt="Crear un puerto COM por USB con PIC18F2550 y MikroC (CDC)" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=9TBZKIv4XXQ" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
