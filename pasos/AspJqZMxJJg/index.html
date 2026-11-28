@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code · Paso a paso · Alcides Ramos Zambrano</title>
+  <meta name="description" content="Proyecto de ESP32 con PlatformIO y Wokwi dentro de VS Code: la IA crea el wokwi.toml y el diagram.json con el LED de la placa incluido, ayuda a completar código y a ordenar el circuito, y al final se depura paso a paso viendo variables sin tener la placa.">
+  <link rel="canonical" href="https://alcidesramoszambrano.com/pasos/AspJqZMxJJg/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Alcides Ramos Zambrano">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:title" content="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code · Paso a paso">
+  <meta property="og:description" content="Proyecto de ESP32 con PlatformIO y Wokwi dentro de VS Code: la IA crea el wokwi.toml y el diagram.json con el LED de la placa incluido, ayuda a completar código y a ordenar el circuito, y al final se depura paso a paso viendo variables sin tener la placa.">
+  <meta property="og:url" content="https://alcidesramoszambrano.com/pasos/AspJqZMxJJg/">
+  <meta property="og:image" content="https://i.ytimg.com/vi/AspJqZMxJJg/hqdefault.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/estilos.css?v=20261121a">
+  <link rel="stylesheet" href="../../css/pasos.css?v=1">
+</head>
+<body class="pap">
+
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="../../index.html"><span class="chip">AR</span> Alcides Ramos</a>
+    <button class="boton-menu" aria-expanded="false" aria-controls="menu">Menú</button>
+    <ul class="menu" id="menu">
+      <li><a href="../../index.html">Inicio</a></li>
+      <li><a href="../../trayectoria.html">Quién soy</a></li>
+      <li><a href="../../cursos.html" aria-current="page">Cursos</a></li>
+      <li><a href="../../github.html">Código</a></li>
+      <li><a href="../../github.html#librerias">Librerías</a></li>
+      <li><a href="../../buscar.html">Buscar</a></li>
+    </ul>
+  </div>
+</header>
+
+<header class="pap-cab">
+  <div class="contenedor">
+    <a class="volver" href="../../cursos.html#esp32-simulacion">&larr; Volver al curso</a>
+    <span class="etiqueta">// Simulación de ESP32 · Paso a paso</span>
+    <h1>ESP32 en <span>Wokwi</span>: IA y depuración en VS Code</h1>
+    <p class="lead">Se crea un proyecto de PlatformIO para la ESP32 DevKit V1 con el framework de Arduino. Wokwi necesita un archivo wokwi.toml y un diagram.json; en vez de copiarlos a mano, se le pide a la IA del editor que arme la placa con el LED interno y el TX0/RX0 conectados al terminal. Se escribe el programa con ayuda del autocompletado, revisando lo que propone (a veces se equivoca en mayúsculas o en lo que agrega). Luego se agrega un segundo LED en el pin 4, se pasa el circuito del editor web de Wokwi al de VS Code y se le pide a la IA ordenar los cables. Para depurar se agrega gdbServerPort al wokwi.toml, se arranca Wokwi con debugger y se corre paso a paso con breakpoints y una variable en Watch.</p>
+    <div class="acciones">
+      <a class="btn btn-primario" href="https://www.youtube.com/watch?v=AspJqZMxJJg" target="_blank" rel="noopener">&#9654; Ver el video completo (26:03)</a>
+      <a class="btn btn-sec" href="#f1">Empezar el paso a paso</a>
+    </div>
+    <figure class="portada"><img src="img/1558.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code"></figure>
+    <ul class="materiales"><li>Visual Studio Code con PlatformIO</li><li>Extensión de Wokwi para VS Code</li><li>ESP32 DevKit V1 (simulada)</li><li>Un asistente de IA en el editor (Copilot u otro)</li><li>LEDs y resistencias (en la simulación)</li></ul>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Fases"><div class="contenedor"><a href="#f1">1 · Proyecto</a><a href="#f2">2 · Programa</a><a href="#f3">3 · Debug</a></div></nav>
+
+<main><section class="fase" id="f1"><div class="contenedor"><span class="etiqueta">Fase 1</span><h2>Proyecto y archivos de Wokwi</h2><article class="paso"><div class="paso-cab"><span class="num">1.1</span><h3>Proyecto en PlatformIO</h3><a class="min" href="https://youtu.be/AspJqZMxJJg?t=0" target="_blank" rel="noopener">&#9654; 0:00</a></div><p>En PlatformIO se crea un proyecto nuevo con la placa ESP32 DevKit V1 y el framework Arduino. Se limpia la función de ejemplo que trae main.cpp para dejar setup y loop vacíos.</p><div class="dos"><figure class="cap"><a href="img/43.webp" target="_blank"><img src="img/43.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/76.webp" target="_blank"><img src="img/76.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/109.webp" target="_blank"><img src="img/109.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.2</span><h3>Falta el wokwi.toml</h3><a class="min" href="https://youtu.be/AspJqZMxJJg?t=69" target="_blank" rel="noopener">&#9654; 1:09</a></div><p>Si se le da play a la simulación sale un error: falta el archivo wokwi.toml. Ese archivo dice dónde está el firmware compilado; también tiene opciones para depurar y para conectarse por fuera.</p></article><article class="paso"><div class="paso-cab"><span class="num">1.3</span><h3>La IA crea la placa</h3><a class="min" href="https://youtu.be/AspJqZMxJJg?t=170" target="_blank" rel="noopener">&#9654; 2:50</a></div><p>Se le pide a la IA: simular la ESP32 DevKit en Wokwi, solo la placa, con el LED interno de la placa y con TX0 y RX0 conectados al terminal.</p><p>La IA crea el wokwi.toml, el diagram.json con una placa que ya trae el LED y hasta un programa de ejemplo.</p><div class="dos"><figure class="cap"><a href="img/306.webp" target="_blank"><img src="img/306.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/339.webp" target="_blank"><img src="img/339.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">1.4</span><h3>Editar el circuito</h3><a class="min" href="https://youtu.be/AspJqZMxJJg?t=338" target="_blank" rel="noopener">&#9654; 5:38</a></div><p>El diagram.json se puede abrir con el editor de texto o con el editor visual de Wokwi. También se puede copiar el JSON al editor web de Wokwi, agregar piezas allá y traerlo de vuelta.</p><div class="uno"><figure class="cap"><a href="img/537.webp" target="_blank"><img src="img/537.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f2"><div class="contenedor"><span class="etiqueta">Fase 2</span><h2>Programa con ayuda de la IA</h2><article class="paso"><div class="paso-cab"><span class="num">2.1</span><h3>Código del LED y serial</h3><a class="min" href="https://youtu.be/AspJqZMxJJg?t=403" target="_blank" rel="noopener">&#9654; 6:43</a></div><p>Se deja el serial a 9600 y se quita lo que la IA inventó de más. Mientras se escribe, el autocompletado propone el resto (se acepta con Tab), pero hay que leerlo: a veces copia cosas que no son.</p><div class="uno"><figure class="cap"><a href="img/471.webp" target="_blank"><img src="img/471.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.2</span><h3>Simular</h3><a class="min" href="https://youtu.be/AspJqZMxJJg?t=502" target="_blank" rel="noopener">&#9654; 8:22</a></div><p>Se compila y se inicia la simulación. El LED de la placa parpadea y el terminal muestra «LED encendido» y «LED apagado».</p></article><article class="paso"><div class="paso-cab"><span class="num">2.3</span><h3>Segundo LED</h3><a class="min" href="https://youtu.be/AspJqZMxJJg?t=543" target="_blank" rel="noopener">&#9654; 9:03</a></div><p>En el editor web se agregan un LED, una resistencia y tierra en el pin 4, y se pega el JSON de vuelta en VS Code. En el código se define LED2 en el pin 4 y se alterna con el de la placa.</p><p>Ojo: el autocompletado escribió DIGITAL_WRITE en mayúsculas y faltó el pinMode del LED2; hay que revisar lo que se acepta.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint8_t BUILTIN_LED_PIN = 2;
+#define LED2 4
+
+void setup() {
+  pinMode(BUILTIN_LED_PIN, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  Serial.begin(9600);
+  Serial.println(&quot;ESP32 DevKit V1 listo&quot;);
+}
+
+void loop() {
+  digitalWrite(BUILTIN_LED_PIN, HIGH);
+  digitalWrite(LED2, LOW);
+  Serial.println(&quot;LED encendido&quot;);
+  delay(1000);
+  digitalWrite(BUILTIN_LED_PIN, LOW);
+  digitalWrite(LED2, HIGH);
+  Serial.println(&quot;LED apagado&quot;);
+  delay(1000);
+}</code></pre></div><div class="uno"><figure class="cap"><a href="img/636.webp" target="_blank"><img src="img/636.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">2.4</span><h3>Circuito con IA</h3><a class="min" href="https://youtu.be/AspJqZMxJJg?t=714" target="_blank" rel="noopener">&#9654; 11:54</a></div><p>También se le puede pedir a la IA que agregue un LED azul en D13 con su resistencia, y luego, con una captura, que lo pase al lado izquierdo sin cruces de cables.</p><div class="dos"><figure class="cap"><a href="img/735.webp" target="_blank"><img src="img/735.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/899.webp" target="_blank"><img src="img/899.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure></div></article></div></section><section class="fase" id="f3"><div class="contenedor"><span class="etiqueta">Fase 3</span><h2>Depuración</h2><article class="paso"><div class="paso-cab"><span class="num">3.1</span><h3>Habilitar el debugger</h3><a class="min" href="https://youtu.be/AspJqZMxJJg?t=848" target="_blank" rel="noopener">&#9654; 14:08</a></div><p>En wokwi.toml se agrega el puerto del servidor GDB. Para que aparezca la opción de depurar con Wokwi, se le pide a la IA que configure el launch del proyecto y se le permiten los cambios.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>[wokwi]
+version = 1
+firmware = &#x27;.pio/build/esp32doit-devkit-v1/firmware.bin&#x27;
+elf = &#x27;.pio/build/esp32doit-devkit-v1/firmware.elf&#x27;
+gdbServerPort = 3333</code></pre></div><div class="uno"><figure class="cap"><a href="img/932.webp" target="_blank"><img src="img/932.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.2</span><h3>Correr paso a paso</h3><a class="min" href="https://youtu.be/AspJqZMxJJg?t=1180" target="_blank" rel="noopener">&#9654; 19:40</a></div><p>El orden es: compilar, abrir Wokwi y darle «Start simulation with debugger» para que quede esperando; luego en Run and Debug elegir la opción de Wokwi y darle play.</p><p>Con breakpoints se avanza línea a línea. El LED de la placa prende con cero, por eso arranca apagado. En la última línea del loop conviene darle play y no step, porque entra al código interno y se traba.</p><div class="dos"><figure class="cap"><a href="img/1064.webp" target="_blank"><img src="img/1064.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/1229.webp" target="_blank"><img src="img/1229.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.3</span><h3>Reparar el serial</h3><a class="min" href="https://youtu.be/AspJqZMxJJg?t=1280" target="_blank" rel="noopener">&#9654; 21:20</a></div><p>Al copiar el JSON se perdieron las conexiones de TX0 y RX0 al terminal. Se le pide a la IA que las vuelva a colocar.</p><div class="uno"><figure class="cap"><a href="img/1295.webp" target="_blank"><img src="img/1295.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure></div></article><article class="paso"><div class="paso-cab"><span class="num">3.4</span><h3>Ver variables</h3><a class="min" href="https://youtu.be/AspJqZMxJJg?t=1415" target="_blank" rel="noopener">&#9654; 23:35</a></div><p>Se crea una variable cont que aumenta en cada vuelta y se agrega en Watch. Al correr paso a paso se ve cómo cambia su valor, sin tener la placa ni un depurador JTAG.</p><div class="codigo"><button class="copiar" type="button">Copiar</button><pre><code>uint8_t cont = 0;
+// ...
+void loop() {
+  cont++;
+  Serial.print(&quot;Contador: &quot;);
+  digitalWrite(BUILTIN_LED_PIN, HIGH);
+  digitalWrite(LED2, LOW);
+  Serial.println(&quot;LED encendido&quot;);
+  delay(1000);
+  digitalWrite(BUILTIN_LED_PIN, LOW);
+  digitalWrite(LED2, HIGH);
+  Serial.println(&quot;LED apagado&quot;);
+  delay(1000);
+}</code></pre></div><div class="dos"><figure class="cap"><a href="img/1525.webp" target="_blank"><img src="img/1525.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure><figure class="cap"><a href="img/1558.webp" target="_blank"><img src="img/1558.webp" alt="ESP32: simular en Wokwi, armar el circuito con IA y depurar desde VS Code" loading="lazy"></a></figure></div></article></div></section></main>
+
+<footer>
+  <div class="contenedor">
+    <span>MSc. Alcides Ramos Zambrano · Cartagena, Colombia</span>
+    <a href="https://www.youtube.com/watch?v=AspJqZMxJJg" target="_blank" rel="noopener">Ver en YouTube</a>
+  </div>
+</footer>
+
+<script src="../../js/menu.js?v=20261121a"></script>
+<script>
+document.querySelectorAll('.copiar').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = b.parentNode.querySelector('code').innerText;
+    var ok = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+<script data-goatcounter="https://alcidesramos.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
